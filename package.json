@@ -1,0 +1,25 @@
+{
+  "name": "synthetics",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skogs/httpmon.git"
+  },
+  "author": "skoganti-iws",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/skogs/httpmon/issues"
+  },
+  "homepage": "https://github.com/skogs/httpmon#readme",
+  "devDependencies": {
+    "@types/node": "^17.0.16",
+    "ts-node": "^10.5.0",
+    "typescript": "^4.5.5"
+  }
+}
