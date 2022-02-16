@@ -17,8 +17,9 @@ CREATE TABLE "Monitor" (
 
 -- CreateTable
 CREATE TABLE "MonitorResult" (
-    "id" TEXT NOT NULL,
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
     "err" TEXT NOT NULL,
     "body" TEXT NOT NULL,
     "bodySize" INTEGER NOT NULL,

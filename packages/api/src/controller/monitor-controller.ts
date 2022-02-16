@@ -1,11 +1,8 @@
-import { MonitorResultSchema, execMonitor } from './../services/httpstats.js'
-import {
-  MonitorService,
-  MonitorDTO,
-  MonitorSchema,
-} from './../services/monitor-service.js'
+import { execMonitor } from './../services/httpstats.js'
+import { MonitorService } from './../services/monitor-service.js'
 import { FastifyInstance } from 'fastify'
 import { Static, Type } from '@sinclair/typebox'
+import { MonitorDTO, MonitorResultSchema, MonitorSchema } from '@httpmon/db'
 
 export default async function MonitorController(app: FastifyInstance) {
   const monitorSvc = MonitorService.getInstance()

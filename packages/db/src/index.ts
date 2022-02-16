@@ -1,8 +1,9 @@
-import { Generated, Kysely, PostgresDialect } from 'kysely'
+import { Generated, Insertable, Kysely, PostgresDialect } from 'kysely'
 import { Static, Type } from '@sinclair/typebox'
 
 export const MonitorResultSchema = Type.Object({
   id: Type.Optional(Type.String()),
+  monitorId: Type.String(),
   createdAt: Type.Optional(Type.String()),
   err: Type.String(),
   body: Type.String(),
@@ -22,7 +23,7 @@ export const MonitorResultSchema = Type.Object({
 
 export type MonitorResult = Static<typeof MonitorResultSchema>
 
-const emptyMonitorResultDTO: MonitorResult = {
+export const emptyMonitorResultDTO: MonitorResult = {
   code: 0,
   codeStatus: '',
   body: '',
@@ -36,12 +37,13 @@ const emptyMonitorResultDTO: MonitorResult = {
   certCommonName: '',
   certExpiryDays: 0,
   err: '',
+  monitorId: '',
 }
 
 interface MonitorResultTable {
   id: Generated<string>
+  monitorId: string
   createdAt: Generated<Date>
-  updatedAt: Generated<Date>
   code: number
   codeStatus: string
   body: string
@@ -57,8 +59,40 @@ interface MonitorResultTable {
   err: string
 }
 
+export const MonitorSchema = Type.Object({
+  id: Type.Optional(Type.String()),
+  createdAt: Type.Optional(Type.String()),
+  name: Type.String({ minLength: 2 }),
+  url: Type.String({ format: 'url' }),
+  method: Type.String(),
+  body: Type.String(),
+  frequency: Type.Integer(),
+  headers: Type.String({ default: '' }),
+  queryParams: Type.String({ default: '' }),
+  cookies: Type.String({ default: '' }),
+  status: Type.String(),
+})
+
+export type MonitorDTO = Static<typeof MonitorSchema>
+
+interface MonitorTable {
+  id: string
+  createdAt: string | Date
+  updatedAt: string | Date
+  name: string
+  status: string
+  url: string
+  method: string
+  body: string
+  frequency: number
+  headers: string
+  queryParams: string
+  cookies: string
+}
+
 interface Database {
   MonitorResult: MonitorResultTable
+  Monitor: MonitorTable
 }
 
 export const db = new Kysely<Database>({
@@ -69,3 +103,24 @@ export const db = new Kysely<Database>({
     password: 'postgres',
   }),
 })
+
+export async function saveMonitorResult(
+  result: Insertable<MonitorResultTable>
+) {
+  await db.insertInto('MonitorResult').values(result).execute()
+}
+
+export async function selectReadyMonitors() {
+  const now = new Date(Date.now())
+  const seconds =
+    Math.floor((now.getMinutes() * 60 + now.getSeconds()) / 10) * 10
+
+  const resp = await db
+    .selectFrom('Monitor')
+    .selectAll()
+    .where('status', '=', 'active')
+    .where(db.raw(seconds.toString() + '% frequency'), '=', 0)
+    .execute()
+
+  return resp
+}
