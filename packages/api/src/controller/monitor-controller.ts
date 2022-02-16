@@ -61,6 +61,24 @@ export default async function MonitorController(app: FastifyInstance) {
     }
   )
 
+  app.get<{ Params: Params }>(
+    '/:id/results',
+    {
+      schema: {
+        params: ParamsSchema,
+        response: { 200: Type.Array(MonitorResultSchema) },
+      },
+    },
+    async function ({ params: { id } }, reply) {
+      const mon = await monitorSvc.getMonitorResults(id)
+      if (mon) {
+        reply.send(mon)
+      } else {
+        reply.code(404).send('Not found')
+      }
+    }
+  )
+
   app.post<{ Body: MonitorDTO }>(
     '/ondemand',
     {

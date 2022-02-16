@@ -6,7 +6,7 @@ const prisma = new PrismaClient()
 
 import emitter from './emitter.js'
 
-import { MonitorDTO } from '@httpmon/db'
+import { db, MonitorDTO } from '@httpmon/db'
 
 export class MonitorService {
   static instance: MonitorService
@@ -58,5 +58,13 @@ export class MonitorService {
     // const t2 = await this.db.selectFrom('Monitor').select('Monitor.name')
 
     // return monList
+  }
+
+  public async getMonitorResults(monitorId: string) {
+    return await db
+      .selectFrom('MonitorResult')
+      .selectAll()
+      .where('monitorId', '=', monitorId)
+      .execute()
   }
 }
