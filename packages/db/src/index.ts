@@ -23,23 +23,6 @@ export const MonitorResultSchema = Type.Object({
 
 export type MonitorResult = Static<typeof MonitorResultSchema>
 
-export const emptyMonitorResultDTO: MonitorResult = {
-  code: 0,
-  codeStatus: '',
-  body: '',
-  bodySize: 0,
-  protocol: '',
-  dnsLookupTime: 0,
-  tcpConnectTime: 0,
-  tlsHandshakeTime: 0,
-  timeToFirstByte: 0,
-  totalTime: 0,
-  certCommonName: '',
-  certExpiryDays: 0,
-  err: '',
-  monitorId: '',
-}
-
 interface MonitorResultTable {
   id: Generated<string>
   monitorId: string
@@ -107,7 +90,11 @@ export const db = new Kysely<Database>({
 export async function saveMonitorResult(
   result: Insertable<MonitorResultTable>
 ) {
-  await db.insertInto('MonitorResult').values(result).execute()
+  try {
+    await db.insertInto('MonitorResult').values(result).execute()
+  } catch (e) {
+    console.log('exception: ', e)
+  }
 }
 
 export async function selectReadyMonitors() {
