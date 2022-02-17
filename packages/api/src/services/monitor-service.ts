@@ -49,22 +49,25 @@ export class MonitorService {
   }
 
   public async list() {
-    const monList = await prisma.monitor.findMany()
-    return monList
-
-    // const { count } = this.db.fn
-
-    // const monList = await this.db.selectFrom('Monitor').selectAll().execute()
-    // const t2 = await this.db.selectFrom('Monitor').select('Monitor.name')
-
+    // const monList = await prisma.monitor.findMany()
     // return monList
+
+    const monList = await db.selectFrom('Monitor').selectAll().execute()
+    return monList
   }
 
   public async getMonitorResults(monitorId: string) {
-    return await db
+    const results = await db
       .selectFrom('MonitorResult')
       .selectAll()
       .where('monitorId', '=', monitorId)
       .execute()
+    const resultSet = results.map((result) => {
+      return {
+        ...result,
+        bodyJson: result.bodyJson ? JSON.stringify(result.bodyJson) : null,
+      }
+    })
+    return resultSet
   }
 }

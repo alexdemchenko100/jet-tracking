@@ -12,22 +12,23 @@
     "prisma:gen": "prisma generate",
     "prisma:studio": "prisma studio",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:reset": "prisma migrate reset",
     "prisma:push": "prisma db push"
   },
   "author": "",
   "license": "",
   "dependencies": {
-    "@httpmon/db": "workspace:../db",
-    "@prisma/client": "^3.9.1",
-    "@sinclair/typebox": "^0.23.3",
+    "@httpmon/db": "workspace:^0.0.1",
+    "@prisma/client": "^3.9.2",
+    "@sinclair/typebox": "^0.23.4",
     "@szmarczak/http-timer": "^5.0.1",
     "axios": "^0.25.0",
     "emittery": "^0.10.1",
     "fastify": "^3.27.1",
     "got": "11.8.2",
-    "kysely": "^0.16.11",
+    "kysely": "^0.17.1",
     "pg": "^8.7.3",
-    "pino": "^7.6.5",
+    "pino": "^7.8.0",
     "pino-pretty": "^7.5.1"
   },
   "devDependencies": {
@@ -38,7 +39,7 @@
     "fastify-tsconfig": "^1.0.1",
     "nodemon": "^2.0.15",
     "prettier": "^2.5.1",
-    "prisma": "^3.9.1",
+    "prisma": "^3.9.2",
     "rimraf": "^3.0.2",
     "tsconfig-paths": "^3.12.0",
     "typescript": "^4.5.5"

@@ -14,7 +14,18 @@ const transport = {
 }
 
 function responseToMonitorResult(resp: AxiosResponse<any, any> | null) {
-  const body: string = resp?.data?.toString() ?? ''
+  let body: string = ''
+  let bodyJson: string | undefined
+  let bodySize = 0
+  if (resp?.data) {
+    if (typeof resp.data == 'object') {
+      bodyJson = JSON.stringify(resp.data, null, 2)
+      bodySize = bodyJson.length
+    } else if (typeof resp.data == 'string') {
+      body = resp.data
+      bodySize = body.length
+    }
+  }
   let timings: Timings = resp?.request?.timings ?? null
   return {
     code: resp?.status ?? 0,
@@ -26,7 +37,9 @@ function responseToMonitorResult(resp: AxiosResponse<any, any> | null) {
     totalTime: timings?.phases?.total ?? 0,
     protocol: '',
     body,
-    bodySize: body.length,
+    bodyJson,
+    bodySize,
+    headers: '',
     certCommonName: '',
     certExpiryDays: 0,
   }

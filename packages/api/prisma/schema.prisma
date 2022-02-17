@@ -8,52 +8,41 @@ datasource db {
   url      = "postgresql://postgres:postgres@localhost:5432/mondb"
 }
 
-// model User {
-//   id      Int       @id @default(autoincrement())
-//   email   String    @unique
-//   name    String?
-//   posts   Post[]
-//   Monitor Monitor[]
-// }
-
-// model Post {
-//   id        Int      @id @default(autoincrement())
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//   title     String
-//   content   String?
-//   published Boolean  @default(false)
-//   viewCount Int      @default(0)
-//   author    User?    @relation(fields: [authorId], references: [id])
-//   authorId  Int?
-// }
-
 model Monitor {
-  id             String          @id @default(cuid())
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  name           String          @unique
-  status         String
-  url            String
-  method         String
-  body           String
-  frequency      Int
-  headers        String
-  queryParams    String
-  cookies        String
-  monitorResults MonitorResult[]
+  id              String          @id @default(cuid())
+  createdAt       DateTime        @default(now())
+  // updatedAt       DateTime        @default(now()) @updatedAt
+  name            String          @unique
+  status          String          @default("active")
+  url             String
+  method          String          @default("GET") // GET/POST/HEAD/PUT/DELETE
+  frequency       Int
+  // text/plain, application/json, text/xml, text/html, application/x-www-form-urlencoded or none
+  bodyType        String?         @default("")
+  body            String?
+  headers         String?
+  queryParams     String?
+  cookies         String?
+  followRedirects Int?            @default(0)
+  timeout         Int?            @default(30) //30 seconds
+  locations       String?         @default("") // Comma separated list of locations
+  monitorResults  MonitorResult[]
+  assertions      Json?           @default("{}") // custom syntax
+  notifyEmail     String?
+  env             Json?           @default("{}") // custom syntax
 }
 
 model MonitorResult {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  createdAt  DateTime @default(now())
-  err        String
-  body       String
-  bodySize   Int
-  code       Int
-  codeStatus String
-  protocol   String
-
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt        DateTime @default(now())
+  err              String
+  headers          String
+  body             String
+  bodyJson         Json?
+  bodySize         Int
+  code             Int
+  codeStatus       String
+  protocol         String
   dnsLookupTime    Int
   tcpConnectTime   Int
   tlsHandshakeTime Int

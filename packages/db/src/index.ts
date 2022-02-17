@@ -1,4 +1,4 @@
-import { Generated, Insertable, Kysely, PostgresDialect } from 'kysely'
+import { Generated, Insertable, Kysely, PostgresDialect, sql } from 'kysely'
 import { Static, Type } from '@sinclair/typebox'
 
 export const MonitorResultSchema = Type.Object({
@@ -7,11 +7,12 @@ export const MonitorResultSchema = Type.Object({
   createdAt: Type.Optional(Type.String()),
   err: Type.String(),
   body: Type.String(),
+  bodyJson: Type.Optional(Type.String()),
   bodySize: Type.Integer(),
   code: Type.Integer(),
   codeStatus: Type.String(),
   protocol: Type.String(),
-
+  headers: Type.String(),
   dnsLookupTime: Type.Integer(),
   tcpConnectTime: Type.Integer(),
   tlsHandshakeTime: Type.Integer(),
@@ -30,7 +31,9 @@ interface MonitorResultTable {
   code: number
   codeStatus: string
   body: string
+  bodyJson?: object
   bodySize: number
+  headers: string
   protocol: string
   dnsLookupTime: number
   tcpConnectTime: number
@@ -46,14 +49,20 @@ export const MonitorSchema = Type.Object({
   id: Type.Optional(Type.String()),
   createdAt: Type.Optional(Type.String()),
   name: Type.String({ minLength: 2 }),
+  status: Type.Optional(Type.String()),
+  method: Type.Optional(Type.String()),
   url: Type.String({ format: 'url' }),
-  method: Type.String(),
-  body: Type.String(),
   frequency: Type.Integer(),
-  headers: Type.String({ default: '' }),
-  queryParams: Type.String({ default: '' }),
-  cookies: Type.String({ default: '' }),
-  status: Type.String(),
+  body: Type.Optional(Type.String()),
+  bodyType: Type.Optional(Type.String()),
+  headers: Type.Optional(Type.String()),
+  queryParams: Type.Optional(Type.String()),
+  cookies: Type.Optional(Type.String()),
+  followRedirects: Type.Optional(Type.Integer()),
+  timeout: Type.Optional(Type.Integer()),
+  assertions: Type.Optional(Type.String()),
+  notifyEmail: Type.Optional(Type.String()),
+  env: Type.Optional(Type.String()),
 })
 
 export type MonitorDTO = Static<typeof MonitorSchema>
@@ -61,16 +70,21 @@ export type MonitorDTO = Static<typeof MonitorSchema>
 interface MonitorTable {
   id: string
   createdAt: string | Date
-  updatedAt: string | Date
   name: string
   status: string
-  url: string
   method: string
-  body: string
+  url: string
   frequency: number
-  headers: string
-  queryParams: string
-  cookies: string
+  body?: string
+  bodyType?: string
+  headers?: string
+  queryParams?: string
+  cookies?: string
+  followRedirects?: number
+  timeout?: number
+  assertions?: string
+  notifyEmail?: string
+  env?: string
 }
 
 interface Database {
@@ -99,6 +113,8 @@ export async function saveMonitorResult(
 
 export async function selectReadyMonitors() {
   const now = new Date(Date.now())
+  // let's get to the closed 10 second using floor.
+  // This helps when doing modulo math to figure out if a monitor is a hit to schedule
   const seconds =
     Math.floor((now.getMinutes() * 60 + now.getSeconds()) / 10) * 10
 
@@ -106,7 +122,7 @@ export async function selectReadyMonitors() {
     .selectFrom('Monitor')
     .selectAll()
     .where('status', '=', 'active')
-    .where(db.raw(seconds.toString() + '% frequency'), '=', 0)
+    .where(sql`${seconds.toString()} % frequency`, '=', 0)
     .execute()
 
   return resp
