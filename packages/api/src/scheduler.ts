@@ -1,5 +1,6 @@
 import { execMonitor } from './services/httpstats.js'
 import { saveMonitorResult, selectReadyMonitors } from '@httpmon/db'
+import { processAssertions } from './services/assertions.js'
 
 export async function schedule() {
   //get all monitors matching current minute
@@ -23,7 +24,10 @@ export async function schedule() {
       ...mon,
       createdAt: mon.createdAt.toString(),
     })
-    let g = { ...result, createdAt: undefined }
-    await saveMonitorResult(g)
+
+    //createdAt caused type issue for db
+    await saveMonitorResult({ ...result, createdAt: new Date(mon.createdAt) })
+
+    processAssertions(mon, result)
   }
 }

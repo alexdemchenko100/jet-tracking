@@ -1,0 +1,10 @@
+POST http://localhost:3006/monitors HTTP/1.1
+content-type: application/json
+
+{
+    "assertions": [{"key": "code", "op": "=", "value": "200"}],
+    "frequency": "60",
+    "name": "gg6",
+    "url": "https://httpbin.org/get"
+}
+
