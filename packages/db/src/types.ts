@@ -1,7 +1,9 @@
 import { Static, Type } from '@sinclair/typebox'
 import { Generated } from 'kysely'
 
-export const MonitorHeaders = Type.Array(
+type HeaderArray = [string, string][]
+
+export const MonitorHeaderSchema = Type.Array(
   Type.Tuple([Type.String(), Type.String()])
 )
 
@@ -16,7 +18,7 @@ export const MonitorResultSchema = Type.Object({
   code: Type.Integer(),
   codeStatus: Type.String(),
   protocol: Type.String(),
-  headers: MonitorHeaders,
+  headers: MonitorHeaderSchema,
   dnsLookupTime: Type.Integer(),
   tcpConnectTime: Type.Integer(),
   tlsHandshakeTime: Type.Integer(),
@@ -37,7 +39,7 @@ export interface MonitorResultTable {
   body: string
   bodyJson?: object | string
   bodySize: number
-  headers: [string, string][]
+  headers: HeaderArray | string
   protocol: string
   dnsLookupTime: number
   tcpConnectTime: number
@@ -68,7 +70,7 @@ export const MonitorSchema = Type.Object({
   frequency: Type.Integer(),
   body: Type.Optional(Type.String()),
   bodyType: Type.Optional(Type.String()),
-  headers: Type.Optional(MonitorHeaders),
+  headers: Type.Optional(MonitorHeaderSchema),
   queryParams: Type.Optional(Type.String()),
   cookies: Type.Optional(Type.String()),
   assertions: Type.Optional(Type.Array(MonitorAssertionSchema)),
@@ -97,7 +99,7 @@ export type MonitorTable = {
   frequency: number
   body?: string
   bodyType?: string
-  headers?: [string, string][]
+  headers?: HeaderArray | string
   queryParams?: string
   cookies?: string
   followRedirects?: number

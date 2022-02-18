@@ -17,11 +17,19 @@ export const db = new Kysely<Database>({
   }),
 })
 
+function serializeHeaders(headers: any) {
+  if (typeof headers == 'object') {
+    return JSON.stringify(headers)
+  }
+  return headers
+}
+
 export async function saveMonitorResult(
   result: Insertable<MonitorResultTable>
 ) {
+  let resultForSaving = { ...result, headers: serializeHeaders(result.headers) }
   try {
-    await db.insertInto('MonitorResult').values(result).execute()
+    await db.insertInto('MonitorResult').values(resultForSaving).execute()
   } catch (e) {
     console.log('exception: ', e)
   }

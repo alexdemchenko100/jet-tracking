@@ -27,6 +27,7 @@ function responseToMonitorResult(resp: AxiosResponse<any, any> | null) {
     }
   }
   let timings: Timings = resp?.request?.timings ?? null
+
   return {
     code: resp?.status ?? 0,
     codeStatus: resp?.statusText ?? '',
@@ -39,7 +40,7 @@ function responseToMonitorResult(resp: AxiosResponse<any, any> | null) {
     body,
     bodyJson,
     bodySize,
-    headers: [],
+    headers: Object.entries(resp?.headers ?? {}) as [string, string][],
     certCommonName: '',
     certExpiryDays: 0,
   }
