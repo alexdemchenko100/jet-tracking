@@ -17,17 +17,20 @@ export const db = new Kysely<Database>({
   }),
 })
 
-function serializeHeaders(headers: any) {
-  if (typeof headers == 'object') {
-    return JSON.stringify(headers)
+function objectToJSON(object: any) {
+  if (typeof object == 'string') {
+    return object
+  } else if (typeof object == 'object') {
+    return JSON.stringify(object)
   }
-  return headers
+  throw Error('Cannot convert to JSON')
 }
 
 export async function saveMonitorResult(
   result: Insertable<MonitorResultTable>
 ) {
-  let resultForSaving = { ...result, headers: serializeHeaders(result.headers) }
+  //Handle all JSON conversions here.. headers, cookies, variables etc
+  let resultForSaving = { ...result, headers: objectToJSON(result.headers) }
   try {
     await db.insertInto('MonitorResult').values(resultForSaving).execute()
   } catch (e) {
@@ -37,7 +40,7 @@ export async function saveMonitorResult(
 
 export async function selectReadyMonitors() {
   const now = new Date(Date.now())
-  // let's get to the closed 10 second using floor.
+  // let's get to the closest 10 second using floor.
   // This helps when doing modulo math to figure out if a monitor is a hit to schedule
   const seconds =
     Math.floor((now.getMinutes() * 60 + now.getSeconds()) / 10) * 10
@@ -46,7 +49,7 @@ export async function selectReadyMonitors() {
     .selectFrom('Monitor')
     .selectAll()
     .where('status', '=', 'active')
-    .where(sql`${seconds.toString()} % frequency`, '=', 0)
+    .where(sql`${seconds} % frequency`, '=', 0)
     .execute()
 
   return resp
