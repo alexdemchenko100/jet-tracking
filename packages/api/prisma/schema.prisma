@@ -27,9 +27,9 @@ model Monitor {
   timeout         Int?            @default(30) //30 seconds
   locations       String?         @default("") // Comma separated list of locations
   monitorResults  MonitorResult[]
-  assertions      Json?           @default("{}") // custom syntax
+  assertions      Json            @default("[]") // custom syntax
   notifyEmail     String?
-  env             Json?           @default("{}") // custom syntax
+  env             Json            @default("[]") // custom syntax
 }
 
 model MonitorResult {

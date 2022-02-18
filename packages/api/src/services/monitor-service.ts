@@ -6,7 +6,8 @@ const prisma = new PrismaClient()
 
 import emitter from './emitter.js'
 
-import { db, Monitor } from '@httpmon/db'
+import { sql } from 'kysely'
+import { db, Monitor, MonitorTuples } from '@httpmon/db'
 
 export class MonitorService {
   static instance: MonitorService
@@ -69,5 +70,13 @@ export class MonitorService {
       }
     })
     return resultSet
+  }
+
+  public async setEnv(monitorId: string, env: MonitorTuples) {
+    await db
+      .updateTable('Monitor')
+      .set({ env: JSON.stringify(env) })
+      .where('id', '=', monitorId)
+      .execute()
   }
 }

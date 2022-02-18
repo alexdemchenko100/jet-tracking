@@ -1,9 +1,9 @@
 import { Static, Type } from '@sinclair/typebox'
 import { Generated } from 'kysely'
 
-type HeaderArray = [string, string][]
+export type MonitorTuples = [string, string][]
 
-export const MonitorHeaderSchema = Type.Array(
+export const MonitorTupleSchema = Type.Array(
   Type.Tuple([Type.String(), Type.String()])
 )
 
@@ -18,7 +18,7 @@ export const MonitorResultSchema = Type.Object({
   code: Type.Integer(),
   codeStatus: Type.String(),
   protocol: Type.String(),
-  headers: MonitorHeaderSchema,
+  headers: MonitorTupleSchema,
   dnsLookupTime: Type.Integer(),
   tcpConnectTime: Type.Integer(),
   tlsHandshakeTime: Type.Integer(),
@@ -39,7 +39,7 @@ export interface MonitorResultTable {
   body: string
   bodyJson?: object | string
   bodySize: number
-  headers: HeaderArray | string
+  headers: MonitorTuples | string
   protocol: string
   dnsLookupTime: number
   tcpConnectTime: number
@@ -70,14 +70,14 @@ export const MonitorSchema = Type.Object({
   frequency: Type.Integer(),
   body: Type.Optional(Type.String()),
   bodyType: Type.Optional(Type.String()),
-  headers: Type.Optional(MonitorHeaderSchema),
+  headers: Type.Optional(MonitorTupleSchema),
   queryParams: Type.Optional(Type.String()),
   cookies: Type.Optional(Type.String()),
   assertions: Type.Optional(Type.Array(MonitorAssertionSchema)),
   followRedirects: Type.Optional(Type.Integer()),
   timeout: Type.Optional(Type.Integer()),
   notifyEmail: Type.Optional(Type.String()),
-  env: Type.Optional(Type.String()),
+  env: Type.Optional(MonitorTupleSchema),
 })
 
 //export type MonitorDTO = Static<typeof MonitorSchema>
@@ -99,14 +99,14 @@ export type MonitorTable = {
   frequency: number
   body?: string
   bodyType?: string
-  headers?: HeaderArray | string
+  headers?: MonitorTuples | string
   queryParams?: string
   cookies?: string
   followRedirects?: number
   timeout?: number
   assertions?: MonitorAssertion[]
   notifyEmail?: string
-  env?: string
+  env?: MonitorTuples | string
 }
 
 export type Monitor = MonitorTable

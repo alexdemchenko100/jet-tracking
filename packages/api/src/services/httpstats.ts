@@ -1,7 +1,7 @@
 import { PeerCertificate } from 'tls'
-import axios, { AxiosResponse } from 'axios'
+import axios, { AxiosRequestHeaders, AxiosResponse } from 'axios'
 
-import { Monitor, MonitorResult } from '@httpmon/db'
+import { Monitor, MonitorTuples, MonitorResult } from '@httpmon/db'
 import timer, { Timings } from '@szmarczak/http-timer'
 import https from 'https'
 
@@ -40,10 +40,18 @@ function responseToMonitorResult(resp: AxiosResponse<any, any> | null) {
     body,
     bodyJson,
     bodySize,
-    headers: Object.entries(resp?.headers ?? {}) as [string, string][],
+    headers: Object.entries(resp?.headers ?? {}) as MonitorTuples,
     certCommonName: '',
     certExpiryDays: 0,
   }
+}
+
+function headersToMap(headers: MonitorTuples) {
+  let hmap = <AxiosRequestHeaders>{}
+  headers.forEach((header) => {
+    hmap[header[0]] = header[1]
+  })
+  return hmap
 }
 
 export async function execMonitor(mon: Monitor) {
@@ -58,6 +66,7 @@ export async function execMonitor(mon: Monitor) {
       //@ts-ignore
       transport,
       httpsAgent: new https.Agent({ keepAlive: false }),
+      headers: headersToMap((mon.headers as MonitorTuples) ?? []),
       responseType: 'text',
     })
 

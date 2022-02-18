@@ -2,7 +2,12 @@ import { execMonitor } from './../services/httpstats.js'
 import { MonitorService } from './../services/monitor-service.js'
 import { FastifyInstance } from 'fastify'
 import { Static, Type } from '@sinclair/typebox'
-import { Monitor, MonitorResultSchema, MonitorSchema } from '@httpmon/db'
+import {
+  Monitor,
+  MonitorResultSchema,
+  MonitorSchema,
+  MonitorTuples,
+} from '@httpmon/db'
 
 export default async function MonitorController(app: FastifyInstance) {
   const monitorSvc = MonitorService.getInstance()
@@ -76,6 +81,20 @@ export default async function MonitorController(app: FastifyInstance) {
       } else {
         reply.code(404).send('Not found')
       }
+    }
+  )
+
+  app.post<{ Body: MonitorTuples; Params: Params }>(
+    '/:id/env',
+    {
+      schema: {
+        params: ParamsSchema,
+        // response: { 200: Type.Array(MonitorResultSchema) },
+      },
+    },
+    async function (req, reply) {
+      await monitorSvc.setEnv(req.params.id, req.body)
+      reply.send('env set')
     }
   )
 

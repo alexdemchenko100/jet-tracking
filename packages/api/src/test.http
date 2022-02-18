@@ -3,9 +3,21 @@ content-type: application/json
 
 {
     "assertions": [{"key": "code", "op": "=", "value": "200"}],
-    "frequency": "60",
-    "name": "gg9",
-    "url": "https://httpbin.org/get",
-    "headers": [["x-proautoma-synthetics", "xxx"]]
+    "frequency": "10",
+    "name": "gg1",
+    "url": "https://httpbin.org/headers",
+    "headers": [["x-proautoma-synthetics", "xxx"]],
+    "env": [["TOKEN", "tk948djdj340"]]
 }
 
+###
+
+POST http://localhost:3006/monitors/ckzsq2sus0000ohdmaom1kvd2/env HTTP/1.1
+content-type: application/json
+
+[["FOO", "123456"], ["BAR", "http://nowhere"]]
+
+###
+
+GET http://localhost:3006/monitors/ckzsq2sus0000ohdmaom1kvd2 HTTP/1.1
+content-type: application/json

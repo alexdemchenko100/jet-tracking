@@ -1,0 +1,24 @@
+{
+  "0 debug pnpm:scope": {
+    "selected": 1,
+    "workspacePrefix": "/home/skoganti/dev/synthetics"
+  },
+  "1 info pnpm": {
+    "err": {
+      "name": "Error",
+      "message": "not found: build",
+      "code": "ENOENT",
+      "stack": "Error: not found: build\n    at getNotFoundError (/home/skoganti/.npm/pnpm-global/5/node_modules/.pnpm/pnpm@6.31.0/node_modules/pnpm/dist/pnpm.cjs:41555:51)\n    at Function.whichSync [as sync] (/home/skoganti/.npm/pnpm-global/5/node_modules/.pnpm/pnpm@6.31.0/node_modules/pnpm/dist/pnpm.cjs:41632:13)\n    at getCommandAbsolutePathSync (/home/skoganti/.npm/pnpm-global/5/node_modules/.pnpm/pnpm@6.31.0/node_modules/pnpm/dist/pnpm.cjs:43197:44)\n    at default_1 (/home/skoganti/.npm/pnpm-global/5/node_modules/.pnpm/pnpm@6.31.0/node_modules/pnpm/dist/pnpm.cjs:43206:32)\n    at /home/skoganti/.npm/pnpm-global/5/node_modules/.pnpm/pnpm@6.31.0/node_modules/pnpm/dist/pnpm.cjs:178093:39"
+    }
+  },
+  "2 error pnpm": {
+    "code": "ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL",
+    "prefix": "/home/skoganti/dev/synthetics",
+    "err": {
+      "name": "pnpm",
+      "message": "not found: build",
+      "code": "ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL",
+      "stack": "Error: not found: build\n    at getNotFoundError (/home/skoganti/.npm/pnpm-global/5/node_modules/.pnpm/pnpm@6.31.0/node_modules/pnpm/dist/pnpm.cjs:41555:51)\n    at Function.whichSync [as sync] (/home/skoganti/.npm/pnpm-global/5/node_modules/.pnpm/pnpm@6.31.0/node_modules/pnpm/dist/pnpm.cjs:41632:13)\n    at getCommandAbsolutePathSync (/home/skoganti/.npm/pnpm-global/5/node_modules/.pnpm/pnpm@6.31.0/node_modules/pnpm/dist/pnpm.cjs:43197:44)\n    at default_1 (/home/skoganti/.npm/pnpm-global/5/node_modules/.pnpm/pnpm@6.31.0/node_modules/pnpm/dist/pnpm.cjs:43206:32)\n    at /home/skoganti/.npm/pnpm-global/5/node_modules/.pnpm/pnpm@6.31.0/node_modules/pnpm/dist/pnpm.cjs:178093:39"
+    }
+  }
+}
