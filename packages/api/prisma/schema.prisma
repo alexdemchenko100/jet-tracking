@@ -20,7 +20,7 @@ model Monitor {
   // text/plain, application/json, text/xml, text/html, application/x-www-form-urlencoded or none
   bodyType        String?         @default("")
   body            String?
-  headers         String?
+  headers         Json            @default("[]")
   queryParams     String?
   cookies         String?
   followRedirects Int?            @default(0)
@@ -36,7 +36,7 @@ model MonitorResult {
   id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   createdAt        DateTime @default(now())
   err              String
-  headers          String
+  headers          Json     @default("[]")
   body             String
   bodyJson         Json?
   bodySize         Int

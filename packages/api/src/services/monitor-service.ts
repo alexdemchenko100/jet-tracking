@@ -6,7 +6,7 @@ const prisma = new PrismaClient()
 
 import emitter from './emitter.js'
 
-import { db, MonitorDTO } from '@httpmon/db'
+import { db, Monitor } from '@httpmon/db'
 
 export class MonitorService {
   static instance: MonitorService
@@ -18,7 +18,7 @@ export class MonitorService {
     return MonitorService.instance
   }
 
-  public async create(input: MonitorDTO) {
+  public async create(input: Monitor) {
     const mon = await prisma.monitor.create({
       data: { ...input },
     })
@@ -27,7 +27,7 @@ export class MonitorService {
     return mon
   }
 
-  public async update(input: MonitorDTO) {
+  public async update(input: Monitor) {
     const mon = await prisma.monitor.update({
       where: { id: input.id },
       data: { ...input },

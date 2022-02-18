@@ -4,7 +4,8 @@ content-type: application/json
 {
     "assertions": [{"key": "code", "op": "=", "value": "200"}],
     "frequency": "60",
-    "name": "gg6",
-    "url": "https://httpbin.org/get"
+    "name": "gg9",
+    "url": "https://httpbin.org/get",
+    "headers": [["x-proautoma-synthetics", "xxx"]]
 }
 

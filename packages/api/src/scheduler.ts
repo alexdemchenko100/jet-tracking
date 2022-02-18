@@ -20,13 +20,10 @@ export async function schedule() {
 
   for (let i = 0; i < monitors.length; i++) {
     const mon = monitors[i]
-    const result = await execMonitor({
-      ...mon,
-      createdAt: mon.createdAt.toString(),
-    })
+    const result = await execMonitor(mon)
 
     //createdAt caused type issue for db
-    await saveMonitorResult({ ...result, createdAt: new Date(mon.createdAt) })
+    await saveMonitorResult({ ...result })
 
     processAssertions(mon, result)
   }

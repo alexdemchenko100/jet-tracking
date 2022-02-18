@@ -1,7 +1,7 @@
-import { MonitorResult, MonitorDTO, MonitorAssertion } from '@httpmon/db'
+import { MonitorResult, Monitor, MonitorAssertion } from '@httpmon/db'
 
 export function processAssertions(
-  mon: Omit<MonitorDTO, 'createdAt'>,
+  mon: Omit<Monitor, 'createdAt'>,
   result: Omit<MonitorResult, 'createdAt'>
 ) {
   let assertions = (mon.assertions ?? []) as MonitorAssertion[]

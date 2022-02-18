@@ -2,12 +2,12 @@ import { execMonitor } from './../services/httpstats.js'
 import { MonitorService } from './../services/monitor-service.js'
 import { FastifyInstance } from 'fastify'
 import { Static, Type } from '@sinclair/typebox'
-import { MonitorDTO, MonitorResultSchema, MonitorSchema } from '@httpmon/db'
+import { Monitor, MonitorResultSchema, MonitorSchema } from '@httpmon/db'
 
 export default async function MonitorController(app: FastifyInstance) {
   const monitorSvc = MonitorService.getInstance()
 
-  app.post<{ Body: MonitorDTO }>(
+  app.post<{ Body: Monitor }>(
     '/',
     {
       schema: {
@@ -79,7 +79,7 @@ export default async function MonitorController(app: FastifyInstance) {
     }
   )
 
-  app.post<{ Body: MonitorDTO }>(
+  app.post<{ Body: Monitor }>(
     '/ondemand',
     {
       schema: {

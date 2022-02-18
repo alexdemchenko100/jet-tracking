@@ -1,7 +1,7 @@
 import { PeerCertificate } from 'tls'
 import axios, { AxiosResponse } from 'axios'
 
-import { MonitorDTO, MonitorResult } from '@httpmon/db'
+import { Monitor, MonitorResult } from '@httpmon/db'
 import timer, { Timings } from '@szmarczak/http-timer'
 import https from 'https'
 
@@ -39,13 +39,13 @@ function responseToMonitorResult(resp: AxiosResponse<any, any> | null) {
     body,
     bodyJson,
     bodySize,
-    headers: '',
+    headers: [],
     certCommonName: '',
     certExpiryDays: 0,
   }
 }
 
-export async function execMonitor(mon: MonitorDTO) {
+export async function execMonitor(mon: Monitor) {
   let certCommonName = ''
   let certExpiryDays = 0
   let resp: AxiosResponse<any, any>

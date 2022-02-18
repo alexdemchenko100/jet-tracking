@@ -1,6 +1,10 @@
 import { Static, Type } from '@sinclair/typebox'
 import { Generated } from 'kysely'
 
+export const MonitorHeaders = Type.Array(
+  Type.Tuple([Type.String(), Type.String()])
+)
+
 export const MonitorResultSchema = Type.Object({
   id: Type.Optional(Type.String()),
   monitorId: Type.String(),
@@ -12,7 +16,7 @@ export const MonitorResultSchema = Type.Object({
   code: Type.Integer(),
   codeStatus: Type.String(),
   protocol: Type.String(),
-  headers: Type.String(),
+  headers: MonitorHeaders,
   dnsLookupTime: Type.Integer(),
   tcpConnectTime: Type.Integer(),
   tlsHandshakeTime: Type.Integer(),
@@ -22,18 +26,18 @@ export const MonitorResultSchema = Type.Object({
   certCommonName: Type.String(),
 })
 
-export type MonitorResult = Static<typeof MonitorResultSchema>
+//export type MonitorResult = Static<typeof MonitorResultSchema>
 
 export interface MonitorResultTable {
-  id: Generated<string>
+  id?: string
+  createdAt?: String | Date
   monitorId: string
-  createdAt: Generated<Date>
   code: number
   codeStatus: string
   body: string
   bodyJson?: object | string
   bodySize: number
-  headers: string
+  headers: [string, string][]
   protocol: string
   dnsLookupTime: number
   tcpConnectTime: number
@@ -45,48 +49,47 @@ export interface MonitorResultTable {
   err: string
 }
 
-export const MonitorAssertionSchema = Type.Array(
-  Type.Object({
-    key: Type.String(),
-    name: Type.Optional(Type.String()),
-    op: Type.String(),
-    value: Type.String(),
-  })
-)
+export type MonitorResult = MonitorResultTable
+
+export const MonitorAssertionSchema = Type.Object({
+  key: Type.String(),
+  name: Type.Optional(Type.String()),
+  op: Type.String(),
+  value: Type.String(),
+})
 
 export const MonitorSchema = Type.Object({
   id: Type.Optional(Type.String()),
-  //assertions: Type.Array(MonitorAssertionSchema),
-  assertions: Type.Any(),
   createdAt: Type.Optional(Type.String()),
   name: Type.String({ minLength: 2 }),
-  status: Type.Optional(Type.String()),
-  method: Type.Optional(Type.String()),
+  status: Type.String({ default: 'active' }),
+  method: Type.String({ default: 'GET' }),
   url: Type.String({ format: 'url' }),
   frequency: Type.Integer(),
   body: Type.Optional(Type.String()),
   bodyType: Type.Optional(Type.String()),
-  headers: Type.Optional(Type.String()),
+  headers: Type.Optional(MonitorHeaders),
   queryParams: Type.Optional(Type.String()),
   cookies: Type.Optional(Type.String()),
+  assertions: Type.Optional(Type.Array(MonitorAssertionSchema)),
   followRedirects: Type.Optional(Type.Integer()),
   timeout: Type.Optional(Type.Integer()),
   notifyEmail: Type.Optional(Type.String()),
   env: Type.Optional(Type.String()),
 })
 
-export type MonitorDTO = Static<typeof MonitorSchema>
+//export type MonitorDTO = Static<typeof MonitorSchema>
 
-export interface MonitorAssertion {
+export type MonitorAssertion = {
   key: string
   name?: string
   op: string // =, <, >, <=, <=, contains
   value: string
 }
 
-export interface MonitorTable {
-  id: string
-  createdAt: string | Date
+export type MonitorTable = {
+  id?: string
+  createdAt?: string | Date
   name: string
   status: string
   method: string
@@ -94,7 +97,7 @@ export interface MonitorTable {
   frequency: number
   body?: string
   bodyType?: string
-  headers?: string
+  headers?: [string, string][]
   queryParams?: string
   cookies?: string
   followRedirects?: number
@@ -103,3 +106,5 @@ export interface MonitorTable {
   notifyEmail?: string
   env?: string
 }
+
+export type Monitor = MonitorTable
