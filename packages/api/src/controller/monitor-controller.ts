@@ -103,9 +103,9 @@ export default async function MonitorController(app: FastifyInstance) {
     {
       schema: {
         body: MonitorSchema,
-        response: {
-          200: MonitorResultSchema,
-        },
+        // response: {
+        //   200: MonitorResultSchema,
+        // },
       },
     },
     async function (req, reply) {

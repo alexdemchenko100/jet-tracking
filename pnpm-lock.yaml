@@ -25,6 +25,7 @@ importers:
       emittery: ^0.10.1
       fastify: ^3.27.1
       fastify-cli: ^2.15.0
+      fastify-cors: ^6.0.2
       fastify-tsconfig: ^1.0.1
       got: 11.8.2
       kysely: ^0.17.1
@@ -45,6 +46,7 @@ importers:
       axios: 0.25.0
       emittery: 0.10.1
       fastify: 3.27.1
+      fastify-cors: 6.0.2
       got: 11.8.2
       kysely: 0.17.1
       pg: 8.7.3
@@ -10235,8 +10237,19 @@ packages:
       - supports-color
     dev: true
 
+  /fastify-cors/6.0.2:
+    resolution: {integrity: sha512-sE0AOyzmj5hLLRRVgenjA6G2iOGX35/1S3QGYB9rr9TXelMZB3lFrXy4CzwYVOMiujJeMiLgO4J7eRm8sQSv8Q==}
+    dependencies:
+      fastify-plugin: 3.0.1
+      vary: 1.1.2
+    dev: false
+
   /fastify-error/0.3.1:
     resolution: {integrity: sha512-oCfpcsDndgnDVgiI7bwFKAun2dO+4h84vBlkWsWnz/OUK9Reff5UFoFl241xTiLeHWX/vU9zkDVXqYUxjOwHcQ==}
+
+  /fastify-plugin/3.0.1:
+    resolution: {integrity: sha512-qKcDXmuZadJqdTm6vlCqioEbyewF60b/0LOFCcYN1B6BIZGlYJumWWOYs70SFYLDAH4YqdE1cxH/RKMG7rFxgA==}
+    dev: false
 
   /fastify-tsconfig/1.0.1:
     resolution: {integrity: sha512-BXkTG3JYcjJb3xX5R5FcE9ciscV/h7YtmnkiSaNAONd1g6ooMSN/4GWfhA8hnS6SRZFYBBxsn8719Mj9lbCOtA==}

@@ -1,4 +1,5 @@
 import fastify from 'fastify'
+import fastifyCors from 'fastify-cors'
 import router from './router.js'
 import { schedule } from './scheduler.js'
 
@@ -8,6 +9,7 @@ const server = fastify({
 
 // Middleware: Router
 server.register(router)
+server.register(fastifyCors)
 
 server.setErrorHandler((error, _req, reply) => {
   // The expected errors will be handled here, but unexpected ones should eventually result in a crash.
