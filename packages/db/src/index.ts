@@ -30,7 +30,18 @@ export async function saveMonitorResult(
   result: Insertable<MonitorResultTable>
 ) {
   //Handle all JSON conversions here.. headers, cookies, variables etc
-  let resultForSaving = { ...result, headers: objectToJSON(result.headers) }
+  let resultForSaving = {
+    ...result,
+    headers: objectToJSON(result.headers),
+  }
+
+  if (result.assertResults) {
+    resultForSaving = {
+      ...resultForSaving,
+      assertResults: objectToJSON(result.assertResults),
+    }
+  }
+
   try {
     await db.insertInto('MonitorResult').values(resultForSaving).execute()
   } catch (e) {

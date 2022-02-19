@@ -7,6 +7,15 @@ export const MonitorTupleSchema = Type.Array(
   Type.Tuple([Type.String(), Type.String()])
 )
 
+export const MonitorAssertionResultSchema = Type.Object({
+  key: Type.String(),
+  name: Type.Optional(Type.String()),
+  op: Type.String(),
+  value: Type.String(),
+  passed: Type.Boolean(),
+  result: Type.String(),
+})
+
 export const MonitorResultSchema = Type.Object({
   id: Type.Optional(Type.String()),
   monitorId: Type.String(),
@@ -26,6 +35,7 @@ export const MonitorResultSchema = Type.Object({
   totalTime: Type.Integer(),
   certExpiryDays: Type.Integer(),
   certCommonName: Type.String(),
+  assertResults: Type.Optional(Type.Array(MonitorAssertionResultSchema)),
 })
 
 //export type MonitorResult = Static<typeof MonitorResultSchema>
@@ -49,6 +59,7 @@ export interface MonitorResultTable {
   certCommonName: string
   certExpiryDays: number
   err: string
+  assertResults?: MonitorAssertionResult[] | string
 }
 
 export type MonitorResult = MonitorResultTable
@@ -87,6 +98,15 @@ export type MonitorAssertion = {
   name?: string
   op: string // =, <, >, <=, <=, contains
   value: string
+}
+
+export type MonitorAssertionResult = {
+  key: string
+  name?: string
+  op: string // =, <, >, <=, <=, contains
+  value: string
+  passed: boolean
+  result: string
 }
 
 export type MonitorTable = {

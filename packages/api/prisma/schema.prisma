@@ -50,6 +50,7 @@ model MonitorResult {
   totalTime        Int
   certExpiryDays   Int
   certCommonName   String
+  assertResults    Json?
 
   monitor   Monitor @relation(fields: [monitorId], references: [id])
   monitorId String // relation scalar field  (used in the `@relation` attribute above)

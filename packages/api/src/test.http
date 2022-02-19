@@ -2,12 +2,16 @@ POST http://localhost:3006/monitors HTTP/1.1
 content-type: application/json
 
 {
-    "assertions": [{"key": "code", "op": "=", "value": "200"}],
+    "assertions": [
+        {"key": "code", "op": "=", "value": "200"},
+        {"key": "certExpiryDays", "op": ">", "value": "300"},
+        {"key": "totalTime", "op": "<", "value": "500"}
+        ],
     "frequency": "10",
-    "name": "gg1",
-    "url": "https://httpbin.org/headers",
+    "name": "gg",
+    "url": "http://httpbin.org/headers",
     "headers": [["x-proautoma-synthetics", "xxx"]],
-    "env": [["TOKEN", "tk948djdj340"]]
+    "env": [["TOKEN", "bigtoken"]]
 }
 
 ###

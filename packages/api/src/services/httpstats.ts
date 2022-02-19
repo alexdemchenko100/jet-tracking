@@ -97,13 +97,13 @@ export async function execMonitor(mon: Monitor) {
         certCommonName,
         certExpiryDays,
         err: '',
-      }
+      } as MonitorResult
     } else {
       return {
         ...responseToMonitorResult(null),
         err: e?.message ?? e.toString(),
         monitorId: mon.id ?? 'ondemand',
-      }
+      } as MonitorResult
     }
   }
 }

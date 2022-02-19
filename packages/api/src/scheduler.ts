@@ -22,9 +22,12 @@ export async function schedule() {
     const mon = monitors[i]
     const result = await execMonitor(mon)
 
+    if (result.err == '') {
+      const asserionResults = processAssertions(mon, result)
+      result.assertResults = asserionResults
+    }
+
     //createdAt caused type issue for db
     await saveMonitorResult({ ...result })
-
-    processAssertions(mon, result)
   }
 }
