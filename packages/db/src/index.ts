@@ -8,12 +8,14 @@ interface Database {
   Monitor: MonitorTable
 }
 
+import * as dotenv from 'dotenv'
+import path from 'path'
+
+dotenv.config({ path: path.resolve(process.cwd(), '../..', '.env') })
+
 export const db = new Kysely<Database>({
   dialect: new PostgresDialect({
-    host: 'localhost',
-    database: 'mondb',
-    user: 'postgres',
-    password: 'postgres',
+    connectionString: process.env.DATABASE_URL,
   }),
 })
 

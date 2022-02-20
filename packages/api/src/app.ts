@@ -2,6 +2,11 @@ import fastify from 'fastify'
 import fastifyCors from 'fastify-cors'
 import router from './router.js'
 import { schedule } from './scheduler.js'
+import * as dotenv from 'dotenv'
+import path from 'path'
+
+//find and load the .env from root folder of the project
+dotenv.config({ path: path.resolve(process.cwd(), '../..', '.env') })
 
 const server = fastify({
   logger: { prettyPrint: true },
