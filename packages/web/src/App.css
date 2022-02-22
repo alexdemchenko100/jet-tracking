@@ -1,42 +1,45 @@
-.App {
-  text-align: center;
+/*
+ *  Copyright (c) 2020. ProAutoma LLC - All Rights Reserved
+ *  Unauthorized copying of this file, via any medium is strictly prohibited
+ *  Proprietary and confidential
+ *
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.origin-top-right {
+  transform-origin: top right;
+}
+.transition-all {
+  transition-property: all;
+}
+.transition-fastest {
+  transition-duration: 50ms;
+}
+.transition-faster {
+  transition-duration: 100ms;
+}
+.transition-fast {
+  transition-duration: 150ms;
+}
+.transition-medium {
+  transition-duration: 200ms;
+}
+.ease-out-quad {
+  transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.ease-in-quad {
+  transition-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+}
+.scale-70 {
+  transform: scale(0.7);
+}
+.scale-100 {
+  transform: scale(1);
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-button {
-  font-size: calc(10px + 2vmin);
+.bg-gradient-callout {
+  background-image: linear-gradient(114deg, #fe4272 35%, #f98b4c 83%);
 }
