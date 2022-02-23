@@ -14,7 +14,7 @@ export function WebNavBar({ showHero }: { showHero: boolean }) {
       >
         <div className="flex-shrink-0 px-8 py-4">
           <a href="/">
-            <img className="w-56 min-w-full" src={logoTitle} alt />
+            <img className="w-56 min-w-full" src={logoTitle} />
           </a>
         </div>
         <div className="invisible md:visible md:w-2/3 flex items-center justify-center">
@@ -56,7 +56,6 @@ export function WebNavBar({ showHero }: { showHero: boolean }) {
         v-if="show_hero"
         className="absolute right-0 top-0 w-full md:w-2/3"
         src={heroIllustration}
-        alt
       />
     </div>
   )

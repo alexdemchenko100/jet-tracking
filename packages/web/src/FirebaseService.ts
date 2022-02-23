@@ -56,7 +56,8 @@ class FirebaseService {
             if (token != this.token) {
               // console.log("token refreshed")
               this.token = token
-              error.config.headers['Authorization'] = `Bearer ${token}`
+              error.config.headers &&
+                (error.config.headers['Authorization'] = `Bearer ${token}`)
               axios.defaults.headers.common = {
                 Authorization: `Bearer ${token}`,
               }

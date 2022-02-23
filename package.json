@@ -11,14 +11,14 @@
     "type": "git",
     "url": "git+https://github.com/skogs/httpmon.git"
   },
-  "author": "skoganti-iws",
-  "license": "ISC",
+  "author": "",
+  "license": "",
   "bugs": {
     "url": "https://github.com/skogs/httpmon/issues"
   },
   "homepage": "https://github.com/skogs/httpmon#readme",
   "devDependencies": {
-    "@types/node": "^17.0.18",
+    "@types/node": "^17.0.19",
     "ts-node": "^10.5.0",
     "typescript": "^4.5.5"
   }
