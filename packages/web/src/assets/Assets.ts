@@ -14,6 +14,7 @@ import heroIllustration from './hero_illustration.svg'
 import logoTitleDark from './logo_title_dark.svg'
 import location from './location.svg'
 import email from './email.svg'
+import googleSigninButton from './btn_google_signin_dark_normal_web.png'
 
 export {
   grarGrid,
@@ -32,4 +33,5 @@ export {
   email,
   location,
   logoTitleDark,
+  googleSigninButton,
 }

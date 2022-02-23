@@ -2,10 +2,13 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import './index.css'
 import App from './App'
+import { QueryClient, QueryClientProvider } from 'react-query'
+import firebaseService from './FirebaseService'
+firebaseService.isLoggedIn()
 
 ReactDOM.render(
-  <React.StrictMode>
+  <QueryClientProvider client={new QueryClient()}>
     <App />
-  </React.StrictMode>,
+  </QueryClientProvider>,
   document.getElementById('root')
 )
