@@ -22,6 +22,7 @@ import {
 } from 'firebase/auth'
 import { useForm } from 'react-hook-form'
 import { useMutation } from 'react-query'
+import { Link } from 'react-router-dom'
 
 import { logoTitle } from '../assets/Assets'
 
@@ -31,7 +32,7 @@ type SignUpParams = {
   password: string
 }
 
-export default function Signup() {
+export default function SignUp() {
   const {
     register,
     handleSubmit,
@@ -87,21 +88,21 @@ export default function Signup() {
             type="text"
             required
             className="form-input block w-full h-16"
-            placeholder="Full Name"
+            placeholder="Your full name"
             {...register('fullName')}
           />
           <input
             type="email"
             required
             className="form-input block w-full h-16 mt-4"
-            placeholder="Email"
+            placeholder="you@company.com"
             {...register('email')}
           />
           <input
             type="password"
             required
             className="form-input block w-full h-16 mt-4"
-            placeholder="Password"
+            placeholder="Enter a strong password"
             {...register('password')}
           />
           {/* <input
@@ -124,8 +125,8 @@ export default function Signup() {
               href="/docs/terms-of-service.html"
             >
               Terms of Service
-            </a>{' '}
-            and
+            </a>
+            &nbsp;and&nbsp;
             <a
               className="no-underline border-b bg-gray-100 text-gray-600"
               href="/docs/privacy-policy.html"
@@ -135,12 +136,13 @@ export default function Signup() {
           </div>
           <div className=" text-xl text-center text-gray-600 mt-6">
             Already have an account?
-            <a
+            <Link
               className="text-blue-600 hover:text-blue-800 border-b border-blue text-blue"
-              href="/console/signin"
+              to="/console/signin"
+              replace={true}
             >
-              Sign in
-            </a>
+              &nbsp;Sign in
+            </Link>
           </div>
         </form>
       </div>

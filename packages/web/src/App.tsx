@@ -7,8 +7,8 @@ import { Routes, Route } from 'react-router-dom'
 
 import { unstable_HistoryRouter as HistoryRouter } from 'react-router-dom'
 import { createBrowserHistory } from 'history'
-import { Signin } from './components/SignIn'
-import Signup from './components/SignUp'
+import { SignIn } from './components/SignIn'
+import SignUp from './components/SignUp'
 const history = createBrowserHistory()
 
 function App() {
@@ -17,8 +17,8 @@ function App() {
       <ChakraProvider>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/console/signin" element={<Signin />} />
-          <Route path="/console/signup" element={<Signup />} />
+          <Route path="/console/signin" element={<SignIn />} />
+          <Route path="/console/signup" element={<SignUp />} />
           <Route path="/try" element={<RealTimeMonitor />} />
         </Routes>
       </ChakraProvider>

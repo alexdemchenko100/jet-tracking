@@ -11,7 +11,7 @@ import { useForm } from 'react-hook-form'
 import { useMutation } from 'react-query'
 
 import { Spinner } from '@chakra-ui/react'
-import { Navigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 
 import store from '../services/store'
 import { logoTitle, googleSigninButton } from '../assets/Assets'
@@ -22,7 +22,7 @@ export type SignInForm = {
   remember: boolean
 }
 
-export function Signin() {
+export function SignIn() {
   let userInfo = store.watch(store.user)
 
   const {
@@ -58,8 +58,8 @@ export function Signin() {
     formState: { errors },
   } = useForm<SignInForm>()
 
-  async function handleSignin(data?: SignInForm) {
-    // signin and wait for response
+  async function handleSignIn(data?: SignInForm) {
+    // login and wait for response
     await signInAsync(data)
   }
 
@@ -69,15 +69,14 @@ export function Signin() {
 
   return (
     <div className="bg-gray-100 h-screen text-gray-800 pt-24 font-raleway">
-      {JSON.stringify(errors, null, 2)}
       {isLoading && <Spinner />}
       <form
         className="mx-auto w-full sm:max-w-sm"
-        onSubmit={handleSubmit(handleSignin)}
+        onSubmit={handleSubmit(handleSignIn)}
       >
         <img className="w-40 mx-auto" src={logoTitle} />
 
-        <h1 className="mt-8 text-4xl text-center leading-loose">Sign In</h1>
+        <h1 className="mt-8 text-4xl text-center leading-loose">Sign in</h1>
 
         <input
           className="form-input mt-8 w-full text-gray-700 h-16"
@@ -111,35 +110,37 @@ export function Signin() {
             <span className="ml-2">Remember me</span>
           </label>
 
-          <a
+          <Link
             className="text-blue-600 hover:text-blue-800 text-center"
-            href="/console/forgot"
+            to="/console/forgot"
+            replace={true}
           >
-            Reset your password
-          </a>
+            Forgot your password?
+          </Link>
         </div>
 
         <button
           className="bg-gradient-callout mt-6 h-12 w-full text-2xl text-white rounded-lg focus:outline-none focus:shadow-outline"
           type="submit"
         >
-          Sign In
+          Sign in
         </button>
       </form>
       <p className="h-8 mt-4 mb-4 text-xl text-gray-800 text-center">Or</p>
       <div className="w-full flex justify-center">
-        <button className="w-56" onClick={() => handleSignin()}>
+        <button className="w-56" onClick={() => handleSignIn()}>
           <img src={googleSigninButton} />
         </button>
       </div>
       <p className="mt-4 text-center text-xl text-gray-600">
         Don't have an account yet?
-        <a
+        <Link
           className="text-blue-600 hover:text-blue-800 text-center"
-          href="/console/signup"
+          to="/console/signup"
+          replace={true}
         >
-          Sign up
-        </a>
+          &nbsp;Sign up
+        </Link>
       </p>
     </div>
   )
