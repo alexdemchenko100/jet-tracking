@@ -3,21 +3,18 @@ import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
-  User,
   UserCredential,
   AuthError,
 } from 'firebase/auth'
 
-import { useState } from 'react'
-import { useForm, useFormState } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
+import { useMutation } from 'react-query'
 
 import { Spinner } from '@chakra-ui/react'
+import { Navigate } from 'react-router-dom'
+
+import store from '../services/store'
 import { logoTitle, googleSigninButton } from '../assets/Assets'
-
-import firebase from '../FirebaseService'
-import { Navigate, useNavigate } from 'react-router-dom'
-
-import { useMutation } from 'react-query'
 
 export type SignInForm = {
   email: string
@@ -26,22 +23,34 @@ export type SignInForm = {
 }
 
 export function Signin() {
-  let display = false
-  let [error, setError] = useState('')
-  let [isLoading, setLoading] = useState(true)
-  let [user, setUser] = useState<User>()
-  let navigate = useNavigate()
+  let userInfo = store.watch(store.user)
 
   const {
-    mutateAsync: signInWithPopupAsync,
-    isError,
-    error: authError,
+    mutateAsync: signInAsync,
+    isLoading,
+    error,
   } = useMutation<
     UserCredential,
     AuthError,
-    { email: string; password: string }
-  >(({ email, password }) => {
-    return signInWithEmailAndPassword(getAuth(), email, password)
+    { email: string; password: string } | undefined
+  >(async (data?: { email: string; password: string }) => {
+    let creds
+    if (!data) {
+      creds = await signInWithPopup(getAuth(), new GoogleAuthProvider())
+    } else {
+      creds = await signInWithEmailAndPassword(
+        getAuth(),
+        data.email,
+        data.password
+      )
+    }
+    if (!creds || !creds.user || !creds.user.emailVerified)
+      throw new Error('auth call has internal failure')
+
+    store.user.user = creds.user
+    store.user.isLoggedIn = creds.user && creds.user.emailVerified
+
+    return creds
   })
 
   const {
@@ -51,97 +60,19 @@ export function Signin() {
     formState: { errors },
   } = useForm<SignInForm>()
 
-  // async function handleSignin(data: SignInForm) {
-  //   try {
-  //     setLoading(true)
-
-  //     // signin and wait for response
-  //     const creds = await signInWithEmailAndPassword(
-  //       getAuth(),
-  //       data.email,
-  //       data.password
-  //     )
-
-  //     if (!creds || !creds.user)
-  //       throw new Error('auth call has internal failure')
-
-  //     if (creds.user.emailVerified) gonext()
-  //     else error = 'Email is not verified yet.  Please do so first.'
-  //   } catch (e) {
-  //     if (e instanceof Error && e.message) error = e.message
-  //     else
-  //       error =
-  //         'Wrong username or password. Try again or click Forgot password to reset it.'
-  //   } finally {
-  //     setLoading(false)
-  //   }
-  // }
-
-  async function handleSignin(data: SignInForm) {
+  async function handleSignin(data?: SignInForm) {
     // signin and wait for response
-    const creds = await signInWithPopupAsync({
-      email: data.email,
-      password: data.password,
-    })
-    console.log(creds)
+    await signInAsync(data)
   }
 
-  async function googleSignin() {
-    try {
-      // setLoading(true)
-
-      // signin and wait for response
-      const creds = await signInWithPopup(getAuth(), new GoogleAuthProvider())
-      if (!creds || !creds.user)
-        throw new Error('auth call has internal failure')
-      if (creds.user.emailVerified) {
-        setUser(creds.user)
-        gonext()
-      } else error = 'Email is not verified yet.  Please do so first.'
-    } catch (e) {
-      if (e instanceof Error && e.message) error = e.message
-      else
-        error =
-          'Wrong username or password. Try again or click Forgot password to reset it.'
-    } finally {
-      // setLoading(false)
-    }
-  }
-
-  function showui() {
-    return display
-  }
-
-  function gonext() {
-    // if (this.$route.query.redirect)
-    //   this.$router.replace(<string> this.$route.query.redirect)
-    // else
-    //   this.$router.replace("/console")
-  }
-
-  function created() {
-    /*
-    if came here due to err, always show dialog
-    check if user is already loged in?
-      if do, we're done.. move to next route
-      if not, show the dialog
-    //  */
-    // if (!this.$route.query.err) {
-    //   if (firebaseService.isLoggedIn()) {
-    //     this.display = false
-    //     this.gonext()
-    //     return
-    //   }
-    // }
-    // this.display = true
-    // }
+  if (userInfo.isLoggedIn) {
+    return <Navigate to="/" />
   }
 
   return (
     <div className="bg-gray-100 h-screen text-gray-800 pt-24 font-raleway">
-      {JSON.stringify(authError, null, 2)}
       {JSON.stringify(errors, null, 2)}
-      {/* {user && <Navigate to="/" />} */}
+      {isLoading && <Spinner />}
       <form
         className="mx-auto w-full sm:max-w-sm"
         onSubmit={handleSubmit(handleSignin)}
@@ -168,7 +99,9 @@ export function Signin() {
           {...register('password')}
         />
 
-        <p className="text-red-500 text-xs italic py-2">{error}</p>
+        <p className="text-red-500 text-xs italic py-2">
+          {JSON.stringify(error, null, 2)}
+        </p>
 
         <div className="flex mt-2 mb-2 justify-between">
           <label className="flex items-center">
@@ -197,7 +130,7 @@ export function Signin() {
       </form>
       <p className="h-8 mt-4 mb-4 text-xl text-gray-800 text-center">Or</p>
       <div className="w-full flex justify-center">
-        <button className="w-56" onClick={() => googleSignin()}>
+        <button className="w-56" onClick={() => handleSignin()}>
           <img src={googleSigninButton} />
         </button>
       </div>
@@ -210,11 +143,6 @@ export function Signin() {
           Sign up
         </a>
       </p>
-      {/* {isLoading && <Spinner />} */}
-      {/* <loading :active.sync="isLoading"
-             :can-cancel="true" :on-cancel="()=>{isLoading=false}"
-             :loader="'dots'" :color="'#1b75be'">
-    </loading> */}
     </div>
   )
 }

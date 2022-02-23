@@ -5,6 +5,7 @@
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": false,
     "skipLibCheck": false,
+    "sourceMap": true,
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
     "strict": true,
@@ -18,13 +19,16 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "src/*"
+        "./src/*"
+      ],
+      "@services/*": [
+        "./src/services/*"
       ]
     },
   },
-  "include": ["src"],
+  "include": ["**/*.ts", "**/*.tsx"],
   "exclude": [
-    "node_modules"
+    "node_modules", "dist"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
