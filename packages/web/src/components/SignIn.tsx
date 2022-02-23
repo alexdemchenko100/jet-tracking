@@ -29,29 +29,27 @@ export function Signin() {
     mutateAsync: signInAsync,
     isLoading,
     error,
-  } = useMutation<
-    UserCredential,
-    AuthError,
-    { email: string; password: string } | undefined
-  >(async (data?: { email: string; password: string }) => {
-    let creds
-    if (!data) {
-      creds = await signInWithPopup(getAuth(), new GoogleAuthProvider())
-    } else {
-      creds = await signInWithEmailAndPassword(
-        getAuth(),
-        data.email,
-        data.password
-      )
+  } = useMutation<UserCredential, AuthError, SignInForm | undefined>(
+    async (data?: SignInForm) => {
+      let creds
+      if (!data) {
+        creds = await signInWithPopup(getAuth(), new GoogleAuthProvider())
+      } else {
+        creds = await signInWithEmailAndPassword(
+          getAuth(),
+          data.email,
+          data.password
+        )
+      }
+      if (!creds || !creds.user || !creds.user.emailVerified)
+        throw new Error('auth call has internal failure')
+
+      store.user.user = creds.user
+      store.user.isLoggedIn = creds.user && creds.user.emailVerified
+
+      return creds
     }
-    if (!creds || !creds.user || !creds.user.emailVerified)
-      throw new Error('auth call has internal failure')
-
-    store.user.user = creds.user
-    store.user.isLoggedIn = creds.user && creds.user.emailVerified
-
-    return creds
-  })
+  )
 
   const {
     register,
