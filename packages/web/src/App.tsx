@@ -11,6 +11,7 @@ import { SignIn } from './components/SignIn'
 import SignUp from './components/SignUp'
 import ForgotPassword from './components/ForgotPassword'
 import Console from './Console'
+import { NewAPI } from './components/NewAPI'
 const history = createBrowserHistory()
 
 function App() {
@@ -19,7 +20,10 @@ function App() {
       <ChakraProvider>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/console" element={<Console />} />
+          <Route path="/console" element={<Console />}>
+            <Route path="/console/api/new" element={<NewAPI />} />
+          </Route>
+
           <Route path="/console/signin" element={<SignIn />} />
           <Route path="/console/signup" element={<SignUp />} />
           <Route path="/console/forgot" element={<ForgotPassword />} />

@@ -13,29 +13,23 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
+  Spacer,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
-import { FaBell, FaClipboardCheck, FaRss } from 'react-icons/fa'
+import { FaBell } from 'react-icons/fa'
 import { AiFillGift } from 'react-icons/ai'
-import { HiCode, HiCollection } from 'react-icons/hi'
-import { MdHome, MdKeyboardArrowRight } from 'react-icons/md'
+import { HiCollection } from 'react-icons/hi'
+import { MdHome } from 'react-icons/md'
 import React, { ReactNode } from 'react'
 import { IconType } from 'react-icons/lib'
-import {
-  FiHome,
-  FiSettings,
-  FiClipboard,
-  FiMenu,
-  FiSearch,
-  FiArrowDownRight,
-} from 'react-icons/fi'
+import { FiSettings, FiClipboard, FiMenu, FiSearch } from 'react-icons/fi'
 
 import { logoTitle } from './assets/Assets'
+import { Outlet } from 'react-router-dom'
 
 export default function Console() {
   const sidebar = useDisclosure()
-  const integrations = useDisclosure()
 
   interface Props extends FlexProps {
     icon?: IconType
@@ -94,16 +88,7 @@ export default function Console() {
       {...props}
     >
       <Flex px="4" py="5" align="center">
-        {/* <Logo /> */}
         <Image src={logoTitle} />
-        {/* <Text
-          fontSize="2xl"
-          ml="2"
-          color={useColorModeValue('brand.500', 'white')}
-          fontWeight="semibold"
-        >
-          Choc UI
-        </Text> */}
       </Flex>
       <Flex
         direction="column"
@@ -113,29 +98,9 @@ export default function Console() {
         aria-label="Main Navigation"
       >
         <NavItem icon={MdHome}>Home</NavItem>
-        <NavItem icon={FaRss}>Articles</NavItem>
-        <NavItem icon={HiCollection}>Collections</NavItem>
-        <NavItem icon={FiClipboard}>Checklists</NavItem>
-        <NavItem icon={HiCode} onClick={integrations.onToggle}>
-          Integrations
-          <Icon
-            as={MdKeyboardArrowRight}
-            ml="auto"
-            transform={integrations.isOpen ? 'rotate(90deg)' : ''}
-          />
-        </NavItem>
-        <Collapse in={integrations.isOpen}>
-          <NavItem pl="12" py="2">
-            Shopify
-          </NavItem>
-          <NavItem pl="12" py="2">
-            Slack
-          </NavItem>
-          <NavItem pl="12" py="2">
-            Zapier
-          </NavItem>
-        </Collapse>
-        <NavItem icon={AiFillGift}>Changelog</NavItem>
+        <NavItem icon={HiCollection}>API Monitors</NavItem>
+        <NavItem icon={FiClipboard}>Browser Checks</NavItem>
+        <NavItem icon={AiFillGift}>Dashboards</NavItem>
         <NavItem icon={FiSettings}>Settings</NavItem>
       </Flex>
     </Box>
@@ -176,11 +141,8 @@ export default function Console() {
             icon={<FiMenu />}
             size="sm"
           />
-          <InputGroup w="96" display={{ base: 'none', md: 'flex' }}>
-            <InputLeftElement color="gray.500" children={<FiSearch />} />
-            <Input placeholder="Search for articles..." />
-          </InputGroup>
 
+          <Spacer />
           <Flex align="center">
             <Icon color="gray.500" as={FaBell} cursor="pointer" />
             <Avatar
@@ -195,7 +157,7 @@ export default function Console() {
 
         <Box as="main" p="4">
           {/* Add content here, remove div below  */}
-          <Box borderWidth="4px" borderStyle="dashed" rounded="md" h="96" />
+          <Outlet />
         </Box>
       </Box>
     </Box>
