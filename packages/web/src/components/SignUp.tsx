@@ -139,7 +139,6 @@ export default function SignUp() {
             <Link
               className="text-blue-600 hover:text-blue-800 border-b border-blue text-blue"
               to="/console/signin"
-              replace={true}
             >
               &nbsp;Sign in
             </Link>

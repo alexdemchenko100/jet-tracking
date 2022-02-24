@@ -19,7 +19,6 @@ import {
 } from 'firebase/auth'
 import { useForm } from 'react-hook-form'
 import { useMutation } from 'react-query'
-import { Link } from 'react-router-dom'
 
 export default function ForgotPassword() {
   type ForgotParams = {
@@ -89,26 +88,6 @@ export default function ForgotPassword() {
           >
             Send Reset Email
           </button>
-          <p className="w-full mt-8 text-center text-xl text-gray-600">
-            Already have an account?
-            <Link
-              className="no-underline border-b border-blue text-blue-600 hover:text-blue-800"
-              replace={true}
-              to="/console/signin"
-            >
-              &nbsp;Sign in
-            </Link>
-          </p>
-          <p className="w-full text-center text-xl text-gray-600">
-            Don't have an account?
-            <Link
-              className="text-blue-600 hover:text-blue-800 text-center"
-              replace={true}
-              to="/console/signup"
-            >
-              &nbsp;Sign up
-            </Link>
-          </p>
         </form>
       </div>
     </div>

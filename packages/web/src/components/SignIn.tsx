@@ -113,7 +113,6 @@ export function SignIn() {
           <Link
             className="text-blue-600 hover:text-blue-800 text-center"
             to="/console/forgot"
-            replace={true}
           >
             Forgot your password?
           </Link>
@@ -137,7 +136,6 @@ export function SignIn() {
         <Link
           className="text-blue-600 hover:text-blue-800 text-center"
           to="/console/signup"
-          replace={true}
         >
           &nbsp;Sign up
         </Link>
