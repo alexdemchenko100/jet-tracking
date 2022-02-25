@@ -16,7 +16,10 @@ import {
   SliderTrack,
   Tooltip,
 } from '@chakra-ui/react'
+import { Monitor } from '@httpmon/db'
 import React from 'react'
+import { useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 
 function SliderThumbWithTooltip() {
   const [sliderValue, setSliderValue] = React.useState(1)
@@ -77,11 +80,24 @@ function SliderThumbWithTooltip() {
 }
 
 export function NewAPI() {
+  const navigate = useNavigate()
+  const { register, watch, formState } = useForm<Monitor>()
+
+  const watched = watch()
+
+  function handleQuickRun() {
+    let url = watched.url
+    let method = watched.method
+
+    navigate('/console/api-result', { state: { monitor: { url, method } } })
+  }
+
   return (
     <Box>
       <Heading size={'lg'} mb={'10'}>
         Create new API monitor
       </Heading>
+      {JSON.stringify(watched, null, 2)}
       <Divider />
       <form>
         <Box>
@@ -94,7 +110,11 @@ export function NewAPI() {
             <Flex justify={'start'} alignItems={'flex-start'} mt={'4'}>
               <FormControl id="method" maxW={'32'}>
                 <FormLabel htmlFor="method">Method</FormLabel>
-                <Select color={'blue.500'} fontWeight={'bold'}>
+                <Select
+                  color={'blue.500'}
+                  fontWeight={'bold'}
+                  {...register('method')}
+                >
                   <option defaultValue={'GET'} value="GET">
                     GET
                   </option>
@@ -105,7 +125,7 @@ export function NewAPI() {
 
               <FormControl id="url" ml={'2'}>
                 <FormLabel htmlFor="url">URL</FormLabel>
-                <Input type="url" placeholder="url here" />
+                <Input type="url" placeholder="url here" {...register('url')} />
               </FormControl>
             </Flex>
 
@@ -122,6 +142,7 @@ export function NewAPI() {
               }}
               w={'24'}
               mt={'12'}
+              onClick={() => handleQuickRun()}
             >
               Quick Run!
             </Button>
