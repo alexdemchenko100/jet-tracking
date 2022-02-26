@@ -97,7 +97,6 @@ export function NewAPI() {
       <Heading size={'lg'} mb={'10'}>
         Create new API monitor
       </Heading>
-      {JSON.stringify(watched, null, 2)}
       <Divider />
       <form>
         <Box>
