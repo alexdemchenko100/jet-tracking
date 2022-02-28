@@ -156,26 +156,38 @@ export function APIResult(props?: Props) {
             Headers
           </Heading>
 
-          <Table mt={'2'} variant={'striped'} size={'md'}>
-            <Thead>
-              <Tr>
-                <Th width={'30%'}>Name</Th>
-                <Th>Value</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {(result.headers as MonitorTuples).map((header) => {
-                return (
-                  <Tr key={header[0]}>
-                    <Td fontWeight={'semibold'} color={'blue.500'}>
-                      {header[0]}
-                    </Td>
-                    <Td>{header[1]}</Td>
-                  </Tr>
-                )
-              })}
-            </Tbody>
-          </Table>
+          <Box maxW={'200'}>
+            <Table
+              mt={'2'}
+              variant={'striped'}
+              size={'md'}
+              maxW={'200'}
+              overflow={'clip'}
+            >
+              <Thead>
+                <Tr>
+                  <Th width={'100'} overflow={'clip'}>
+                    Name
+                  </Th>
+                  <Th maxW={'100'} overflow={'clip'}>
+                    Value
+                  </Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {(result.headers as MonitorTuples).map((header) => {
+                  return (
+                    <Tr key={header[0]}>
+                      <Td fontWeight={'semibold'} color={'blue.500'}>
+                        {header[0]}
+                      </Td>
+                      <Td>{header[1]}</Td>
+                    </Tr>
+                  )
+                })}
+              </Tbody>
+            </Table>
+          </Box>
         </Box>
       )}
       {/* 
