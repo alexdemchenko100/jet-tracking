@@ -32,7 +32,7 @@ import { FiClock } from 'react-icons/fi'
 
 type Mon = Pick<Monitor, 'method' | 'url'>
 interface Props {
-  monitor: Mon
+  monitor?: Mon
   result?: MonitorResult
 }
 

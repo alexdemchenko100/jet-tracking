@@ -7,6 +7,7 @@ import {
   FormHelperText,
   FormLabel,
   Heading,
+  Icon,
   Input,
   Select,
   Slider,
@@ -16,10 +17,12 @@ import {
   SliderTrack,
   Tooltip,
 } from '@chakra-ui/react'
-import { Monitor } from '@httpmon/db'
+import { Monitor, MonitorTuples } from '@httpmon/db'
 import React from 'react'
-import { useForm } from 'react-hook-form'
+import { useFieldArray, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
+
+import { FiPlusCircle, FiDelete, FiTrash, FiTrash2 } from 'react-icons/fi'
 
 function SliderThumbWithTooltip() {
   const [sliderValue, setSliderValue] = React.useState(1)
@@ -81,7 +84,24 @@ function SliderThumbWithTooltip() {
 
 export function NewAPI() {
   const navigate = useNavigate()
-  const { register, watch, formState } = useForm<Monitor>()
+  const {
+    register,
+    watch,
+    formState: { errors },
+    control,
+  } = useForm<Monitor>({
+    defaultValues: {
+      headers: [['xxx', 'hello']] as MonitorTuples,
+    },
+  })
+  const {
+    fields: headers,
+    append,
+    remove,
+  } = useFieldArray({
+    name: 'headers',
+    control,
+  })
 
   const watched = watch()
 
@@ -106,7 +126,7 @@ export function NewAPI() {
               <Input type="name" placeholder="" />
             </FormControl>
 
-            <Flex justify={'start'} alignItems={'flex-start'} mt={'4'}>
+            <Flex justify={'start'} alignItems={'end'} mt={'4'}>
               <FormControl id="method" maxW={'32'}>
                 <FormLabel htmlFor="method">Method</FormLabel>
                 <Select
@@ -126,25 +146,54 @@ export function NewAPI() {
                 <FormLabel htmlFor="url">URL</FormLabel>
                 <Input type="url" placeholder="url here" {...register('url')} />
               </FormControl>
+
+              <Button
+                bg={'blue.400'}
+                color={'white'}
+                _hover={{
+                  bg: 'blue.500',
+                }}
+                ml={'4'}
+                onClick={() => handleQuickRun()}
+              >
+                Run now
+              </Button>
             </Flex>
+
+            <Heading size={'sm'} mt={'4'}>
+              Add headers
+            </Heading>
+
+            <Box mt={'4'}>
+              {console.log(watched)}
+              {headers.map((header, index) => (
+                <Flex key={index} mb={'2'}>
+                  <Input
+                    type={'text'}
+                    {...register(`headers.${index}.0` as const)}
+                    defaultValue={''}
+                  />
+                  <Input
+                    type={'text'}
+                    ml={'4'}
+                    {...register(`headers.${index}.1` as const)}
+                    defaultValue={''}
+                  />
+
+                  <Button onClick={() => remove(index)}>
+                    <Icon color="red.500" as={FiTrash2} cursor="pointer" />
+                  </Button>
+                </Flex>
+              ))}
+              <Button onClick={() => append([['', '']])}>
+                <Icon color="blue.500" as={FiPlusCircle} cursor="pointer" />
+              </Button>
+            </Box>
 
             <FormControl id="frequency" mt={'10'} maxW={'80%'}>
               <FormLabel htmlFor="frequency">Frequency</FormLabel>
               <SliderThumbWithTooltip />
             </FormControl>
-
-            <Button
-              bg={'blue.400'}
-              color={'white'}
-              _hover={{
-                bg: 'blue.500',
-              }}
-              w={'24'}
-              mt={'12'}
-              onClick={() => handleQuickRun()}
-            >
-              Quick Run!
-            </Button>
 
             <Button
               bg={'blue.400'}
