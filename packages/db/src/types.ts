@@ -82,7 +82,7 @@ export const MonitorSchema = Type.Object({
   body: Type.Optional(Type.String()),
   bodyType: Type.Optional(Type.String()),
   headers: Type.Optional(MonitorTupleSchema),
-  queryParams: Type.Optional(Type.String()),
+  queryParams: Type.Optional(MonitorTupleSchema),
   cookies: Type.Optional(Type.String()),
   assertions: Type.Optional(Type.Array(MonitorAssertionSchema)),
   followRedirects: Type.Optional(Type.Integer()),
@@ -120,7 +120,7 @@ export type MonitorTable = {
   body?: string
   bodyType?: string
   headers?: MonitorTuples | string
-  queryParams?: string
+  queryParams?: MonitorTuples | string
   cookies?: string
   followRedirects?: number
   timeout?: number

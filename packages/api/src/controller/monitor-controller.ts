@@ -27,6 +27,9 @@ export default async function MonitorController(app: FastifyInstance) {
 
       const resp = await monitorSvc.create(mon)
 
+      req.log.info(mon, 'create mon')
+      req.log.info(resp, 'resp mon')
+
       reply.send(resp)
     }
   )
@@ -110,6 +113,7 @@ export default async function MonitorController(app: FastifyInstance) {
     },
     async function (req, reply) {
       const mon = req.body
+      req.log.info(mon, 'exec')
 
       const resp = await execMonitor(mon)
 

@@ -9,12 +9,20 @@ import path from 'path'
 dotenv.config({ path: path.resolve(process.cwd(), '../..', '.env') })
 
 const server = fastify({
-  logger: { prettyPrint: true },
+  logger: {
+    prettyPrint: true,
+    level: 'info',
+  },
 })
 
 // Middleware: Router
 server.register(router)
 server.register(fastifyCors)
+
+// server.addHook('onRequest', (req, _, done) => {
+//   req.log.info({ url: req.url, body: req, id: req.id }, 'received request')
+//   done()
+// })
 
 server.setErrorHandler((error, _req, reply) => {
   // The expected errors will be handled here, but unexpected ones should eventually result in a crash.

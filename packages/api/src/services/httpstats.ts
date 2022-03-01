@@ -68,6 +68,8 @@ export async function execMonitor(mon: Monitor) {
       httpsAgent: new https.Agent({ keepAlive: false }),
       headers: headersToMap((mon.headers as MonitorTuples) ?? []),
       responseType: 'text',
+      params:  headersToMap((mon.queryParams as MonitorTuples) ?? []),
+      
     })
 
     const certificate: PeerCertificate =

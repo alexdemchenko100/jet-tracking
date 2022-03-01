@@ -8,6 +8,7 @@ import emitter from './emitter.js'
 
 import { sql } from 'kysely'
 import { db, Monitor, MonitorTuples } from '@httpmon/db'
+import { nanoid } from 'nanoid'
 
 export class MonitorService {
   static instance: MonitorService
@@ -20,21 +21,29 @@ export class MonitorService {
   }
 
   public async create(input: Monitor) {
-    const mon = await prisma.monitor.create({
-      data: { ...input },
-    })
-
+    const mon = await db
+      .insertInto('Monitor')
+      .values({ ...input, id: nanoid() })
+      .returningAll()
+      .executeTakeFirstOrThrow()
     emitter.emit('monitor', mon.id)
     return mon
   }
 
-  public async update(input: Monitor) {
-    const mon = await prisma.monitor.update({
-      where: { id: input.id },
-      data: { ...input },
-    })
-    return mon
-  }
+  // const mon = await prisma.monitor.create({
+  //   data: { ...input },
+  // })
+
+  // emitter.emit('monitor', mon.id)
+  // return mon
+
+  // public async update(input: Monitor) {
+  //   const mon = await prisma.monitor.update({
+  //     where: { id: input.id },
+  //     data: { ...input },
+  //   })
+  //   return mon
+  // }
 
   public async find(id: string) {
     try {

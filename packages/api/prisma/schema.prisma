@@ -20,7 +20,7 @@ model Monitor {
   bodyType        String?         @default("")
   body            String?
   headers         Json            @default("[]")
-  queryParams     String?
+  queryParams     Json            @default("[]")
   cookies         String?
   followRedirects Int?            @default(0)
   timeout         Int?            @default(30) //30 seconds
