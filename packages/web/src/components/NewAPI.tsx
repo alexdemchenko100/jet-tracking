@@ -19,7 +19,12 @@ import {
 } from '@chakra-ui/react'
 import { Monitor, MonitorTuples } from '@httpmon/db'
 import React from 'react'
-import { useFieldArray, useForm } from 'react-hook-form'
+import {
+  FormProvider,
+  useFieldArray,
+  useForm,
+  useFormContext,
+} from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import { FiPlusCircle, FiDelete, FiTrash, FiTrash2 } from 'react-icons/fi'
@@ -82,18 +87,8 @@ function SliderThumbWithTooltip() {
   )
 }
 
-export function NewAPI() {
-  const navigate = useNavigate()
-  const {
-    register,
-    watch,
-    formState: { errors },
-    control,
-  } = useForm<Monitor>({
-    defaultValues: {
-      headers: [['xxx', 'hello']] as MonitorTuples,
-    },
-  })
+function APIHeaders(props: any) {
+  const { control, register } = useFormContext()
   const {
     fields: headers,
     append,
@@ -103,48 +98,124 @@ export function NewAPI() {
     control,
   })
 
+  return (
+    <>
+      <Heading size={'sm'} mt={'4'}>
+        Headers
+      </Heading>
+
+      <Box mt={'4'}>
+        {headers.map((header, index) => (
+          <Flex key={index} mb={'2'}>
+            <Input
+              type={'text'}
+              {...register(`headers.${index}.0` as const)}
+              defaultValue={''}
+            />
+            <Input
+              type={'text'}
+              ml={'4'}
+              {...register(`headers.${index}.1` as const)}
+              defaultValue={''}
+            />
+
+            <Button onClick={() => remove(index)}>
+              <Icon color="red.500" as={FiTrash2} cursor="pointer" />
+            </Button>
+          </Flex>
+        ))}
+        <Button onClick={() => append([['', '']])}>
+          <Icon color="blue.500" as={FiPlusCircle} cursor="pointer" />
+        </Button>
+      </Box>
+    </>
+  )
+}
+
+export function NewAPI() {
+  const navigate = useNavigate()
+
+  const methods = useForm<Monitor>({
+    defaultValues: {
+      headers: [['xxx', 'hello']] as MonitorTuples,
+    },
+  })
+
+  const {
+    register,
+    watch,
+    formState: { errors },
+  } = methods
+
   const watched = watch()
 
   function handleQuickRun() {
     let url = watched.url
     let method = watched.method
 
-    navigate('/console/api-result', { state: { monitor: { url, method } } })
+    navigate('/console/api-result', {
+      state: { monitor: { url, method, headers: watched.headers ?? [] } },
+    })
   }
 
   return (
-    <Box>
+    <>
       <Heading size={'lg'} mb={'10'}>
         Create new API monitor
       </Heading>
       <Divider />
-      <form>
-        <Box>
-          <Flex minH={'100vh'} justify={'start'} direction={'column'}>
-            <FormControl id="name">
-              <FormLabel htmlFor="name">Name</FormLabel>
-              <Input type="name" placeholder="" />
-            </FormControl>
-
-            <Flex justify={'start'} alignItems={'end'} mt={'4'}>
-              <FormControl id="method" maxW={'32'}>
-                <FormLabel htmlFor="method">Method</FormLabel>
-                <Select
-                  color={'blue.500'}
-                  fontWeight={'bold'}
-                  {...register('method')}
-                >
-                  <option defaultValue={'GET'} value="GET">
-                    GET
-                  </option>
-                  <option value="POST">POST</option>
-                  <option value="OPTIONS">OPTIONS</option>
-                </Select>
+      <FormProvider {...methods}>
+        <form>
+          <Box>
+            <Flex minH={'100vh'} justify={'start'} direction={'column'}>
+              <FormControl id="name">
+                <FormLabel htmlFor="name">Name</FormLabel>
+                <Input type="name" placeholder="" />
               </FormControl>
 
-              <FormControl id="url" ml={'2'}>
-                <FormLabel htmlFor="url">URL</FormLabel>
-                <Input type="url" placeholder="url here" {...register('url')} />
+              <Flex justify={'start'} alignItems={'end'} mt={'4'}>
+                <FormControl id="method" maxW={'32'}>
+                  <FormLabel htmlFor="method">Method</FormLabel>
+                  <Select
+                    color={'blue.500'}
+                    fontWeight={'bold'}
+                    {...register('method')}
+                  >
+                    <option defaultValue={'GET'} value="GET">
+                      GET
+                    </option>
+                    <option value="POST">POST</option>
+                    <option value="OPTIONS">OPTIONS</option>
+                  </Select>
+                </FormControl>
+
+                <FormControl id="url" ml={'2'}>
+                  <FormLabel htmlFor="url">URL</FormLabel>
+                  <Input
+                    type="url"
+                    placeholder="url here"
+                    {...register('url')}
+                  />
+                </FormControl>
+
+                <Button
+                  bg={'blue.400'}
+                  color={'white'}
+                  _hover={{
+                    bg: 'blue.500',
+                  }}
+                  ml={'4'}
+                  onClick={() => handleQuickRun()}
+                >
+                  Run now
+                </Button>
+              </Flex>
+
+              <APIHeaders />
+
+              <FormControl id="frequency" mt={'10'} maxW={'80%'}>
+                <FormLabel htmlFor="frequency">Frequency</FormLabel>
+                <SliderThumbWithTooltip />
               </FormControl>
 
               <Button
@@ -153,62 +224,15 @@ export function NewAPI() {
                 _hover={{
                   bg: 'blue.500',
                 }}
-                ml={'4'}
-                onClick={() => handleQuickRun()}
+                mt={'10'}
+                w={'40'}
               >
-                Run now
+                Create API Monitor
               </Button>
             </Flex>
-
-            <Heading size={'sm'} mt={'4'}>
-              Add headers
-            </Heading>
-
-            <Box mt={'4'}>
-              {console.log(watched)}
-              {headers.map((header, index) => (
-                <Flex key={index} mb={'2'}>
-                  <Input
-                    type={'text'}
-                    {...register(`headers.${index}.0` as const)}
-                    defaultValue={''}
-                  />
-                  <Input
-                    type={'text'}
-                    ml={'4'}
-                    {...register(`headers.${index}.1` as const)}
-                    defaultValue={''}
-                  />
-
-                  <Button onClick={() => remove(index)}>
-                    <Icon color="red.500" as={FiTrash2} cursor="pointer" />
-                  </Button>
-                </Flex>
-              ))}
-              <Button onClick={() => append([['', '']])}>
-                <Icon color="blue.500" as={FiPlusCircle} cursor="pointer" />
-              </Button>
-            </Box>
-
-            <FormControl id="frequency" mt={'10'} maxW={'80%'}>
-              <FormLabel htmlFor="frequency">Frequency</FormLabel>
-              <SliderThumbWithTooltip />
-            </FormControl>
-
-            <Button
-              bg={'blue.400'}
-              color={'white'}
-              _hover={{
-                bg: 'blue.500',
-              }}
-              mt={'10'}
-              w={'40'}
-            >
-              Create API Monitor
-            </Button>
-          </Flex>
-        </Box>
-      </form>
-    </Box>
+          </Box>
+        </form>
+      </FormProvider>
+    </>
   )
 }

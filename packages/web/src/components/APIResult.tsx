@@ -55,6 +55,7 @@ export function APIResult(props?: Props) {
   props?.result && setResult(props?.result)
 
   async function getMonitorResult(mon: Mon) {
+    console.log('mon: ', mon)
     let resp = await axios({
       method: 'POST',
       url: '/monitors/ondemand',
