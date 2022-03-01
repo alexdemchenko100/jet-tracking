@@ -30,7 +30,7 @@ import { FiClock } from 'react-icons/fi'
  *
  */
 
-type Mon = Pick<Monitor, 'method' | 'url'>
+type Mon = Pick<Monitor, 'method' | 'url' | 'headers' | 'queryParams'>
 interface Props {
   monitor?: Mon
   result?: MonitorResult

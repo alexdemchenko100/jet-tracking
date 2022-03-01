@@ -100,9 +100,12 @@ function APIHeaders(props: any) {
 
   return (
     <>
-      <Heading size={'sm'} mt={'4'}>
-        Headers
-      </Heading>
+      <Flex mt={'4'} alignItems={'center'}>
+        <Heading size={'sm'}>Headers</Heading>
+        <Button onClick={() => append([['', '']])}>
+          <Icon color="blue.500" as={FiPlusCircle} cursor="pointer" />
+        </Button>
+      </Flex>
 
       <Box mt={'4'}>
         {headers.map((header, index) => (
@@ -124,9 +127,51 @@ function APIHeaders(props: any) {
             </Button>
           </Flex>
         ))}
+      </Box>
+    </>
+  )
+}
+
+function QueryParams(props: any) {
+  const { control, register } = useFormContext()
+  const {
+    fields: queryParams,
+    append,
+    remove,
+  } = useFieldArray({
+    name: 'queryParams',
+    control,
+  })
+
+  return (
+    <>
+      <Flex mt={'4'} alignItems={'center'}>
+        <Heading size={'sm'}>Query Params</Heading>
         <Button onClick={() => append([['', '']])}>
           <Icon color="blue.500" as={FiPlusCircle} cursor="pointer" />
         </Button>
+      </Flex>
+
+      <Box mt={'4'}>
+        {queryParams.map((_, index) => (
+          <Flex key={index} mb={'2'}>
+            <Input
+              type={'text'}
+              {...register(`queryParams.${index}.0` as const)}
+              defaultValue={''}
+            />
+            <Input
+              type={'text'}
+              ml={'4'}
+              {...register(`queryParams.${index}.1` as const)}
+              defaultValue={''}
+            />
+
+            <Button onClick={() => remove(index)}>
+              <Icon color="red.500" as={FiTrash2} cursor="pointer" />
+            </Button>
+          </Flex>
+        ))}
       </Box>
     </>
   )
@@ -150,11 +195,8 @@ export function NewAPI() {
   const watched = watch()
 
   function handleQuickRun() {
-    let url = watched.url
-    let method = watched.method
-
     navigate('/console/api-result', {
-      state: { monitor: { url, method, headers: watched.headers ?? [] } },
+      state: { monitor: { ...watched } },
     })
   }
 
@@ -212,6 +254,7 @@ export function NewAPI() {
               </Flex>
 
               <APIHeaders />
+              <QueryParams />
 
               <FormControl id="frequency" mt={'10'} maxW={'80%'}>
                 <FormLabel htmlFor="frequency">Frequency</FormLabel>
