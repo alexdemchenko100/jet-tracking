@@ -9,12 +9,16 @@ import {
   Heading,
   Icon,
   Input,
+  Radio,
+  RadioGroup,
   Select,
   Slider,
   SliderFilledTrack,
   SliderMark,
   SliderThumb,
   SliderTrack,
+  Stack,
+  Textarea,
   Tooltip,
 } from '@chakra-ui/react'
 import { Monitor, MonitorTuples } from '@httpmon/db'
@@ -177,6 +181,33 @@ function QueryParams(props: any) {
   )
 }
 
+function BodyInput(props: any) {
+  const { control, register } = useFormContext()
+
+  return (
+    <>
+      <Flex mt={'4'} alignItems={'center'}>
+        <Heading size={'sm'} mr={'4'}>
+          Body
+        </Heading>
+        <RadioGroup>
+          <Stack direction="row">
+            <Radio value="" defaultChecked {...register('bodyType')}>
+              none
+            </Radio>
+            <Radio value="application/json" {...register('bodyType')}>
+              application/json
+            </Radio>
+            <Radio value="text/html" {...register('bodyType')}>
+              text/html
+            </Radio>
+          </Stack>
+        </RadioGroup>
+      </Flex>
+    </>
+  )
+}
+
 export function NewAPI() {
   const navigate = useNavigate()
 
@@ -193,6 +224,7 @@ export function NewAPI() {
   } = methods
 
   const watched = watch()
+  console.log(watched)
 
   function handleQuickRun() {
     navigate('/console/api-result', {
@@ -253,6 +285,10 @@ export function NewAPI() {
                 </Button>
               </Flex>
 
+              <BodyInput />
+              {watched.bodyType != '' && (
+                <Textarea mt={'4'} h={'36'} {...register('body')}></Textarea>
+              )}
               <APIHeaders />
               <QueryParams />
 
