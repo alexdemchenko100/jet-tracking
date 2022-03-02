@@ -32,6 +32,9 @@ import {
 import { useNavigate } from 'react-router-dom'
 
 import { FiPlusCircle, FiDelete, FiTrash, FiTrash2 } from 'react-icons/fi'
+import { useState } from 'react'
+import { APIResult } from './APIResult'
+import { MdLabel } from 'react-icons/md'
 
 function SliderThumbWithTooltip() {
   const [sliderValue, setSliderValue] = React.useState(1)
@@ -223,53 +226,82 @@ export function NewAPI() {
     formState: { errors },
   } = methods
 
+  const [showResult, setShowResult] = useState(false)
+
   const watched = watch()
   console.log(watched)
 
   function handleQuickRun() {
-    navigate('/console/api-result', {
-      state: { monitor: { ...watched } },
-    })
+    // navigate('/console/api-result', {
+    //   state: { monitor: { ...watched } },
+    // })
+    setShowResult(true)
   }
 
   return (
-    <>
-      <Heading size={'lg'} mb={'10'}>
-        Create new API monitor
-      </Heading>
-      <Divider />
-      <FormProvider {...methods}>
-        <form>
-          <Box>
-            <Flex minH={'100vh'} justify={'start'} direction={'column'}>
-              <FormControl id="name">
-                <FormLabel htmlFor="name">Name</FormLabel>
-                <Input type="name" placeholder="" />
-              </FormControl>
-
-              <Flex justify={'start'} alignItems={'end'} mt={'4'}>
-                <FormControl id="method" maxW={'32'}>
-                  <FormLabel htmlFor="method">Method</FormLabel>
-                  <Select
-                    color={'blue.500'}
-                    fontWeight={'bold'}
-                    {...register('method')}
-                  >
-                    <option defaultValue={'GET'} value="GET">
-                      GET
-                    </option>
-                    <option value="POST">POST</option>
-                    <option value="OPTIONS">OPTIONS</option>
-                  </Select>
+    <Flex>
+      <Box w={showResult ? '50%' : '100%'}>
+        <Heading size={'lg'} mb={'10'}>
+          Create new API monitor
+        </Heading>
+        <Divider />
+        <FormProvider {...methods}>
+          <form>
+            <Box>
+              <Flex minH={'100vh'} justify={'start'} direction={'column'}>
+                <FormControl id="name">
+                  <FormLabel htmlFor="name">Name</FormLabel>
+                  <Input type="name" placeholder="" />
                 </FormControl>
 
-                <FormControl id="url" ml={'2'}>
-                  <FormLabel htmlFor="url">URL</FormLabel>
-                  <Input
-                    type="url"
-                    placeholder="url here"
-                    {...register('url')}
-                  />
+                <Flex justify={'start'} alignItems={'end'} mt={'4'}>
+                  <FormControl id="method" maxW={'32'}>
+                    <FormLabel htmlFor="method">Method</FormLabel>
+                    <Select
+                      color={'blue.500'}
+                      fontWeight={'bold'}
+                      {...register('method')}
+                    >
+                      <option defaultValue={'GET'} value="GET">
+                        GET
+                      </option>
+                      <option value="POST">POST</option>
+                      <option value="OPTIONS">OPTIONS</option>
+                    </Select>
+                  </FormControl>
+
+                  <FormControl id="url" ml={'2'}>
+                    <FormLabel htmlFor="url">URL</FormLabel>
+                    <Input
+                      type="url"
+                      placeholder="url here"
+                      {...register('url')}
+                    />
+                  </FormControl>
+
+                  <Button
+                    bg={'blue.400'}
+                    color={'white'}
+                    _hover={{
+                      bg: 'blue.500',
+                    }}
+                    ml={'4'}
+                    onClick={() => handleQuickRun()}
+                  >
+                    Run now
+                  </Button>
+                </Flex>
+
+                <BodyInput />
+                {watched.bodyType != '' && (
+                  <Textarea mt={'4'} h={'36'} {...register('body')}></Textarea>
+                )}
+                <APIHeaders />
+                <QueryParams />
+
+                <FormControl id="frequency" mt={'10'} maxW={'80%'}>
+                  <FormLabel htmlFor="frequency">Frequency</FormLabel>
+                  <SliderThumbWithTooltip />
                 </FormControl>
 
                 <Button
@@ -278,40 +310,21 @@ export function NewAPI() {
                   _hover={{
                     bg: 'blue.500',
                   }}
-                  ml={'4'}
-                  onClick={() => handleQuickRun()}
+                  mt={'10'}
+                  w={'40'}
                 >
-                  Run now
+                  Create API Monitor
                 </Button>
               </Flex>
-
-              <BodyInput />
-              {watched.bodyType != '' && (
-                <Textarea mt={'4'} h={'36'} {...register('body')}></Textarea>
-              )}
-              <APIHeaders />
-              <QueryParams />
-
-              <FormControl id="frequency" mt={'10'} maxW={'80%'}>
-                <FormLabel htmlFor="frequency">Frequency</FormLabel>
-                <SliderThumbWithTooltip />
-              </FormControl>
-
-              <Button
-                bg={'blue.400'}
-                color={'white'}
-                _hover={{
-                  bg: 'blue.500',
-                }}
-                mt={'10'}
-                w={'40'}
-              >
-                Create API Monitor
-              </Button>
-            </Flex>
-          </Box>
-        </form>
-      </FormProvider>
-    </>
+            </Box>
+          </form>
+        </FormProvider>
+      </Box>
+      {showResult && (
+        <Box w={'50%'} ml={'10'}>
+          <APIResult monitor={{ ...watched }} />
+        </Box>
+      )}
+    </Flex>
   )
 }

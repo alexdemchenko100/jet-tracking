@@ -157,22 +157,12 @@ export function APIResult(props?: Props) {
             Headers
           </Heading>
 
-          <Box maxW={'200'}>
-            <Table
-              mt={'2'}
-              variant={'striped'}
-              size={'md'}
-              maxW={'200'}
-              overflow={'clip'}
-            >
+          <Box>
+            <Table mt={'2'} variant={'striped'} size={'md'} maxW={'100%'}>
               <Thead>
                 <Tr>
-                  <Th width={'100'} overflow={'clip'}>
-                    Name
-                  </Th>
-                  <Th maxW={'100'} overflow={'clip'}>
-                    Value
-                  </Th>
+                  <Th minW={'30%'}>Name</Th>
+                  <Th maxW={'70%'}>Value</Th>
                 </Tr>
               </Thead>
               <Tbody>
@@ -182,7 +172,7 @@ export function APIResult(props?: Props) {
                       <Td fontWeight={'semibold'} color={'blue.500'}>
                         {header[0]}
                       </Td>
-                      <Td>{header[1]}</Td>
+                      <Td>{header[1]} </Td>
                     </Tr>
                   )
                 })}
