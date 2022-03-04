@@ -35,6 +35,7 @@ import { FiPlusCircle, FiDelete, FiTrash, FiTrash2 } from 'react-icons/fi'
 import { useState } from 'react'
 import { APIResult } from './APIResult'
 import { MdLabel } from 'react-icons/md'
+import { Autocomplete, Option } from './Autocomplete'
 
 function SliderThumbWithTooltip() {
   const [sliderValue, setSliderValue] = React.useState(1)
@@ -184,6 +185,51 @@ function QueryParams(props: any) {
   )
 }
 
+function EnvVariables(props: any) {
+  const { control, register } = useFormContext()
+  const {
+    fields: env,
+    append,
+    remove,
+  } = useFieldArray({
+    name: 'env',
+    control,
+  })
+
+  return (
+    <>
+      <Flex mt={'4'} alignItems={'center'}>
+        <Heading size={'sm'}>Environment</Heading>
+        <Button onClick={() => append([['', '']])}>
+          <Icon color="blue.500" as={FiPlusCircle} cursor="pointer" />
+        </Button>
+      </Flex>
+
+      <Box mt={'4'}>
+        {env.map((_, index) => (
+          <Flex key={index} mb={'2'}>
+            <Input
+              type={'text'}
+              {...register(`env.${index}.0` as const)}
+              defaultValue={''}
+            />
+            <Input
+              type={'text'}
+              ml={'4'}
+              {...register(`env.${index}.1` as const)}
+              defaultValue={''}
+            />
+
+            <Button onClick={() => remove(index)}>
+              <Icon color="red.500" as={FiTrash2} cursor="pointer" />
+            </Button>
+          </Flex>
+        ))}
+      </Box>
+    </>
+  )
+}
+
 function BodyInput(props: any) {
   const { control, register } = useFormContext()
 
@@ -238,12 +284,29 @@ export function NewAPI() {
     setShowResult(true)
   }
 
+  const options = [
+    { value: 'javascript', label: 'Javascript' },
+    { value: 'chakra', label: 'Chakra' },
+    { value: 'react', label: 'React' },
+    { value: 'css', label: 'CSS' },
+  ]
+  const [result, setResult] = React.useState<Option[]>([])
+
   return (
     <Flex>
       <Box w={showResult ? '50%' : '100%'}>
         <Heading size={'lg'} mb={'10'}>
           Create new API monitor
         </Heading>
+        <Autocomplete
+          options={options}
+          result={result}
+          setResult={(options: Option[]) => {
+            setResult(options)
+          }}
+          placeholder="Autocomplete"
+        />
+
         <Divider />
         <FormProvider {...methods}>
           <form>
@@ -253,6 +316,8 @@ export function NewAPI() {
                   <FormLabel htmlFor="name">Name</FormLabel>
                   <Input type="name" placeholder="" />
                 </FormControl>
+
+                <EnvVariables />
 
                 <Flex justify={'start'} alignItems={'end'} mt={'4'}>
                   <FormControl id="method" maxW={'32'}>
@@ -272,8 +337,13 @@ export function NewAPI() {
 
                   <FormControl id="url" ml={'2'}>
                     <FormLabel htmlFor="url">URL</FormLabel>
-                    <Input
-                      type="url"
+                    <Autocomplete
+                      options={options}
+                      result={result}
+                      setResult={(options: Option[]) => {
+                        setResult(options)
+                      }}
+                      // type="url"
                       placeholder="url here"
                       {...register('url')}
                     />

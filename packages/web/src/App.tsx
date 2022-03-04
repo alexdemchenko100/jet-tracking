@@ -13,6 +13,7 @@ import ForgotPassword from './components/ForgotPassword'
 import Console from './Console'
 import { NewAPI } from './components/NewAPI'
 import { APIResult } from './components/APIResult'
+import NewEnv from './components/NewEnv'
 const history = createBrowserHistory()
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/console" element={<Console />}>
             <Route path="/console/api/new" element={<NewAPI />} />
+            <Route path="/console/env/new" element={<NewEnv />} />
             <Route path="/console/api-result" element={<APIResult />} />
           </Route>
 

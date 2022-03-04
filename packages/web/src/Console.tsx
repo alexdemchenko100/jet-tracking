@@ -20,24 +20,30 @@ import {
 import { FaBell } from 'react-icons/fa'
 import { AiFillGift } from 'react-icons/ai'
 import { HiCollection } from 'react-icons/hi'
-import { MdHome } from 'react-icons/md'
 import React, { ReactNode } from 'react'
 import { IconType } from 'react-icons/lib'
 import { FiSettings, FiClipboard, FiMenu, FiSearch } from 'react-icons/fi'
+import { HiCode } from 'react-icons/hi'
+import { MdHome, MdKeyboardArrowRight } from 'react-icons/md'
 
 import { logoTitle } from './assets/Assets'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 
 export default function Console() {
   const sidebar = useDisclosure()
+  const apiMonitorNav = useDisclosure()
+  const envNav = useDisclosure()
+
+  const navigate = useNavigate()
 
   interface Props extends FlexProps {
     icon?: IconType
     children: ReactNode
+    to?: string
   }
 
   const NavItem: React.FC<Props> = (props) => {
-    const { icon, children, ...rest } = props
+    const { icon, children, to, ...rest } = props
     return (
       <Flex
         align="center"
@@ -53,6 +59,7 @@ export default function Console() {
         role="group"
         fontWeight="semibold"
         transition=".15s ease"
+        onClick={() => to && navigate(to)}
         {...rest}
       >
         {icon && (
@@ -98,13 +105,47 @@ export default function Console() {
         aria-label="Main Navigation"
       >
         <NavItem icon={MdHome}>Home</NavItem>
-        <NavItem icon={HiCollection}>API Monitors</NavItem>
-        <NavItem icon={FiClipboard}>Browser Checks</NavItem>
+
+        <NavItem icon={HiCollection} onClick={apiMonitorNav.onToggle}>
+          API Monitors
+          <Icon
+            as={MdKeyboardArrowRight}
+            ml="auto"
+            transform={apiMonitorNav.isOpen ? 'rotate(90deg)' : ''}
+          />
+        </NavItem>
+        <Collapse in={apiMonitorNav.isOpen}>
+          <NavItem pl="12" py="2" to="/console/api/new">
+            New API Check
+          </NavItem>
+          <NavItem pl="12" py="2">
+            Check #1
+          </NavItem>
+          <NavItem pl="12" py="2">
+            Check #2
+          </NavItem>
+        </Collapse>
+
+        <NavItem icon={FiClipboard} onClick={envNav.onToggle}>
+          Environments
+          <Icon
+            as={MdKeyboardArrowRight}
+            ml="auto"
+            transform={envNav.isOpen ? 'rotate(90deg)' : ''}
+          />
+        </NavItem>
+        <Collapse in={envNav.isOpen}>
+          <NavItem pl="12" py="2" to="/console/env/new">
+            New Environment
+          </NavItem>
+        </Collapse>
+
         <NavItem icon={AiFillGift}>Dashboards</NavItem>
         <NavItem icon={FiSettings}>Settings</NavItem>
       </Flex>
     </Box>
   )
+
   return (
     <Box
       as="section"
