@@ -4,6 +4,13 @@ import axios, { AxiosRequestHeaders, AxiosResponse } from 'axios'
 import { Monitor, MonitorTuples, MonitorResult } from '@httpmon/db'
 import timer, { Timings } from '@szmarczak/http-timer'
 import https from 'https'
+import clone from 'lodash.clonedeep'
+import Handlebars from 'handlebars'
+import { randomInt } from 'crypto'
+
+Handlebars.registerHelper('RandomInt', function () {
+  return randomInt(10000)
+})
 
 const transport = {
   request: function httpsWithTimer(...args: any[]) {
@@ -54,10 +61,55 @@ function headersToMap(headers: MonitorTuples) {
   return hmap
 }
 
-export async function execMonitor(mon: Monitor) {
+function processTemplates(mon: Monitor) {
+  //url bar
+  //header value fields
+  //query value fields
+  //body
+  let env: { [k: string]: string } = {}
+  if (mon.env && typeof mon.env != 'string') {
+    mon.env.map(([name, value]) => {
+      env[name] = value
+    })
+  }
+  console.log('env', env)
+
+  let m = clone(mon)
+
+  m.url = Handlebars.compile(mon.url)(env)
+
+  if (mon.headers && typeof mon.headers != 'string') {
+    let hdrs = m.headers as MonitorTuples
+    m.headers = hdrs.map(([name, value]) => [
+      name,
+      Handlebars.compile(value)(env),
+    ])
+  }
+
+  if (mon.queryParams && typeof mon.queryParams != 'string') {
+    let qp = m.queryParams as MonitorTuples
+    m.queryParams = qp.map(([name, value]) => [
+      name,
+      Handlebars.compile(value)(env),
+    ])
+  }
+
+  if (m.body) {
+    m.body = Handlebars.compile(mon.body)(env)
+  }
+  return m
+}
+
+export async function execMonitor(monitor: Monitor) {
   let certCommonName = ''
   let certExpiryDays = 0
   let resp: AxiosResponse<any, any>
+
+  var startTime = performance.now()
+  const mon = processTemplates(monitor)
+  var endTime = performance.now()
+  console.log(`Call to doSomething took ${endTime - startTime} milliseconds`)
+
   try {
     resp = await axios.request({
       url: mon.url,
@@ -68,8 +120,7 @@ export async function execMonitor(mon: Monitor) {
       httpsAgent: new https.Agent({ keepAlive: false }),
       headers: headersToMap((mon.headers as MonitorTuples) ?? []),
       responseType: 'text',
-      params:  headersToMap((mon.queryParams as MonitorTuples) ?? []),
-      
+      params: headersToMap((mon.queryParams as MonitorTuples) ?? []),
     })
 
     const certificate: PeerCertificate =
