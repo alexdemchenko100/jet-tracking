@@ -5,7 +5,10 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "web": "pnpm run dev -C packages/web",
+    "api": "pnpm run dev -C packages/api",
+    "db": "pnpm run dev -C packages/db",
+    "dev": "concurrently pnpm:db pnpm:api pnpm:web"
   },
   "repository": {
     "type": "git",

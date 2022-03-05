@@ -19,10 +19,10 @@ const server = fastify({
 server.register(router)
 server.register(fastifyCors)
 
-// server.addHook('onRequest', (req, _, done) => {
-//   req.log.info({ url: req.url, body: req, id: req.id }, 'received request')
-//   done()
-// })
+server.addHook('preValidation', (req, _, done) => {
+  req.log.info({ url: req.url, body: req.body, id: req.id }, 'received request')
+  done()
+})
 
 server.setErrorHandler((error, _req, reply) => {
   // The expected errors will be handled here, but unexpected ones should eventually result in a crash.

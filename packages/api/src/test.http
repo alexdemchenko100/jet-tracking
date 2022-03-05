@@ -7,8 +7,8 @@ content-type: application/json
         {"key": "certExpiryDays", "op": ">", "value": "300"},
         {"key": "totalTime", "op": "<", "value": "500"}
         ],
-    "frequency": "10",
-    "name": "gg",
+    "frequency": "300",
+    "name": "x1",
     "url": "http://httpbin.org/headers",
     "headers": [["x-proautoma-synthetics", "xxx"]],
     "env": [["TOKEN", "bigtoken"]]

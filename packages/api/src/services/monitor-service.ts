@@ -9,7 +9,9 @@ import emitter from './emitter.js'
 import { sql } from 'kysely'
 import { db, Monitor, MonitorTuples } from '@httpmon/db'
 import { nanoid } from 'nanoid'
+import pino from 'pino'
 
+const logger = pino()
 export class MonitorService {
   static instance: MonitorService
 
@@ -21,11 +23,22 @@ export class MonitorService {
   }
 
   public async create(input: Monitor) {
+    logger.info('mon:')
+    logger.info(input)
+
+    const sql = db
+      .insertInto('Monitor')
+      .values({ ...input, id: nanoid() })
+      .compile().sql
+
+    logger.info(sql)
+
     const mon = await db
       .insertInto('Monitor')
       .values({ ...input, id: nanoid() })
       .returningAll()
       .executeTakeFirstOrThrow()
+
     emitter.emit('monitor', mon.id)
     return mon
   }
