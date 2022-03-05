@@ -77,7 +77,7 @@ export const MonitorSchema = Type.Object({
   name: Type.String({ minLength: 2 }),
   status: Type.String({ default: 'active' }),
   method: Type.String({ default: 'GET' }),
-  url: Type.String({ format: 'url' }),
+  url: Type.String(),
   frequency: Type.Integer(),
   body: Type.Optional(Type.String()),
   bodyType: Type.Optional(Type.String()),
