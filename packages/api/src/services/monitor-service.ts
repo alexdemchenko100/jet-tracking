@@ -78,6 +78,8 @@ export class MonitorService {
       .selectFrom('MonitorResult')
       .selectAll()
       .where('monitorId', '=', monitorId)
+      .limit(100)
+      .orderBy('MonitorResult.createdAt', 'desc')
       .execute()
     const resultSet = results.map((result) => {
       return {

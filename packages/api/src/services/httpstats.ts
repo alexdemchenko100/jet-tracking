@@ -67,12 +67,11 @@ function processTemplates(mon: Monitor) {
   //query value fields
   //body
   let env: { [k: string]: string } = {}
-  if (mon.env && typeof mon.env != 'string') {
-    mon.env.map(([name, value]) => {
+  if (mon.env && Array.isArray(mon.env)) {
+    mon.env.map(([name, value], _index) => {
       env[name] = value
     })
   }
-  console.log('env', env)
 
   let m = clone(mon)
 
