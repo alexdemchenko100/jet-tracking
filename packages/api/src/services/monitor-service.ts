@@ -1,17 +1,31 @@
-import PrismaPkg from '@prisma/client'
-
-const { PrismaClient } = PrismaPkg
-
-const prisma = new PrismaClient()
-
 import emitter from './emitter.js'
 
-import { sql } from 'kysely'
 import { db, Monitor, MonitorTuples } from '@httpmon/db'
 import { nanoid } from 'nanoid'
 import pino from 'pino'
 
 const logger = pino()
+
+/**
+ *
+ * Super hacky function to go around type safety
+ * Since PG cannot take JSON arrays as is
+ * (it converts them into PG array which is not what we want)
+ * here, convert all JSON arrays into JSON as a string
+ * @param mon
+ * @returns
+ */
+function monitorToDBMonitor(mon: Monitor): Monitor {
+  let values: { [k: string]: any } = { ...mon }
+  if (values.headers) values.headers = JSON.stringify(values.headers)
+  if (values.queryParams)
+    values.queryParams = JSON.stringify(values.queryParams)
+  if (values.env) values.env = JSON.stringify(values.env)
+  if (values.assertions) values.assertions = JSON.stringify(values.assertions)
+
+  return values as Monitor
+}
+
 export class MonitorService {
   static instance: MonitorService
 
@@ -22,59 +36,39 @@ export class MonitorService {
     return MonitorService.instance
   }
 
-  public async create(input: Monitor) {
+  public async create(mon: Monitor) {
     logger.info('mon:')
-    logger.info(input)
+    logger.info(mon)
 
-    const sql = db
+    const monResp = await db
       .insertInto('Monitor')
-      .values({ ...input, id: nanoid() })
-      .compile().sql
-
-    logger.info(sql)
-
-    const mon = await db
-      .insertInto('Monitor')
-      .values({ ...input, id: nanoid() })
+      .values({ ...monitorToDBMonitor(mon), id: nanoid() })
       .returningAll()
-      .executeTakeFirstOrThrow()
+      .executeTakeFirst()
 
-    emitter.emit('monitor', mon.id)
-    return mon
+    emitter.emit('monitor', monResp?.id)
+    return monResp
   }
 
-  // const mon = await prisma.monitor.create({
-  //   data: { ...input },
-  // })
-
-  // emitter.emit('monitor', mon.id)
-  // return mon
-
-  // public async update(input: Monitor) {
-  //   const mon = await prisma.monitor.update({
-  //     where: { id: input.id },
-  //     data: { ...input },
-  //   })
-  //   return mon
-  // }
+  public async update(mon: Monitor) {
+    const monResp = await db
+      .updateTable('Monitor')
+      .set({ ...monitorToDBMonitor(mon) })
+      .returningAll()
+      .executeTakeFirst()
+    return monResp
+  }
 
   public async find(id: string) {
-    try {
-      const mon = await prisma.monitor.findUnique({
-        where: {
-          id,
-        },
-      })
-      return mon
-    } catch (e) {
-      return null
-    }
+    const monResp = await db
+      .selectFrom('Monitor')
+      .selectAll()
+      .where('id', '=', id)
+      .executeTakeFirst()
+    return monResp
   }
 
   public async list() {
-    // const monList = await prisma.monitor.findMany()
-    // return monList
-
     const monList = await db.selectFrom('Monitor').selectAll().execute()
     return monList
   }
@@ -97,7 +91,7 @@ export class MonitorService {
   public async setEnv(monitorId: string, env: MonitorTuples) {
     await db
       .updateTable('Monitor')
-      .set({ env: JSON.stringify(env) })
+      .set({ env: JSON.stringify(env) as any })
       .where('id', '=', monitorId)
       .execute()
   }

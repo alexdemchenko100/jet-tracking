@@ -119,14 +119,14 @@ export type MonitorTable = {
   frequency: number
   body?: string
   bodyType?: string
-  headers?: MonitorTuples | string
-  queryParams?: MonitorTuples | string
+  headers?: MonitorTuples
+  queryParams?: MonitorTuples
   cookies?: string
   followRedirects?: number
   timeout?: number
   assertions?: MonitorAssertion[]
   notifyEmail?: string
-  env?: MonitorTuples | string
+  env?: MonitorTuples
 }
 
 export type Monitor = MonitorTable

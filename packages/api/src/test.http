@@ -10,7 +10,7 @@ content-type: application/json
     "frequency": "300",
     "name": "x1",
     "url": "http://httpbin.org/headers",
-    "headers": [["x-proautoma-synthetics", "xxx"]],
+    "headers": [["x-proautoma-synthetics", "12345"]],
     "env": [["TOKEN", "bigtoken"]]
 }
 
