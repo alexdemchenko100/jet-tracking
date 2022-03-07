@@ -73,11 +73,13 @@ export class MonitorService {
     return monList
   }
 
-  public async getMonitorResults(monitorId: string) {
+  public async getMonitorResults(monitorId?: string) {
     const results = await db
       .selectFrom('MonitorResult')
       .selectAll()
-      .where('monitorId', '=', monitorId)
+      .if(Boolean(monitorId), (qb) =>
+        qb.where('monitorId', '=', monitorId as string)
+      )
       .limit(100)
       .orderBy('MonitorResult.createdAt', 'desc')
       .execute()

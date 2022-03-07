@@ -87,6 +87,26 @@ export default async function MonitorController(app: FastifyInstance) {
     }
   )
 
+  /**
+   * Get all monitor results
+   */
+  app.get<{ Params: Params }>(
+    '/results',
+    {
+      schema: {
+        response: { 200: Type.Array(MonitorResultSchema) },
+      },
+    },
+    async function (_, reply) {
+      const mon = await monitorSvc.getMonitorResults()
+      if (mon) {
+        reply.send(mon)
+      } else {
+        reply.code(404).send('Not found')
+      }
+    }
+  )
+
   app.post<{ Body: MonitorTuples; Params: Params }>(
     '/:id/env',
     {

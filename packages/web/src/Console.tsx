@@ -104,27 +104,13 @@ export default function Console() {
         color="gray.600"
         aria-label="Main Navigation"
       >
-        <NavItem icon={MdHome}>Home</NavItem>
-
-        <NavItem icon={HiCollection} onClick={apiMonitorNav.onToggle}>
-          API Monitors
-          <Icon
-            as={MdKeyboardArrowRight}
-            ml="auto"
-            transform={apiMonitorNav.isOpen ? 'rotate(90deg)' : ''}
-          />
+        <NavItem icon={MdHome} to="/console">
+          Home
         </NavItem>
-        <Collapse in={apiMonitorNav.isOpen}>
-          <NavItem pl="12" py="2" to="/console/api/new">
-            New API Check
-          </NavItem>
-          <NavItem pl="12" py="2">
-            Check #1
-          </NavItem>
-          <NavItem pl="12" py="2">
-            Check #2
-          </NavItem>
-        </Collapse>
+
+        <NavItem icon={HiCollection} to="/console/monitors">
+          API Monitors
+        </NavItem>
 
         <NavItem icon={FiClipboard} onClick={envNav.onToggle}>
           Environments
