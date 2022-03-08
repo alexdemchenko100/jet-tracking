@@ -11301,7 +11301,7 @@ packages:
       jest-validate: 26.6.2
       micromatch: 4.0.4
       pretty-format: 26.6.2
-      ts-node: 10.5.0_003c8a6da24af261bf8b8ce51aec1adf
+      ts-node: 10.5.0_99a448058f874aec2a353d0e974167cc
     transitivePeerDependencies:
       - bufferutil
       - canvas
@@ -11340,7 +11340,7 @@ packages:
       micromatch: 4.0.4
       pretty-format: 27.5.0
       slash: 3.0.0
-      ts-node: 10.5.0_003c8a6da24af261bf8b8ce51aec1adf
+      ts-node: 10.5.0_99a448058f874aec2a353d0e974167cc
     transitivePeerDependencies:
       - bufferutil
       - canvas

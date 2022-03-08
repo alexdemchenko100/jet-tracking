@@ -23,5 +23,5 @@ content-type: application/json
 
 ###
 
-GET http://localhost:3006/monitors/ckzsq2sus0000ohdmaom1kvd2 HTTP/1.1
+GET http://localhost:3006/monitors/wA3ztf0gr-_4GfJjjP_qn/results HTTP/1.1
 content-type: application/json

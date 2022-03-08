@@ -1,9 +1,9 @@
-import { ChakraProvider, Container } from '@chakra-ui/react'
+import { ChakraProvider } from '@chakra-ui/react'
 import RealTimeMonitor from './RealTimeMonitor'
 import { Home } from './Home'
 import './App.css'
 
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 
 import { unstable_HistoryRouter as HistoryRouter } from 'react-router-dom'
 import { createBrowserHistory } from 'history'
@@ -12,10 +12,10 @@ import SignUp from './components/SignUp'
 import ForgotPassword from './components/ForgotPassword'
 import Console from './Console'
 import { NewAPI } from './components/NewAPI'
-import { APIResult } from './components/APIResult'
 import NewEnv from './components/NewEnv'
 import { ResultsDashboard } from './components/ResultDashboard'
 import { MonitorDashboard } from './components/MonitorDashboard'
+import MonitorSummary from './components/MonitorSummary'
 const history = createBrowserHistory()
 
 function App() {
@@ -26,10 +26,10 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/console" element={<Console />}>
             <Route path="/console/monitors" element={<MonitorDashboard />} />
+            <Route path="/console/monitor/:id" element={<MonitorSummary />} />
             <Route path="/console/results" element={<ResultsDashboard />} />
             <Route path="/console/api/new" element={<NewAPI />} />
             <Route path="/console/env/new" element={<NewEnv />} />
-            <Route path="/console/api-result" element={<APIResult />} />
           </Route>
 
           <Route path="/console/signin" element={<SignIn />} />

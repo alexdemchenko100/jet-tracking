@@ -33,7 +33,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { FiPlusCircle, FiDelete, FiTrash, FiTrash2 } from 'react-icons/fi'
 import { useState } from 'react'
-import { APIResult } from './APIResult'
+import { APIOnDemandResult } from './APIResult'
 import { MdLabel } from 'react-icons/md'
 import { Autocomplete, Option } from './Autocomplete'
 
@@ -392,7 +392,7 @@ export function NewAPI() {
       </Box>
       {showResult && (
         <Box w={'50%'} ml={'10'}>
-          <APIResult monitor={{ ...watched }} />
+          <APIOnDemandResult monitor={{ ...watched }} />
         </Box>
       )}
     </Flex>

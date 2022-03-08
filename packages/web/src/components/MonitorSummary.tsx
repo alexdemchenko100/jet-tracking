@@ -1,4 +1,4 @@
-import { Monitor, MonitorTable } from '@httpmon/db'
+import { MonitorResult } from '@httpmon/db'
 import axios from 'axios'
 import { useQuery } from 'react-query'
 
@@ -34,57 +34,47 @@ import {
 } from '@chakra-ui/icons'
 
 import { useTable, useSortBy, usePagination, Column } from 'react-table'
-import { useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { APIResult } from './APIResult'
 
-const columns: Column<MonitorTable>[] = [
+const columns: Column<MonitorResult>[] = [
   {
-    Header: 'Name',
-    accessor: 'name',
+    Header: 'When',
+    accessor: 'createdAt',
   },
   {
-    Header: 'Method',
-    accessor: 'method',
-  },
-  {
-    Header: 'Url',
-    accessor: 'url',
-  },
-  {
-    Header: 'Frequency',
-    accessor: 'frequency',
+    Header: 'Code',
+    accessor: 'code',
   },
 ]
 
-export function MonitorDashboard() {
-  const [monitors, setMonitors] = useState<Monitor[]>()
-  const navigate = useNavigate()
+export function MonitorSummary() {
+  const [currentResult, setCurrentResult] = useState<MonitorResult>()
 
-  async function getMonitors() {
+  const { id } = useParams()
+
+  async function getMonitorResults() {
     let resp = await axios({
       method: 'GET',
-      url: '/monitors',
+      url: '/monitors/' + id + '/results',
     })
 
     if (resp.status == 200) {
-      const results = resp.data as Monitor[]
-      setMonitors(results)
+      const results = resp.data as MonitorResult[]
       return results
     }
     throw Error('Failed to get odemand results')
   }
 
-  const { isLoading, data } = useQuery<Monitor[], Error>(
-    'monitors-dashboard',
-    () => getMonitors(),
-    {}
+  const { isLoading, data: results } = useQuery<MonitorResult[], Error>(
+    ['monitor-result', id],
+    () => getMonitorResults()
   )
-
-  type DashMon = Pick<MonitorTable, 'url' | 'method' | 'name' | 'frequency'>
 
   const tableInstance = useTable(
     {
       columns,
-      data: data ?? [],
+      data: results ?? [],
       autoResetSortBy: false,
       autoResetPage: false,
     },
@@ -260,9 +250,7 @@ export function MonitorDashboard() {
                 return (
                   <Tr
                     className="tr1"
-                    onClick={() => {
-                      navigate('/console/monitor/' + row.original.id)
-                    }}
+                    onClick={() => setCurrentResult(row.original)}
                     {...row.getRowProps()}
                   >
                     {row.cells.map((cell) => {
@@ -370,8 +358,10 @@ export function MonitorDashboard() {
           />
         </Flex>
       </Flex>
+
+      {currentResult && <APIResult result={currentResult} />}
     </>
   )
 }
 
-export default MonitorDashboard
+export default MonitorSummary

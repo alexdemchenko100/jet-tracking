@@ -47,7 +47,7 @@ function responseToMonitorResult(resp: AxiosResponse<any, any> | null) {
     body,
     bodyJson,
     bodySize,
-    headers: Object.entries(resp?.headers ?? {}) as MonitorTuples,
+    headers: resp?.headers ? headersToTuples(resp?.headers) : [],
     certCommonName: '',
     certExpiryDays: 0,
   }
@@ -59,6 +59,28 @@ function headersToMap(headers: MonitorTuples) {
     hmap[header[0]] = header[1]
   })
   return hmap
+}
+
+/**
+ *
+ * Axios formats duplicate response headers as an array
+ * ex: { "set-cookie": [ "cookie-1", "cookie-2"]}
+ * This function deconstructs such array to confirm to
+ * the MonitorTuples format
+ * ex: [ ["set-cookie", "cookie-1"], ["set-cookie", "cookie-2"]]
+ */
+function headersToTuples(headers: object): MonitorTuples {
+  let tuples: MonitorTuples = []
+  Object.entries(headers ?? {}).map(([key, value]) => {
+    if (Array.isArray(value)) {
+      value.map((item) => {
+        tuples.push([key, item])
+      })
+    } else {
+      tuples.push([key, value])
+    }
+  })
+  return tuples
 }
 
 function processTemplates(mon: Monitor) {
