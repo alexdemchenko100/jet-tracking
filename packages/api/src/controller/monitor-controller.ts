@@ -80,7 +80,6 @@ export default async function MonitorController(app: FastifyInstance) {
     async function ({ params: { id } }, reply) {
       const results = await monitorSvc.getMonitorResults(id)
       if (results) {
-        app.log.error(results[0])
         reply.send(results)
       } else {
         reply.code(404).send('Not found')

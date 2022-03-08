@@ -15,7 +15,6 @@ importers:
   packages/api:
     specifiers:
       '@httpmon/db': workspace:^0.0.1
-      '@prisma/client': ^3.9.2
       '@sinclair/typebox': ^0.23.4
       '@szmarczak/http-timer': ^5.0.1
       '@types/lodash.clonedeep': ^4.5.6
@@ -45,7 +44,6 @@ importers:
       typescript: ^4.5.5
     dependencies:
       '@httpmon/db': link:../db
-      '@prisma/client': 3.9.2_prisma@3.9.2
       '@sinclair/typebox': 0.23.4
       '@szmarczak/http-timer': 5.0.1
       axios: 0.25.0
@@ -4934,24 +4932,6 @@ packages:
 
   /@popperjs/core/2.11.2:
     resolution: {integrity: sha512-92FRmppjjqz29VMJ2dn+xdyXZBrMlE42AV6Kq6BwjWV7CNUW1hs2FtxSNLQE+gJhaZ6AAmYuO9y8dshhcBl7vA==}
-    dev: false
-
-  /@prisma/client/3.9.2_prisma@3.9.2:
-    resolution: {integrity: sha512-VlEIYVMyfFZHbVBOlunPl47gmP/Z0zzPjPj8I7uKEIaABqrUy50ru3XS0aZd8GFvevVwt7p91xxkUjNjrWhKAQ==}
-    engines: {node: '>=12.6'}
-    requiresBuild: true
-    peerDependencies:
-      prisma: '*'
-    peerDependenciesMeta:
-      prisma:
-        optional: true
-    dependencies:
-      '@prisma/engines-version': 3.9.0-58.bcc2ff906db47790ee902e7bbc76d7ffb1893009
-      prisma: 3.9.2
-    dev: false
-
-  /@prisma/engines-version/3.9.0-58.bcc2ff906db47790ee902e7bbc76d7ffb1893009:
-    resolution: {integrity: sha512-5Dh+qTDhpPR66w6NNAnPs+/W/Qt4r1DSd+qhfPFcDThUK4uxoZKGlPb2IYQn5LL+18aIGnmteDf7BnVMmvBNSQ==}
     dev: false
 
   /@prisma/engines/3.9.0-58.bcc2ff906db47790ee902e7bbc76d7ffb1893009:
