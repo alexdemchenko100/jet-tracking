@@ -29,7 +29,7 @@ importers:
       fastify-cli: ^2.15.0
       fastify-cors: ^6.0.2
       fastify-tsconfig: ^1.0.1
-      got: 11.8.2
+      got: 11.8.3
       handlebars: ^4.7.7
       kysely: ^0.17.1
       lodash.clonedeep: ^4.5.0
@@ -53,7 +53,7 @@ importers:
       emittery: 0.10.1
       fastify: 3.27.1
       fastify-cors: 6.0.2
-      got: 11.8.2
+      got: 11.8.3
       handlebars: 4.7.7
       kysely: 0.17.1
       lodash.clonedeep: 4.5.0
@@ -10228,8 +10228,8 @@ packages:
       slash: 3.0.0
     dev: false
 
-  /got/11.8.2:
-    resolution: {integrity: sha512-D0QywKgIe30ODs+fm8wMZiAcZjypcCodPNuMz5H9Mny7RJ+IjJ10BdmGW7OM7fHXP+O7r6ZwapQ/YQmMSvB0UQ==}
+  /got/11.8.3:
+    resolution: {integrity: sha512-7gtQ5KiPh1RtGS9/Jbv1ofDpBFuq42gyfEib+ejaRBJuj/3tQFeR5+gw57e4ipaU8c/rCjvX6fkQz2lyDlGAOg==}
     engines: {node: '>=10.19.0'}
     dependencies:
       '@sindresorhus/is': 4.4.0

@@ -1,5 +1,4 @@
-import { Static, Type } from '@sinclair/typebox'
-import { Generated } from 'kysely'
+import { Type } from '@sinclair/typebox'
 
 export type MonitorTuples = [string, string][]
 
@@ -21,6 +20,7 @@ export const MonitorResultSchema = Type.Object({
   monitorId: Type.String(),
   createdAt: Type.Optional(Type.String()),
   err: Type.String(),
+  url: Type.String(),
   body: Type.String(),
   bodyJson: Type.Optional(Type.String()),
   bodySize: Type.Integer(),
@@ -46,6 +46,7 @@ export interface MonitorResultTable {
   monitorId: string
   code: number
   codeStatus: string
+  url: string
   body: string
   bodyJson?: object | string
   bodySize: number

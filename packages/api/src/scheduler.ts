@@ -1,4 +1,4 @@
-import { execMonitor } from './services/httpstats.js'
+import { execMonitor } from './services/monitor-exec.js'
 import { saveMonitorResult, selectReadyMonitors } from '@httpmon/db'
 import { processAssertions } from './services/assertions.js'
 

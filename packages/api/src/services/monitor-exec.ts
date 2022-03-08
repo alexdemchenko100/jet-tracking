@@ -1,5 +1,4 @@
-import { PeerCertificate } from 'tls'
-import axios, { AxiosRequestHeaders, AxiosResponse } from 'axios'
+import { DetailedPeerCertificate, PeerCertificate } from 'tls'
 
 import { Monitor, MonitorTuples, MonitorResult } from '@httpmon/db'
 import timer, { Timings } from '@szmarczak/http-timer'
@@ -7,41 +6,32 @@ import https from 'https'
 import clone from 'lodash.clonedeep'
 import Handlebars from 'handlebars'
 import { randomInt } from 'crypto'
-
+import got, { Method, Response } from 'got'
 import pino from 'pino'
-
 const logger = pino()
 
 Handlebars.registerHelper('RandomInt', function () {
   return randomInt(10000)
 })
 
-const transport = {
-  request: function httpsWithTimer(...args: any[]) {
-    const request = https.request.apply(null, args)
-    timer(request)
-    return request
-  },
-}
-
-function responseToMonitorResult(resp: AxiosResponse<any, any> | null) {
+function responseToMonitorResult(resp?: Response<string>) {
   let body: string = ''
   let bodyJson: string | undefined
   let bodySize = 0
-  if (resp?.data) {
-    if (typeof resp.data == 'object') {
-      bodyJson = JSON.stringify(resp.data, null, 2)
+  if (resp?.body) {
+    if (typeof resp.body == 'object') {
+      bodyJson = JSON.stringify(resp.body, null, 2)
       bodySize = bodyJson.length
-    } else if (typeof resp.data == 'string') {
-      body = resp.data
+    } else if (typeof resp.body == 'string') {
+      body = resp.body
       bodySize = body.length
     }
   }
-  let timings: Timings = resp?.request?.timings ?? null
+  let timings = resp?.timings
 
   return {
-    code: resp?.status ?? 0,
-    codeStatus: resp?.statusText ?? '',
+    code: resp?.statusCode ?? 0,
+    codeStatus: resp?.statusMessage ?? '',
     dnsLookupTime: timings?.phases?.dns ?? 0,
     tcpConnectTime: timings?.phases?.tcp ?? 0,
     tlsHandshakeTime: timings?.phases?.tls ?? 0,
@@ -58,7 +48,7 @@ function responseToMonitorResult(resp: AxiosResponse<any, any> | null) {
 }
 
 function headersToMap(headers: MonitorTuples) {
-  let hmap = <AxiosRequestHeaders>{}
+  let hmap: { [key: string]: string } = {}
   headers.forEach((header) => {
     hmap[header[0]] = header[1]
   })
@@ -125,10 +115,9 @@ function processTemplates(mon: Monitor) {
   return m
 }
 
-export async function execMonitorOld(monitor: Monitor) {
+export async function execMonitor(monitor: Monitor) {
   let certCommonName = ''
   let certExpiryDays = 0
-  let resp: AxiosResponse<any, any>
 
   var startTime = performance.now()
   const mon = processTemplates(monitor)
@@ -136,29 +125,39 @@ export async function execMonitorOld(monitor: Monitor) {
   logger.info(`Call to doSomething took ${endTime - startTime} milliseconds`)
 
   try {
-    resp = await axios.request({
-      url: mon.url,
-      method: mon.method == 'GET' ? 'GET' : 'POST',
-      data: mon.body == '' ? undefined : mon.body,
-      //@ts-ignore
-      transport,
-      httpsAgent: new https.Agent({ keepAlive: false }),
-      headers: headersToMap((mon.headers as MonitorTuples) ?? []),
+    const resp = await got(mon.url, {
+      method: mon.method as Method,
+      body: Boolean(mon.body) ? mon.body : undefined,
+      agent: {
+        https: new https.Agent({ keepAlive: false }),
+      },
+      headers: mon.headers
+        ? headersToMap(mon.headers as MonitorTuples)
+        : undefined,
       responseType: 'text',
-      params: headersToMap((mon.queryParams as MonitorTuples) ?? []),
+      searchParams: mon.queryParams
+        ? headersToMap(mon.queryParams as MonitorTuples)
+        : undefined,
+      https: {
+        checkServerIdentity: (
+          _hostname: string,
+          certificate: DetailedPeerCertificate
+        ) => {
+          if (certificate && certificate.subject) {
+            certCommonName = certificate.subject.CN
+            const expiry = new Date(certificate.valid_to).valueOf()
+            const now = new Date().valueOf()
+            certExpiryDays = Math.floor((expiry - now) / 1000 / 60 / 60 / 24)
+          }
+        },
+      },
     })
 
-    const certificate: PeerCertificate =
-      resp.request.res.socket.getPeerCertificate(false)
-    if (certificate && certificate.subject) {
-      certCommonName = certificate.subject.CN
-      const expiry = new Date(certificate.valid_to).valueOf()
-      const now = new Date().valueOf()
-      certExpiryDays = Math.floor((expiry - now) / 1000 / 60 / 60 / 24)
-    }
-
     const result: MonitorResult = {
-      url: mon.url,
+      url:
+        resp.redirectUrls.length > 0
+          ? resp.redirectUrls[resp.redirectUrls.length - 1]
+          : mon.url,
       ...responseToMonitorResult(resp),
       monitorId: mon.id ?? 'ondemand',
       certCommonName,
@@ -168,10 +167,10 @@ export async function execMonitorOld(monitor: Monitor) {
 
     return result
   } catch (e) {
+    logger.error(e, 'got failed')
     if (e.response) {
       const resp = e.response
       return {
-        url: mon.url,
         ...responseToMonitorResult(resp),
         monitorId: mon.id ?? 'ondemand',
         certCommonName,
@@ -180,8 +179,7 @@ export async function execMonitorOld(monitor: Monitor) {
       } as MonitorResult
     } else {
       return {
-        url: mon.url,
-        ...responseToMonitorResult(null),
+        ...responseToMonitorResult(),
         err: e?.message ?? e.toString(),
         monitorId: mon.id ?? 'ondemand',
       } as MonitorResult

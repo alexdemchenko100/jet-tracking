@@ -36,6 +36,7 @@ model MonitorResult {
   createdAt        DateTime @default(now())
   err              String
   headers          Json     @default("[]")
+  url              String   @default("")
   body             String
   bodyJson         Json?
   bodySize         Int
@@ -49,7 +50,7 @@ model MonitorResult {
   totalTime        Int
   certExpiryDays   Int
   certCommonName   String
-  assertResults    Json?
+  assertResults    Json?    @default("[]")
 
   monitor   Monitor @relation(fields: [monitorId], references: [id])
   monitorId String // relation scalar field  (used in the `@relation` attribute above)

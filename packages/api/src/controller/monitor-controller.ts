@@ -1,4 +1,4 @@
-import { execMonitor } from './../services/httpstats.js'
+import { execMonitor } from './../services/monitor-exec.js'
 import { MonitorService } from './../services/monitor-service.js'
 import { FastifyInstance } from 'fastify'
 import { Static, Type } from '@sinclair/typebox'

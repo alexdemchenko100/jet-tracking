@@ -89,7 +89,7 @@ export function APIResult({ result }: { result: MonitorResult }) {
         </Badge>
 
         <Tag colorScheme="gray" fontSize={'lg'} fontWeight={'bold'}>
-          {'FIXME'}
+          {result.url || 'unknown'}
         </Tag>
         <Tag colorScheme="gray" fontSize={'md'} fontWeight={'bold'} ml={'12'}>
           Response Time: {result.totalTime}ms

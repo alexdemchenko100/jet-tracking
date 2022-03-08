@@ -16,6 +16,17 @@ content-type: application/json
 
 ###
 
+POST http://localhost:3006/monitors/ondemand HTTP/1.1
+content-type: application/json
+
+{
+    "frequency": "300",
+    "name": "ondemand",
+    "url": "http://dddgoogle.com"
+}
+
+###
+
 POST http://localhost:3006/monitors/ckzsq2sus0000ohdmaom1kvd2/env HTTP/1.1
 content-type: application/json
 
@@ -23,5 +34,5 @@ content-type: application/json
 
 ###
 
-GET http://localhost:3006/monitors/wA3ztf0gr-_4GfJjjP_qn/results HTTP/1.1
+GET http://localhost:3006/monitors/ckzuaqr5u0000midmgo0e5rn0/results HTTP/1.1
 content-type: application/json

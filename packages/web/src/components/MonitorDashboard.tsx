@@ -56,7 +56,6 @@ const columns: Column<MonitorTable>[] = [
 ]
 
 export function MonitorDashboard() {
-  const [monitors, setMonitors] = useState<Monitor[]>()
   const navigate = useNavigate()
 
   async function getMonitors() {
@@ -67,7 +66,6 @@ export function MonitorDashboard() {
 
     if (resp.status == 200) {
       const results = resp.data as Monitor[]
-      setMonitors(results)
       return results
     }
     throw Error('Failed to get odemand results')
