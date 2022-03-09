@@ -23,12 +23,7 @@ import {
 } from '@chakra-ui/react'
 import { Monitor, MonitorTuples } from '@httpmon/db'
 import React from 'react'
-import {
-  FormProvider,
-  useFieldArray,
-  useForm,
-  useFormContext,
-} from 'react-hook-form'
+import { FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import { FiPlusCircle, FiDelete, FiTrash, FiTrash2 } from 'react-icons/fi'
@@ -42,7 +37,7 @@ function SliderThumbWithTooltip() {
   const [showTooltip, setShowTooltip] = React.useState(false)
   return (
     <Slider
-      id="slider"
+      id='slider'
       defaultValue={0}
       min={0}
       max={7}
@@ -52,28 +47,28 @@ function SliderThumbWithTooltip() {
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
-      <SliderMark value={0} mt="1" ml="-2.5" fontSize="sm">
+      <SliderMark value={0} mt='1' ml='-2.5' fontSize='sm'>
         1m
       </SliderMark>
-      <SliderMark value={1} mt="1" ml="-2.5" fontSize="sm">
+      <SliderMark value={1} mt='1' ml='-2.5' fontSize='sm'>
         5m
       </SliderMark>
-      <SliderMark value={2} mt="1" ml="-2.5" fontSize="sm">
+      <SliderMark value={2} mt='1' ml='-2.5' fontSize='sm'>
         10m
       </SliderMark>
-      <SliderMark value={3} mt="1" ml="-2.5" fontSize="sm">
+      <SliderMark value={3} mt='1' ml='-2.5' fontSize='sm'>
         15m
       </SliderMark>
-      <SliderMark value={4} mt="1" ml="-2.5" fontSize="sm">
+      <SliderMark value={4} mt='1' ml='-2.5' fontSize='sm'>
         30m
       </SliderMark>
-      <SliderMark value={5} mt="1" ml="-2.5" fontSize="sm">
+      <SliderMark value={5} mt='1' ml='-2.5' fontSize='sm'>
         1h
       </SliderMark>
-      <SliderMark value={6} mt="1" ml="-2.5" fontSize="sm">
+      <SliderMark value={6} mt='1' ml='-2.5' fontSize='sm'>
         12h
       </SliderMark>
-      <SliderMark value={7} mt="1" ml="-2.5" fontSize="sm">
+      <SliderMark value={7} mt='1' ml='-2.5' fontSize='sm'>
         24h
       </SliderMark>
 
@@ -111,18 +106,14 @@ function APIHeaders(props: any) {
       <Flex mt={'4'} alignItems={'center'}>
         <Heading size={'sm'}>Headers</Heading>
         <Button onClick={() => append([['', '']])}>
-          <Icon color="blue.500" as={FiPlusCircle} cursor="pointer" />
+          <Icon color='blue.500' as={FiPlusCircle} cursor='pointer' />
         </Button>
       </Flex>
 
       <Box mt={'4'}>
         {headers.map((header, index) => (
           <Flex key={index} mb={'2'}>
-            <Input
-              type={'text'}
-              {...register(`headers.${index}.0` as const)}
-              defaultValue={''}
-            />
+            <Input type={'text'} {...register(`headers.${index}.0` as const)} defaultValue={''} />
             <Input
               type={'text'}
               ml={'4'}
@@ -131,7 +122,7 @@ function APIHeaders(props: any) {
             />
 
             <Button onClick={() => remove(index)}>
-              <Icon color="red.500" as={FiTrash2} cursor="pointer" />
+              <Icon color='red.500' as={FiTrash2} cursor='pointer' />
             </Button>
           </Flex>
         ))}
@@ -156,7 +147,7 @@ function QueryParams(props: any) {
       <Flex mt={'4'} alignItems={'center'}>
         <Heading size={'sm'}>Query Params</Heading>
         <Button onClick={() => append([['', '']])}>
-          <Icon color="blue.500" as={FiPlusCircle} cursor="pointer" />
+          <Icon color='blue.500' as={FiPlusCircle} cursor='pointer' />
         </Button>
       </Flex>
 
@@ -176,7 +167,7 @@ function QueryParams(props: any) {
             />
 
             <Button onClick={() => remove(index)}>
-              <Icon color="red.500" as={FiTrash2} cursor="pointer" />
+              <Icon color='red.500' as={FiTrash2} cursor='pointer' />
             </Button>
           </Flex>
         ))}
@@ -201,18 +192,14 @@ function EnvVariables(props: any) {
       <Flex mt={'4'} alignItems={'center'}>
         <Heading size={'sm'}>Environment</Heading>
         <Button onClick={() => append([['', '']])}>
-          <Icon color="blue.500" as={FiPlusCircle} cursor="pointer" />
+          <Icon color='blue.500' as={FiPlusCircle} cursor='pointer' />
         </Button>
       </Flex>
 
       <Box mt={'4'}>
         {env.map((_, index) => (
           <Flex key={index} mb={'2'}>
-            <Input
-              type={'text'}
-              {...register(`env.${index}.0` as const)}
-              defaultValue={''}
-            />
+            <Input type={'text'} {...register(`env.${index}.0` as const)} defaultValue={''} />
             <Input
               type={'text'}
               ml={'4'}
@@ -221,7 +208,7 @@ function EnvVariables(props: any) {
             />
 
             <Button onClick={() => remove(index)}>
-              <Icon color="red.500" as={FiTrash2} cursor="pointer" />
+              <Icon color='red.500' as={FiTrash2} cursor='pointer' />
             </Button>
           </Flex>
         ))}
@@ -240,14 +227,14 @@ function BodyInput(props: any) {
           Body
         </Heading>
         <RadioGroup>
-          <Stack direction="row">
-            <Radio value="" defaultChecked {...register('bodyType')}>
+          <Stack direction='row'>
+            <Radio value='' defaultChecked {...register('bodyType')}>
               none
             </Radio>
-            <Radio value="application/json" {...register('bodyType')}>
+            <Radio value='application/json' {...register('bodyType')}>
               application/json
             </Radio>
-            <Radio value="text/html" {...register('bodyType')}>
+            <Radio value='text/html' {...register('bodyType')}>
               text/html
             </Radio>
           </Stack>
@@ -258,11 +245,9 @@ function BodyInput(props: any) {
 }
 
 export function NewAPI() {
-  const navigate = useNavigate()
-
   const methods = useForm<Monitor>({
     defaultValues: {
-      headers: [['xxx', 'hello']] as MonitorTuples,
+      headers: [] as MonitorTuples,
     },
   })
 
@@ -278,84 +263,56 @@ export function NewAPI() {
   console.log(watched)
 
   function handleQuickRun() {
-    // navigate('/console/api-result', {
-    //   state: { monitor: { ...watched } },
-    // })
     setShowResult(true)
   }
-
-  const options = [
-    { value: 'javascript', label: 'Javascript' },
-    { value: 'chakra', label: 'Chakra' },
-    { value: 'react', label: 'React' },
-    { value: 'css', label: 'CSS' },
-  ]
-  const [result, setResult] = React.useState<Option[]>([])
 
   return (
     <Flex>
       <Box w={showResult ? '50%' : '100%'}>
-        <Heading size={'lg'} mb={'10'}>
+        <Heading size='lg' mb='10'>
           Create new API monitor
         </Heading>
-        <Autocomplete
-          options={options}
-          result={result}
-          setResult={(options: Option[]) => {
-            setResult(options)
-          }}
-          placeholder="Autocomplete"
-        />
 
         <Divider />
         <FormProvider {...methods}>
           <form>
             <Box>
-              <Flex minH={'100vh'} justify={'start'} direction={'column'}>
-                <FormControl id="name">
-                  <FormLabel htmlFor="name">Name</FormLabel>
-                  <Input type="name" placeholder="" />
+              <Flex minH='100vh' justify='start' direction='column'>
+                <FormControl id='name'>
+                  <FormLabel htmlFor='name'>Name</FormLabel>
+                  <Input type='name' placeholder='' />
                 </FormControl>
 
                 <EnvVariables />
 
-                <Flex justify={'start'} alignItems={'end'} mt={'4'}>
-                  <FormControl id="method" maxW={'32'}>
-                    <FormLabel htmlFor="method">Method</FormLabel>
-                    <Select
-                      color={'blue.500'}
-                      fontWeight={'bold'}
-                      {...register('method')}
-                    >
-                      <option defaultValue={'GET'} value="GET">
+                <Flex justify='start' alignItems='end' mt='4'>
+                  <FormControl id='method' maxW='32'>
+                    <FormLabel htmlFor='method'>Method</FormLabel>
+                    <Select color='blue.500' fontWeight='bold' {...register('method')}>
+                      <option defaultValue='GET' value='GET'>
                         GET
                       </option>
-                      <option value="POST">POST</option>
-                      <option value="OPTIONS">OPTIONS</option>
+                      <option value='POST'>POST</option>
+                      <option value='OPTIONS'>OPTIONS</option>
                     </Select>
                   </FormControl>
 
-                  <FormControl id="url" ml={'2'}>
-                    <FormLabel htmlFor="url">URL</FormLabel>
-                    <Autocomplete
-                      options={options}
-                      result={result}
-                      setResult={(options: Option[]) => {
-                        setResult(options)
-                      }}
+                  <FormControl id='url' ml='2'>
+                    <FormLabel htmlFor='url'>URL</FormLabel>
+                    <Input
                       // type="url"
-                      placeholder="url here"
+                      placeholder='url here'
                       {...register('url')}
                     />
                   </FormControl>
 
                   <Button
-                    bg={'blue.400'}
-                    color={'white'}
+                    bg='blue.400'
+                    color='white'
                     _hover={{
                       bg: 'blue.500',
                     }}
-                    ml={'4'}
+                    ml='4'
                     onClick={() => handleQuickRun()}
                   >
                     Run now
@@ -364,24 +321,24 @@ export function NewAPI() {
 
                 <BodyInput />
                 {watched.bodyType != '' && (
-                  <Textarea mt={'4'} h={'36'} {...register('body')}></Textarea>
+                  <Textarea mt='4' h='36' {...register('body')}></Textarea>
                 )}
                 <APIHeaders />
                 <QueryParams />
 
-                <FormControl id="frequency" mt={'10'} maxW={'80%'}>
-                  <FormLabel htmlFor="frequency">Frequency</FormLabel>
+                <FormControl id='frequency' mt='10' maxW='80%'>
+                  <FormLabel htmlFor='frequency'>Frequency</FormLabel>
                   <SliderThumbWithTooltip />
                 </FormControl>
 
                 <Button
-                  bg={'blue.400'}
-                  color={'white'}
+                  bg='blue.400'
+                  color='white'
                   _hover={{
                     bg: 'blue.500',
                   }}
-                  mt={'10'}
-                  w={'40'}
+                  mt='10'
+                  w='40'
                 >
                   Create API Monitor
                 </Button>
@@ -391,7 +348,7 @@ export function NewAPI() {
         </FormProvider>
       </Box>
       {showResult && (
-        <Box w={'50%'} ml={'10'}>
+        <Box w='50%' ml='10'>
           <APIOnDemandResult monitor={{ ...watched }} />
         </Box>
       )}

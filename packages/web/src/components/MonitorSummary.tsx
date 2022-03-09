@@ -139,22 +139,18 @@ export function MonitorSummary() {
       <Box>
         <Menu>
           <MenuButton
-            alignSelf="center"
+            alignSelf='center'
             rightIcon={<ChevronDownIcon />}
-            variant="outline"
-            mx="1em"
-            size="xs"
+            variant='outline'
+            mx='1em'
+            size='xs'
             as={Button}
-            colorScheme="blue"
+            colorScheme='blue'
           >
             {selectedSortColumn['desc'] == true ? 'Descending' : 'Ascending'}
           </MenuButton>
-          <MenuList color="gray.800" zIndex="3" minWidth="240px">
-            <MenuOptionGroup
-              type="radio"
-              defaultValue={'0'}
-              onChange={(e) => typeOfSort(e)}
-            >
+          <MenuList color='gray.800' zIndex='3' minWidth='240px'>
+            <MenuOptionGroup type='radio' defaultValue={'0'} onChange={(e) => typeOfSort(e)}>
               <MenuItemOption key={0} value={'0'}>
                 Ascending
               </MenuItemOption>
@@ -166,18 +162,18 @@ export function MonitorSummary() {
         </Menu>
         <Menu>
           <MenuButton
-            alignSelf="center"
+            alignSelf='center'
             rightIcon={<ChevronDownIcon />}
-            variant="outline"
-            mx="1em"
-            size="xs"
+            variant='outline'
+            mx='1em'
+            size='xs'
             as={Button}
-            colorScheme="blue"
+            colorScheme='blue'
           >
             Sort By
           </MenuButton>
-          <MenuList color="gray.800" zIndex="3" minWidth="240px">
-            <MenuOptionGroup type="radio" onChange={(e) => handleSort(e)}>
+          <MenuList color='gray.800' zIndex='3' minWidth='240px'>
+            <MenuOptionGroup type='radio' onChange={(e) => handleSort(e)}>
               {allColumns.map((column, idx) => (
                 <MenuItemOption
                   icon={
@@ -200,33 +196,27 @@ export function MonitorSummary() {
             </MenuOptionGroup>
           </MenuList>
         </Menu>
-        <Button
-          size="xs"
-          m="4px"
-          colorScheme="red"
-          variant="outline"
-          onClick={() => setSortBy([])}
-        >
+        <Button size='xs' m='4px' colorScheme='red' variant='outline' onClick={() => setSortBy([])}>
           Reset Sorting
         </Button>
       </Box>
-      <Box maxH="30em" overflowY="scroll">
-        <Table {...getTableProps()} size="sm" variant="simple">
+      <Box maxH='30em' overflowY='scroll'>
+        <Table {...getTableProps()} size='sm' variant='simple'>
           <Thead
-            p="0"
-            position="sticky"
-            zIndex="1"
-            top="0px"
+            p='0'
+            position='sticky'
+            zIndex='1'
+            top='0px'
             style={{ overflow: 'scroll' }}
-            bg="gray.100"
+            bg='gray.100'
           >
             {headerGroups.map((headerGroup, indexKey) => (
-              <Tr p="0" {...headerGroup.getHeaderGroupProps()}>
+              <Tr p='0' {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map((column, columnIndex) => (
                   <Th
-                    borderColor="gray.200"
-                    p="1em"
-                    className="th1"
+                    borderColor='gray.200'
+                    p='1em'
+                    className='th1'
                     color={'gray.800'}
                     {...column.getHeaderProps(column.getSortByToggleProps())}
                   >
@@ -247,23 +237,19 @@ export function MonitorSummary() {
             ))}
           </Thead>
 
-          <Tbody className="body1" p="1em" {...getTableBodyProps()}>
+          <Tbody className='body1' p='1em' {...getTableBodyProps()}>
             {page && page.length > 0 ? (
               page.map((row) => {
                 prepareRow(row)
                 return (
                   <Tr
-                    className="tr1"
+                    className='tr1'
                     onClick={() => setCurrentResult(row.original)}
                     {...row.getRowProps()}
                   >
                     {row.cells.map((cell) => {
                       return (
-                        <Td
-                          className="td1"
-                          color={'gray.600'}
-                          {...cell.getCellProps()}
-                        >
+                        <Td className='td1' color='gray.600' {...cell.getCellProps()}>
                           {cell.render('Cell')}{' '}
                         </Td>
                       )
@@ -272,93 +258,89 @@ export function MonitorSummary() {
                 )
               })
             ) : (
-              <Text textAlign="center" fontSize="1em" mx="auto">
+              <Text textAlign='center' fontSize='1em' mx='auto'>
                 No Data Found
               </Text>
             )}
           </Tbody>
         </Table>
       </Box>
-      <Flex
-        borderTop="5px solid"
-        borderColor="gray.200"
-        justifyContent="flex-end"
-      >
+      <Flex borderTop='5px solid' borderColor='gray.200' justifyContent='flex-end'>
         <Spacer />
-        <Flex alignContent="center">
+        <Flex alignContent='center'>
           <IconButton
-            aria-label="goto"
+            aria-label='goto'
             _focus={{ boxShadow: '' }}
             _hover={{ backgroundColor: '' }}
             _active={{ backgroundColor: '' }}
-            color="gray.800"
-            bg="white"
-            fontSize="15px"
+            color='gray.800'
+            bg='white'
+            fontSize='15px'
             icon={<ArrowLeftIcon />}
             disabled={!canPreviousPage}
             onClick={() => gotoPage(0)}
           />
           <IconButton
-            aria-label="prev"
+            aria-label='prev'
             _focus={{ boxShadow: '' }}
             _hover={{ backgroundColor: '' }}
             _active={{ backgroundColor: '' }}
-            color="gray.800"
-            bg="white"
-            fontSize="30px"
+            color='gray.800'
+            bg='white'
+            fontSize='30px'
             icon={<ChevronLeftIcon />}
             disabled={!canPreviousPage}
             onClick={() => previousPage()}
           />
-          <Text m="0" alignSelf="center">
+          <Text m='0' alignSelf='center'>
             {pageIndex + 1} - {pageOptions.length}{' '}
           </Text>
           <IconButton
-            aria-label="next"
+            aria-label='next'
             _focus={{ boxShadow: '' }}
             _hover={{ backgroundColor: '' }}
             _active={{ backgroundColor: '' }}
-            color="gray.800"
-            bg="white"
-            fontSize="30px"
+            color='gray.800'
+            bg='white'
+            fontSize='30px'
             icon={<ChevronRightIcon />}
             disabled={!canNextPage}
             onClick={() => nextPage()}
           />
           <IconButton
-            aria-label="gotoprev"
+            aria-label='gotoprev'
             _focus={{ boxShadow: '' }}
             _hover={{ backgroundColor: '' }}
             _active={{ backgroundColor: '' }}
-            color="gray.800"
-            bg="white"
-            fontSize="15px"
+            color='gray.800'
+            bg='white'
+            fontSize='15px'
             icon={<ArrowRightIcon />}
             disabled={!canNextPage}
             onClick={() => gotoPage(pageCount - 1)}
           />
           <Text
-            m="0"
-            alignSelf="center"
-            borderRightColor=""
+            m='0'
+            alignSelf='center'
+            borderRightColor=''
             defaultChecked={Boolean(pageIndex + 1)}
-            borderColor="gray.300"
-            fontWeight="bold"
-            fontSize="sm"
-            whiteSpace="nowrap"
+            borderColor='gray.300'
+            fontWeight='bold'
+            fontSize='sm'
+            whiteSpace='nowrap'
           >
             Go to page
           </Text>
           <Input
-            mx="5px"
-            alignSelf="center"
-            borderColor="gray.600"
+            mx='5px'
+            alignSelf='center'
+            borderColor='gray.600'
             onChange={(e) => {
               let pageNumber = e.target.value ? Number(e.target.value) - 1 : 0
               gotoPage(pageNumber)
             }}
-            w="10%"
-            size="sm"
+            w='10%'
+            size='sm'
           />
         </Flex>
       </Flex>

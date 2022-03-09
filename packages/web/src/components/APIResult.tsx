@@ -104,27 +104,22 @@ function TimingBar({ result, ...rest }: TimingBarProps) {
 
   return (
     <Flex
-      mt="2"
-      border={'solid rounded 2px'}
-      height={'16'}
-      lineHeight={'8'}
-      textAlign={'center'}
-      verticalAlign={'middle'}
+      mt='2'
+      border='solid rounded 2px'
+      height='16'
+      lineHeight='8'
+      textAlign='center'
+      verticalAlign='middle'
       {...rest}
     >
       {stats.map(([label, time, timePct, color]) => {
         if (time > 2)
           return (
-            <Flex direction="column" width={`${timePct}%`} key={label}>
+            <Flex direction='column' width={`${timePct}%`} key={label}>
               <Text fontSize={'sm'} isTruncated>
                 {label}
               </Text>
-              <Box
-                bg={color}
-                fontSize={'sm'}
-                verticalAlign={'middle'}
-                ml={'0.5'}
-              >
+              <Box bg={color} fontSize='sm' verticalAlign='middle' ml='0.5'>
                 {time}
               </Box>
             </Flex>
@@ -146,32 +141,32 @@ export function APIResult({ result }: { result: MonitorResult }) {
       <Box>
         <Badge
           colorScheme={isSuccessCode(result.code) ? 'green' : 'red'}
-          fontSize={'md'}
-          fontWeight={'bold'}
+          fontSize='md'
+          fontWeight='bold'
         >
           {result.code} {result.codeStatus}
         </Badge>
 
-        <Tag colorScheme="gray" fontSize={'lg'} fontWeight={'bold'}>
+        <Tag colorScheme='gray' fontSize='lg' fontWeight='bold'>
           {result.url || 'unknown'}
         </Tag>
-        <Tag colorScheme="gray" fontSize={'md'} fontWeight={'bold'} ml={'12'}>
+        <Tag colorScheme='gray' fontSize='md' fontWeight='bold' ml='12'>
           Response Time: {result.totalTime}ms
-          <Icon ml={'1'} as={FiClock} />
+          <Icon ml='1' as={FiClock} />
         </Tag>
 
-        <Heading size={'sm'} mt={'4'} mb={'3'}>
+        <Heading size='sm' mt='4' mb='3'>
           Timings <Tag>of {result.totalTime}ms</Tag>
         </Heading>
 
-        <TimingBar width={'80%'} result={result} />
+        <TimingBar width='80%' result={result} />
 
-        <Heading size={'sm'} mt={'6'} mb={'3'}>
-          Body <Tag colorScheme="gray">{result.bodySize} bytes</Tag>
+        <Heading size='sm' mt='6' mb='3'>
+          Body <Tag colorScheme='gray'>{result.bodySize} bytes</Tag>
         </Heading>
 
         {result.bodyJson && (
-          <Box maxH={'400'} overflow={'auto'}>
+          <Box maxH='400' overflow='auto'>
             <code>
               <pre>{result.bodyJson}</pre>
             </code>
@@ -179,30 +174,30 @@ export function APIResult({ result }: { result: MonitorResult }) {
         )}
 
         {result.body && (
-          <Box maxH={'400'} overflow={'auto'}>
+          <Box maxH='400' overflow='auto'>
             <code>
               <pre>{result.body}</pre>
             </code>
           </Box>
         )}
 
-        <Heading size={'md'} mt={'4'}>
+        <Heading size='md' mt='4'>
           Headers
         </Heading>
 
         <Box>
-          <Table mt={'2'} variant={'striped'} size={'md'} maxW={'100%'}>
+          <Table mt='2' variant='striped' size='md' maxW='100%'>
             <Thead>
               <Tr>
-                <Th minW={'30%'}>Name</Th>
-                <Th maxW={'70%'}>Value</Th>
+                <Th minW='30%'>Name</Th>
+                <Th maxW='70%'>Value</Th>
               </Tr>
             </Thead>
             <Tbody>
               {(result.headers as MonitorTuples).map((header) => {
                 return (
                   <Tr key={header[0] + header[1]}>
-                    <Td fontWeight={'semibold'} color={'blue.500'}>
+                    <Td fontWeight='semibold' color='blue.500'>
                       {header[0]}
                     </Td>
                     <Td>{header[1]} </Td>
