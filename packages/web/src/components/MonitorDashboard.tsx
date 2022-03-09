@@ -278,9 +278,13 @@ export function MonitorDashboard() {
                 )
               })
             ) : (
-              <Text textAlign="center" fontSize="1em" mx="auto">
-                No Data Found
-              </Text>
+              <Tr>
+                <Td>
+                  <Text textAlign="center" fontSize="1em" mx="auto">
+                    No Data Found
+                  </Text>
+                </Td>
+              </Tr>
             )}
           </Tbody>
         </Table>

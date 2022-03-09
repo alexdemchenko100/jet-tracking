@@ -1,7 +1,6 @@
 import { DetailedPeerCertificate, PeerCertificate } from 'tls'
 
 import { Monitor, MonitorTuples, MonitorResult } from '@httpmon/db'
-import timer, { Timings } from '@szmarczak/http-timer'
 import https from 'https'
 import clone from 'lodash.clonedeep'
 import Handlebars from 'handlebars'
@@ -9,6 +8,13 @@ import { randomInt } from 'crypto'
 import got, { Method, Response } from 'got'
 import pino from 'pino'
 const logger = pino()
+
+const customGot = got.extend({
+  headers: {
+    'user-agent': 'API Checker/1.0',
+  },
+  timeout: { request: 10000 },
+})
 
 Handlebars.registerHelper('RandomInt', function () {
   return randomInt(10000)
@@ -129,8 +135,7 @@ export async function execMonitor(monitor: Monitor) {
   logger.info(`Call to doSomething took ${endTime - startTime} milliseconds`)
 
   try {
-    const resp = await got(mon.url, {
-      timeout: { request: 10000 },
+    const resp = await customGot(mon.url, {
       method: mon.method as Method,
       body: Boolean(mon.body) ? mon.body : undefined,
       agent: {

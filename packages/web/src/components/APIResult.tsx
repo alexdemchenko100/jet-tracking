@@ -87,14 +87,19 @@ function TimingBar({ result, ...rest }: TimingBarProps) {
     return Math.ceil((100 * time) / result.totalTime)
   }
 
-  let stats: [string, number, string][] = [
+  let stats: [string, number, number, string][] = [
     // ['wait', calcPct(result.waitTime), 'brown.300'],
-    ['tcp', calcPct(result.waitTime + result.tcpTime), 'blue.300'],
-    ['dns', calcPct(result.dnsTime), 'yellow.300'],
-    ['tls', calcPct(result.tlsTime), 'red.300'],
-    ['req', calcPct(result.uploadTime), 'orange.300'],
-    ['ttfb', calcPct(result.ttfb), 'purple.300'],
-    ['dl', calcPct(result.downloadTime), 'green.300'],
+    [
+      'tcp',
+      result.waitTime + result.tcpTime,
+      calcPct(result.waitTime + result.tcpTime),
+      'blue.300',
+    ],
+    ['dns', result.dnsTime, calcPct(result.dnsTime), 'yellow.300'],
+    ['tls', result.tlsTime, calcPct(result.tlsTime), 'red.300'],
+    ['req', result.uploadTime, calcPct(result.uploadTime), 'orange.300'],
+    ['ttfb', result.ttfb, calcPct(result.ttfb), 'purple.300'],
+    ['dl', result.downloadTime, calcPct(result.downloadTime), 'green.300'],
   ]
 
   return (
@@ -107,10 +112,10 @@ function TimingBar({ result, ...rest }: TimingBarProps) {
       verticalAlign={'middle'}
       {...rest}
     >
-      {stats.map(([label, time, color]) => {
+      {stats.map(([label, time, timePct, color]) => {
         if (time > 2)
           return (
-            <Flex direction="column" width={`${time}%`} key={label}>
+            <Flex direction="column" width={`${timePct}%`} key={label}>
               <Text fontSize={'sm'} isTruncated>
                 {label}
               </Text>
@@ -156,13 +161,13 @@ export function APIResult({ result }: { result: MonitorResult }) {
         </Tag>
 
         <Heading size={'sm'} mt={'4'} mb={'3'}>
-          Timings
+          Timings <Tag>of {result.totalTime}ms</Tag>
         </Heading>
 
         <TimingBar width={'80%'} result={result} />
 
         <Heading size={'sm'} mt={'6'} mb={'3'}>
-          Body ({result.bodySize} bytes)
+          Body <Tag colorScheme="gray">{result.bodySize} bytes</Tag>
         </Heading>
 
         {result.bodyJson && (
@@ -196,7 +201,7 @@ export function APIResult({ result }: { result: MonitorResult }) {
             <Tbody>
               {(result.headers as MonitorTuples).map((header) => {
                 return (
-                  <Tr key={header[0]}>
+                  <Tr key={header[0] + header[1]}>
                     <Td fontWeight={'semibold'} color={'blue.500'}>
                       {header[0]}
                     </Td>

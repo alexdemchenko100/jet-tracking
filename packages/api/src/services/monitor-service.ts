@@ -84,7 +84,6 @@ export class MonitorService {
       .orderBy('MonitorResult.createdAt', 'desc')
       .execute()
 
-    logger.info(results, 'DDDUE')
     const resultSet = results.map((result) => {
       return {
         ...result,
