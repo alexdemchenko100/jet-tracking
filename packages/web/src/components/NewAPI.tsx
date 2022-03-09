@@ -4,7 +4,6 @@ import {
   Divider,
   Flex,
   FormControl,
-  FormHelperText,
   FormLabel,
   Heading,
   Icon,
@@ -13,70 +12,67 @@ import {
   RadioGroup,
   Select,
   Slider,
-  SliderFilledTrack,
   SliderMark,
   SliderThumb,
   SliderTrack,
   Stack,
   Textarea,
-  Tooltip,
 } from '@chakra-ui/react'
 import { Monitor, MonitorTuples } from '@httpmon/db'
 import React from 'react'
-import { FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from 'react-hook-form'
 
-import { FiPlusCircle, FiDelete, FiTrash, FiTrash2 } from 'react-icons/fi'
+import { FiPlusCircle, FiTrash2 } from 'react-icons/fi'
 import { useState } from 'react'
 import { APIOnDemandResult } from './APIResult'
-import { MdLabel } from 'react-icons/md'
-import { Autocomplete, Option } from './Autocomplete'
+import { useMutation } from 'react-query'
+import axios from 'axios'
 
+const freqConfig: [numSeconds: number, label: string][] = [
+  [10, '10s'],
+  [60, '1m'],
+  [60 * 5, '5m'],
+  [60 * 10, '10m'],
+  [60 * 15, '15m'],
+  [60 * 30, '30m'],
+  [60 * 60, '1h'],
+  [60 * 60 * 12, '12h'],
+  [60 * 60 * 24, '24h'],
+]
 function SliderThumbWithTooltip() {
-  const [sliderValue, setSliderValue] = React.useState(1)
+  const { control } = useFormContext()
   const [showTooltip, setShowTooltip] = React.useState(false)
   return (
-    <Slider
-      id='slider'
-      defaultValue={0}
-      min={0}
-      max={7}
-      step={1}
-      // colorScheme="teal"
-      onChange={(v) => setSliderValue(v)}
-      onMouseEnter={() => setShowTooltip(true)}
-      onMouseLeave={() => setShowTooltip(false)}
-    >
-      <SliderMark value={0} mt='1' ml='-2.5' fontSize='sm'>
-        1m
-      </SliderMark>
-      <SliderMark value={1} mt='1' ml='-2.5' fontSize='sm'>
-        5m
-      </SliderMark>
-      <SliderMark value={2} mt='1' ml='-2.5' fontSize='sm'>
-        10m
-      </SliderMark>
-      <SliderMark value={3} mt='1' ml='-2.5' fontSize='sm'>
-        15m
-      </SliderMark>
-      <SliderMark value={4} mt='1' ml='-2.5' fontSize='sm'>
-        30m
-      </SliderMark>
-      <SliderMark value={5} mt='1' ml='-2.5' fontSize='sm'>
-        1h
-      </SliderMark>
-      <SliderMark value={6} mt='1' ml='-2.5' fontSize='sm'>
-        12h
-      </SliderMark>
-      <SliderMark value={7} mt='1' ml='-2.5' fontSize='sm'>
-        24h
-      </SliderMark>
+    <Controller
+      control={control}
+      name='frequencyScale'
+      render={({ field }) => {
+        return (
+          <Slider
+            id='slider'
+            defaultValue={0}
+            min={0}
+            max={freqConfig.length - 1}
+            step={1}
+            onChange={(v) => {
+              field.onChange(v)
+            }}
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
+          >
+            {freqConfig.map(([numSeconds, label], scale) => {
+              return (
+                <SliderMark key={label} value={scale} mt='1' ml='-2.5' fontSize='sm'>
+                  {label}
+                </SliderMark>
+              )
+            })}
 
-      <SliderTrack bg={'gray.400'}>{/* <SliderFilledTrack /> */}</SliderTrack>
+            <SliderTrack bg={'gray.400'}>{/* <SliderFilledTrack /> */}</SliderTrack>
 
-      <SliderThumb bg={'blue.200'} />
+            <SliderThumb bg={'blue.200'} />
 
-      {/* <Tooltip
+            {/* <Tooltip
         hasArrow
         bg="teal.500"
         color="white"
@@ -86,7 +82,10 @@ function SliderThumbWithTooltip() {
       >
         <SliderThumb />
       </Tooltip> */}
-    </Slider>
+          </Slider>
+        )
+      }}
+    />
   )
 }
 
@@ -245,17 +244,36 @@ function BodyInput(props: any) {
 }
 
 export function NewAPI() {
-  const methods = useForm<Monitor>({
+  interface FormMonitor extends Monitor {
+    frequencyScale: number
+  }
+
+  const methods = useForm<FormMonitor>({
     defaultValues: {
       headers: [] as MonitorTuples,
+      frequencyScale: 0,
     },
   })
 
   const {
     register,
     watch,
+    handleSubmit,
     formState: { errors },
   } = methods
+
+  const {
+    mutateAsync: createMonitor,
+    isLoading,
+    error,
+  } = useMutation<Monitor, Error, Monitor>(async (data: Monitor) => {
+    const resp = await axios({
+      method: 'POST',
+      url: '/monitors',
+      data: { ...data },
+    })
+    return resp.data as Monitor
+  })
 
   const [showResult, setShowResult] = useState(false)
 
@@ -264,6 +282,13 @@ export function NewAPI() {
 
   function handleQuickRun() {
     setShowResult(true)
+  }
+
+  async function handleCreation(data: FormMonitor) {
+    data.frequency = freqConfig[data.frequencyScale][0]
+    const { frequencyScale, ...monitor } = data //remove scale
+
+    await createMonitor(monitor)
   }
 
   return (
@@ -275,12 +300,12 @@ export function NewAPI() {
 
         <Divider />
         <FormProvider {...methods}>
-          <form>
+          <form onSubmit={handleSubmit(handleCreation)}>
             <Box>
               <Flex minH='100vh' justify='start' direction='column'>
                 <FormControl id='name'>
                   <FormLabel htmlFor='name'>Name</FormLabel>
-                  <Input type='name' placeholder='' />
+                  <Input type='name' {...register('name')} />
                 </FormControl>
 
                 <EnvVariables />
@@ -332,15 +357,16 @@ export function NewAPI() {
                 </FormControl>
 
                 <Button
-                  bg='blue.400'
+                  bg='blue.300'
                   color='white'
                   _hover={{
-                    bg: 'blue.500',
+                    bg: 'blue.400',
                   }}
                   mt='10'
                   w='40'
+                  type='submit'
                 >
-                  Create API Monitor
+                  Save
                 </Button>
               </Flex>
             </Box>

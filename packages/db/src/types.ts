@@ -87,7 +87,7 @@ export const MonitorSchema = Type.Object({
   status: Type.String({ default: 'active' }),
   method: Type.String({ default: 'GET' }),
   url: Type.String(),
-  frequency: Type.Integer(),
+  frequency: Type.Integer({ minimum: 10 }),
   body: Type.Optional(Type.String()),
   bodyType: Type.Optional(Type.String()),
   headers: Type.Optional(MonitorTupleSchema),

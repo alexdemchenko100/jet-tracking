@@ -22,6 +22,7 @@ import {
   MenuItemOption,
   MenuOptionGroup,
   MenuList,
+  Heading,
 } from '@chakra-ui/react'
 import {
   TriangleDownIcon,
@@ -34,7 +35,7 @@ import {
 } from '@chakra-ui/icons'
 
 import { useTable, useSortBy, usePagination, Column } from 'react-table'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 
 const columns: Column<MonitorTable>[] = [
   {
@@ -140,6 +141,22 @@ export function MonitorDashboard() {
 
   return (
     <>
+      <Flex justify='end'>
+        <Button
+          size='md'
+          mr='4'
+          mb='4'
+          colorScheme='blue'
+          onClick={() => navigate('/console/api/new')}
+        >
+          New Monitor
+        </Button>
+      </Flex>
+
+      <Heading size='md' mb='4'>
+        Monitors
+      </Heading>
+
       <Box>
         <Menu>
           <MenuButton
@@ -203,6 +220,7 @@ export function MonitorDashboard() {
         <Button size='xs' m='4px' colorScheme='red' variant='outline' onClick={() => setSortBy([])}>
           Reset Sorting
         </Button>
+        <Spacer />
       </Box>
       <Box maxH='30em' overflowY='scroll'>
         <Table {...getTableProps()} size='sm' variant='simple'>
