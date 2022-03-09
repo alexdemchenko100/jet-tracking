@@ -1,10 +1,11 @@
 import { execMonitor } from './../services/monitor-exec.js'
 import { MonitorService } from './../services/monitor-service.js'
 import { FastifyInstance } from 'fastify'
-import { Static, Type } from '@sinclair/typebox'
+import S from 'fluent-json-schema'
 import {
   Monitor,
-  MonitorResultSchema,
+  MonitorFluentSchema,
+  MonitorResultSchemaArray,
   MonitorSchema,
   MonitorTuples,
 } from '@httpmon/db'
@@ -12,13 +13,13 @@ import {
 export default async function MonitorController(app: FastifyInstance) {
   const monitorSvc = MonitorService.getInstance()
 
-  app.post<{ Body: Monitor }>(
+  app.put<{ Body: Monitor }>(
     '/',
     {
       schema: {
-        body: MonitorSchema,
+        body: MonitorFluentSchema,
         response: {
-          200: MonitorSchema,
+          200: MonitorFluentSchema,
         },
       },
     },
@@ -28,6 +29,28 @@ export default async function MonitorController(app: FastifyInstance) {
       const resp = await monitorSvc.create(mon)
 
       req.log.info(mon, 'create mon')
+      req.log.info(resp, 'resp mon')
+
+      reply.send(resp)
+    }
+  )
+
+  app.post<{ Body: Monitor }>(
+    '/',
+    {
+      schema: {
+        body: MonitorFluentSchema,
+        response: {
+          200: MonitorFluentSchema,
+        },
+      },
+    },
+    async function (req, reply) {
+      const mon = req.body
+
+      const resp = await monitorSvc.update(mon)
+
+      req.log.info(mon, 'updating monitor')
       req.log.info(resp, 'resp mon')
 
       reply.send(resp)
@@ -48,8 +71,10 @@ export default async function MonitorController(app: FastifyInstance) {
     }
   )
 
-  const ParamsSchema = Type.Object({ id: Type.String() })
-  type Params = Static<typeof ParamsSchema>
+  const ParamsSchema = S.object().prop('id', S.string())
+  type Params = {
+    id: string
+  }
 
   app.get<{ Params: Params }>(
     '/:id',
@@ -74,7 +99,7 @@ export default async function MonitorController(app: FastifyInstance) {
     {
       schema: {
         params: ParamsSchema,
-        response: { 200: Type.Array(MonitorResultSchema) },
+        response: { 200: MonitorResultSchemaArray },
       },
     },
     async function ({ params: { id } }, reply) {
@@ -94,7 +119,7 @@ export default async function MonitorController(app: FastifyInstance) {
     '/results',
     {
       schema: {
-        response: { 200: Type.Array(MonitorResultSchema) },
+        response: { 200: MonitorResultSchemaArray },
       },
     },
     async function (_, reply) {
@@ -125,7 +150,7 @@ export default async function MonitorController(app: FastifyInstance) {
     '/ondemand',
     {
       schema: {
-        body: MonitorSchema,
+        body: MonitorFluentSchema,
         // response: {
         //   200: MonitorResultSchema,
         // },

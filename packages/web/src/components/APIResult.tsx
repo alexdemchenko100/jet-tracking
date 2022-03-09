@@ -46,7 +46,7 @@ export function APIOnDemandResult(props: Props) {
     let resp = await axios({
       method: 'POST',
       url: '/monitors/ondemand',
-      data: { name: 'ondemand', frequency: 0, ...mon },
+      data: { ...mon, name: 'ondemand', frequency: 86400 },
     })
 
     if (resp.status == 200) {

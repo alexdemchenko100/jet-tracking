@@ -1,5 +1,5 @@
 import { Type } from '@sinclair/typebox'
-
+import S from 'fluent-json-schema'
 export type MonitorTuples = [string, string][]
 
 export const MonitorTupleSchema = Type.Array(
@@ -42,6 +42,7 @@ export const MonitorResultSchema = Type.Object({
   assertResults: Type.Optional(Type.Array(MonitorAssertionResultSchema)),
 })
 
+export const MonitorResultSchemaArray = Type.Array(MonitorResultSchema)
 //export type MonitorResult = Static<typeof MonitorResultSchema>
 
 export interface MonitorResultTable {
@@ -100,7 +101,27 @@ export const MonitorSchema = Type.Object({
   env: Type.Optional(MonitorTupleSchema),
 })
 
-//export type MonitorDTO = Static<typeof MonitorSchema>
+export const MonitorTupleFluentSchema = S.array().items(
+  S.array().minItems(2).maxItems(2)
+)
+
+export const MonitorFluentSchema = S.object()
+  .prop('id', S.string())
+  .prop('createdAt', S.string())
+  .prop('name', S.string().required().minLength(1))
+  .prop('status', S.string().default('active'))
+  .prop('method', S.string().default('GET'))
+  .prop('url', S.string().required())
+  .prop('frequency', S.integer().minimum(10))
+  .prop('body', S.string())
+  .prop('bodyType', S.string())
+  .prop('headers', MonitorTupleFluentSchema)
+  .prop('queryParams', MonitorTupleFluentSchema)
+  .prop('cookies', S.string())
+  .prop('followRedirects', S.integer())
+  .prop('timeout', S.integer())
+  .prop('notifyEmail', S.string())
+  .prop('env', MonitorTupleFluentSchema)
 
 export type MonitorAssertion = {
   key: string

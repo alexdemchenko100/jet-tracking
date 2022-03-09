@@ -268,20 +268,20 @@ export function NewAPI() {
     error,
   } = useMutation<Monitor, Error, Monitor>(async (data: Monitor) => {
     const resp = await axios({
-      method: 'POST',
+      method: 'PUT',
       url: '/monitors',
       data: { ...data },
     })
     return resp.data as Monitor
   })
 
-  const [showResult, setShowResult] = useState(false)
+  const [ondemandMonitor, setOndemandMonitor] = useState<Monitor>()
 
   const watched = watch()
   console.log(watched)
 
   function handleQuickRun() {
-    setShowResult(true)
+    setOndemandMonitor({ ...watched })
   }
 
   async function handleCreation(data: FormMonitor) {
@@ -293,7 +293,7 @@ export function NewAPI() {
 
   return (
     <Flex>
-      <Box w={showResult ? '50%' : '100%'}>
+      <Box w={ondemandMonitor ? '50%' : '100%'}>
         <Heading size='lg' mb='10'>
           Create new API monitor
         </Heading>
@@ -373,9 +373,9 @@ export function NewAPI() {
           </form>
         </FormProvider>
       </Box>
-      {showResult && (
+      {ondemandMonitor && (
         <Box w='50%' ml='10'>
-          <APIOnDemandResult monitor={{ ...watched }} />
+          <APIOnDemandResult monitor={ondemandMonitor} />
         </Box>
       )}
     </Flex>
