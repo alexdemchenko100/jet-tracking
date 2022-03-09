@@ -7,9 +7,9 @@ content-type: application/json
         {"key": "certExpiryDays", "op": ">", "value": "300"},
         {"key": "totalTime", "op": "<", "value": "500"}
         ],
-    "frequency": "300",
+    "frequency": "10",
     "name": "x1",
-    "url": "http://httpbin.org/headers",
+    "url": "https://www.reddit.com",
     "headers": [["x-proautoma-synthetics", "12345"]],
     "env": [["TOKEN", "bigtoken"]]
 }
@@ -22,7 +22,7 @@ content-type: application/json
 {
     "frequency": "300",
     "name": "ondemand",
-    "url": "http://dddgoogle.com"
+    "url": "https://www.reddit.com"
 }
 
 ###

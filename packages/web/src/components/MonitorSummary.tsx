@@ -46,6 +46,10 @@ const columns: Column<MonitorResult>[] = [
     Header: 'Code',
     accessor: 'code',
   },
+  {
+    Header: 'Total Time',
+    accessor: 'totalTime',
+  },
 ]
 
 export function MonitorSummary() {

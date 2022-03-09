@@ -3,15 +3,18 @@ import {
   Box,
   Divider,
   Flex,
+  FlexProps,
   Heading,
   Icon,
   Table,
   Tag,
   Tbody,
   Td,
+  Text,
   Th,
   Thead,
   Tr,
+  VStack,
 } from '@chakra-ui/react'
 import { Monitor, MonitorResult, MonitorTuples } from '@httpmon/db'
 import { useLocation } from 'react-router-dom'
@@ -70,6 +73,62 @@ export function APIOnDemandResult(props: Props) {
   )
 }
 
+interface TimingBarProps extends FlexProps {
+  result: MonitorResult
+}
+function TimingBar({ result, ...rest }: TimingBarProps) {
+  let totalTime = result.totalTime
+
+  /**
+   *    Wait :: DNS :: TCP :: TLS :: Request-Upload :: FirstByte :: Download/Done
+   */
+
+  function calcPct(time: number) {
+    return Math.ceil((100 * time) / result.totalTime)
+  }
+
+  let stats: [string, number, string][] = [
+    // ['wait', calcPct(result.waitTime), 'brown.300'],
+    ['tcp', calcPct(result.waitTime + result.tcpTime), 'blue.300'],
+    ['dns', calcPct(result.dnsTime), 'yellow.300'],
+    ['tls', calcPct(result.tlsTime), 'red.300'],
+    ['req', calcPct(result.uploadTime), 'orange.300'],
+    ['ttfb', calcPct(result.ttfb), 'purple.300'],
+    ['dl', calcPct(result.downloadTime), 'green.300'],
+  ]
+
+  return (
+    <Flex
+      mt="2"
+      border={'solid rounded 2px'}
+      height={'16'}
+      lineHeight={'8'}
+      textAlign={'center'}
+      verticalAlign={'middle'}
+      {...rest}
+    >
+      {stats.map(([label, time, color]) => {
+        if (time > 2)
+          return (
+            <Flex direction="column" width={`${time}%`} key={label}>
+              <Text fontSize={'sm'} isTruncated>
+                {label}
+              </Text>
+              <Box
+                bg={color}
+                fontSize={'sm'}
+                verticalAlign={'middle'}
+                ml={'0.5'}
+              >
+                {time}
+              </Box>
+            </Flex>
+          )
+      })}
+    </Flex>
+  )
+}
+
 export function APIResult({ result }: { result: MonitorResult }) {
   const isSuccessCode = (code: number) => code >= 200 && code < 300
 
@@ -96,34 +155,14 @@ export function APIResult({ result }: { result: MonitorResult }) {
           <Icon ml={'1'} as={FiClock} />
         </Tag>
 
-        <Flex
-          mt={'2'}
-          bg={'blue.200'}
-          border={'solid rounded 2px'}
-          width={'80%'}
-          height={'8'}
-          textAlign={'center'}
-          verticalAlign={'middle'}
-        >
-          <Box width={'12%'} bg={'green.300'}>
-            12
-          </Box>
-          <Box width={'24%'} bg={'red.300'}>
-            24
-          </Box>
-          <Box width={'4%'} bg={'purple.300'}>
-            4
-          </Box>
-          <Box width={'44%'} bg={'brown.300'}>
-            44
-          </Box>
-          <Box width={'16%'} bg={'orange.300'}>
-            16
-          </Box>
-        </Flex>
+        <Heading size={'sm'} mt={'4'} mb={'3'}>
+          Timings
+        </Heading>
 
-        <Heading size={'md'} mt={'4'} mb={'3'}>
-          Body
+        <TimingBar width={'80%'} result={result} />
+
+        <Heading size={'sm'} mt={'6'} mb={'3'}>
+          Body ({result.bodySize} bytes)
         </Heading>
 
         {result.bodyJson && (
@@ -169,7 +208,6 @@ export function APIResult({ result }: { result: MonitorResult }) {
           </Table>
         </Box>
       </Box>
-      )
     </Box>
   )
 }

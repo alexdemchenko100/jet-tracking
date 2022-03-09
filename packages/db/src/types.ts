@@ -21,6 +21,7 @@ export const MonitorResultSchema = Type.Object({
   createdAt: Type.Optional(Type.String()),
   err: Type.String(),
   url: Type.String(),
+  ip: Type.String(),
   body: Type.String(),
   bodyJson: Type.Optional(Type.String()),
   bodySize: Type.Integer(),
@@ -28,10 +29,13 @@ export const MonitorResultSchema = Type.Object({
   codeStatus: Type.String(),
   protocol: Type.String(),
   headers: MonitorTupleSchema,
-  dnsLookupTime: Type.Integer(),
-  tcpConnectTime: Type.Integer(),
-  tlsHandshakeTime: Type.Integer(),
-  timeToFirstByte: Type.Integer(),
+  waitTime: Type.Integer(),
+  dnsTime: Type.Integer(),
+  tcpTime: Type.Integer(),
+  tlsTime: Type.Integer(),
+  uploadTime: Type.Integer(),
+  ttfb: Type.Integer(),
+  downloadTime: Type.Integer(),
   totalTime: Type.Integer(),
   certExpiryDays: Type.Integer(),
   certCommonName: Type.String(),
@@ -47,15 +51,19 @@ export interface MonitorResultTable {
   code: number
   codeStatus: string
   url: string
+  ip: string
   body: string
   bodyJson?: object | string
   bodySize: number
   headers: MonitorTuples | string
   protocol: string
-  dnsLookupTime: number
-  tcpConnectTime: number
-  tlsHandshakeTime: number
-  timeToFirstByte: number
+  waitTime: number
+  dnsTime: number
+  tcpTime: number
+  tlsTime: number
+  uploadTime: number
+  ttfb: number
+  downloadTime: number
   totalTime: number
   certCommonName: string
   certExpiryDays: number

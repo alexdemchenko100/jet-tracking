@@ -32,10 +32,14 @@ function responseToMonitorResult(resp?: Response<string>) {
   return {
     code: resp?.statusCode ?? 0,
     codeStatus: resp?.statusMessage ?? '',
-    dnsLookupTime: timings?.phases?.dns ?? 0,
-    tcpConnectTime: timings?.phases?.tcp ?? 0,
-    tlsHandshakeTime: timings?.phases?.tls ?? 0,
-    timeToFirstByte: timings?.phases?.firstByte ?? 0,
+    ip: resp?.ip ?? '',
+    waitTime: timings?.phases?.wait ?? 0,
+    dnsTime: timings?.phases?.dns ?? 0,
+    tcpTime: timings?.phases?.tcp ?? 0,
+    tlsTime: timings?.phases?.tls ?? 0,
+    uploadTime: timings?.phases?.request ?? 0,
+    ttfb: timings?.phases?.firstByte ?? 0,
+    downloadTime: timings?.phases?.download ?? 0,
     totalTime: timings?.phases?.total ?? 0,
     protocol: '',
     body,
@@ -126,6 +130,7 @@ export async function execMonitor(monitor: Monitor) {
 
   try {
     const resp = await got(mon.url, {
+      timeout: { request: 10000 },
       method: mon.method as Method,
       body: Boolean(mon.body) ? mon.body : undefined,
       agent: {
