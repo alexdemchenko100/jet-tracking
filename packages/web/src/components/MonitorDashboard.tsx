@@ -2,7 +2,7 @@ import { Monitor, MonitorTable } from '@httpmon/db'
 import axios from 'axios'
 import { useQuery } from 'react-query'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   Table,
   Thead,
@@ -36,25 +36,8 @@ import {
 
 import { useTable, useSortBy, usePagination, Column } from 'react-table'
 import { Navigate, useNavigate } from 'react-router-dom'
-
-const columns: Column<MonitorTable>[] = [
-  {
-    Header: 'Name',
-    accessor: 'name',
-  },
-  {
-    Header: 'Method',
-    accessor: 'method',
-  },
-  {
-    Header: 'Url',
-    accessor: 'url',
-  },
-  {
-    Header: 'Frequency',
-    accessor: 'frequency',
-  },
-]
+import { FiEdit, FiTrash2 } from 'react-icons/fi'
+import { MdDelete, MdEdit } from 'react-icons/md'
 
 export function MonitorDashboard() {
   const navigate = useNavigate()
@@ -79,6 +62,47 @@ export function MonitorDashboard() {
   )
 
   type DashMon = Pick<MonitorTable, 'url' | 'method' | 'name' | 'frequency'>
+
+  const columns = useMemo<Column<MonitorTable>[]>(
+    () => [
+      {
+        Header: 'Name',
+        accessor: 'name',
+      },
+      {
+        Header: 'Method',
+        accessor: 'method',
+      },
+      {
+        Header: 'Url',
+        accessor: 'url',
+      },
+      {
+        Header: 'Frequency',
+        accessor: 'frequency',
+      },
+      {
+        Header: '',
+        accessor: (row, _rowIndex) => {
+          return (
+            <IconButton
+              aria-label='Edit'
+              onClick={(e) => {
+                e.stopPropagation()
+                navigate('/console/monitors/' + row.id + '/edit')
+              }}
+              icon={<MdEdit />}
+              size='sm'
+              color='blue.500'
+              cursor='pointer'
+            />
+          )
+        },
+        id: 'action',
+      },
+    ],
+    []
+  )
 
   const tableInstance = useTable(
     {
@@ -266,7 +290,8 @@ export function MonitorDashboard() {
                 return (
                   <Tr
                     className='tr1'
-                    onClick={() => {
+                    cursor='pointer'
+                    onClick={(e) => {
                       navigate('/console/monitor/' + row.original.id)
                     }}
                     {...row.getRowProps()}
