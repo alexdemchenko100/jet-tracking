@@ -11,7 +11,7 @@ import { SignIn } from './components/SignIn'
 import SignUp from './components/SignUp'
 import ForgotPassword from './components/ForgotPassword'
 import Console from './Console'
-import { NewAPI } from './components/NewAPI'
+import { MonitorEditor } from './components/MonitorEditor'
 import NewEnv from './components/NewEnv'
 import { MonitorDashboard } from './components/MonitorDashboard'
 import MonitorSummary from './components/MonitorSummary'
@@ -25,8 +25,9 @@ function App() {
           <Route path='/' element={<Home />} />
           <Route path='/console' element={<Console />}>
             <Route path='/console/monitors' element={<MonitorDashboard />} />
-            <Route path='/console/monitor/:id' element={<MonitorSummary />} />
-            <Route path='/console/api/new' element={<NewAPI />} />
+            <Route path='/console/monitors/:id' element={<MonitorSummary />} />
+            <Route path='/console/monitors/:id/edit' element={<MonitorEditor />} />
+            <Route path='/console/monitors/newapi' element={<MonitorEditor />} />
             <Route path='/console/env/new' element={<NewEnv />} />
           </Route>
 

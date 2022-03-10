@@ -25,8 +25,9 @@ import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from
 import { FiPlusCircle, FiTrash2 } from 'react-icons/fi'
 import { useState } from 'react'
 import { APIOnDemandResult } from './APIResult'
-import { useMutation } from 'react-query'
+import { useMutation, useQuery } from 'react-query'
 import axios from 'axios'
+import { useLocation, useParams } from 'react-router-dom'
 
 const freqConfig: [numSeconds: number, label: string][] = [
   [10, '10s'],
@@ -102,22 +103,22 @@ function APIHeaders(props: any) {
 
   return (
     <>
-      <Flex mt={'4'} alignItems={'center'}>
-        <Heading size={'sm'}>Headers</Heading>
+      <Flex mt='4' alignItems='center'>
+        <Heading size='sm'>Headers</Heading>
         <Button onClick={() => append([['', '']])}>
           <Icon color='blue.500' as={FiPlusCircle} cursor='pointer' />
         </Button>
       </Flex>
 
-      <Box mt={'4'}>
+      <Box mt='4'>
         {headers.map((header, index) => (
-          <Flex key={index} mb={'2'}>
-            <Input type={'text'} {...register(`headers.${index}.0` as const)} defaultValue={''} />
+          <Flex key={index} mb='2'>
+            <Input type='text' {...register(`headers.${index}.0` as const)} defaultValue={''} />
             <Input
-              type={'text'}
-              ml={'4'}
+              type='text'
+              ml='4'
               {...register(`headers.${index}.1` as const)}
-              defaultValue={''}
+              defaultValue=''
             />
 
             <Button onClick={() => remove(index)}>
@@ -143,24 +144,20 @@ function QueryParams(props: any) {
 
   return (
     <>
-      <Flex mt={'4'} alignItems={'center'}>
-        <Heading size={'sm'}>Query Params</Heading>
+      <Flex mt='4' alignItems='center'>
+        <Heading size='sm'>Query Params</Heading>
         <Button onClick={() => append([['', '']])}>
           <Icon color='blue.500' as={FiPlusCircle} cursor='pointer' />
         </Button>
       </Flex>
 
-      <Box mt={'4'}>
+      <Box mt='4'>
         {queryParams.map((_, index) => (
-          <Flex key={index} mb={'2'}>
+          <Flex key={index} mb='2'>
+            <Input type='text' {...register(`queryParams.${index}.0` as const)} defaultValue={''} />
             <Input
-              type={'text'}
-              {...register(`queryParams.${index}.0` as const)}
-              defaultValue={''}
-            />
-            <Input
-              type={'text'}
-              ml={'4'}
+              type='text'
+              ml='4'
               {...register(`queryParams.${index}.1` as const)}
               defaultValue={''}
             />
@@ -188,23 +185,18 @@ function EnvVariables(props: any) {
 
   return (
     <>
-      <Flex mt={'4'} alignItems={'center'}>
-        <Heading size={'sm'}>Environment</Heading>
+      <Flex mt='4' alignItems='center'>
+        <Heading size='sm'>Environment</Heading>
         <Button onClick={() => append([['', '']])}>
           <Icon color='blue.500' as={FiPlusCircle} cursor='pointer' />
         </Button>
       </Flex>
 
-      <Box mt={'4'}>
+      <Box mt='4'>
         {env.map((_, index) => (
-          <Flex key={index} mb={'2'}>
-            <Input type={'text'} {...register(`env.${index}.0` as const)} defaultValue={''} />
-            <Input
-              type={'text'}
-              ml={'4'}
-              {...register(`env.${index}.1` as const)}
-              defaultValue={''}
-            />
+          <Flex key={index} mb='2'>
+            <Input type='text' {...register(`env.${index}.0` as const)} defaultValue={''} />
+            <Input type='text' ml='4' {...register(`env.${index}.1` as const)} defaultValue={''} />
 
             <Button onClick={() => remove(index)}>
               <Icon color='red.500' as={FiTrash2} cursor='pointer' />
@@ -221,8 +213,8 @@ function BodyInput(props: any) {
 
   return (
     <>
-      <Flex mt={'4'} alignItems={'center'}>
-        <Heading size={'sm'} mr={'4'}>
+      <Flex mt='4' alignItems='center'>
+        <Heading size='sm' mr='4'>
           Body
         </Heading>
         <RadioGroup>
@@ -243,7 +235,10 @@ function BodyInput(props: any) {
   )
 }
 
-export function NewAPI() {
+export function MonitorEditor() {
+  //id tells apart Edit to a new check creation
+  const { id } = useParams()
+
   interface FormMonitor extends Monitor {
     frequencyScale: number
   }
@@ -257,19 +252,41 @@ export function NewAPI() {
 
   const {
     register,
+    reset,
     watch,
     handleSubmit,
     formState: { errors },
   } = methods
 
   const {
-    mutateAsync: createMonitor,
     isLoading,
-    error,
+    data: loadedMonitor,
+    error: loadError,
+  } = useQuery<Monitor>(
+    id || 'load',
+    async () => {
+      const resp = await axios({
+        method: 'GET',
+        url: `/monitors/${id}`,
+      })
+      reset(resp.data)
+      return resp.data as Monitor
+    },
+    {
+      enabled: Boolean(id),
+    }
+  )
+
+  const {
+    mutateAsync: createMonitor,
+    isLoading: isCreating,
+    error: createError,
   } = useMutation<Monitor, Error, Monitor>(async (data: Monitor) => {
+    const method = id ? 'POST' : 'PUT'
+    const url = id ? `/monitors/${id}` : '/monitors'
     const resp = await axios({
-      method: 'PUT',
-      url: '/monitors',
+      method,
+      url,
       data: { ...data },
     })
     return resp.data as Monitor
@@ -294,8 +311,8 @@ export function NewAPI() {
   return (
     <Flex>
       <Box w={ondemandMonitor ? '50%' : '100%'}>
-        <Heading size='lg' mb='10'>
-          Create new API monitor
+        <Heading size='md' mb='10'>
+          {id ? `Update Monitor` : 'Create new API monitor'}
         </Heading>
 
         <Divider />
@@ -366,7 +383,7 @@ export function NewAPI() {
                   w='40'
                   type='submit'
                 >
-                  Save
+                  {id ? 'Update' : 'Create'}
                 </Button>
               </Flex>
             </Box>

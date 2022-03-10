@@ -116,7 +116,7 @@ function TimingBar({ result, ...rest }: TimingBarProps) {
         if (time > 2)
           return (
             <Flex direction='column' width={`${timePct}%`} key={label}>
-              <Text fontSize={'sm'} isTruncated>
+              <Text fontSize='sm' isTruncated>
                 {label}
               </Text>
               <Box bg={color} fontSize='sm' verticalAlign='middle' ml='0.5'>

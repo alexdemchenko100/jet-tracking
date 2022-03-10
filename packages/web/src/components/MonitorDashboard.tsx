@@ -171,7 +171,7 @@ export function MonitorDashboard() {
           mr='4'
           mb='4'
           colorScheme='blue'
-          onClick={() => navigate('/console/api/new')}
+          onClick={() => navigate('/console/monitors/newapi')}
         >
           New Monitor
         </Button>
@@ -292,7 +292,7 @@ export function MonitorDashboard() {
                     className='tr1'
                     cursor='pointer'
                     onClick={(e) => {
-                      navigate('/console/monitor/' + row.original.id)
+                      navigate('/console/monitors/' + row.original.id)
                     }}
                     {...row.getRowProps()}
                   >
