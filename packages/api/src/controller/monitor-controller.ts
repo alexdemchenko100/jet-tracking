@@ -35,28 +35,6 @@ export default async function MonitorController(app: FastifyInstance) {
     }
   )
 
-  app.post<{ Body: Monitor }>(
-    '/',
-    {
-      schema: {
-        body: MonitorFluentSchema,
-        response: {
-          200: MonitorFluentSchema,
-        },
-      },
-    },
-    async function (req, reply) {
-      const mon = req.body
-
-      const resp = await monitorSvc.update(mon)
-
-      req.log.info(mon, 'updating monitor')
-      req.log.info(resp, 'resp mon')
-
-      reply.send(resp)
-    }
-  )
-
   app.get(
     '/',
     {
@@ -91,6 +69,32 @@ export default async function MonitorController(app: FastifyInstance) {
       } else {
         reply.code(404).send('Not found')
       }
+    }
+  )
+
+  app.post<{ Params: Params; Body: Monitor }>(
+    '/:id',
+    {
+      schema: {
+        params: ParamsSchema,
+        body: MonitorFluentSchema,
+        response: {
+          200: MonitorFluentSchema,
+        },
+      },
+    },
+    async function ({ params: { id }, body: monitor, log }, reply) {
+      if (id != monitor.id) {
+        reply.code(400).send('invalid monitor id')
+        return
+      }
+
+      const resp = await monitorSvc.update(monitor)
+
+      log.info(monitor, 'updating monitor')
+      log.info(resp, 'resp mon')
+
+      reply.send(resp)
     }
   )
 

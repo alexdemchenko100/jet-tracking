@@ -54,6 +54,7 @@ export class MonitorService {
     const monResp = await db
       .updateTable('Monitor')
       .set({ ...monitorToDBMonitor(mon) })
+      .where('id', '=', mon.id)
       .returningAll()
       .executeTakeFirst()
     return monResp
