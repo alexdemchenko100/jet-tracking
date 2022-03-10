@@ -1,6 +1,8 @@
 import { MonitorResult } from '@httpmon/db'
 import axios from 'axios'
 import { useQuery } from 'react-query'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
 
 import { useState } from 'react'
 import {
@@ -36,11 +38,22 @@ import {
 import { useTable, useSortBy, usePagination, Column } from 'react-table'
 import { useParams } from 'react-router-dom'
 import { APIResult } from './APIResult'
+import { MdRowing } from 'react-icons/md'
+
+dayjs.extend(relativeTime)
 
 const columns: Column<MonitorResult>[] = [
   {
     Header: 'When',
-    accessor: 'createdAt',
+    accessor: (row, _index) => {
+      return <span>{dayjs(row.createdAt as string).fromNow()}</span>
+    },
+  },
+  {
+    Header: 'Date',
+    accessor: (row, _index) => {
+      return <span>{dayjs(row.createdAt as string).format('YYYY-MM-DD h:mm:ss')}</span>
+    },
   },
   {
     Header: 'Code',

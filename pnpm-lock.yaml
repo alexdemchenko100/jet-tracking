@@ -132,6 +132,7 @@ importers:
       chakra-ui-autocomplete: ^1.4.5
       chakra-ui-simple-autocomplete: ^1.0.0
       clsx: ^1.1.1
+      dayjs: ^1.10.8
       firebase: ^9.6.7
       framer-motion: ^6.2.8
       history: ^5.3.0
@@ -162,6 +163,7 @@ importers:
       chakra-ui-autocomplete: 1.4.5_1ba913af07c4c5d84ba52202fb1545d6
       chakra-ui-simple-autocomplete: 1.0.0_b8fdba992ce7d797017dc07106486496
       clsx: 1.1.1
+      dayjs: 1.10.8
       firebase: 9.6.7
       framer-motion: 6.2.8_react-dom@17.0.2+react@17.0.2
       history: 5.3.0
@@ -8155,6 +8157,10 @@ packages:
 
   /dateformat/4.6.3:
     resolution: {integrity: sha512-2P0p0pFGzHS5EMnhdxQi7aJN+iMheud0UhG4dlE1DLAlvL8JHjJJTX/CSm4JXwV0Ka5nGk3zC5mcb5bUQUxxMA==}
+    dev: false
+
+  /dayjs/1.10.8:
+    resolution: {integrity: sha512-wbNwDfBHHur9UOzNUjeKUOJ0fCb0a52Wx0xInmQ7Y8FstyajiV1NmK1e00cxsr9YrE9r7yAChE0VvpuY5Rnlow==}
     dev: false
 
   /debounce-fn/4.0.0:
