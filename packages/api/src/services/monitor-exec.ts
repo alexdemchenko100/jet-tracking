@@ -57,7 +57,7 @@ function responseToMonitorResult(resp?: Response<string>) {
   }
 }
 
-function headersToMap(headers: MonitorTuples) {
+function headersToMap(headers: MonitorTuples = []) {
   let hmap: { [key: string]: string } = {}
   headers.forEach((header) => {
     hmap[header[0]] = header[1]
@@ -141,10 +141,9 @@ export async function execMonitor(monitor: Monitor) {
       agent: {
         https: new https.Agent({ keepAlive: false }),
       },
-      headers: mon.headers
-        ? headersToMap(mon.headers as MonitorTuples)
-        : undefined,
-      responseType: 'text',
+      headers: { 'Content-Type': mon.bodyType, ...headersToMap(mon.headers) },
+
+      // responseType: 'text',
       searchParams: mon.queryParams
         ? headersToMap(mon.queryParams as MonitorTuples)
         : undefined,
