@@ -16,13 +16,18 @@ import {
   SliderThumb,
   SliderTrack,
   Stack,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   Textarea,
 } from '@chakra-ui/react'
 import { Monitor, MonitorTuples } from '@httpmon/db'
-import React from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from 'react-hook-form'
 
-import { FiPlusCircle, FiTrash2 } from 'react-icons/fi'
+import { FiPlus, FiTrash2 } from 'react-icons/fi'
 import { useState } from 'react'
 import { APIOnDemandResult } from './APIResult'
 import { useMutation, useQuery } from 'react-query'
@@ -91,7 +96,7 @@ function SliderThumbWithTooltip() {
 }
 
 function APIHeaders(props: any) {
-  const { control, register } = useFormContext()
+  const { control, register } = useFormContext<Monitor>()
   const {
     fields: headers,
     append,
@@ -103,22 +108,19 @@ function APIHeaders(props: any) {
 
   return (
     <>
-      <Flex mt='4' alignItems='center'>
-        <Heading size='sm'>Headers</Heading>
-        <Button onClick={() => append([['', '']])}>
-          <Icon color='blue.500' as={FiPlusCircle} cursor='pointer' />
-        </Button>
+      <Flex alignItems='start'>
+        <Heading size='xs'>HTTP Headers</Heading>
       </Flex>
 
       <Box mt='4'>
         {headers.map((header, index) => (
           <Flex key={index} mb='2'>
-            <Input type='text' {...register(`headers.${index}.0` as const)} defaultValue={''} />
+            <Input type='text' {...register(`headers.${index}.0` as const)} placeholder='name' />
             <Input
               type='text'
               ml='4'
               {...register(`headers.${index}.1` as const)}
-              defaultValue=''
+              placeholder='value'
             />
 
             <Button onClick={() => remove(index)}>
@@ -126,6 +128,9 @@ function APIHeaders(props: any) {
             </Button>
           </Flex>
         ))}
+        <Button onClick={() => append([['', '']])}>
+          <Icon color='blue.500' as={FiPlus} cursor='pointer' />
+        </Button>
       </Box>
     </>
   )
@@ -144,22 +149,19 @@ function QueryParams(props: any) {
 
   return (
     <>
-      <Flex mt='4' alignItems='center'>
-        <Heading size='sm'>Query Params</Heading>
-        <Button onClick={() => append([['', '']])}>
-          <Icon color='blue.500' as={FiPlusCircle} cursor='pointer' />
-        </Button>
+      <Flex alignItems='center'>
+        <Heading size='xs'>Query Params</Heading>
       </Flex>
 
       <Box mt='4'>
         {queryParams.map((_, index) => (
           <Flex key={index} mb='2'>
-            <Input type='text' {...register(`queryParams.${index}.0` as const)} defaultValue={''} />
+            <Input type='text' {...register(`queryParams.${index}.0` as const)} placeholder='key' />
             <Input
               type='text'
               ml='4'
               {...register(`queryParams.${index}.1` as const)}
-              defaultValue={''}
+              placeholder='value'
             />
 
             <Button onClick={() => remove(index)}>
@@ -168,6 +170,9 @@ function QueryParams(props: any) {
           </Flex>
         ))}
       </Box>
+      <Button onClick={() => append([['', '']])}>
+        <Icon color='blue.500' as={FiPlus} cursor='pointer' />
+      </Button>
     </>
   )
 }
@@ -185,11 +190,8 @@ function EnvVariables(props: any) {
 
   return (
     <>
-      <Flex mt='4' alignItems='center'>
-        <Heading size='sm'>Environment</Heading>
-        <Button onClick={() => append([['', '']])}>
-          <Icon color='blue.500' as={FiPlusCircle} cursor='pointer' />
-        </Button>
+      <Flex alignItems='center'>
+        <Heading size='xs'>Variables</Heading>
       </Flex>
 
       <Box mt='4'>
@@ -204,6 +206,9 @@ function EnvVariables(props: any) {
           </Flex>
         ))}
       </Box>
+      <Button onClick={() => append([['', '']])}>
+        <Icon color='blue.500' as={FiPlus} cursor='pointer' />
+      </Button>
     </>
   )
 }
@@ -213,10 +218,7 @@ function BodyInput(props: any) {
 
   return (
     <>
-      <Flex mt='4' alignItems='center'>
-        <Heading size='sm' mr='4'>
-          Body
-        </Heading>
+      <Flex alignItems='center'>
         <RadioGroup>
           <Stack direction='row'>
             <Radio value='' defaultChecked {...register('bodyType')}>
@@ -246,6 +248,8 @@ export function MonitorEditor() {
   const methods = useForm<FormMonitor>({
     defaultValues: {
       headers: [] as MonitorTuples,
+      queryParams: [] as MonitorTuples,
+      env: [] as MonitorTuples,
       frequencyScale: 0,
     },
   })
@@ -321,15 +325,14 @@ export function MonitorEditor() {
             <Box>
               <Flex minH='100vh' justify='start' direction='column'>
                 <FormControl id='name'>
-                  <FormLabel htmlFor='name'>Name</FormLabel>
-                  <Input type='name' {...register('name')} />
+                  <Flex alignItems='center'>
+                    <FormLabel htmlFor='name'>Name</FormLabel>
+                    <Input type='name' {...register('name')} />
+                  </Flex>
                 </FormControl>
-
-                <EnvVariables />
 
                 <Flex justify='start' alignItems='end' mt='4'>
                   <FormControl id='method' maxW='32'>
-                    <FormLabel htmlFor='method'>Method</FormLabel>
                     <Select color='blue.500' fontWeight='bold' {...register('method')}>
                       <option defaultValue='GET' value='GET'>
                         GET
@@ -340,12 +343,7 @@ export function MonitorEditor() {
                   </FormControl>
 
                   <FormControl id='url' ml='2'>
-                    <FormLabel htmlFor='url'>URL</FormLabel>
-                    <Input
-                      // type="url"
-                      placeholder='url here'
-                      {...register('url')}
-                    />
+                    <Input placeholder='https:// url here' {...register('url')} />
                   </FormControl>
 
                   <Button
@@ -361,15 +359,39 @@ export function MonitorEditor() {
                   </Button>
                 </Flex>
 
-                <BodyInput />
-                {watched.bodyType != '' && (
-                  <Textarea mt='4' h='36' {...register('body')}></Textarea>
-                )}
-                <APIHeaders />
-                <QueryParams />
+                <Tabs mt='4'>
+                  <TabList>
+                    <Tab>Headers</Tab>
+                    <Tab>Body</Tab>
+                    <Tab>Auth</Tab>
+                    <Tab>Query Params</Tab>
+                    <Tab>Variables</Tab>
+                  </TabList>
+
+                  <TabPanels>
+                    <TabPanel>
+                      <APIHeaders />
+                    </TabPanel>
+                    <TabPanel>
+                      <BodyInput />
+                      {watched.bodyType != '' && (
+                        <Textarea mt='4' h='36' {...register('body')}></Textarea>
+                      )}
+                    </TabPanel>
+                    <TabPanel>
+                      <p>Auth</p>
+                    </TabPanel>
+                    <TabPanel>
+                      <QueryParams />
+                    </TabPanel>
+                    <TabPanel>
+                      <EnvVariables />
+                    </TabPanel>
+                  </TabPanels>
+                </Tabs>
 
                 <FormControl id='frequency' mt='10' maxW='80%'>
-                  <FormLabel htmlFor='frequency'>Frequency</FormLabel>
+                  <FormLabel htmlFor='frequency'>Select the frequency</FormLabel>
                   <SliderThumbWithTooltip />
                 </FormControl>
 
