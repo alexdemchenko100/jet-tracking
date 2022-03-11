@@ -35,7 +35,6 @@ function App() {
           <Route path='/console/signin' element={<SignIn />} />
           <Route path='/console/signup' element={<SignUp />} />
           <Route path='/console/forgot' element={<ForgotPassword />} />
-          <Route path='/try' element={<RealTimeMonitor />} />
         </Routes>
       </ChakraProvider>
     </HistoryRouter>

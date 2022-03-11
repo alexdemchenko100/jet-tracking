@@ -197,8 +197,13 @@ function EnvVariables(props: any) {
       <Box mt='4'>
         {env.map((_, index) => (
           <Flex key={index} mb='2'>
-            <Input type='text' {...register(`env.${index}.0` as const)} defaultValue={''} />
-            <Input type='text' ml='4' {...register(`env.${index}.1` as const)} defaultValue={''} />
+            <Input type='text' {...register(`env.${index}.0` as const)} placeholder='name' />
+            <Input
+              type='text'
+              ml='4'
+              {...register(`env.${index}.1` as const)}
+              placeholder='value'
+            />
 
             <Button onClick={() => remove(index)}>
               <Icon color='red.500' as={FiTrash2} cursor='pointer' />
@@ -247,9 +252,9 @@ export function MonitorEditor() {
 
   const methods = useForm<FormMonitor>({
     defaultValues: {
-      headers: [] as MonitorTuples,
-      queryParams: [] as MonitorTuples,
-      env: [] as MonitorTuples,
+      headers: [['', '']] as MonitorTuples,
+      queryParams: [['', '']] as MonitorTuples,
+      env: [['', '']] as MonitorTuples,
       frequencyScale: 0,
     },
   })
@@ -260,6 +265,7 @@ export function MonitorEditor() {
     watch,
     handleSubmit,
     formState: { errors },
+    getValues,
   } = methods
 
   const {
@@ -305,9 +311,33 @@ export function MonitorEditor() {
     setOndemandMonitor({ ...watched })
   }
 
+  function numValues<T extends 'headers' | 'queryParams' | 'env'>(name: T) {
+    const values = getValues(name)
+
+    if (values && values.length > 0) {
+      return values.filter((item) => Boolean(item[0])).length
+    }
+    return 0
+  }
+
   async function handleCreation(data: FormMonitor) {
+    //cleanse data to become the monitor
     data.frequency = freqConfig[data.frequencyScale][0]
-    const { frequencyScale, ...monitor } = data //remove scale
+
+    let { frequencyScale, ...monitor } = data //remove scale
+
+    //remove empty fields from monitor
+    if (monitor.headers && monitor.headers.length > 0) {
+      monitor.headers = monitor.headers.filter((item) => item[0])
+    }
+
+    if (monitor.queryParams && monitor.queryParams.length > 0) {
+      monitor.queryParams = monitor.queryParams.filter((item) => item[0])
+    }
+
+    if (monitor.env && monitor.env.length > 0) {
+      monitor.env = monitor.env.filter((item) => item[0])
+    }
 
     await createMonitor(monitor)
   }
@@ -325,7 +355,7 @@ export function MonitorEditor() {
             <Box>
               <Flex minH='100vh' justify='start' direction='column'>
                 <FormControl id='name'>
-                  <Flex alignItems='center'>
+                  <Flex alignItems='baseline'>
                     <FormLabel htmlFor='name'>Name</FormLabel>
                     <Input type='name' {...register('name')} />
                   </Flex>
@@ -361,11 +391,24 @@ export function MonitorEditor() {
 
                 <Tabs mt='4'>
                   <TabList>
-                    <Tab>Headers</Tab>
+                    <Tab>
+                      Headers
+                      {numValues('headers') > 0 && (
+                        <sup color='green'>&nbsp;{numValues('headers')}</sup>
+                      )}
+                    </Tab>
                     <Tab>Body</Tab>
                     <Tab>Auth</Tab>
-                    <Tab>Query Params</Tab>
-                    <Tab>Variables</Tab>
+                    <Tab>
+                      Query Params
+                      {numValues('queryParams') > 0 && (
+                        <sup color='green'>&nbsp;{numValues('queryParams')}</sup>
+                      )}
+                    </Tab>
+                    <Tab>
+                      Variables
+                      {numValues('env') > 0 && <sup color='green'>&nbsp;{numValues('env')}</sup>}
+                    </Tab>
                   </TabList>
 
                   <TabPanels>
@@ -391,7 +434,7 @@ export function MonitorEditor() {
                 </Tabs>
 
                 <FormControl id='frequency' mt='10' maxW='80%'>
-                  <FormLabel htmlFor='frequency'>Select the frequency</FormLabel>
+                  <FormLabel htmlFor='frequency'>Select frequency to run the monitor</FormLabel>
                   <SliderThumbWithTooltip />
                 </FormControl>
 
