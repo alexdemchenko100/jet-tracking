@@ -11,9 +11,9 @@ firebaseService.isLoggedIn()
 axios.defaults.maxRedirects = 0
 axios.defaults.headers.common = { 'X-Requested-With': 'XMLHttpRequest' }
 if (process.env.NODE_ENV === 'production') {
-  axios.defaults.baseURL = 'https://api.promqtt.com'
+  axios.defaults.baseURL = '/api'
 } else {
-  axios.defaults.baseURL = 'http://localhost:3006'
+  axios.defaults.baseURL = 'http://localhost:3006/api'
 }
 
 ReactDOM.render(

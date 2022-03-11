@@ -1,5 +1,4 @@
 import { ChakraProvider } from '@chakra-ui/react'
-import RealTimeMonitor from './RealTimeMonitor'
 import { Home } from './Home'
 import './App.css'
 
