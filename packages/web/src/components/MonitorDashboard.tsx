@@ -165,11 +165,15 @@ export function MonitorDashboard() {
 
   return (
     <>
-      <Flex justify='end'>
+      <Flex justify='space-between'>
+        <Heading size='md' mb='8'>
+          Monitors
+        </Heading>
+
         <Button
-          size='md'
-          mr='4'
-          mb='4'
+          size='sm'
+          mr='2'
+          mb='2'
           colorScheme='blue'
           onClick={() => navigate('/console/monitors/newapi')}
         >
@@ -177,75 +181,6 @@ export function MonitorDashboard() {
         </Button>
       </Flex>
 
-      <Heading size='md' mb='4'>
-        Monitors
-      </Heading>
-
-      <Box>
-        <Menu>
-          <MenuButton
-            alignSelf='center'
-            rightIcon={<ChevronDownIcon />}
-            variant='outline'
-            mx='1em'
-            size='xs'
-            as={Button}
-            colorScheme='blue'
-          >
-            {selectedSortColumn['desc'] == true ? 'Descending' : 'Ascending'}
-          </MenuButton>
-          <MenuList color='gray.800' zIndex='3' minWidth='240px'>
-            <MenuOptionGroup type='radio' defaultValue={'0'} onChange={(e) => typeOfSort(e)}>
-              <MenuItemOption key={0} value={'0'}>
-                Ascending
-              </MenuItemOption>
-              <MenuItemOption key={1} value={'1'}>
-                Descending
-              </MenuItemOption>
-            </MenuOptionGroup>
-          </MenuList>
-        </Menu>
-        <Menu>
-          <MenuButton
-            alignSelf='center'
-            rightIcon={<ChevronDownIcon />}
-            variant='outline'
-            mx='1em'
-            size='xs'
-            as={Button}
-            colorScheme='blue'
-          >
-            Sort By
-          </MenuButton>
-          <MenuList color='gray.800' zIndex='3' minWidth='240px'>
-            <MenuOptionGroup type='radio' onChange={(e) => handleSort(e)}>
-              {allColumns.map((column, idx) => (
-                <MenuItemOption
-                  icon={
-                    column.isSorted ? (
-                      column.isSortedDesc ? (
-                        <TriangleDownIcon />
-                      ) : (
-                        <TriangleUpIcon />
-                      )
-                    ) : (
-                      <></>
-                    )
-                  }
-                  key={idx}
-                  value={column.id}
-                >
-                  {column.Header}
-                </MenuItemOption>
-              ))}
-            </MenuOptionGroup>
-          </MenuList>
-        </Menu>
-        <Button size='xs' m='4px' colorScheme='red' variant='outline' onClick={() => setSortBy([])}>
-          Reset Sorting
-        </Button>
-        <Spacer />
-      </Box>
       <Box maxH='30em' overflowY='scroll'>
         <Table {...getTableProps()} size='sm' variant='simple'>
           <Thead

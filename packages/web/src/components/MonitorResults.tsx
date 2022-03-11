@@ -24,6 +24,7 @@ import {
   MenuItemOption,
   MenuOptionGroup,
   MenuList,
+  Heading,
 } from '@chakra-ui/react'
 import {
   TriangleDownIcon,
@@ -38,7 +39,6 @@ import {
 import { useTable, useSortBy, usePagination, Column } from 'react-table'
 import { useParams } from 'react-router-dom'
 import { APIResult } from './APIResult'
-import { MdRowing } from 'react-icons/md'
 
 dayjs.extend(relativeTime)
 
@@ -65,7 +65,7 @@ const columns: Column<MonitorResult>[] = [
   },
 ]
 
-export function MonitorSummary() {
+export function MonitorResults() {
   const [currentResult, setCurrentResult] = useState<MonitorResult>()
 
   const { id } = useParams()
@@ -83,9 +83,8 @@ export function MonitorSummary() {
     throw Error('Failed to get odemand results')
   }
 
-  const { isLoading, data: results } = useQuery<MonitorResult[], Error>(
-    ['monitor-result', id],
-    () => getMonitorResults()
+  const { data: results } = useQuery<MonitorResult[], Error>(['monitor-result', id], () =>
+    getMonitorResults()
   )
 
   const tableInstance = useTable(
@@ -104,7 +103,6 @@ export function MonitorSummary() {
     getTableBodyProps,
     headerGroups,
     prepareRow,
-    rows,
     page,
     nextPage,
     previousPage,
@@ -114,105 +112,15 @@ export function MonitorSummary() {
     gotoPage,
     pageCount,
     state,
-    setSortBy,
-    allColumns,
   } = tableInstance
 
-  const { pageSize, pageIndex } = state
-
-  const [selectedSortColumn, setSelectedSortColumn] = useState({
-    id: '',
-    desc: false,
-  })
-
-  function handleSort(e: any) {
-    let temp = Object.assign({}, selectedSortColumn)
-    temp['id'] = e
-    setSelectedSortColumn(temp)
-    setSortBy([temp])
-  }
-
-  const typeOfSort = (e: any) => {
-    let tempColumn
-    if (e == '0') {
-      tempColumn = Object.assign({}, selectedSortColumn)
-      tempColumn['desc'] = false
-      setSelectedSortColumn(tempColumn)
-      setSortBy([tempColumn])
-    } else {
-      tempColumn = Object.assign({}, selectedSortColumn)
-      tempColumn['desc'] = true
-      setSelectedSortColumn(tempColumn)
-      setSortBy([tempColumn])
-    }
-  }
+  const { pageIndex } = state
 
   return (
     <>
-      <Box>
-        <Menu>
-          <MenuButton
-            alignSelf='center'
-            rightIcon={<ChevronDownIcon />}
-            variant='outline'
-            mx='1em'
-            size='xs'
-            as={Button}
-            colorScheme='blue'
-          >
-            {selectedSortColumn['desc'] == true ? 'Descending' : 'Ascending'}
-          </MenuButton>
-          <MenuList color='gray.800' zIndex='3' minWidth='240px'>
-            <MenuOptionGroup type='radio' defaultValue={'0'} onChange={(e) => typeOfSort(e)}>
-              <MenuItemOption key={0} value={'0'}>
-                Ascending
-              </MenuItemOption>
-              <MenuItemOption key={1} value={'1'}>
-                Descending
-              </MenuItemOption>
-            </MenuOptionGroup>
-          </MenuList>
-        </Menu>
-        <Menu>
-          <MenuButton
-            alignSelf='center'
-            rightIcon={<ChevronDownIcon />}
-            variant='outline'
-            mx='1em'
-            size='xs'
-            as={Button}
-            colorScheme='blue'
-          >
-            Sort By
-          </MenuButton>
-          <MenuList color='gray.800' zIndex='3' minWidth='240px'>
-            <MenuOptionGroup type='radio' onChange={(e) => handleSort(e)}>
-              {allColumns.map((column, idx) => (
-                <MenuItemOption
-                  icon={
-                    column.isSorted ? (
-                      column.isSortedDesc ? (
-                        <TriangleDownIcon />
-                      ) : (
-                        <TriangleUpIcon />
-                      )
-                    ) : (
-                      <></>
-                    )
-                  }
-                  key={idx}
-                  value={column.id}
-                >
-                  {column.Header}
-                </MenuItemOption>
-              ))}
-            </MenuOptionGroup>
-          </MenuList>
-        </Menu>
-        <Button size='xs' m='4px' colorScheme='red' variant='outline' onClick={() => setSortBy([])}>
-          Reset Sorting
-        </Button>
-      </Box>
+      <Heading size='sm' mt='4' mb='4'>
+        Monitor Results
+      </Heading>
       <Box maxH='30em' overflowY='scroll'>
         <Table {...getTableProps()} size='sm' variant='simple'>
           <Thead
@@ -223,9 +131,9 @@ export function MonitorSummary() {
             style={{ overflow: 'scroll' }}
             bg='gray.100'
           >
-            {headerGroups.map((headerGroup, indexKey) => (
+            {headerGroups.map((headerGroup) => (
               <Tr p='0' {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map((column, columnIndex) => (
+                {headerGroup.headers.map((column) => (
                   <Th
                     borderColor='gray.200'
                     p='1em'
@@ -363,4 +271,4 @@ export function MonitorSummary() {
   )
 }
 
-export default MonitorSummary
+export default MonitorResults

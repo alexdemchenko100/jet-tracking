@@ -312,7 +312,7 @@ export function MonitorEditor() {
     <Flex>
       <Box w={ondemandMonitor ? '50%' : '100%'}>
         <Heading size='md' mb='10'>
-          {id ? `Update Monitor` : 'Create new API monitor'}
+          {id ? `Editing Monitor` : 'Create new API monitor'}
         </Heading>
 
         <Divider />
