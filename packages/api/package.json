@@ -2,15 +2,13 @@
   "name": "mon-backend",
   "version": "0.0.1",
   "description": "",
-  "type": "module",
-  "engines" : {
-    "node" : ">=16.0.0"
+  "engines": {
+    "node": ">=16.0.0"
   },
   "scripts": {
-    "watch": "tsc --watch --preserveWatchOutput --pretty",
-    "dev": "tsc && concurrently \"tsc -w\" \"cross-env nodemon\"",
-    "format": "prettier --write \"src/**/*.ts\"",
-    "build": "rimraf dist && tsc",
+    "watch": "esbuild src/index.ts --watch --bundle --platform=node --target=node16.14.0 --external:pg-native --outdir=dist --sourcemap",
+    "dev": "concurrently pnpm:watch \"cross-env nodemon\"",
+    "build": "esbuild src/index.ts --bundle --minify --platform=node --target=node16.14.0 --external:pg-native --outdir=dist",
     "start": "node dist/index.js",
     "prisma:gen": "prisma generate",
     "prisma:studio": "prisma studio",
@@ -41,11 +39,11 @@
     "pino-pretty": "^7.5.1"
   },
   "devDependencies": {
-    "@types/fastify-static": "^2.2.1",
     "@types/lodash.clonedeep": "^4.5.6",
     "@types/node": "latest",
     "concurrently": "^7.0.0",
     "cross-env": "^7.0.3",
+    "esbuild": "^0.14.25",
     "fastify-cli": "^2.15.0",
     "fastify-tsconfig": "^1.0.1",
     "nodemon": "^2.0.15",

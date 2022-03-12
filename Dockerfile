@@ -21,9 +21,8 @@ RUN apk add dumb-init
 ENV NODE_ENV production
 USER node
 WORKDIR /app
-# COPY --chown=node:node --from=build /app/packages/api /app/packages/api
-# COPY --chown=node:node --from=build /app/packages/web/dist /app/packages/web/dist
-COPY --chown=node:node --from=build /app /app
+COPY --chown=node:node --from=build /app/packages/api/dist /app/packages/api/dist
+COPY --chown=node:node --from=build /app/packages/web/dist /app/packages/web/dist
 
 CMD ["dumb-init", "node", "./packages/api/dist/index.js"]
 EXPOSE 3006
