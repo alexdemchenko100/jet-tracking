@@ -14,7 +14,7 @@ import { Spinner } from '@chakra-ui/react'
 import { Link, Navigate } from 'react-router-dom'
 
 import store from '../services/store'
-import { logoTitle, googleSigninButton } from '../assets/Assets'
+import { logoTitle, googleSigninButton } from '../Assets'
 
 export type SignInForm = {
   email: string

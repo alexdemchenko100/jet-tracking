@@ -5,10 +5,14 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "web": "pnpm run dev -C packages/web",
-    "api": "pnpm run dev -C packages/api",
-    "db": "pnpm run dev -C packages/db",
-    "dev": "concurrently pnpm:db pnpm:api pnpm:web"
+    "web-dev": "pnpm run dev -C packages/web",
+    "api-dev": "pnpm run dev -C packages/api",
+    "db-dev": "pnpm run dev -C packages/db",
+    "web-build": "pnpm run build -C packages/web",
+    "api-build": "pnpm run build -C packages/api",
+    "db-build": "pnpm run build -C packages/db",
+    "dev": "concurrently pnpm:db-dev pnpm:api-dev pnpm:web-dev",
+    "build": "pnpm db-build && pnpm web-build && pnpm api-build"
   },
   "repository": {
     "type": "git",
@@ -21,7 +25,7 @@
   },
   "homepage": "https://github.com/skogs/httpmon#readme",
   "devDependencies": {
-    "@types/node": "^17.0.21",
+    "@types/node": "^16.0.0",
     "ts-node": "^10.5.0",
     "typescript": "^4.5.5"
   }

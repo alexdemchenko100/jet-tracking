@@ -24,7 +24,7 @@ import { useForm } from 'react-hook-form'
 import { useMutation } from 'react-query'
 import { Link } from 'react-router-dom'
 
-import { logoTitle } from '../assets/Assets'
+import { logoTitle } from '../Assets'
 
 type SignUpParams = {
   fullName: string

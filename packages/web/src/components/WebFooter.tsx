@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-import { location, email, logoTitleDark } from '../assets/Assets'
+import { location, email, logoTitleDark } from '../Assets'
 
 export function WebFooter() {
   return (

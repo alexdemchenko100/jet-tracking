@@ -26,7 +26,7 @@ import { FiSettings, FiClipboard, FiMenu, FiSearch } from 'react-icons/fi'
 import { HiCode } from 'react-icons/hi'
 import { MdHome, MdKeyboardArrowRight } from 'react-icons/md'
 
-import { logoTitle } from './assets/Assets'
+import { logoTitle } from './Assets'
 import { Outlet, useNavigate } from 'react-router-dom'
 
 export default function Console() {

@@ -10,7 +10,7 @@ import {
   speedometer,
   cloud,
   consolePic,
-} from './assets/Assets'
+} from './Assets'
 
 import { WebNavBar } from './components/WebNavBar'
 import { WebFooter } from './components/WebFooter'

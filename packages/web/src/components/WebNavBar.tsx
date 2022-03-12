@@ -1,4 +1,4 @@
-import { logoTitle, heroIllustration } from '../assets/Assets'
+import { logoTitle, heroIllustration } from '../Assets'
 import { Button } from '@chakra-ui/react'
 import { Link } from 'react-router-dom'
 import clsx from 'clsx'

@@ -1,4 +1,4 @@
-import { logoTitle } from '../assets/Assets'
+import { logoTitle } from '../Assets'
 import {
   Button,
   Modal,

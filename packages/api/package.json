@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "",
   "type": "module",
+  "engines" : {
+    "node" : ">=16.0.0"
+  },
   "scripts": {
     "watch": "tsc --watch --preserveWatchOutput --pretty",
     "dev": "tsc && concurrently \"tsc -w\" \"cross-env nodemon\"",
