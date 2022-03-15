@@ -25,4 +25,4 @@ COPY --chown=node:node --from=build /app/packages/api/dist /app/packages/api/dis
 COPY --chown=node:node --from=build /app/packages/web/dist /app/packages/web/dist
 
 CMD ["dumb-init", "node", "./packages/api/dist/index.js"]
-EXPOSE 3006
+EXPOSE 8080

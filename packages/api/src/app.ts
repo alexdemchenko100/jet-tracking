@@ -1,7 +1,6 @@
 import fastify from 'fastify'
 import fastifyCors from 'fastify-cors'
 import router from './router.js'
-import { schedule } from './scheduler.js'
 import * as dotenv from 'dotenv'
 import path from 'path'
 import fastifyStatic from 'fastify-static'
@@ -18,7 +17,7 @@ const server = fastify({
 
 if (process.env.NODE_ENV === 'production') {
   server.register(fastifyStatic, {
-    root: path.join(process.cwd(), '../web/dist/'),
+    root: path.join(process.cwd(), './packages/web/dist/'),
     prefix: '/', // optional: default '/'
   })
   server.setNotFoundHandler((req, reply) => {
@@ -49,9 +48,5 @@ server.setErrorHandler((error, _req, reply) => {
   server.log.error(error)
   reply.code(409).send({ error: 'top level error' })
 })
-
-setInterval(async () => {
-  schedule()
-}, 10 * 1000)
 
 export default server

@@ -1,15 +1,19 @@
 {
   "folders": [
     {
+      "name": "web",
       "path": "packages/web"
     },
     {
+      "name": "api",
       "path": "packages/api"
     },
     {
+      "name": "db",
       "path": "packages/db"
     },
     {
+      "name": "synthetics",
       "path": "."
     }
   ],

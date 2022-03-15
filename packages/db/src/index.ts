@@ -13,9 +13,21 @@ import path from 'path'
 
 dotenv.config({ path: path.resolve(process.cwd(), '../..', '.env') })
 
+let config: { [key: string]: string | number | undefined } = {}
+
+if (process.env.DATABASE_URL) {
+  config['connectionString'] = process.env.DATABASE_URL
+} else {
+  config['host'] = process.env.DB_HOST
+  config['port'] = Number(process.env.DB_PORT)
+  config['user'] = process.env.DB_USER
+  config['password'] = process.env.DB_PASSWORD
+  config['database'] = process.env.DB_NAME
+}
+
 export const db = new Kysely<Database>({
   dialect: new PostgresDialect({
-    connectionString: process.env.DATABASE_URL,
+    ...config,
   }),
 })
 

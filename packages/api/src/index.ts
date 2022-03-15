@@ -1,13 +1,6 @@
 import app from './app.js'
 
-const FASTIFY_PORT = Number(process.env.FASTIFY_PORT) || 3006
+const FASTIFY_PORT = Number(process.env.PORT) || 8080
 
-app.listen(FASTIFY_PORT)
+app.listen(FASTIFY_PORT, '0.0.0.0')
 console.log(`🚀  Fastify server running on port ${FASTIFY_PORT}`)
-
-app.ready(() => {
-  console.log(app.printPlugins())
-  console.log(app.printRoutes())
-})
-
-export const viteNodeApp = app
