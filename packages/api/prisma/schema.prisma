@@ -24,7 +24,7 @@ model Monitor {
   cookies         String?
   followRedirects Int?            @default(0)
   timeout         Int?            @default(30) //30 seconds
-  locations       String?         @default("") // Comma separated list of locations
+  locations       String[]
   monitorResults  MonitorResult[]
   assertions      Json            @default("[]") // custom syntax
   notifyEmail     String?

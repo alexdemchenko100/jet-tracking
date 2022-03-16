@@ -81,26 +81,6 @@ export const MonitorAssertionSchema = Type.Object({
   value: Type.String(),
 })
 
-export const MonitorSchema = Type.Object({
-  id: Type.Optional(Type.String()),
-  createdAt: Type.Optional(Type.String()),
-  name: Type.String({ minLength: 2 }),
-  status: Type.String({ default: 'active' }),
-  method: Type.String({ default: 'GET' }),
-  url: Type.String(),
-  frequency: Type.Integer({ minimum: 10 }),
-  body: Type.Optional(Type.String()),
-  bodyType: Type.Optional(Type.String()),
-  headers: Type.Optional(MonitorTupleSchema),
-  queryParams: Type.Optional(MonitorTupleSchema),
-  cookies: Type.Optional(Type.String()),
-  assertions: Type.Optional(Type.Array(MonitorAssertionSchema)),
-  followRedirects: Type.Optional(Type.Integer()),
-  timeout: Type.Optional(Type.Integer()),
-  notifyEmail: Type.Optional(Type.String()),
-  env: Type.Optional(MonitorTupleSchema),
-})
-
 export const MonitorTupleFluentSchema = S.array().items(
   S.array().minItems(2).maxItems(2)
 )
@@ -117,6 +97,7 @@ export const MonitorFluentSchema = S.object()
   .prop('bodyType', S.string())
   .prop('headers', MonitorTupleFluentSchema)
   .prop('queryParams', MonitorTupleFluentSchema)
+  .prop('locations', S.array().items(S.string()))
   .prop('cookies', S.string())
   .prop('followRedirects', S.integer())
   .prop('timeout', S.integer())
@@ -150,6 +131,7 @@ export type MonitorTable = {
   body?: string
   bodyType?: string
   headers?: MonitorTuples
+  locations?: string[]
   queryParams?: MonitorTuples
   cookies?: string
   followRedirects?: number

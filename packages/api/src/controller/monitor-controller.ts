@@ -6,7 +6,6 @@ import {
   Monitor,
   MonitorFluentSchema,
   MonitorResultSchemaArray,
-  MonitorSchema,
   MonitorTuples,
 } from '@httpmon/db'
 
@@ -59,7 +58,7 @@ export default async function MonitorController(app: FastifyInstance) {
     {
       schema: {
         params: ParamsSchema,
-        response: { 200: MonitorSchema },
+        response: { 200: MonitorFluentSchema },
       },
     },
     async function ({ params: { id } }, reply) {

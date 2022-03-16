@@ -1,4 +1,4 @@
-POST http://localhost:3006/monitors HTTP/1.1
+POST http://localhost:8080/api/monitors HTTP/1.1
 content-type: application/json
 
 {
@@ -11,12 +11,13 @@ content-type: application/json
     "name": "x1",
     "url": "https://www.reddit.com",
     "headers": [["x-proautoma-synthetics", "12345"]],
-    "env": [["TOKEN", "bigtoken"]]
+    "env": [["TOKEN", "bigtoken"]],
+    "locations": ["us-east", "europe-west"]
 }
 
 ###
 
-POST http://localhost:3006/monitors/ondemand HTTP/1.1
+POST http://localhost:8080/api/monitors/ondemand HTTP/1.1
 content-type: application/json
 
 {
@@ -27,12 +28,12 @@ content-type: application/json
 
 ###
 
-POST http://localhost:3006/monitors/ckzsq2sus0000ohdmaom1kvd2/env HTTP/1.1
+POST http://localhost:8080/api/monitors/ckzsq2sus0000ohdmaom1kvd2/env HTTP/1.1
 content-type: application/json
 
 [["FOO", "123456"], ["BAR", "http://nowhere"]]
 
 ###
 
-GET http://localhost:3006/monitors/wA3ztf0gr-_4GfJjjP_qn/results HTTP/1.1
+GET http://localhost:8080/api/monitors/wA3ztf0gr-_4GfJjjP_qn/results HTTP/1.1
 content-type: application/json

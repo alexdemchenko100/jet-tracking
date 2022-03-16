@@ -1,6 +1,8 @@
 import {
   Box,
   Button,
+  Checkbox,
+  CheckboxGroup,
   Divider,
   Flex,
   FormControl,
@@ -24,7 +26,7 @@ import {
   Textarea,
 } from '@chakra-ui/react'
 import { Monitor, MonitorTuples } from '@httpmon/db'
-import React, { useCallback, useEffect } from 'react'
+import React from 'react'
 import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from 'react-hook-form'
 
 import { FiPlus, FiTrash2 } from 'react-icons/fi'
@@ -32,7 +34,7 @@ import { useState } from 'react'
 import { APIOnDemandResult } from './APIResult'
 import { useMutation, useQuery } from 'react-query'
 import axios from 'axios'
-import { useLocation, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
 const freqConfig: [numSeconds: number, label: string][] = [
   [10, '10s'],
@@ -242,13 +244,83 @@ function BodyInput(props: any) {
   )
 }
 
+/**
+ * ref: https://github.com/tuannguyensn2001/se06-7.1/blob/e061216df0019a83d60bb16b42381af3e6d0a6c2/frontend_next/features/my_models_editor/components/Setting/Rotate/index.jsx#L3
+ *
+ */
+function Locations() {
+  const { control } = useFormContext()
+  const { fields: showLocations } = useFieldArray({
+    name: 'showLocations',
+  })
+
+  return (
+    <>
+      <Flex alignItems='center'>
+        <CheckboxGroup>
+          <Stack direction='row'>
+            {showLocations.map((locEntry, index) => (
+              <Controller
+                control={control}
+                name={`showLocations.${index}.1`}
+                key={locEntry.id}
+                render={({ field }) => {
+                  return (
+                    <Checkbox isChecked={field.value} onChange={field.onChange}>
+                      {/* //accessing internal representation of RHF */}
+                      {(locEntry as any)['0']}
+                    </Checkbox>
+                  )
+                }}
+              />
+            ))}
+          </Stack>
+        </CheckboxGroup>
+      </Flex>
+    </>
+  )
+}
+
 export function MonitorEditor() {
   //id tells apart Edit to a new check creation
   const { id } = useParams()
 
   interface FormMonitor extends Monitor {
     frequencyScale: number
+    showLocations: [string, boolean][]
   }
+
+  function toShowLocations(locations?: string[]) {
+    //reset defaultValues to false so server data overrides them
+    let showLocations = [...defaultShowLocations]
+    for (let i = 0; i < showLocations.length; i++) {
+      showLocations[i][1] = false
+    }
+
+    //now, update local values to be same as server
+    if (Array.isArray(locations)) {
+      locations.forEach((loc) => {
+        for (let i = 0; i < showLocations.length; i++) {
+          if (showLocations[i][0] == loc) showLocations[i][1] = true
+        }
+      })
+    }
+    return showLocations
+  }
+
+  function fromShowLocations(showLoc: [string, boolean][]) {
+    let locations: string[] = []
+    showLoc.forEach(([loc, valid]) => {
+      if (valid) locations.push(loc)
+    })
+    return locations
+  }
+
+  const defaultShowLocations: [string, boolean][] = [
+    ['us-east', true],
+    ['europe-west', false],
+    ['asia-singapore', false],
+  ]
 
   const methods = useForm<FormMonitor>({
     defaultValues: {
@@ -256,6 +328,7 @@ export function MonitorEditor() {
       queryParams: [['', '']] as MonitorTuples,
       env: [['', '']] as MonitorTuples,
       frequencyScale: 0,
+      showLocations: defaultShowLocations,
     },
   })
 
@@ -266,21 +339,20 @@ export function MonitorEditor() {
     handleSubmit,
     formState: { errors },
     getValues,
+    setValue,
   } = methods
 
-  const {
-    isLoading,
-    data: loadedMonitor,
-    error: loadError,
-  } = useQuery<Monitor>(
+  const { isLoading, error: loadError } = useQuery<FormMonitor>(
     id || 'load',
     async () => {
       const resp = await axios({
         method: 'GET',
         url: `/monitors/${id}`,
       })
-      reset(resp.data)
-      return resp.data as Monitor
+      //reset the form data directly
+      const formMon = { ...resp.data, showLocations: toShowLocations(resp.data.locations) }
+      reset(formMon)
+      return formMon
     },
     {
       enabled: Boolean(id),
@@ -323,8 +395,9 @@ export function MonitorEditor() {
   async function handleCreation(data: FormMonitor) {
     //cleanse data to become the monitor
     data.frequency = freqConfig[data.frequencyScale][0]
+    data.locations = fromShowLocations(data.showLocations)
 
-    let { frequencyScale, ...monitor } = data //remove scale
+    let { frequencyScale, showLocations, ...monitor } = data //remove scale
 
     //remove empty fields from monitor
     if (monitor.headers && monitor.headers.length > 0) {
@@ -434,9 +507,16 @@ export function MonitorEditor() {
                 </Tabs>
 
                 <FormControl id='frequency' mt='10' maxW='80%'>
-                  <FormLabel htmlFor='frequency'>Select frequency to run the monitor</FormLabel>
+                  <Heading size='sm' mt='10' mb='4'>
+                    How often to run the monitor?
+                  </Heading>
                   <SliderThumbWithTooltip />
                 </FormControl>
+
+                <Heading size='sm' mt='10' mb='4'>
+                  Choose where to run the monitor from
+                </Heading>
+                <Locations />
 
                 <Button
                   bg='blue.300'

@@ -13,7 +13,7 @@ axios.defaults.headers.common = { 'X-Requested-With': 'XMLHttpRequest' }
 if (process.env.NODE_ENV === 'production') {
   axios.defaults.baseURL = '/api'
 } else {
-  axios.defaults.baseURL = 'http://localhost:3006/api'
+  axios.defaults.baseURL = 'http://localhost:8080/api'
 }
 
 ReactDOM.render(

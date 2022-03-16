@@ -14,7 +14,7 @@ CREATE TABLE "Monitor" (
     "cookies" TEXT,
     "followRedirects" INTEGER DEFAULT 0,
     "timeout" INTEGER DEFAULT 30,
-    "locations" TEXT DEFAULT E'',
+    "locations" TEXT[],
     "assertions" JSONB NOT NULL DEFAULT '[]',
     "notifyEmail" TEXT,
     "env" JSONB NOT NULL DEFAULT '[]',
