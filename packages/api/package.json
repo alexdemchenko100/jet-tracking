@@ -8,7 +8,7 @@
   "scripts": {
     "watch": "esbuild src/index.ts --watch --bundle --platform=node --target=node16 --external:pg-native --outdir=dist --sourcemap --metafile=dist/meta.json",
     "dev": "concurrently pnpm:watch \"cross-env nodemon\"",
-    "build": "rimraf dist && esbuild src/index.ts --bundle --minify --platform=node --target=node16 --external:pg-native --outdir=dist",
+    "build": "rimraf dist && esbuild src/index.ts --bundle --minify --platform=node --target=node16 --external:pg-native --outdir=dist --metafile=dist/meta.json",
     "start": "node dist/index.js",
     "analyze": "esbuild-visualizer --metadata ./dist/meta.json --filename ./dist/stats.html",
     "prisma:gen": "prisma generate",
@@ -20,9 +20,11 @@
   "author": "",
   "license": "",
   "dependencies": {
+    "@google-cloud/pubsub": "^2.19.0",
     "@httpmon/db": "workspace:^0.0.1",
     "@sinclair/typebox": "^0.23.3",
     "@szmarczak/http-timer": "^5.0.1",
+    "ajv": "^8.10.0",
     "axios": "^0.25.0",
     "dotenv": "^16.0.0",
     "emittery": "^0.10.1",
@@ -32,6 +34,8 @@
     "fluent-json-schema": "^3.1.0",
     "got": "11.8.3",
     "handlebars": "^4.7.7",
+    "jsonwebtoken": "^8.5.1",
+    "jwks-rsa": "^2.0.5",
     "kysely": "^0.17.1",
     "lodash.clonedeep": "^4.5.0",
     "nanoid": "^3.3.1",
@@ -40,6 +44,7 @@
     "pino-pretty": "^7.5.1"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^8.5.8",
     "@types/lodash.clonedeep": "^4.5.6",
     "@types/node": "latest",
     "concurrently": "^7.0.0",

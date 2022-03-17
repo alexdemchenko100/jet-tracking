@@ -1,8 +1,27 @@
-import { execMonitor } from './../services/monitor-exec.js'
-import { db, saveMonitorResult } from '@httpmon/db'
-import { processAssertions } from '../services/assertions.js'
+import { db, Monitor } from '@httpmon/db'
 import { FastifyInstance } from 'fastify'
 import { sql } from 'kysely'
+import { PubSub } from '@google-cloud/pubsub'
+
+const pubsub = new PubSub({ projectId: 'httpmon-test' })
+
+const topicName = 'httpmon-test-monitor-' //process.env.TOPIC_NAME
+
+async function publishMonitorMessage(mon: Monitor) {
+  const dataBuffer = Buffer.from(JSON.stringify(mon))
+
+  if (!mon.locations || mon.locations.length < 1) return
+
+  mon.locations.forEach((loc) => {
+    try {
+      const messageId = pubsub
+        .topic(topicName + loc)
+        .publishMessage({ json: mon })
+    } catch (error) {
+      console.error(`Received error while publishing: ${error.message}`)
+    }
+  })
+}
 
 export default async function SchedulerController(app: FastifyInstance) {
   app.post('/', async function (req, reply) {
@@ -24,7 +43,7 @@ export default async function SchedulerController(app: FastifyInstance) {
       .selectFrom('Monitor')
       .selectAll()
       .where('status', '=', 'active')
-      .where('locations', '@>', sql`${region}`)
+      // .where('locations', '@>', sql`${region}`)
       .where(sql`${seconds} % frequency`, '=', 0)
       // .where(sql`${eu}`, '=', sql`${anyc}`)
       // .compile().sql
@@ -32,18 +51,22 @@ export default async function SchedulerController(app: FastifyInstance) {
 
     console.log('monitors', monitors)
 
-    for (let i = 0; i < monitors.length; i++) {
-      const mon = monitors[i]
-      const result = await execMonitor(mon)
+    monitors.forEach((mon) => {
+      publishMonitorMessage(mon)
+    })
 
-      if (result.err == '') {
-        const asserionResults = processAssertions(mon, result)
-        result.assertResults = asserionResults
-      }
+    // for (let i = 0; i < monitors.length; i++) {
+    //   const mon = monitors[i]
+    //   const result = await execMonitor(mon)
 
-      //createdAt caused type issue for db
-      await saveMonitorResult({ ...result })
-    }
+    //   if (result.err == '') {
+    //     const asserionResults = processAssertions(mon, result)
+    //     result.assertResults = asserionResults
+    //   }
+
+    //   //createdAt caused type issue for db
+    //   await saveMonitorResult({ ...result })
+    // }
 
     reply.code(200).send()
   })

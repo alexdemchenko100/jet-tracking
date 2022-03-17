@@ -98,10 +98,10 @@ export const MonitorFluentSchema = S.object()
   .prop('headers', MonitorTupleFluentSchema)
   .prop('queryParams', MonitorTupleFluentSchema)
   .prop('locations', S.array().items(S.string()))
-  .prop('cookies', S.string())
+  .prop('cookies', S.anyOf([S.string(), S.null()]))
   .prop('followRedirects', S.integer())
   .prop('timeout', S.integer())
-  .prop('notifyEmail', S.string())
+  .prop('notifyEmail', S.anyOf([S.string(), S.null()]))
   .prop('env', MonitorTupleFluentSchema)
 
 export type MonitorAssertion = {

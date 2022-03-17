@@ -1,3 +1,16 @@
+POST http://localhost:8080/api/service/monitor HTTP/1.1
+content-type: application/json
+Authorization: Bearer kdkdk
+
+{
+    "subscription": "projects/httpmon-test/subscriptions/eventarc-us-east1-trigger-l9sijpue-sub-053",
+    "message": {
+        "data": "eyJpZCI6IjI0WVZjbDNlODM2bU1oVWxna2dUMCIsImNyZWF0ZWRBdCI6IjIwMjItMDMtMTdUMDA6MjQ6NTkuNTMwWiIsIm5hbWUiOiJ1cy1lYXN0IGdldCBoZWFkZXJzIiwic3RhdHVzIjoiYWN0aXZlIiwidXJsIjoiaHR0cHM6Ly9odHRwYmluLm9yZy9oZWFkZXJzIiwibWV0aG9kIjoiR0VUIiwiZnJlcXVlbmN5IjoxMCwiYm9keVR5cGUiOiIiLCJib2R5IjoiIiwiaGVhZGVycyI6W10sInF1ZXJ5UGFyYW1zIjpbXSwiY29va2llcyI6bnVsbCwiZm9sbG93UmVkaXJlY3RzIjowLCJ0aW1lb3V0IjozMCwibG9jYXRpb25zIjpbInVzLWVhc3QiXSwiYXNzZXJ0aW9ucyI6W10sIm5vdGlmeUVtYWlsIjpudWxsLCJlbnYiOltdfQ=="
+    }
+}
+
+###
+
 POST http://localhost:8080/api/monitors HTTP/1.1
 content-type: application/json
 
