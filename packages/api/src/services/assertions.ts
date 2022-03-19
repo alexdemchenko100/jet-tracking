@@ -25,6 +25,10 @@ function checkAssertion(assertion: MonitorAssertion, respNum: number) {
   return passed
 }
 
+/**
+ * Applies assertions to the given monitor result
+ * @returns assertionResults
+ */
 export function processAssertions(
   mon: Omit<Monitor, 'createdAt'>,
   monResult: Omit<MonitorResult, 'createdAt'>

@@ -131,44 +131,71 @@ importers:
     devDependencies:
       typescript: 4.5.5
 
-  packages/gcp-monitor-function:
+  packages/scheduler:
     specifiers:
-      '@google-cloud/functions-framework': ^3.0.0
       '@google-cloud/pubsub': ^2.19.0
       '@httpmon/db': workspace:^0.0.1
+      '@types/jsonwebtoken': ^8.5.8
+      '@types/lodash.clonedeep': ^4.5.6
+      '@types/node': latest
+      ajv: ^8.10.0
+      concurrently: ^7.0.0
+      cross-env: ^7.0.3
+      dotenv: ^16.0.0
+      esbuild: ^0.14.25
+      esbuild-visualizer: ^0.3.1
+      fastify: ^3.27.1
+      fastify-cors: ^6.0.2
+      fastify-static: ^4.5.0
+      fastify-tsconfig: ^1.0.1
+      fluent-json-schema: ^3.1.0
       got: 11.8.3
       handlebars: ^4.7.7
-      lodash.clonedeep: ^4.5.0
-      pino: ^7.8.0
-      typescript: ^4.5.5
-    dependencies:
-      '@google-cloud/functions-framework': 3.0.0
-      '@google-cloud/pubsub': 2.19.0
-      '@httpmon/db': link:../db
-      got: 11.8.3
-      handlebars: 4.7.7
-      lodash.clonedeep: 4.5.0
-      pino: 7.8.0
-    devDependencies:
-      typescript: 4.5.5
-
-  packages/gcp-scheduler-function:
-    specifiers:
-      '@google-cloud/functions-framework': ^3.0.0
-      '@google-cloud/pubsub': ^2.19.0
-      '@httpmon/db': workspace:^0.0.1
-      esbuild-visualizer: ^0.3.1
+      jsonwebtoken: ^8.5.1
+      jwks-rsa: ^2.0.5
       kysely: ^0.17.1
       lodash.clonedeep: ^4.5.0
+      nanoid: ^3.3.1
+      nodemon: ^2.0.15
+      pg: ^8.7.3
+      pino: ^7.8.0
+      pino-pretty: ^7.5.1
+      prettier: ^2.5.1
+      rimraf: ^3.0.2
+      tsconfig-paths: ^3.12.0
       typescript: ^4.5.5
     dependencies:
-      '@google-cloud/functions-framework': 3.0.0
       '@google-cloud/pubsub': 2.19.0
       '@httpmon/db': link:../db
+      ajv: 8.10.0
+      dotenv: 16.0.0
+      fastify: 3.27.1
+      fastify-cors: 6.0.2
+      fastify-static: 4.5.0
+      fluent-json-schema: 3.1.0
+      got: 11.8.3
+      handlebars: 4.7.7
+      jsonwebtoken: 8.5.1
+      jwks-rsa: 2.0.5
       kysely: 0.17.1
       lodash.clonedeep: 4.5.0
+      nanoid: 3.3.1
+      pg: 8.7.3
+      pino: 7.8.0
+      pino-pretty: 7.5.1
     devDependencies:
+      '@types/jsonwebtoken': 8.5.8
+      '@types/lodash.clonedeep': 4.5.6
+      '@types/node': 17.0.21
+      concurrently: 7.0.0
+      cross-env: 7.0.3
+      esbuild: 0.14.25
       esbuild-visualizer: 0.3.1
+      fastify-tsconfig: 1.0.1
+      nodemon: 2.0.15
+      prettier: 2.5.1
+      rimraf: 3.0.2
+      tsconfig-paths: 3.12.0
       typescript: 4.5.5
 
   packages/web:
@@ -4303,20 +4330,6 @@ packages:
     resolution: {integrity: sha512-82cpyJyKRoQoRi+14ibCeGPu0CwypgtBAdBhq1WfvagpCZNKqwXbKwXllYSMG91DhmG4jt9gN8eP6lGOtozuaw==}
     dev: false
 
-  /@google-cloud/functions-framework/3.0.0:
-    resolution: {integrity: sha512-+K9+y39/5ig4QrbnaCM8BOzt4+Qx5SRMu2dj5QDTNFc5s8f/Lubty8u3aBQN6JC86M0NuHL9zIj8xs8Awj7C+w==}
-    engines: {node: '>=10.0.0'}
-    hasBin: true
-    dependencies:
-      body-parser: 1.19.1
-      cloudevents: 5.3.2
-      express: 4.17.2
-      minimist: 1.2.5
-      on-finished: 2.3.0
-      read-pkg-up: 7.0.1
-      semver: 7.3.5
-    dev: false
-
   /@google-cloud/paginator/3.0.7:
     resolution: {integrity: sha512-jJNutk0arIQhmpUUQJPJErsojqo834KcyB6X7a1mxuic8i1tKXxde8E69IZxNZawRIlZdIK2QY4WALvlK5MzYQ==}
     engines: {node: '>=10'}
@@ -7836,14 +7849,6 @@ packages:
   /close-with-grace/1.1.0:
     resolution: {integrity: sha512-6cCp71Y5tKw1o9sGVBOa9OwY4vJ+YoLpFcWiTt9YCBhYlcQi0z68EiiN9mJ6/401Za6TZ5YOZg012IHHZt15lw==}
     dev: true
-
-  /cloudevents/5.3.2:
-    resolution: {integrity: sha512-ZjEFjx0BJnio8SED1TzD7GHA118zCk04Mz6aDMMii+4/ZvX5LPgn1D4lT5Jj7HodCbdeRS6dX88unH06Qc3mkA==}
-    dependencies:
-      ajv: 6.12.6
-      util: 0.12.4
-      uuid: 8.3.2
-    dev: false
 
   /clsx/1.1.1:
     resolution: {integrity: sha512-6/bPho624p3S2pMyvP5kKBPXnI3ufHLObBFCfgx+LkeR5lg2XYy2hqZqUf45ypD8COn2bhgGJSUE+l5dhNBieA==}

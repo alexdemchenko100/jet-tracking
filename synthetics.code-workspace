@@ -15,6 +15,9 @@
     {
       "name": "synthetics",
       "path": "."
+    },
+    {
+      "path": "packages/scheduler"
     }
   ],
   "settings": {}

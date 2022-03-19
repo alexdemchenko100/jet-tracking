@@ -125,6 +125,13 @@ function processTemplates(mon: Monitor) {
   return m
 }
 
+/**
+ *
+ * @param monitor
+ * Executes given monitor after doing handlebar template
+ * substitutions based on the given env.
+ * @returns
+ */
 export async function execMonitor(monitor: Monitor) {
   let certCommonName = ''
   let certExpiryDays = 0

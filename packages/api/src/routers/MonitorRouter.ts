@@ -1,5 +1,5 @@
-import { execMonitor } from './../services/monitor-exec.js'
-import { MonitorService } from './../services/monitor-service.js'
+import { execMonitor } from '../services/monitor-exec.js'
+import { MonitorService } from '../services/MonitorService.js'
 import { FastifyInstance } from 'fastify'
 import S from 'fluent-json-schema'
 import {
@@ -9,7 +9,7 @@ import {
   MonitorTuples,
 } from '@httpmon/db'
 
-export default async function MonitorController(app: FastifyInstance) {
+export default async function MonitorRouter(app: FastifyInstance) {
   const monitorSvc = MonitorService.getInstance()
 
   app.put<{ Body: Monitor }>(

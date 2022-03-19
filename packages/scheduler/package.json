@@ -1,5 +1,5 @@
 {
-  "name": "mon-backend",
+  "name": "scheduler",
   "version": "0.0.1",
   "description": "",
   "engines": {
@@ -10,24 +10,15 @@
     "dev": "concurrently pnpm:watch nodemon",
     "build": "tsc && rimraf dist && esbuild src/index.ts --bundle --minify --platform=node --target=node16 --external:pg-native --outdir=dist --metafile=dist/meta.json",
     "start": "node dist/index.js",
-    "analyze": "esbuild-visualizer --metadata ./dist/meta.json --filename ./dist/stats.html",
-    "prisma:gen": "prisma generate",
-    "prisma:studio": "prisma studio",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:reset": "prisma migrate reset",
-    "prisma:push": "prisma db push"
+    "analyze": "esbuild-visualizer --metadata ./dist/meta.json --filename ./dist/stats.html"
   },
   "author": "",
   "license": "",
   "dependencies": {
     "@google-cloud/pubsub": "^2.19.0",
     "@httpmon/db": "workspace:^0.0.1",
-    "@sinclair/typebox": "^0.23.3",
-    "@szmarczak/http-timer": "^5.0.1",
     "ajv": "^8.10.0",
-    "axios": "^0.25.0",
     "dotenv": "^16.0.0",
-    "emittery": "^0.10.1",
     "fastify": "^3.27.1",
     "fastify-cors": "^6.0.2",
     "fastify-static": "^4.5.0",
@@ -51,11 +42,9 @@
     "cross-env": "^7.0.3",
     "esbuild": "^0.14.25",
     "esbuild-visualizer": "^0.3.1",
-    "fastify-cli": "^2.15.0",
     "fastify-tsconfig": "^1.0.1",
     "nodemon": "^2.0.15",
     "prettier": "^2.5.1",
-    "prisma": "^3.9.2",
     "rimraf": "^3.0.2",
     "tsconfig-paths": "^3.12.0",
     "typescript": "^4.5.5"

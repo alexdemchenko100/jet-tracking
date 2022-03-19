@@ -3,8 +3,6 @@ import fastifyCors from 'fastify-cors'
 import router from './router.js'
 import * as dotenv from 'dotenv'
 import path from 'path'
-import fastifyStatic from 'fastify-static'
-import { schedule } from './services/DevScheduler.js'
 
 //find and load the .env from root folder of the project
 dotenv.config({ path: path.resolve(process.cwd(), '../..', '.env') })
@@ -17,18 +15,8 @@ const server = fastify({
 })
 
 if (process.env.NODE_ENV === 'production') {
-  server.register(fastifyStatic, {
-    root: path.join(process.cwd(), './packages/web/dist/'),
-    prefix: '/', // optional: default '/'
-  })
-  server.setNotFoundHandler((req, reply) => {
-    //this is hack with knowledge of route prefix /api built in
-    //unfortunately, router-specifc handler is not being called
-    if (req.url.startsWith('/api')) {
-      reply.code(404).send('not found')
-      return
-    }
-    reply.sendFile('index.html')
+  server.setNotFoundHandler((_req, reply) => {
+    reply.code(404).send('not found')
   })
 } else {
   server.register(fastifyCors)
@@ -49,12 +37,5 @@ server.setErrorHandler((error, _req, reply) => {
   server.log.error(error)
   reply.code(409).send({ error: 'top level error' })
 })
-
-if (process.env.NODE_ENV !== 'production') {
-  const IntervalSeconds = 10 // every 10 seconds
-  setInterval(async () => {
-    schedule()
-  }, IntervalSeconds * 1000)
-}
 
 export default server

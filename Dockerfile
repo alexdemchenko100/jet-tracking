@@ -1,18 +1,26 @@
 # --------------> The build image
 FROM node:16-alpine AS build
 
+WORKDIR /app
+
 # dependencies
 RUN npm install -g pnpm
 
-WORKDIR /app
+COPY pnpm-lock.yaml ./
 
+# downloads all packages to the host machine store cache..
+RUN --mount=type=cache,id=pnpm-store,target=/root/.pnpm-store\
+  pnpm fetch
+
+# copy all source files
+# uses .dockerignore to avoid copying dist, .git, node_modules
 COPY . ./
 
-RUN pnpm i --frozen-lockfile
+# use the cache to install all needed packages and create node_modules etc
+RUN --mount=type=cache,id=pnpm-store,target=/root/.pnpm-store\
+  pnpm -r install --frozen-lockfile --offline
 
-# build
-
-#RUN --mount=type=secret,mode=0644,id=npmrc,target=/usr/src/app/.npmrc npm ci --only=production
+# build step
 RUN pnpm build
 
 # run --------------> The production image

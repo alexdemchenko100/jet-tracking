@@ -37,8 +37,7 @@ export class MonitorService {
   }
 
   public async create(mon: Monitor) {
-    logger.info('mon:')
-    logger.info(mon)
+    logger.info(mon, 'creating mon')
 
     const monResp = await db
       .insertInto('Monitor')
@@ -74,6 +73,9 @@ export class MonitorService {
     return monList
   }
 
+  /**
+   * Reads the last 100 monitor results for the given monitor
+   */
   public async getMonitorResults(monitorId?: string) {
     const results = await db
       .selectFrom('MonitorResult')

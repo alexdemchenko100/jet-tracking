@@ -3,14 +3,14 @@ import {
   FastifyPluginOptions,
   HookHandlerDoneFunction,
 } from 'fastify'
-import MonitorController from './controller/monitor-controller.js'
-import MonitorExecutor from './controller/monitor-executor.js'
-import SchedulerController from './controller/scheduler-controller.js'
+import MonitorRouter from './routers/MonitorRouter.js'
+import MonitorExecutorRouter from './routers/MonitorExecutorRouter.js'
+import SchedulerRouter from './routers/SchedulerRouter.js'
 
 export default async function router(fastify: FastifyInstance) {
-  fastify.register(MonitorController, { prefix: '/monitors' })
-  fastify.register(SchedulerController, { prefix: '/schedule' })
-  fastify.register(MonitorExecutor, { prefix: '/service' })
+  fastify.register(MonitorRouter, { prefix: '/monitors' })
+  fastify.register(SchedulerRouter, { prefix: '/service/schedule' })
+  fastify.register(MonitorExecutorRouter, { prefix: '/service/monitor' })
 
   fastify.setNotFoundHandler((_req, reply) => {
     // The expected errors will be handled here, but unexpected ones should eventually result in a crash.

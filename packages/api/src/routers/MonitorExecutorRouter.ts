@@ -37,7 +37,7 @@ var client = new JwksClient({
   jwksUri: 'https://www.googleapis.com/oauth2/v3/certs',
 })
 
-export default async function MonitorExecutor(app: FastifyInstance) {
+export default async function MonitorExecutorRouter(app: FastifyInstance) {
   app.post<{ Body: PubsubMessage }>(
     '/monitor',
     {
@@ -46,11 +46,14 @@ export default async function MonitorExecutor(app: FastifyInstance) {
       },
     },
     async function (req, reply) {
-      const authorization = req.headers.authorization as string
+      //remember, we always send 200 to denote that message is processed
+      //otw, pubsub will keep retrying to send the message
 
+      const authorization = req.headers.authorization as string
       const [bearer = '', token] = authorization.split(' ')
       if (bearer.trim().toLowerCase() !== 'bearer') {
-        reply.code(401).send()
+        app.log.error('error in parsing auth header')
+        reply.code(200).send()
         return
       }
 
@@ -72,7 +75,7 @@ export default async function MonitorExecutor(app: FastifyInstance) {
 
       if (!validateMonitor(monitorObj)) {
         app.log.error(validateMonitor.errors, 'schema err')
-        reply.code(400).send()
+        reply.code(200).send()
         return
       }
 
