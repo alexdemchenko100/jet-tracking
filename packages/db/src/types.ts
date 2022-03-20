@@ -7,13 +7,13 @@ export const MonitorTupleFluentSchema = S.array().items(
 )
 
 export const MonitorAssertionResultFluentSchema = S.object()
-  .prop('key', S.string())
+  .prop('type', S.string())
   .required()
   .prop('op', S.string())
   .required()
   .prop('value', S.string())
   .required()
-  .prop('pass', S.boolean())
+  .prop('passed', S.boolean())
   .required()
   .prop('result', S.boolean())
   .required()
@@ -82,16 +82,18 @@ export const MonitorAssertionSchema = Type.Object({
   value: Type.String(),
 })
 
-export const MonitorAssertionsFluentSchema = S.array().items(
-  S.object()
-    .prop('key', S.string())
-    .required()
-    .prop('name', S.string())
-    .prop('op', S.string())
-    .required()
-    .prop('value', S.string())
-    .required()
-)
+export const MonitorAssertionsFluentSchema = S.array()
+  .items(
+    S.object()
+      .prop('type', S.string())
+      .required()
+      .prop('name', S.string())
+      .prop('op', S.string())
+      .required()
+      .prop('value', S.string())
+      .required()
+  )
+  .minItems(0)
 
 export const MonitorFluentSchema = S.object()
   .prop('id', S.string())
@@ -114,17 +116,13 @@ export const MonitorFluentSchema = S.object()
   .prop('assertions', MonitorAssertionsFluentSchema)
 
 export type MonitorAssertion = {
-  key: string
-  name?: string
+  type: 'code' | 'totalTime' | 'certExpiryDays' | 'header'
+  name?: string // header name
   op: string // =, <, >, <=, <=, contains
   value: string
 }
 
-export type MonitorAssertionResult = {
-  key: string
-  name?: string
-  op: string // =, <, >, <=, <=, contains
-  value: string
+export type MonitorAssertionResult = MonitorAssertion & {
   passed: boolean
   result: string
 }

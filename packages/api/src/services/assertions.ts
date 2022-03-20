@@ -43,7 +43,7 @@ export function processAssertions(
     let passed = false
     let result = 0
 
-    switch (assertion.key) {
+    switch (assertion.type) {
       case 'code':
         result = monResult.code
         passed = checkAssertion(assertion, monResult.code)
@@ -60,7 +60,7 @@ export function processAssertions(
 
     assertionResults.push({
       ...assertion,
-      passed: passed,
+      passed,
       result: result.toString(),
     })
   }

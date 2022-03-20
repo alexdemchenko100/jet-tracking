@@ -36,7 +36,7 @@ content-type: application/json
 {
     "frequency": "300",
     "name": "ondemand",
-    "url": "https://www.reddit.com"
+    "url": "https://httpbin.org/get"
 }
 
 ###

@@ -25,7 +25,7 @@ import {
   Tabs,
   Textarea,
 } from '@chakra-ui/react'
-import { Monitor, MonitorTuples } from '@httpmon/db'
+import { Monitor, MonitorAssertion, MonitorTuples } from '@httpmon/db'
 import React from 'react'
 import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from 'react-hook-form'
 
@@ -97,7 +97,7 @@ function SliderThumbWithTooltip() {
   )
 }
 
-function APIHeaders(props: any) {
+function APIHeaders() {
   const { control, register } = useFormContext<Monitor>()
   const {
     fields: headers,
@@ -115,8 +115,8 @@ function APIHeaders(props: any) {
       </Flex>
 
       <Box mt='4'>
-        {headers.map((header, index) => (
-          <Flex key={index} mb='2'>
+        {headers.map((field, index) => (
+          <Flex key={field.id} mb='2'>
             <Input type='text' {...register(`headers.${index}.0` as const)} placeholder='name' />
             <Input
               type='text'
@@ -138,7 +138,7 @@ function APIHeaders(props: any) {
   )
 }
 
-function QueryParams(props: any) {
+function QueryParams() {
   const { control, register } = useFormContext()
   const {
     fields: queryParams,
@@ -156,8 +156,8 @@ function QueryParams(props: any) {
       </Flex>
 
       <Box mt='4'>
-        {queryParams.map((_, index) => (
-          <Flex key={index} mb='2'>
+        {queryParams.map((field, index) => (
+          <Flex key={field.id} mb='2'>
             <Input type='text' {...register(`queryParams.${index}.0` as const)} placeholder='key' />
             <Input
               type='text'
@@ -179,7 +179,7 @@ function QueryParams(props: any) {
   )
 }
 
-function EnvVariables(props: any) {
+function EnvVariables() {
   const { control, register } = useFormContext()
   const {
     fields: env,
@@ -197,8 +197,8 @@ function EnvVariables(props: any) {
       </Flex>
 
       <Box mt='4'>
-        {env.map((_, index) => (
-          <Flex key={index} mb='2'>
+        {env.map((field, index) => (
+          <Flex key={field.id} mb='2'>
             <Input type='text' {...register(`env.${index}.0` as const)} placeholder='name' />
             <Input
               type='text'
@@ -220,7 +220,7 @@ function EnvVariables(props: any) {
   )
 }
 
-function BodyInput(props: any) {
+function BodyInput() {
   const { control, register } = useFormContext()
 
   return (
@@ -261,9 +261,9 @@ function Locations() {
           <Stack direction='row'>
             {showLocations.map((locEntry, index) => (
               <Controller
+                key={locEntry.id}
                 control={control}
                 name={`showLocations.${index}.1`}
-                key={locEntry.id}
                 render={({ field }) => {
                   return (
                     <Checkbox isChecked={field.value} onChange={field.onChange}>
@@ -281,31 +281,36 @@ function Locations() {
   )
 }
 
-function Assertions(props: any) {
+function Assertions() {
   const { control, register } = useFormContext()
   const {
-    fields: env,
+    fields: assertions,
     append,
     remove,
   } = useFieldArray({
-    name: 'env',
+    name: 'assertions',
     control,
   })
 
   return (
     <>
-      <Flex alignItems='center'>
-        <Heading size='xs'>Success conditions</Heading>
-      </Flex>
-
       <Box mt='4'>
-        {env.map((_, index) => (
-          <Flex key={index} mb='2'>
-            <Input type='text' {...register(`env.${index}.0` as const)} placeholder='name' />
+        {assertions.map((field, index) => (
+          <Flex key={field.id} mb='2'>
+            <Select defaultValue='code' {...register(`assertions.${index}.type`)}>
+              <option value='code'>code</option>
+              <option value='totalTime'>req time</option>
+              <option value='certExpiryays'>n. of days to cert expiry</option>
+            </Select>
+
+            <Select defaultValue='=' {...register(`assertions.${index}.op`)}>
+              <option value='='>=</option>
+              <option value='>'>greater than</option>
+              <option value='<'>less than</option>
+            </Select>
             <Input
               type='text'
-              ml='4'
-              {...register(`env.${index}.1` as const)}
+              {...register(`assertions.${index}.value` as const)}
               placeholder='value'
             />
 
@@ -315,7 +320,7 @@ function Assertions(props: any) {
           </Flex>
         ))}
       </Box>
-      <Button onClick={() => append([['', '']])}>
+      <Button onClick={() => append([{ type: '', value: '' }])}>
         <Icon color='blue.500' as={FiPlus} cursor='pointer' />
       </Button>
     </>
@@ -365,9 +370,10 @@ export function MonitorEditor() {
 
   const methods = useForm<FormMonitor>({
     defaultValues: {
-      headers: [['', '']] as MonitorTuples,
-      queryParams: [['', '']] as MonitorTuples,
-      env: [['', '']] as MonitorTuples,
+      headers: [] as MonitorTuples,
+      queryParams: [] as MonitorTuples,
+      env: [] as MonitorTuples,
+      assertions: [] as MonitorAssertion[],
       frequencyScale: 0,
       showLocations: defaultShowLocations,
     },
@@ -558,6 +564,11 @@ export function MonitorEditor() {
                   Choose where to run the monitor from
                 </Heading>
                 <Locations />
+
+                <Heading size='sm' mt='10' mb='4'>
+                  Choose criterial for success
+                </Heading>
+                <Assertions />
 
                 <Button
                   bg='blue.300'

@@ -5,6 +5,7 @@ import S from 'fluent-json-schema'
 import {
   Monitor,
   MonitorFluentSchema,
+  MonitorResultFluentSchema,
   MonitorResultFluentSchemaArray,
   MonitorTuples,
 } from '@httpmon/db'
@@ -155,7 +156,7 @@ export default async function MonitorRouter(app: FastifyInstance) {
       schema: {
         body: MonitorFluentSchema,
         response: {
-          200: MonitorResultFluentSchemaArray,
+          200: MonitorResultFluentSchema,
         },
       },
     },
@@ -165,7 +166,7 @@ export default async function MonitorRouter(app: FastifyInstance) {
 
       const resp = await execMonitor(mon)
 
-      reply.send(resp)
+      reply.code(200).send(resp)
     }
   )
 }
