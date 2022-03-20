@@ -2,49 +2,50 @@ import { Type } from '@sinclair/typebox'
 import S from 'fluent-json-schema'
 export type MonitorTuples = [string, string][]
 
-export const MonitorTupleSchema = Type.Array(
-  Type.Tuple([Type.String(), Type.String()])
+export const MonitorTupleFluentSchema = S.array().items(
+  S.array().items(S.string()).maxItems(2).minItems(2)
 )
 
-export const MonitorAssertionResultSchema = Type.Object({
-  key: Type.String(),
-  name: Type.Optional(Type.String()),
-  op: Type.String(),
-  value: Type.String(),
-  passed: Type.Boolean(),
-  result: Type.String(),
-})
+export const MonitorAssertionResultFluentSchema = S.object()
+  .prop('key', S.string())
+  .required()
+  .prop('op', S.string())
+  .required()
+  .prop('value', S.string())
+  .required()
+  .prop('pass', S.boolean())
+  .required()
+  .prop('result', S.boolean())
+  .required()
 
-export const MonitorResultSchema = Type.Object({
-  id: Type.Optional(Type.String()),
-  monitorId: Type.String(),
-  createdAt: Type.Optional(Type.String()),
-  err: Type.String(),
-  url: Type.String(),
-  ip: Type.String(),
-  body: Type.String(),
-  bodyJson: Type.Optional(Type.String()),
-  bodySize: Type.Integer(),
-  code: Type.Integer(),
-  codeStatus: Type.String(),
-  protocol: Type.String(),
-  headers: MonitorTupleSchema,
-  waitTime: Type.Integer(),
-  dnsTime: Type.Integer(),
-  tcpTime: Type.Integer(),
-  tlsTime: Type.Integer(),
-  uploadTime: Type.Integer(),
-  ttfb: Type.Integer(),
-  downloadTime: Type.Integer(),
-  totalTime: Type.Integer(),
-  certExpiryDays: Type.Integer(),
-  certCommonName: Type.String(),
-  assertResults: Type.Optional(Type.Array(MonitorAssertionResultSchema)),
-})
+export const MonitorResultFluentSchema = S.object()
+  .prop('id', S.string())
+  .prop('monitorId', S.string())
+  .required()
+  .prop('createdAt', S.string())
+  .prop('err', S.string())
+  .prop('url', S.string())
+  .prop('ip', S.string())
+  .prop('body', S.string())
+  .prop('bodyJson', S.string())
+  .prop('codeStatus', S.string())
+  .prop('protocol', S.string())
+  .prop('code', S.integer())
+  .prop('waitTime', S.integer())
+  .prop('dnsTime', S.integer())
+  .prop('tcpTime', S.integer())
+  .prop('tlsTime', S.integer())
+  .prop('uploadTime', S.integer())
+  .prop('downloadTime', S.integer())
+  .prop('totalTime', S.integer())
+  .prop('certExpiryDays', S.integer())
+  .prop('certCommonName', S.string())
+  .prop('headers', MonitorTupleFluentSchema)
+  .prop('assertResults', S.array().items(MonitorAssertionResultFluentSchema))
 
-export const MonitorResultSchemaArray = Type.Array(MonitorResultSchema)
-//export type MonitorResult = Static<typeof MonitorResultSchema>
-
+export const MonitorResultFluentSchemaArray = S.array().items(
+  MonitorResultFluentSchema
+)
 export interface MonitorResultTable {
   id?: string
   createdAt?: String | Date
@@ -81,8 +82,15 @@ export const MonitorAssertionSchema = Type.Object({
   value: Type.String(),
 })
 
-export const MonitorTupleFluentSchema = S.array().items(
-  S.array().minItems(2).maxItems(2)
+export const MonitorAssertionsFluentSchema = S.array().items(
+  S.object()
+    .prop('key', S.string())
+    .required()
+    .prop('name', S.string())
+    .prop('op', S.string())
+    .required()
+    .prop('value', S.string())
+    .required()
 )
 
 export const MonitorFluentSchema = S.object()
@@ -103,6 +111,7 @@ export const MonitorFluentSchema = S.object()
   .prop('timeout', S.integer())
   .prop('notifyEmail', S.anyOf([S.string(), S.null()]))
   .prop('env', MonitorTupleFluentSchema)
+  .prop('assertions', MonitorAssertionsFluentSchema)
 
 export type MonitorAssertion = {
   key: string

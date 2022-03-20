@@ -5,7 +5,7 @@ import S from 'fluent-json-schema'
 import {
   Monitor,
   MonitorFluentSchema,
-  MonitorResultSchemaArray,
+  MonitorResultFluentSchemaArray,
   MonitorTuples,
 } from '@httpmon/db'
 
@@ -102,7 +102,7 @@ export default async function MonitorRouter(app: FastifyInstance) {
     {
       schema: {
         params: ParamsSchema,
-        response: { 200: MonitorResultSchemaArray },
+        response: { 200: MonitorResultFluentSchemaArray },
       },
     },
     async function ({ params: { id } }, reply) {
@@ -122,7 +122,7 @@ export default async function MonitorRouter(app: FastifyInstance) {
     '/results',
     {
       schema: {
-        response: { 200: MonitorResultSchemaArray },
+        response: { 200: MonitorResultFluentSchemaArray },
       },
     },
     async function (_, reply) {
@@ -140,7 +140,7 @@ export default async function MonitorRouter(app: FastifyInstance) {
     {
       schema: {
         params: ParamsSchema,
-        // response: { 200: Type.Array(MonitorResultSchema) },
+        response: { 200: MonitorResultFluentSchemaArray },
       },
     },
     async function (req, reply) {
@@ -154,9 +154,9 @@ export default async function MonitorRouter(app: FastifyInstance) {
     {
       schema: {
         body: MonitorFluentSchema,
-        // response: {
-        //   200: MonitorResultSchema,
-        // },
+        response: {
+          200: MonitorResultFluentSchemaArray,
+        },
       },
     },
     async function (req, reply) {

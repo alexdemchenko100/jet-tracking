@@ -281,6 +281,47 @@ function Locations() {
   )
 }
 
+function Assertions(props: any) {
+  const { control, register } = useFormContext()
+  const {
+    fields: env,
+    append,
+    remove,
+  } = useFieldArray({
+    name: 'env',
+    control,
+  })
+
+  return (
+    <>
+      <Flex alignItems='center'>
+        <Heading size='xs'>Success conditions</Heading>
+      </Flex>
+
+      <Box mt='4'>
+        {env.map((_, index) => (
+          <Flex key={index} mb='2'>
+            <Input type='text' {...register(`env.${index}.0` as const)} placeholder='name' />
+            <Input
+              type='text'
+              ml='4'
+              {...register(`env.${index}.1` as const)}
+              placeholder='value'
+            />
+
+            <Button onClick={() => remove(index)}>
+              <Icon color='red.500' as={FiTrash2} cursor='pointer' />
+            </Button>
+          </Flex>
+        ))}
+      </Box>
+      <Button onClick={() => append([['', '']])}>
+        <Icon color='blue.500' as={FiPlus} cursor='pointer' />
+      </Button>
+    </>
+  )
+}
+
 export function MonitorEditor() {
   //id tells apart Edit to a new check creation
   const { id } = useParams()
