@@ -3,6 +3,7 @@ import emitter from './emitter.js'
 import { db, Monitor, MonitorTuples } from '@httpmon/db'
 import { nanoid } from 'nanoid'
 import pino from 'pino'
+import { DeleteResult } from 'kysely'
 
 const logger = pino()
 
@@ -57,6 +58,14 @@ export class MonitorService {
       .returningAll()
       .executeTakeFirst()
     return monResp
+  }
+
+  public async delete(id: string) {
+    const resp = await db
+      .deleteFrom('Monitor')
+      .where('id', '=', id)
+      .executeTakeFirst()
+    return resp.numDeletedRows
   }
 
   public async find(id: string) {

@@ -7,6 +7,7 @@ import {
   Flex,
   FormControl,
   FormLabel,
+  Grid,
   Heading,
   Icon,
   Input,
@@ -282,7 +283,7 @@ function Locations() {
 }
 
 function Assertions() {
-  const { control, register } = useFormContext()
+  const { control, register, watch } = useFormContext()
   const {
     fields: assertions,
     append,
@@ -292,21 +293,48 @@ function Assertions() {
     control,
   })
 
+  const assertValues: MonitorAssertion[] = watch('assertions')
+
+  function showNameField(assertion: MonitorAssertion) {
+    return assertion.type == 'header' || (assertion.type == 'body' && assertion.op == 'jsonpath')
+  }
+
+  function isStringField(assertion: MonitorAssertion) {
+    return assertion.type == 'header' || assertion.type == 'body'
+  }
+
   return (
     <>
-      <Box mt='4'>
+      <Grid gap='1'>
         {assertions.map((field, index) => (
-          <Flex key={field.id} mb='2'>
-            <Select defaultValue='code' {...register(`assertions.${index}.type`)}>
-              <option value='code'>code</option>
-              <option value='totalTime'>req time</option>
-              <option value='certExpiryays'>n. of days to cert expiry</option>
+          <Flex key={field.id} gap='2'>
+            <Select {...register(`assertions.${index}.type`)}>
+              <option value='code'>Code</option>
+              <option value='totalTime'>Total Time</option>
+              <option value='certExpiryDays'>Days to Cert Expiry</option>
+              <option value='header'>Header</option>
+              <option value='body'>Body</option>
             </Select>
+
+            {showNameField(assertValues[index]) && (
+              <Input
+                type='text'
+                {...register(`assertions.${index}.name` as const)}
+                placeholder=''
+              />
+            )}
 
             <Select defaultValue='=' {...register(`assertions.${index}.op`)}>
               <option value='='>=</option>
               <option value='>'>greater than</option>
               <option value='<'>less than</option>
+              {isStringField(assertValues[index]) && (
+                <>
+                  <option value='contains'>contains</option>
+                  <option value='matches'>match regex</option>
+                  <option value='jsonpath'>jsonpath</option>
+                </>
+              )}
             </Select>
             <Input
               type='text'
@@ -319,10 +347,10 @@ function Assertions() {
             </Button>
           </Flex>
         ))}
-      </Box>
-      <Button onClick={() => append([{ type: '', value: '' }])}>
-        <Icon color='blue.500' as={FiPlus} cursor='pointer' />
-      </Button>
+        <Button onClick={() => append([{ type: '', value: '' }])} maxW='42px'>
+          <Icon color='blue.500' as={FiPlus} cursor='pointer' />
+        </Button>
+      </Grid>
     </>
   )
 }
@@ -363,9 +391,9 @@ export function MonitorEditor() {
   }
 
   const defaultShowLocations: [string, boolean][] = [
-    ['us-east', true],
-    ['europe-west', false],
-    ['asia-singapore', false],
+    ['US-East', true],
+    ['Europe-West', false],
+    ['Asia-Singapore', false],
   ]
 
   const methods = useForm<FormMonitor>({
@@ -373,7 +401,7 @@ export function MonitorEditor() {
       headers: [] as MonitorTuples,
       queryParams: [] as MonitorTuples,
       env: [] as MonitorTuples,
-      assertions: [] as MonitorAssertion[],
+      assertions: [{ type: 'code', op: '=', value: '200' }] as MonitorAssertion[],
       frequencyScale: 0,
       showLocations: defaultShowLocations,
     },

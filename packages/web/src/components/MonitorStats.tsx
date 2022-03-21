@@ -1,9 +1,17 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogCloseButton,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   Box,
   Button,
   Divider,
   Flex,
+  Grid,
   Heading,
   Menu,
   MenuButton,
@@ -12,15 +20,17 @@ import {
   MenuList,
   Spacer,
   Tag,
+  useDisclosure,
 } from '@chakra-ui/react'
 import { Monitor } from '@httpmon/db'
 import axios from 'axios'
-import { useQuery } from 'react-query'
+import { useMutation, useQuery } from 'react-query'
 import { useNavigate, useParams } from 'react-router-dom'
 import MonitorResults from './MonitorResults'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
+import { identity } from 'lodash'
 
 dayjs.extend(duration)
 
@@ -39,6 +49,64 @@ function formatFrequency(freq: number) {
     fmt += `${sec} seconds`
   }
   return fmt
+}
+
+interface DeleteProps {
+  id: string
+}
+function DoubleCheckDelete({ id }: DeleteProps) {
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const cancelRef = useRef(null)
+  const navigate = useNavigate()
+
+  const {
+    mutateAsync: deleteMonitor,
+    isLoading: isDeleteing,
+    error: deleteError,
+  } = useMutation<number, Error>(async () => {
+    const resp = await axios({
+      method: 'DELETE',
+      url: `/monitors/${id}`,
+    })
+    return resp.data
+  })
+
+  async function onDelete() {
+    onClose()
+    deleteMonitor()
+    navigate('/console/monitors')
+  }
+
+  return (
+    <>
+      <MenuItemOption onClick={onOpen}>Delete</MenuItemOption>
+      <AlertDialog
+        motionPreset='slideInBottom'
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+        isOpen={isOpen}
+      >
+        <AlertDialogOverlay />
+
+        <AlertDialogContent>
+          <AlertDialogHeader>Deleting monitor</AlertDialogHeader>
+          <AlertDialogCloseButton />
+          <AlertDialogBody>
+            Are you sure you want to delete this monitor? All corresponding monitor results will be
+            deleted permanently.
+          </AlertDialogBody>
+          <AlertDialogFooter>
+            <Button ref={cancelRef} onClick={onClose}>
+              No
+            </Button>
+            <Button colorScheme='red' onClick={onDelete} ml={3}>
+              Yes
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  )
 }
 
 export function MonitorStats() {
@@ -64,7 +132,7 @@ export function MonitorStats() {
   const freqFormat = useMemo(() => formatFrequency(mon?.frequency ?? 0), [mon])
 
   return (
-    <Flex direction='column'>
+    <Grid gap='1em'>
       <Flex justifyContent='end'>
         <Menu>
           <MenuButton
@@ -83,32 +151,30 @@ export function MonitorStats() {
               <MenuItemOption onClick={() => navigate(`/console/monitors/${id}/edit`)}>
                 Edit
               </MenuItemOption>
-              <MenuItemOption>Delete</MenuItemOption>
+              <DoubleCheckDelete id={id} />
             </MenuGroup>
           </MenuList>
         </Menu>
       </Flex>
 
       {mon && (
-        <Box>
-          <Flex direction='column'>
-            <Heading size='lg'>{mon.name}</Heading>
-            <Flex mt='4' mb='4' alignItems='center'>
-              <Tag size='md' colorScheme='blue'>
-                {mon.method}
-              </Tag>
-              <Heading size='md' ml='4'>
-                {mon.url}
-              </Heading>
-              <Tag size='lg' ml='4' colorScheme='green'>
-                {freqFormat}
-              </Tag>
-            </Flex>
+        <>
+          <Heading size='lg'>{mon.name}</Heading>
+          <Flex alignItems='center'>
+            <Tag size='md' colorScheme='blue'>
+              {mon.method}
+            </Tag>
+            <Heading size='md' ml='4'>
+              {mon.url}
+            </Heading>
+            <Tag size='lg' ml='4' colorScheme='green'>
+              {freqFormat}
+            </Tag>
           </Flex>
-        </Box>
+        </>
       )}
-      <Divider size='md' />
+      <Divider />
       <MonitorResults />
-    </Flex>
+    </Grid>
   )
 }

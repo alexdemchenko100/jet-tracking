@@ -118,7 +118,7 @@ export function MonitorResults() {
 
   return (
     <>
-      <Heading size='sm' mt='4' mb='4'>
+      <Heading size='sm' mb='4'>
         Monitor Results
       </Heading>
       <Box maxH='30em' overflowY='scroll'>

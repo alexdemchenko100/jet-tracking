@@ -1,4 +1,3 @@
-import { Type } from '@sinclair/typebox'
 import S from 'fluent-json-schema'
 export type MonitorTuples = [string, string][]
 
@@ -13,10 +12,7 @@ export const MonitorAssertionResultFluentSchema = S.object()
   .required()
   .prop('value', S.string())
   .required()
-  .prop('passed', S.boolean())
-  .required()
-  .prop('result', S.boolean())
-  .required()
+  .prop('fail', S.string())
 
 export const MonitorResultFluentSchema = S.object()
   .prop('id', S.string())
@@ -75,13 +71,6 @@ export interface MonitorResultTable {
 
 export type MonitorResult = MonitorResultTable
 
-export const MonitorAssertionSchema = Type.Object({
-  key: Type.String(),
-  name: Type.Optional(Type.String()),
-  op: Type.String(),
-  value: Type.String(),
-})
-
 export const MonitorAssertionsFluentSchema = S.array()
   .items(
     S.object()
@@ -116,15 +105,14 @@ export const MonitorFluentSchema = S.object()
   .prop('assertions', MonitorAssertionsFluentSchema)
 
 export type MonitorAssertion = {
-  type: 'code' | 'totalTime' | 'certExpiryDays' | 'header'
-  name?: string // header name
-  op: string // =, <, >, <=, <=, contains
+  type: 'code' | 'totalTime' | 'certExpiryDays' | 'header' | 'body'
+  name?: string // contextual name: header name or jsonpath
+  op: '=' | '<' | '>' | '<=' | '<=' | 'contains' | 'match' | 'jsonpath'
   value: string
 }
 
 export type MonitorAssertionResult = MonitorAssertion & {
-  passed: boolean
-  result: string
+  fail?: string
 }
 
 export type MonitorTable = {
