@@ -296,11 +296,20 @@ function Assertions() {
   const assertValues: MonitorAssertion[] = watch('assertions')
 
   function showNameField(assertion: MonitorAssertion) {
-    return assertion.type == 'header' || (assertion.type == 'body' && assertion.op == 'jsonpath')
+    return assertion.type == 'header' || assertion.type == 'jsonBody'
   }
 
   function isStringField(assertion: MonitorAssertion) {
-    return assertion.type == 'header' || assertion.type == 'body'
+    return assertion.type == 'header' || assertion.type == 'body' || assertion.type == 'jsonBody'
+  }
+  function placeholder(type: string) {
+    switch (type) {
+      case 'header':
+        return 'Header Name'
+      case 'jsonBody':
+        return 'JSON Path'
+    }
+    return ''
   }
 
   return (
@@ -314,27 +323,27 @@ function Assertions() {
               <option value='certExpiryDays'>Days to Cert Expiry</option>
               <option value='header'>Header</option>
               <option value='body'>Body</option>
+              <option value='jsonBody'>JSON Body</option>
             </Select>
 
             {showNameField(assertValues[index]) && (
               <Input
                 type='text'
                 {...register(`assertions.${index}.name` as const)}
-                placeholder=''
+                placeholder={placeholder(assertValues[index].type)}
               />
             )}
 
             <Select defaultValue='=' {...register(`assertions.${index}.op`)}>
-              <option value='='>=</option>
-              <option value='>'>greater than</option>
-              <option value='<'>less than</option>
               {isStringField(assertValues[index]) && (
                 <>
                   <option value='contains'>contains</option>
-                  <option value='matches'>match regex</option>
-                  <option value='jsonpath'>jsonpath</option>
+                  <option value='matches'>matches (regex)</option>
                 </>
               )}
+              <option value='='>equals to</option>
+              <option value='>'>greater than</option>
+              <option value='<'>less than</option>
             </Select>
             <Input
               type='text'

@@ -19,6 +19,15 @@ function checkAssertion<T extends string | number>(
 ): string | null {
   let target = assertion.value
 
+  if (typeof resp == 'string') {
+    switch (assertion.op) {
+      case 'contains':
+        return resp.includes(target) ? null : resp
+      case 'matches':
+        return resp.match(target) ? null : resp
+    }
+  }
+
   //takes advantage of JS string to numberic coertion
   switch (assertion.op) {
     case '=':
@@ -29,14 +38,6 @@ function checkAssertion<T extends string | number>(
       return resp > target ? null : resp.toString()
     case '<':
       return resp < target ? null : resp.toString()
-  }
-  if (typeof resp == 'string') {
-    switch (assertion.op) {
-      case 'contains':
-        return resp.includes(target) ? null : resp
-      case 'match':
-        return resp.match(target) ? null : resp
-    }
   }
 
   return `unknown operator: ${assertion.op}`
@@ -75,14 +76,23 @@ export function processAssertions(
             (hdr) => hdr[0] == assertion.name
           )
           if (respHdrTuple) {
-            resp = checkAssertion(assertion, respHdrTuple[0])
-          }
+            resp = checkAssertion(assertion, respHdrTuple[1])
+          } else resp = 'header not found'
         }
         break
       case 'body':
-        if (monResult.bodyJson && assertion.op == 'jsonpath') {
+        let body = monResult.bodyJson
+          ? JSON.stringify(monResult.bodyJson)
+          : monResult.body
+        resp = checkAssertion(assertion, body)
+        break
+
+      case 'jsonBody':
+        if (monResult.bodyJson) {
           const path = assertion.name || ''
           const result = JSONPath({ path, json: monResult.bodyJson })
+          console.log(path)
+          console.log(result)
           if (typeof result == 'string' || typeof result == 'number') {
             resp = checkAssertion(assertion, result)
           } else {

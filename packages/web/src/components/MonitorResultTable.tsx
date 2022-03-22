@@ -19,6 +19,7 @@ import {
   Input,
   Spacer,
   Heading,
+  Tag,
 } from '@chakra-ui/react'
 import {
   TriangleDownIcon,
@@ -29,7 +30,7 @@ import {
   ArrowLeftIcon,
 } from '@chakra-ui/icons'
 
-import { useTable, useSortBy, usePagination, Column } from 'react-table'
+import { useTable, useSortBy, usePagination, Column, useRowSelect } from 'react-table'
 import { useParams } from 'react-router-dom'
 import { APIResultById } from './APIResultById'
 
@@ -37,15 +38,22 @@ dayjs.extend(relativeTime)
 
 const columns: Column<MonitorResult>[] = [
   {
-    Header: 'When',
+    Header: 'Status',
     accessor: (row, _index) => {
-      return <span>{dayjs(row.createdAt as string).fromNow()}</span>
+      return <>{row.err ? <Tag color='red'>FAIL</Tag> : <Tag color='green'>OK</Tag>}</>
     },
   },
   {
-    Header: 'Date',
+    Header: 'When',
     accessor: (row, _index) => {
-      return <span>{dayjs(row.createdAt as string).format('YYYY-MM-DD h:mm:ss')}</span>
+      return (
+        <>
+          <Text as='span'>{dayjs(row.createdAt as string).fromNow()}</Text>&nbsp;&nbsp;
+          <Text as='span' fontStyle='italic'>
+            {dayjs(row.createdAt as string).format('M/DD/YY h:mm A')}
+          </Text>
+        </>
+      )
     },
   },
   {
@@ -53,12 +61,12 @@ const columns: Column<MonitorResult>[] = [
     accessor: 'code',
   },
   {
-    Header: 'Total Time',
+    Header: () => 'Time Taken',
     accessor: 'totalTime',
   },
 ]
 
-export function MonitorResults() {
+export function MonitorResultTable() {
   const [currentMonId, setCurrentMonId] = useState<string>()
 
   const { id } = useParams()
@@ -86,9 +94,11 @@ export function MonitorResults() {
       data: results ?? [],
       autoResetSortBy: false,
       autoResetPage: false,
+      autoResetSelectedRows: false,
     },
     useSortBy,
-    usePagination
+    usePagination,
+    useRowSelect
   )
 
   const {
@@ -105,6 +115,8 @@ export function MonitorResults() {
     gotoPage,
     pageCount,
     state,
+    toggleRowSelected,
+    toggleAllRowsSelected,
   } = tableInstance
 
   const { pageIndex } = state
@@ -158,7 +170,12 @@ export function MonitorResults() {
                 return (
                   <Tr
                     className='tr1'
-                    onClick={() => setCurrentMonId(row.original.id)}
+                    onClick={() => {
+                      setCurrentMonId(row.original.id)
+                      toggleAllRowsSelected(false)
+                      toggleRowSelected(row.id, true)
+                    }}
+                    bgColor={row.isSelected ? 'gray.200' : 'auto'}
                     {...row.getRowProps()}
                   >
                     {row.cells.map((cell) => {
@@ -264,4 +281,4 @@ export function MonitorResults() {
   )
 }
 
-export default MonitorResults
+export default MonitorResultTable

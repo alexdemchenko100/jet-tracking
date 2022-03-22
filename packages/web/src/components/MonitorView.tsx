@@ -26,7 +26,7 @@ import { Monitor } from '@httpmon/db'
 import axios from 'axios'
 import { useMutation, useQuery } from 'react-query'
 import { useNavigate, useParams } from 'react-router-dom'
-import MonitorResults from './MonitorResults'
+import MonitorResultTable from './MonitorResultTable'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import { useMemo, useRef } from 'react'
@@ -109,7 +109,7 @@ function DoubleCheckDelete({ id }: DeleteProps) {
   )
 }
 
-export function MonitorStats() {
+export function MonitorView() {
   const navigate = useNavigate()
   const { id } = useParams()
 
@@ -174,7 +174,7 @@ export function MonitorStats() {
         </>
       )}
       <Divider />
-      <MonitorResults />
+      <MonitorResultTable />
     </Grid>
   )
 }

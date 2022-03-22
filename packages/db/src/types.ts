@@ -10,6 +10,7 @@ export const MonitorAssertionResultFluentSchema = S.object()
   .required()
   .prop('op', S.string())
   .required()
+  .prop('name', S.string())
   .prop('value', S.string())
   .required()
   .prop('fail', S.string())
@@ -105,9 +106,9 @@ export const MonitorFluentSchema = S.object()
   .prop('assertions', MonitorAssertionsFluentSchema)
 
 export type MonitorAssertion = {
-  type: 'code' | 'totalTime' | 'certExpiryDays' | 'header' | 'body'
+  type: 'code' | 'totalTime' | 'certExpiryDays' | 'header' | 'body' | 'jsonBody'
   name?: string // contextual name: header name or jsonpath
-  op: '=' | '!=' | '<' | '>' | 'contains' | 'match' | 'jsonpath' | 'x'
+  op: '=' | '!=' | '<' | '>' | 'contains' | 'matches'
   value: string
 }
 
