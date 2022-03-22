@@ -24,7 +24,6 @@ export const MonitorResultFluentSchema = S.object()
   .prop('url', S.string())
   .prop('ip', S.string())
   .prop('body', S.string())
-  .prop('bodyJson', S.string())
   .prop('codeStatus', S.string())
   .prop('protocol', S.string())
   .prop('code', S.integer())
@@ -52,7 +51,6 @@ export interface MonitorResultTable {
   url: string
   ip: string
   body: string
-  bodyJson?: object | string
   bodySize: number
   headers: MonitorTuples | string
   protocol: string

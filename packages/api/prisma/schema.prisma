@@ -39,7 +39,6 @@ model MonitorResult {
   url            String
   ip             String
   body           String
-  bodyJson       Json?
   bodySize       Int
   code           Int
   codeStatus     String

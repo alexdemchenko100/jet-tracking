@@ -81,31 +81,30 @@ export function processAssertions(
         }
         break
       case 'body':
-        let body = monResult.bodyJson
-          ? JSON.stringify(monResult.bodyJson)
-          : monResult.body
-        resp = checkAssertion(assertion, body)
+        resp = checkAssertion(assertion, monResult.body)
         break
 
       case 'jsonBody':
-        if (monResult.bodyJson) {
+        let bodyJson = ''
+
+        try {
+          bodyJson = JSON.parse(monResult.body)
           const path = assertion.name || ''
-          const result = JSONPath({ path, json: monResult.bodyJson })
-          console.log(path)
-          console.log(result)
-          if (typeof result == 'string' || typeof result == 'number') {
-            resp = checkAssertion(assertion, result)
-          } else {
-            resp = 'jsonpath should only result in string or number values'
-          }
-        }
+          const result = JSONPath({
+            path,
+            json: bodyJson,
+            wrap: false,
+          })
+
+          resp = checkAssertion(assertion, JSON.stringify(result))
+        } catch (e) {}
         break
     }
 
     assertionResults.push({
       ...assertion,
       //limit resp length if its too big like a body or long header
-      fail: resp ? resp.substring(0, 128) : undefined,
+      fail: resp ? resp.substring(0, 256) : undefined,
     })
   }
 

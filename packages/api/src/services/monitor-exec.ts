@@ -21,18 +21,6 @@ Handlebars.registerHelper('RandomInt', function () {
 })
 
 function responseToMonitorResult(resp?: Response<string>) {
-  let body: string = ''
-  let bodyJson: string | undefined
-  let bodySize = 0
-  if (resp?.body) {
-    if (typeof resp.body == 'object') {
-      bodyJson = JSON.stringify(resp.body, null, 2)
-      bodySize = bodyJson.length
-    } else if (typeof resp.body == 'string') {
-      body = resp.body
-      bodySize = body.length
-    }
-  }
   let timings = resp?.timings
 
   return {
@@ -48,9 +36,8 @@ function responseToMonitorResult(resp?: Response<string>) {
     downloadTime: timings?.phases?.download ?? 0,
     totalTime: timings?.phases?.total ?? 0,
     protocol: '',
-    body,
-    bodyJson,
-    bodySize,
+    body: resp?.body,
+    bodySize: resp?.body.length ?? 0,
     headers: resp?.headers ? headersToTuples(resp?.headers) : [],
     certCommonName: '',
     certExpiryDays: 0,

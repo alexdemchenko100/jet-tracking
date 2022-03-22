@@ -113,14 +113,6 @@ export function APIResult({ result }: APIResultProps) {
           Body <Tag colorScheme='gray'>{result.bodySize} bytes</Tag>
         </Heading>
 
-        {result.bodyJson && (
-          <Box maxH='400' overflow='auto'>
-            <code>
-              <pre>{result.bodyJson}</pre>
-            </code>
-          </Box>
-        )}
-
         {result.body && (
           <Box maxH='400' overflow='auto'>
             <code>
