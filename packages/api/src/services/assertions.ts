@@ -4,7 +4,6 @@ import {
   MonitorAssertion,
   MonitorAssertionResult,
 } from '@httpmon/db'
-import { S } from 'fluent-json-schema'
 
 import { JSONPath } from 'jsonpath-plus'
 
@@ -23,9 +22,9 @@ function checkAssertion<T extends string | number>(
   //takes advantage of JS string to numberic coertion
   switch (assertion.op) {
     case '=':
-      return resp === target ? null : resp.toString()
+      return resp == target ? null : resp.toString()
     case '!=':
-      return resp !== target ? null : resp.toString()
+      return resp != target ? null : resp.toString()
     case '>':
       return resp > target ? null : resp.toString()
     case '<':

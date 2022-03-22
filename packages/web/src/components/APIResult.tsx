@@ -14,64 +14,9 @@ import {
   Th,
   Thead,
   Tr,
-  VStack,
 } from '@chakra-ui/react'
-import { Monitor, MonitorResult, MonitorTuples } from '@httpmon/db'
-import { useLocation } from 'react-router-dom'
-import { useQuery } from 'react-query'
-import axios from 'axios'
+import { MonitorResult, MonitorTuples } from '@httpmon/db'
 import { FiClock } from 'react-icons/fi'
-
-/**
- *
- * 1. Show given MonitorResult
- * 2. Given Monitor, execute ondemand and show result
- * 3. Given an id, retrieve monitor from server and show
- *
- */
-
-type Mon = Pick<Monitor, 'method' | 'url' | 'headers' | 'queryParams'>
-interface Props {
-  monitor: Mon
-}
-
-export function APIOnDemandResult(props: Props) {
-  const { state } = useLocation()
-
-  if (state != null) {
-    props = state as Props
-  }
-
-  async function getMonitorResult(mon: Mon) {
-    let resp = await axios({
-      method: 'POST',
-      url: '/monitors/ondemand',
-      data: { ...mon, name: 'ondemand', frequency: 86400 },
-    })
-
-    if (resp.status == 200) {
-      return resp.data as MonitorResult
-    }
-
-    throw Error('Failed to get odemand results')
-  }
-
-  const {
-    isLoading,
-    data: result,
-    error,
-  } = useQuery<MonitorResult, Error>(['ondemand', props.monitor], () =>
-    getMonitorResult(props.monitor)
-  )
-
-  return (
-    <>
-      {isLoading && <p>Loading ...</p>}
-      {error && <p>Err: {error.message}</p>}
-      {result && <APIResult result={result} />}
-    </>
-  )
-}
 
 interface TimingBarProps extends FlexProps {
   result: MonitorResult
@@ -129,11 +74,14 @@ function TimingBar({ result, ...rest }: TimingBarProps) {
   )
 }
 
-export function APIResult({ result }: { result: MonitorResult }) {
+interface APIResultProps {
+  result: MonitorResult
+}
+export function APIResult({ result }: APIResultProps) {
   const isSuccessCode = (code: number) => code >= 200 && code < 300
 
   return (
-    <Box>
+    <>
       <Heading size={'md'} mb={'10'}>
         API Results
       </Heading>
@@ -208,6 +156,6 @@ export function APIResult({ result }: { result: MonitorResult }) {
           </Table>
         </Box>
       </Box>
-    </Box>
+    </>
   )
 }

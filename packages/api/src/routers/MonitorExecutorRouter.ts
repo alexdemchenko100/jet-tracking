@@ -88,6 +88,9 @@ export default async function MonitorExecutorRouter(app: FastifyInstance) {
       if (result.err == '') {
         const asserionResults = processAssertions(monitor, result)
         result.assertResults = asserionResults
+        result.err = asserionResults.some((a) => a.fail)
+          ? 'assertions failed'
+          : ''
       }
 
       app.log.info(result.code, 'exec-monitor-result-code')

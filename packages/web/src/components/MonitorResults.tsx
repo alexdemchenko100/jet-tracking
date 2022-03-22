@@ -14,16 +14,10 @@ import {
   Td,
   Text,
   Box,
-  Button,
   IconButton,
   Flex,
   Input,
   Spacer,
-  Menu,
-  MenuButton,
-  MenuItemOption,
-  MenuOptionGroup,
-  MenuList,
   Heading,
 } from '@chakra-ui/react'
 import {
@@ -33,12 +27,11 @@ import {
   ArrowRightIcon,
   ChevronLeftIcon,
   ArrowLeftIcon,
-  ChevronDownIcon,
 } from '@chakra-ui/icons'
 
 import { useTable, useSortBy, usePagination, Column } from 'react-table'
 import { useParams } from 'react-router-dom'
-import { APIResult } from './APIResult'
+import { APIResultById } from './APIResultById'
 
 dayjs.extend(relativeTime)
 
@@ -66,7 +59,7 @@ const columns: Column<MonitorResult>[] = [
 ]
 
 export function MonitorResults() {
-  const [currentResult, setCurrentResult] = useState<MonitorResult>()
+  const [currentMonId, setCurrentMonId] = useState<string>()
 
   const { id } = useParams()
 
@@ -165,7 +158,7 @@ export function MonitorResults() {
                 return (
                   <Tr
                     className='tr1'
-                    onClick={() => setCurrentResult(row.original)}
+                    onClick={() => setCurrentMonId(row.original.id)}
                     {...row.getRowProps()}
                   >
                     {row.cells.map((cell) => {
@@ -266,7 +259,7 @@ export function MonitorResults() {
         </Flex>
       </Flex>
 
-      {currentResult && <APIResult result={currentResult} />}
+      {currentMonId && <APIResultById id={currentMonId} />}
     </>
   )
 }

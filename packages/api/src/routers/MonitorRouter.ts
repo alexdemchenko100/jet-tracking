@@ -151,6 +151,24 @@ export default async function MonitorRouter(app: FastifyInstance) {
     }
   )
 
+  app.get<{ Params: Params }>(
+    '/results/:id',
+    {
+      schema: {
+        params: ParamsSchema,
+        response: { 200: MonitorResultFluentSchema },
+      },
+    },
+    async function ({ params: { id } }, reply) {
+      const results = await monitorSvc.findResult(id)
+      if (results) {
+        reply.send(results)
+      } else {
+        reply.code(404).send('Not found')
+      }
+    }
+  )
+
   app.post<{ Body: MonitorTuples; Params: Params }>(
     '/:id/env',
     {

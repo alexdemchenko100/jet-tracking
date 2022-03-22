@@ -33,6 +33,10 @@ export async function schedule() {
     if (result.err == '') {
       const asserionResults = processAssertions(mon, result)
       result.assertResults = asserionResults
+      if (!result.err)
+        result.err = asserionResults.some((a) => a.fail)
+          ? 'assertions failed'
+          : ''
     }
 
     //save to DB

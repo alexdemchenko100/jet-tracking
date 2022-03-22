@@ -107,7 +107,7 @@ export const MonitorFluentSchema = S.object()
 export type MonitorAssertion = {
   type: 'code' | 'totalTime' | 'certExpiryDays' | 'header' | 'body'
   name?: string // contextual name: header name or jsonpath
-  op: '=' | '<' | '>' | '<=' | '<=' | 'contains' | 'match' | 'jsonpath'
+  op: '=' | '!=' | '<' | '>' | 'contains' | 'match' | 'jsonpath' | 'x'
   value: string
 }
 

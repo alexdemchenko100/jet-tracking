@@ -1,9 +1,8 @@
 import emitter from './emitter.js'
 
-import { db, Monitor, MonitorTuples } from '@httpmon/db'
+import { db, Monitor, MonitorResult, MonitorTuples } from '@httpmon/db'
 import { nanoid } from 'nanoid'
 import pino from 'pino'
-import { DeleteResult } from 'kysely'
 
 const logger = pino()
 
@@ -82,13 +81,41 @@ export class MonitorService {
     return monList
   }
 
+  public async findResult(id: string) {
+    const monResultResp = await db
+      .selectFrom('MonitorResult')
+      .selectAll()
+      .where('id', '=', id)
+      .executeTakeFirst()
+    return monResultResp
+  }
+
   /**
    * Reads the last 100 monitor results for the given monitor
    */
   public async getMonitorResults(monitorId?: string) {
+    //having a const column array causes type error which is weird
     const results = await db
       .selectFrom('MonitorResult')
-      .selectAll()
+      .select([
+        'id',
+        'monitorId',
+        'url',
+        'code',
+        'codeStatus',
+        'createdAt',
+        'dnsTime',
+        'downloadTime',
+        'tcpTime',
+        'tlsTime',
+        'uploadTime',
+        'ip',
+        'err',
+        'protocol',
+        'ttfb',
+        'waitTime',
+        'assertResults',
+      ])
       .if(Boolean(monitorId), (qb) =>
         qb.where('monitorId', '=', monitorId as string)
       )
@@ -96,13 +123,7 @@ export class MonitorService {
       .orderBy('MonitorResult.createdAt', 'desc')
       .execute()
 
-    const resultSet = results.map((result) => {
-      return {
-        ...result,
-        bodyJson: result.bodyJson ? JSON.stringify(result.bodyJson) : null,
-      }
-    })
-    return resultSet
+    return results
   }
 
   public async setEnv(monitorId: string, env: MonitorTuples) {

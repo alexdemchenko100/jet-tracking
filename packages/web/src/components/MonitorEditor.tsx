@@ -32,10 +32,10 @@ import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from
 
 import { FiPlus, FiTrash2 } from 'react-icons/fi'
 import { useState } from 'react'
-import { APIOnDemandResult } from './APIResult'
 import { useMutation, useQuery } from 'react-query'
 import axios from 'axios'
 import { useParams } from 'react-router-dom'
+import { APIResultByDemand } from './APIResultByDemand'
 
 const freqConfig: [numSeconds: number, label: string][] = [
   [10, '10s'],
@@ -617,7 +617,7 @@ export function MonitorEditor() {
       </Box>
       {ondemandMonitor && (
         <Box w='50%' ml='10'>
-          <APIOnDemandResult monitor={ondemandMonitor} />
+          <APIResultByDemand onDemandMonitor={ondemandMonitor} />
         </Box>
       )}
     </Flex>
