@@ -175,7 +175,8 @@ export function MonitorResultTable() {
                       toggleAllRowsSelected(false)
                       toggleRowSelected(row.id, true)
                     }}
-                    bgColor={row.isSelected ? 'gray.200' : 'auto'}
+                    bgColor={row.isSelected ? 'gray.300' : 'auto'}
+                    sx={{ ':hover': { bgColor: 'gray.200' } }}
                     {...row.getRowProps()}
                   >
                     {row.cells.map((cell) => {

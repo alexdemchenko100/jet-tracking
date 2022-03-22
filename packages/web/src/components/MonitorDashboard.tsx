@@ -191,9 +191,9 @@ export function MonitorDashboard() {
             style={{ overflow: 'scroll' }}
             bg='gray.100'
           >
-            {headerGroups.map((headerGroup, indexKey) => (
-              <Tr p='0' {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map((column, columnIndex) => (
+            {headerGroups.map((headerGroup, _indexKey) => (
+              <Tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column, _columnIndex) => (
                   <Th
                     borderColor='gray.200'
                     p='1em'
@@ -230,6 +230,7 @@ export function MonitorDashboard() {
                       navigate('/console/monitors/' + row.original.id)
                     }}
                     {...row.getRowProps()}
+                    sx={{ ':hover': { bgColor: 'gray.200' } }}
                   >
                     {row.cells.map((cell) => {
                       return (
