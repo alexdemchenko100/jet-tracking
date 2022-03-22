@@ -5,8 +5,9 @@ import https from 'https'
 import clone from 'lodash.clonedeep'
 import Handlebars from 'handlebars'
 import { randomInt } from 'crypto'
-import got, { Method, Response } from 'got'
+import got, { Method, RequestError, Response } from 'got'
 import pino from 'pino'
+import { Timings } from '@szmarczak/http-timer/dist/source'
 const logger = pino()
 
 const customGot = got.extend({
@@ -20,13 +21,8 @@ Handlebars.registerHelper('RandomInt', function () {
   return randomInt(10000)
 })
 
-function responseToMonitorResult(resp?: Response<string>) {
-  let timings = resp?.timings
-
+function convertTimings(timings?: Timings) {
   return {
-    code: resp?.statusCode ?? 0,
-    codeStatus: resp?.statusMessage ?? '',
-    ip: resp?.ip ?? '',
     waitTime: timings?.phases?.wait ?? 0,
     dnsTime: timings?.phases?.dns ?? 0,
     tcpTime: timings?.phases?.tcp ?? 0,
@@ -35,8 +31,29 @@ function responseToMonitorResult(resp?: Response<string>) {
     ttfb: timings?.phases?.firstByte ?? 0,
     downloadTime: timings?.phases?.download ?? 0,
     totalTime: timings?.phases?.total ?? 0,
+  }
+}
+function empryResponse() {
+  return {
+    ip: '',
     protocol: '',
-    body: resp?.body,
+    body: '',
+    bodySize: 0,
+    headers: [],
+    certCommonName: '',
+    certExpiryDays: 0,
+    codeStatus: '',
+    code: 0,
+  }
+}
+function responseToMonitorResult(resp?: Response<string>) {
+  return {
+    ...convertTimings(resp?.timings),
+    code: resp?.statusCode ?? 0,
+    codeStatus: resp?.statusMessage ?? '',
+    ip: resp?.ip ?? '',
+    protocol: '',
+    body: resp?.body ?? '',
     bodySize: resp?.body.length ?? 0,
     headers: resp?.headers ? headersToTuples(resp?.headers) : [],
     certCommonName: '',
@@ -169,16 +186,16 @@ export async function execMonitor(monitor: Monitor) {
     }
 
     return result
-  } catch (e) {
+  } catch (e: any) {
     logger.error(e, 'got failed')
-    if (e.response) {
-      const resp = e.response
+    if (e instanceof RequestError) {
       return {
-        ...responseToMonitorResult(resp),
         monitorId: mon.id ?? 'ondemand',
-        certCommonName,
-        certExpiryDays,
-        err: '',
+        url: mon.url,
+        ...empryResponse(),
+        ...convertTimings(e.timings),
+        codeStatus: e.code,
+        err: e.code,
       } as MonitorResult
     } else {
       return {
