@@ -48,6 +48,19 @@ const freqConfig: [numSeconds: number, label: string][] = [
   [60 * 60 * 12, '12h'],
   [60 * 60 * 24, '24h'],
 ]
+
+function frequencyToScale(freq: number) {
+  for (let i = 0; i < freqConfig.length; i++) {
+    if (freqConfig[i][0] == freq) return i
+  }
+  return 0
+}
+
+function scaleToFrequency(scale: number) {
+  if (scale < freqConfig.length) return freqConfig[scale][0]
+  return 0
+}
+
 function SliderThumbWithTooltip() {
   const { control } = useFormContext()
   const [showTooltip, setShowTooltip] = React.useState(false)
@@ -63,6 +76,7 @@ function SliderThumbWithTooltip() {
             min={0}
             max={freqConfig.length - 1}
             step={1}
+            value={field.value}
             onChange={(v) => {
               field.onChange(v)
             }}
@@ -434,7 +448,13 @@ export function MonitorEditor() {
         url: `/monitors/${id}`,
       })
       //reset the form data directly
-      const formMon = { ...resp.data, showLocations: toShowLocations(resp.data.locations) }
+      const formMon: FormMonitor = {
+        ...resp.data,
+      }
+      formMon.frequencyScale = frequencyToScale(formMon.frequency)
+      console.log('scale: ', formMon.frequencyScale)
+      formMon.showLocations = toShowLocations(resp.data.locations)
+
       reset(formMon)
       return formMon
     },
@@ -478,7 +498,7 @@ export function MonitorEditor() {
 
   async function handleCreation(data: FormMonitor) {
     //cleanse data to become the monitor
-    data.frequency = freqConfig[data.frequencyScale][0]
+    data.frequency = scaleToFrequency(data.frequencyScale)
     data.locations = fromShowLocations(data.showLocations)
 
     let { frequencyScale, showLocations, ...monitor } = data //remove scale
