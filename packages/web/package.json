@@ -2,8 +2,8 @@
   "name": "web",
   "private": true,
   "version": "0.0.1",
-  "engines" : {
-    "node" : ">=16.0.0"
+  "engines": {
+    "node": ">=16.0.0"
   },
   "scripts": {
     "dev": "vite",
@@ -29,6 +29,7 @@
     "match-sorter": "^6.3.1",
     "react": "^17.0.2",
     "react-autocomplete-input": "^1.0.18",
+    "react-charts": "^3.0.0-beta.36",
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.27.1",
     "react-icons": "^4.3.1",

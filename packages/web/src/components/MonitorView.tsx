@@ -7,7 +7,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogOverlay,
-  Box,
   Button,
   Divider,
   Flex,
@@ -18,7 +17,6 @@ import {
   MenuGroup,
   MenuItemOption,
   MenuList,
-  Spacer,
   Tag,
   useDisclosure,
 } from '@chakra-ui/react'
@@ -30,7 +28,7 @@ import MonitorResultTable from './MonitorResultTable'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import { useMemo, useRef } from 'react'
-import { identity } from 'lodash'
+import { MonitorTimeChart } from './MonitorTimeChart'
 
 dayjs.extend(duration)
 
@@ -181,8 +179,10 @@ export function MonitorView() {
               {freqFormat}
             </Tag>
           </Flex>
+          <MonitorTimeChart id={id} width='800px' height='200px' />
         </>
       )}
+
       <Divider />
       <MonitorResultTable />
     </Grid>
