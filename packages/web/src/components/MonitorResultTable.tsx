@@ -20,6 +20,10 @@ import {
   Spacer,
   Heading,
   Tag,
+  Drawer,
+  DrawerContent,
+  DrawerOverlay,
+  useDisclosure,
 } from '@chakra-ui/react'
 import {
   TriangleDownIcon,
@@ -124,6 +128,7 @@ export function MonitorResultTable() {
   } = tableInstance
 
   const { pageIndex } = state
+  const drawer = useDisclosure()
 
   return (
     <>
@@ -176,6 +181,7 @@ export function MonitorResultTable() {
                     className='tr1'
                     onClick={() => {
                       setCurrentMonId(row.original.id)
+                      drawer.onOpen()
                       toggleAllRowsSelected(false)
                       toggleRowSelected(row.id, true)
                     }}
@@ -281,7 +287,16 @@ export function MonitorResultTable() {
         </Flex>
       </Flex>
 
-      {currentMonId && <APIResultById id={currentMonId} />}
+      {currentMonId && (
+        <Drawer isOpen={drawer.isOpen} onClose={drawer.onClose} placement='right' size='xl'>
+          <DrawerOverlay />
+          <DrawerContent>
+            <Box ml='4'>
+              <APIResultById id={currentMonId} />
+            </Box>
+          </DrawerContent>
+        </Drawer>
+      )}
     </>
   )
 }

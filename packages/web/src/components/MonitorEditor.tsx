@@ -4,6 +4,9 @@ import {
   Checkbox,
   CheckboxGroup,
   Divider,
+  Drawer,
+  DrawerContent,
+  DrawerOverlay,
   Flex,
   FormControl,
   FormLabel,
@@ -25,6 +28,7 @@ import {
   TabPanels,
   Tabs,
   Textarea,
+  useDisclosure,
 } from '@chakra-ui/react'
 import { Monitor, MonitorAssertion, MonitorTuples } from '@httpmon/db'
 import React from 'react'
@@ -381,7 +385,7 @@ function Assertions() {
 export function MonitorEditor() {
   //id tells apart Edit to a new check creation
   const { id } = useParams()
-
+  const drawer = useDisclosure()
   interface FormMonitor extends Monitor {
     frequencyScale: number
     showLocations: [string, boolean][]
@@ -485,6 +489,7 @@ export function MonitorEditor() {
 
   function handleQuickRun() {
     setOndemandMonitor({ ...watched })
+    drawer.onOpen()
   }
 
   function numValues<T extends 'headers' | 'queryParams' | 'env'>(name: T) {
@@ -521,7 +526,7 @@ export function MonitorEditor() {
 
   return (
     <Flex>
-      <Box w={ondemandMonitor ? '50%' : '100%'}>
+      <Box>
         <Heading size='md' mb='10'>
           {id ? `Editing Monitor` : 'Create new API monitor'}
         </Heading>
@@ -648,9 +653,14 @@ export function MonitorEditor() {
         </FormProvider>
       </Box>
       {ondemandMonitor && (
-        <Box w='50%' ml='10'>
-          <APIResultByDemand onDemandMonitor={ondemandMonitor} />
-        </Box>
+        <Drawer isOpen={drawer.isOpen} onClose={drawer.onClose} placement='right' size='xl'>
+          <DrawerOverlay />
+          <DrawerContent>
+            <Box ml='4'>
+              <APIResultByDemand onDemandMonitor={ondemandMonitor} />
+            </Box>
+          </DrawerContent>
+        </Drawer>
       )}
     </Flex>
   )
