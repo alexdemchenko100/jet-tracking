@@ -23,6 +23,7 @@ import {
   MenuOptionGroup,
   MenuList,
   Heading,
+  Tag,
 } from '@chakra-ui/react'
 import {
   TriangleDownIcon,
@@ -72,6 +73,11 @@ export function MonitorDashboard() {
       {
         Header: 'Method',
         accessor: 'method',
+        Cell: (c) => (
+          <Tag size='sm' colorScheme='blue'>
+            {c.cell.value}
+          </Tag>
+        ),
       },
       {
         Header: 'Url',

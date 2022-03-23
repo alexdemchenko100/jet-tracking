@@ -574,7 +574,10 @@ export function MonitorEditor() {
                         <sup color='green'>&nbsp;{numValues('headers')}</sup>
                       )}
                     </Tab>
-                    <Tab>Body</Tab>
+                    <Tab>
+                      Body
+                      {watched.body && watched.body.length > 0 && <sup color='green'>*</sup>}
+                    </Tab>
                     <Tab>Auth</Tab>
                     <Tab>
                       Query Params
