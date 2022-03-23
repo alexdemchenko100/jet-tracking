@@ -29,6 +29,7 @@ import {
   Tabs,
   Textarea,
   useDisclosure,
+  useToast,
 } from '@chakra-ui/react'
 import { Monitor, MonitorAssertion, MonitorTuples } from '@httpmon/db'
 import React from 'react'
@@ -38,7 +39,7 @@ import { FiPlus, FiTrash2 } from 'react-icons/fi'
 import { useState } from 'react'
 import { useMutation, useQuery } from 'react-query'
 import axios from 'axios'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { APIResultByDemand } from './APIResultByDemand'
 
 const freqConfig: [numSeconds: number, label: string][] = [
@@ -501,6 +502,9 @@ export function MonitorEditor() {
     return 0
   }
 
+  const toast = useToast()
+  const navigate = useNavigate()
+
   async function handleCreation(data: FormMonitor) {
     //cleanse data to become the monitor
     data.frequency = scaleToFrequency(data.frequencyScale)
@@ -521,7 +525,20 @@ export function MonitorEditor() {
       monitor.env = monitor.env.filter((item) => item[0])
     }
 
-    await createMonitor(monitor)
+    const monResp = await createMonitor(monitor)
+    if (monResp.id) {
+      toast({
+        position: 'top',
+        title: 'Monitor created.',
+        description: 'Your monitor is ready now!',
+        status: 'success',
+        duration: 4000,
+        isClosable: true,
+        onCloseComplete: () => {
+          navigate('/console/monitors')
+        },
+      })
+    }
   }
 
   return (
@@ -559,12 +576,11 @@ export function MonitorEditor() {
                   </FormControl>
 
                   <Button
-                    bg='blue.400'
-                    color='white'
-                    _hover={{
-                      bg: 'blue.500',
-                    }}
+                    colorScheme='blue'
+                    variant='outline'
                     ml='4'
+                    size='sm'
+                    disabled={watched.url == ''}
                     onClick={() => handleQuickRun()}
                   >
                     Run now
@@ -636,13 +652,12 @@ export function MonitorEditor() {
                 <Assertions />
 
                 <Button
-                  bg='blue.300'
-                  color='white'
-                  _hover={{
-                    bg: 'blue.400',
-                  }}
+                  colorScheme='blue'
                   mt='10'
+                  size='md'
                   w='40'
+                  variant='solid'
+                  disabled={!watched.url || !watched.name}
                   type='submit'
                 >
                   {id ? 'Update' : 'Create'}
