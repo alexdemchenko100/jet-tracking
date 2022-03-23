@@ -23,6 +23,7 @@ export const MonitorResultFluentSchema = S.object()
   .prop('err', S.string())
   .prop('url', S.string())
   .prop('ip', S.string())
+  .prop('location', S.string())
   .prop('body', S.string())
   .prop('codeStatus', S.string())
   .prop('protocol', S.string())
@@ -50,6 +51,7 @@ export interface MonitorResultTable {
   codeStatus: string
   url: string
   ip: string
+  location: string
   body: string
   bodySize: number
   headers: MonitorTuples | string

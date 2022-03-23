@@ -61,6 +61,10 @@ const columns: Column<MonitorResult>[] = [
     accessor: 'code',
   },
   {
+    Header: 'Location',
+    accessor: 'location',
+  },
+  {
     Header: () => 'Time Taken',
     accessor: 'totalTime',
   },

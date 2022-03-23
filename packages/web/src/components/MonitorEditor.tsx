@@ -576,7 +576,7 @@ export function MonitorEditor() {
                     </Tab>
                     <Tab>
                       Body
-                      {watched.body && watched.body.length > 0 && <sup color='green'>*</sup>}
+                      {watched.body && watched.body.length > 0 && <sup color='green'>1</sup>}
                     </Tab>
                     <Tab>Auth</Tab>
                     <Tab>

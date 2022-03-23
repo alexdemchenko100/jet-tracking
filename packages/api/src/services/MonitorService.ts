@@ -112,6 +112,7 @@ export class MonitorService {
         'downloadTime',
         'totalTime',
         'ip',
+        'location',
         'err',
         'protocol',
         'ttfb',

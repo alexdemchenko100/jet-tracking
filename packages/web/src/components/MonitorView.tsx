@@ -137,10 +137,23 @@ export function MonitorView() {
         <Menu>
           <MenuButton
             alignSelf='center'
-            rightIcon={<ChevronDownIcon />}
-            variant='solid'
+            variant='outline'
             mx='1em'
-            size='xs'
+            size='sm'
+            as={Button}
+            colorScheme='blue'
+            onClick={() => navigate(`/console/monitors/${id}/edit`)}
+          >
+            Edit
+          </MenuButton>
+        </Menu>
+        <Menu>
+          <MenuButton
+            alignSelf='center'
+            rightIcon={<ChevronDownIcon />}
+            variant='outline'
+            mx='1em'
+            size='sm'
             as={Button}
             colorScheme='blue'
           >
@@ -148,9 +161,6 @@ export function MonitorView() {
           </MenuButton>
           <MenuList color='gray.800' zIndex='3'>
             <MenuGroup onChange={(e) => {}}>
-              <MenuItemOption onClick={() => navigate(`/console/monitors/${id}/edit`)}>
-                Edit
-              </MenuItemOption>
               <DoubleCheckDelete id={id} />
             </MenuGroup>
           </MenuList>

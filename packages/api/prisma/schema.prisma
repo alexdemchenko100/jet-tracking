@@ -38,6 +38,7 @@ model MonitorResult {
   headers        Json     @default("[]")
   url            String
   ip             String
+  location       String
   body           String
   bodySize       Int
   code           Int

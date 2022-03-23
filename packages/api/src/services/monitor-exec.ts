@@ -33,7 +33,8 @@ function convertTimings(timings?: Timings) {
     totalTime: timings?.phases?.total ?? 0,
   }
 }
-function empryResponse() {
+
+function emptyResponse() {
   return {
     ip: '',
     protocol: '',
@@ -44,20 +45,19 @@ function empryResponse() {
     certExpiryDays: 0,
     codeStatus: '',
     code: 0,
+    location: process.env.PA_REGION || 'us-east',
   }
 }
 function responseToMonitorResult(resp?: Response<string>) {
   return {
+    ...emptyResponse(),
     ...convertTimings(resp?.timings),
     code: resp?.statusCode ?? 0,
     codeStatus: resp?.statusMessage ?? '',
     ip: resp?.ip ?? '',
-    protocol: '',
     body: resp?.body ?? '',
     bodySize: resp?.body.length ?? 0,
     headers: resp?.headers ? headersToTuples(resp?.headers) : [],
-    certCommonName: '',
-    certExpiryDays: 0,
   }
 }
 
@@ -143,7 +143,7 @@ export async function execMonitor(monitor: Monitor) {
   var startTime = performance.now()
   const mon = processTemplates(monitor)
   var endTime = performance.now()
-  logger.info(`Call to doSomething took ${endTime - startTime} milliseconds`)
+  logger.info(`Call ${monitor.url} took ${endTime - startTime} milliseconds`)
 
   try {
     const resp = await customGot(mon.url, {
@@ -192,7 +192,7 @@ export async function execMonitor(monitor: Monitor) {
       return {
         monitorId: mon.id ?? 'ondemand',
         url: mon.url,
-        ...empryResponse(),
+        ...emptyResponse(),
         ...convertTimings(e.timings),
         codeStatus: e.code,
         err: e.code,
