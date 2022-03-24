@@ -525,17 +525,19 @@ export function MonitorEditor() {
       monitor.env = monitor.env.filter((item) => item[0])
     }
 
+    const updating = Boolean(monitor.id)
     const monResp = await createMonitor(monitor)
+
     if (monResp.id) {
       toast({
         position: 'top',
-        title: 'Monitor created.',
+        title: 'Monitor ' + updating ? 'updated.' : 'created',
         description: 'Your monitor is ready now!',
         status: 'success',
-        duration: 4000,
+        duration: 2000,
         isClosable: true,
         onCloseComplete: () => {
-          navigate('/console/monitors')
+          if (!updating) navigate('/console/monitors')
         },
       })
     }
