@@ -9,8 +9,8 @@ import SchedulerRouter from './routers/SchedulerRouter.js'
 
 export default async function router(fastify: FastifyInstance) {
   fastify.register(MonitorRouter, { prefix: '/monitors' })
-  fastify.register(SchedulerRouter, { prefix: '/service/schedule' })
-  fastify.register(MonitorExecutorRouter, { prefix: '/service/monitor' })
+  fastify.register(SchedulerRouter, { prefix: '/services/scheduler' })
+  fastify.register(MonitorExecutorRouter, { prefix: '/services/monitor' })
 
   fastify.setNotFoundHandler((_req, reply) => {
     // The expected errors will be handled here, but unexpected ones should eventually result in a crash.

@@ -39,7 +39,7 @@ var client = new JwksClient({
 
 export default async function MonitorExecutorRouter(app: FastifyInstance) {
   app.post<{ Body: PubsubMessage }>(
-    '/monitor',
+    '/',
     {
       schema: {
         body: PubsubMessageSchema,

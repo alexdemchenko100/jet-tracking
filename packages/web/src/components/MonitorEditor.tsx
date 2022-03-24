@@ -283,7 +283,7 @@ function Locations() {
               <Controller
                 key={locEntry.id}
                 control={control}
-                name={`showLocations.${index}.1`}
+                name={`showLocations.${index}.2`}
                 render={({ field }) => {
                   return (
                     <Checkbox isChecked={field.value} onChange={field.onChange}>
@@ -389,39 +389,39 @@ export function MonitorEditor() {
   const drawer = useDisclosure()
   interface FormMonitor extends Monitor {
     frequencyScale: number
-    showLocations: [string, boolean][]
+    showLocations: [string, string, boolean][]
   }
 
   function toShowLocations(locations?: string[]) {
     //reset defaultValues to false so server data overrides them
     let showLocations = [...defaultShowLocations]
     for (let i = 0; i < showLocations.length; i++) {
-      showLocations[i][1] = false
+      showLocations[i][2] = false
     }
 
     //now, update local values to be same as server
     if (Array.isArray(locations)) {
       locations.forEach((loc) => {
         for (let i = 0; i < showLocations.length; i++) {
-          if (showLocations[i][0] == loc) showLocations[i][1] = true
+          if (showLocations[i][1] == loc) showLocations[i][2] = true
         }
       })
     }
     return showLocations
   }
 
-  function fromShowLocations(showLoc: [string, boolean][]) {
+  function fromShowLocations(showLoc: [string, string, boolean][]) {
     let locations: string[] = []
-    showLoc.forEach(([loc, valid]) => {
+    showLoc.forEach(([_label, loc, valid]) => {
       if (valid) locations.push(loc)
     })
     return locations
   }
 
-  const defaultShowLocations: [string, boolean][] = [
-    ['US-East', true],
-    ['Europe-West', false],
-    ['Asia-Singapore', false],
+  const defaultShowLocations: [string, string, boolean][] = [
+    ['US-East', 'us-east', true],
+    ['Europe-West', 'europe-west', false],
+    ['Asia-Singapore', 'asia-singapore', false],
   ]
 
   const methods = useForm<FormMonitor>({
