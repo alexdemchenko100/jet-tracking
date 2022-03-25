@@ -1,4 +1,4 @@
-import { AxisOptions, Chart } from 'react-charts'
+import { AxisOptions, Chart, UserSerie } from 'react-charts'
 import React from 'react'
 import { Box, BoxProps } from '@chakra-ui/react'
 import { useQuery } from 'react-query'
@@ -21,18 +21,29 @@ export function MonitorTimeChart(props: ChartProps) {
     })
 
     if (resp.status == 200) {
-      const datum = (resp.data as MonitorResult[]).map((res) => {
-        return {
-          date: new Date(res.createdAt as string),
-          totalTime: res.totalTime,
-        }
+      const results = resp.data as MonitorResult[]
+      let byLocations: { [key: string]: MonitorResult[] } = {}
+      results.forEach((res) => {
+        if (!byLocations[res.location]) byLocations[res.location] = []
+        byLocations[res.location].push(res)
+      })
+
+      const datum = Object.entries(byLocations).map(([location, byLocation]) => {
+        const datum = byLocation.map((res) => {
+          return {
+            date: new Date(res.createdAt as string),
+            totalTime: res.totalTime,
+          }
+        })
+        return { label: location, data: datum }
       })
       return datum
     }
+
     throw Error('Failed to get odemand results')
   }
 
-  const { data: results } = useQuery<TotalTimeDatum[], Error>(['monitor-result-datum', id], () =>
+  const { data } = useQuery<UserSerie<TotalTimeDatum>[], Error>(['monitor-result-datum', id], () =>
     getMonitorResults()
   )
 
@@ -54,15 +65,10 @@ export function MonitorTimeChart(props: ChartProps) {
 
   return (
     <Box {...props}>
-      {results && results.length > 0 && (
+      {data && data.length > 0 && (
         <Chart
           options={{
-            data: [
-              {
-                label: 'Request Time',
-                data: results,
-              },
-            ],
+            data,
             primaryAxis,
             secondaryAxes,
           }}

@@ -45,7 +45,9 @@ function emptyResponse() {
     certExpiryDays: 0,
     codeStatus: '',
     code: 0,
-    location: process.env.PA_REGION || 'us-east',
+    location:
+      process.env.PA_REGION ||
+      ['us-east', 'europe-west'][Math.floor(Math.random() * 2)],
   }
 }
 function responseToMonitorResult(resp?: Response<string>) {
