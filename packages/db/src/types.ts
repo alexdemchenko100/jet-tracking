@@ -6,7 +6,7 @@ export const MonitorTupleFluentSchema = S.array().items(
 )
 
 const CloudRegions = ['us-east', 'europe-west', 'asia-singapore']
-
+const authTypes = ['basic', 'bearer']
 export const MonitorAssertionResultFluentSchema = S.object()
   .prop('type', S.string())
   .required()
@@ -96,6 +96,8 @@ export const MonitorFluentSchema = S.object()
   .prop('method', S.string().default('GET'))
   .prop('url', S.string().required())
   .prop('frequency', S.integer().minimum(10))
+  .prop('authType', S.string().enum(authTypes))
+  .prop('auth', S.array().items(S.string()))
   .prop('body', S.string())
   .prop('bodyType', S.string())
   .prop('headers', MonitorTupleFluentSchema)
@@ -129,6 +131,8 @@ export type MonitorTable = {
   frequency: number
   body?: string
   bodyType?: string
+  authType?: string
+  auth?: string[]
   headers?: MonitorTuples
   locations?: string[]
   queryParams?: MonitorTuples

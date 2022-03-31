@@ -41,6 +41,7 @@ import { useMutation, useQuery } from 'react-query'
 import axios from 'axios'
 import { useNavigate, useParams } from 'react-router-dom'
 import { APIResultByDemand } from './APIResultByDemand'
+import { MonitorAuthEditor } from './MonitorAuthEditor'
 
 const freqConfig: [numSeconds: number, label: string][] = [
   [10, '10s'],
@@ -97,19 +98,7 @@ function SliderThumbWithTooltip() {
             })}
 
             <SliderTrack bg={'gray.400'}>{/* <SliderFilledTrack /> */}</SliderTrack>
-
             <SliderThumb bg={'blue.200'} />
-
-            {/* <Tooltip
-        hasArrow
-        bg="teal.500"
-        color="white"
-        placement="top"
-        isOpen={showTooltip}
-        label={`${sliderValue}m`}
-      >
-        <SliderThumb />
-      </Tooltip> */}
           </Slider>
         )
       }}
@@ -117,72 +106,43 @@ function SliderThumbWithTooltip() {
   )
 }
 
-function APIHeaders() {
-  const { control, register } = useFormContext<Monitor>()
-  const {
-    fields: headers,
-    append,
-    remove,
-  } = useFieldArray({
-    name: 'headers',
-    control,
-  })
-
-  return (
-    <>
-      <Flex alignItems='start'>
-        <Heading size='xs'>HTTP Headers</Heading>
-      </Flex>
-
-      <Box mt='4'>
-        {headers.map((field, index) => (
-          <Flex key={field.id} mb='2'>
-            <Input type='text' {...register(`headers.${index}.0` as const)} placeholder='name' />
-            <Input
-              type='text'
-              ml='4'
-              {...register(`headers.${index}.1` as const)}
-              placeholder='value'
-            />
-
-            <Button onClick={() => remove(index)}>
-              <Icon color='red.500' as={FiTrash2} cursor='pointer' />
-            </Button>
-          </Flex>
-        ))}
-        <Button onClick={() => append([['', '']])}>
-          <Icon color='blue.500' as={FiPlus} cursor='pointer' />
-        </Button>
-      </Box>
-    </>
-  )
+interface TupleProps {
+  name: string
 }
-
-function QueryParams() {
+function TupleEditor({ name }: TupleProps) {
   const { control, register } = useFormContext()
   const {
-    fields: queryParams,
+    fields: tuples,
     append,
     remove,
   } = useFieldArray({
-    name: 'queryParams',
+    name: name,
     control,
   })
 
+  const nameToLabel = (name: string) => {
+    switch (name) {
+      case 'headers':
+        return 'Add Header'
+      case 'queryParams':
+        return 'Add Query Param'
+      case 'env':
+        return 'Add Variable'
+      default:
+        return ''
+    }
+  }
+
   return (
     <>
-      <Flex alignItems='center'>
-        <Heading size='xs'>Query Params</Heading>
-      </Flex>
-
       <Box mt='4'>
-        {queryParams.map((field, index) => (
+        {tuples.map((field, index) => (
           <Flex key={field.id} mb='2'>
-            <Input type='text' {...register(`queryParams.${index}.0` as const)} placeholder='key' />
+            <Input type='text' {...register(`${name}.${index}.0` as const)} placeholder='name' />
             <Input
               type='text'
               ml='4'
-              {...register(`queryParams.${index}.1` as const)}
+              {...register(`${name}.${index}.1` as const)}
               placeholder='value'
             />
 
@@ -192,49 +152,9 @@ function QueryParams() {
           </Flex>
         ))}
       </Box>
-      <Button onClick={() => append([['', '']])}>
-        <Icon color='blue.500' as={FiPlus} cursor='pointer' />
-      </Button>
-    </>
-  )
-}
-
-function EnvVariables() {
-  const { control, register } = useFormContext()
-  const {
-    fields: env,
-    append,
-    remove,
-  } = useFieldArray({
-    name: 'env',
-    control,
-  })
-
-  return (
-    <>
-      <Flex alignItems='center'>
-        <Heading size='xs'>Variables</Heading>
-      </Flex>
-
-      <Box mt='4'>
-        {env.map((field, index) => (
-          <Flex key={field.id} mb='2'>
-            <Input type='text' {...register(`env.${index}.0` as const)} placeholder='name' />
-            <Input
-              type='text'
-              ml='4'
-              {...register(`env.${index}.1` as const)}
-              placeholder='value'
-            />
-
-            <Button onClick={() => remove(index)}>
-              <Icon color='red.500' as={FiTrash2} cursor='pointer' />
-            </Button>
-          </Flex>
-        ))}
-      </Box>
-      <Button onClick={() => append([['', '']])}>
-        <Icon color='blue.500' as={FiPlus} cursor='pointer' />
+      <Button variant='ghost' colorScheme='blue' onClick={() => append([['', '']])}>
+        <Icon as={FiPlus} cursor='pointer' />
+        {nameToLabel(name)}
       </Button>
     </>
   )
@@ -390,6 +310,9 @@ export function MonitorEditor() {
   interface FormMonitor extends Monitor {
     frequencyScale: number
     showLocations: [string, string, boolean][]
+    authUsername: string
+    authPassword: string
+    authToken: string
   }
 
   function toShowLocations(locations?: string[]) {
@@ -432,6 +355,11 @@ export function MonitorEditor() {
       assertions: [{ type: 'code', op: '=', value: '200' }] as MonitorAssertion[],
       frequencyScale: 0,
       showLocations: defaultShowLocations,
+      authType: 'none',
+      authUsername: '',
+      authPassword: '',
+      authToken: '',
+      auth: [],
     },
   })
 
@@ -500,6 +428,17 @@ export function MonitorEditor() {
       return values.filter((item) => Boolean(item[0])).length
     }
     return 0
+  }
+
+  function hasValidAuth() {
+    if (watched.authType == 'none') return false
+    if (watched.authType == 'basic') {
+      if (!watched.authUsername || !watched.authPassword) return false
+    }
+    if (watched.authType == 'bearer') {
+      if (!watched.authToken) return false
+    }
+    return true
   }
 
   const toast = useToast()
@@ -591,6 +530,12 @@ export function MonitorEditor() {
 
                 <Tabs mt='4'>
                   <TabList>
+                    {watched.method != 'GET' && (
+                      <Tab>
+                        Body
+                        {watched.body && watched.body.length > 0 && <sup color='green'>1</sup>}
+                      </Tab>
+                    )}
                     <Tab>
                       Headers
                       {numValues('headers') > 0 && (
@@ -598,10 +543,9 @@ export function MonitorEditor() {
                       )}
                     </Tab>
                     <Tab>
-                      Body
-                      {watched.body && watched.body.length > 0 && <sup color='green'>1</sup>}
+                      Auth
+                      {hasValidAuth() && <sup color='green'>1</sup>}
                     </Tab>
-                    <Tab>Auth</Tab>
                     <Tab>
                       Query Params
                       {numValues('queryParams') > 0 && (
@@ -615,43 +559,46 @@ export function MonitorEditor() {
                   </TabList>
 
                   <TabPanels>
+                    {watched.method != 'GET' && (
+                      <TabPanel>
+                        <BodyInput />
+                        {watched.bodyType != '' && (
+                          <Textarea mt='4' h='36' {...register('body')}></Textarea>
+                        )}
+                      </TabPanel>
+                    )}
+
                     <TabPanel>
-                      <APIHeaders />
+                      <TupleEditor name='headers' />
                     </TabPanel>
                     <TabPanel>
-                      <BodyInput />
-                      {watched.bodyType != '' && (
-                        <Textarea mt='4' h='36' {...register('body')}></Textarea>
-                      )}
+                      <MonitorAuthEditor />
                     </TabPanel>
                     <TabPanel>
-                      <p>Auth</p>
+                      <TupleEditor name='queryParams' />
                     </TabPanel>
                     <TabPanel>
-                      <QueryParams />
-                    </TabPanel>
-                    <TabPanel>
-                      <EnvVariables />
+                      <TupleEditor name='env' />
                     </TabPanel>
                   </TabPanels>
                 </Tabs>
 
-                <FormControl id='frequency' mt='10' maxW='80%'>
+                <Heading size='sm' mt='10' mb='4'>
+                  Choose Test Criteria For Success
+                </Heading>
+                <Assertions />
+
+                <FormControl id='frequency' maxW='80%'>
                   <Heading size='sm' mt='10' mb='4'>
-                    How often to run the monitor?
+                    How Often To Run The Monitor?
                   </Heading>
                   <SliderThumbWithTooltip />
                 </FormControl>
 
                 <Heading size='sm' mt='10' mb='4'>
-                  Choose where to run the monitor from
+                  Choose Locations to Run The Monitor
                 </Heading>
                 <Locations />
-
-                <Heading size='sm' mt='10' mb='4'>
-                  Choose criterial for success
-                </Heading>
-                <Assertions />
 
                 <Button
                   colorScheme='blue'
