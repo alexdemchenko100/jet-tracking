@@ -131,6 +131,25 @@ function processTemplates(mon: Monitor) {
   return m
 }
 
+function prepareBearerAuth(monitor: Monitor) {
+  if (monitor.auth?.type === 'bearer' && monitor.auth?.bearer?.token) {
+    return { Authorization: `Bearer ${monitor.auth.bearer.token}` }
+  }
+  return {}
+}
+
+function prepareBasicAuth(monitor: Monitor) {
+  if (monitor.auth?.type == 'basic') {
+    if (monitor.auth?.basic?.username)
+      return {
+        username: monitor.auth.basic.username,
+        password: monitor.auth?.basic?.password,
+      }
+  }
+
+  return {}
+}
+
 /**
  *
  * @param monitor
@@ -154,7 +173,13 @@ export async function execMonitor(monitor: Monitor) {
       agent: {
         https: new https.Agent({ keepAlive: false }),
       },
-      headers: { 'Content-Type': mon.bodyType, ...headersToMap(mon.headers) },
+      headers: {
+        'Content-Type': mon.bodyType,
+        ...headersToMap(mon.headers),
+        ...prepareBearerAuth(mon),
+      },
+
+      ...prepareBasicAuth(mon),
 
       // responseType: 'text',
       searchParams: mon.queryParams

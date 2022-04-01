@@ -88,6 +88,18 @@ export const MonitorAssertionsFluentSchema = S.array()
   )
   .minItems(0)
 
+export const MonitorAuthFluentSchema = S.object()
+  .prop('type', S.string().enum(['basic', 'bearer', 'none']).required())
+  .prop(
+    'basic',
+    S.object()
+      .prop('username', S.string())
+      .required()
+      .prop('password', S.string())
+      .required()
+  )
+  .prop('bearer', S.object().prop('token', S.string()).required())
+
 export const MonitorFluentSchema = S.object()
   .prop('id', S.string())
   .prop('createdAt', S.string())
@@ -96,8 +108,7 @@ export const MonitorFluentSchema = S.object()
   .prop('method', S.string().default('GET'))
   .prop('url', S.string().required())
   .prop('frequency', S.integer().minimum(10))
-  .prop('authType', S.string().enum(authTypes))
-  .prop('auth', S.array().items(S.string()))
+  .prop('auth', MonitorAuthFluentSchema)
   .prop('body', S.string())
   .prop('bodyType', S.string())
   .prop('headers', MonitorTupleFluentSchema)
@@ -117,6 +128,21 @@ export type MonitorAssertion = {
   value: string
 }
 
+export type MonitorBasicAuth = {
+  username: string
+  password: string
+}
+
+export type MonitorBearerAuth = {
+  token: string
+}
+
+export type MonitorAuth = {
+  type?: 'basic' | 'bearer' | 'none'
+  basic?: MonitorBasicAuth
+  bearer?: MonitorBearerAuth
+}
+
 export type MonitorAssertionResult = MonitorAssertion & {
   fail?: string
 }
@@ -131,8 +157,7 @@ export type MonitorTable = {
   frequency: number
   body?: string
   bodyType?: string
-  authType?: string
-  auth?: string[]
+  auth?: MonitorAuth
   headers?: MonitorTuples
   locations?: string[]
   queryParams?: MonitorTuples

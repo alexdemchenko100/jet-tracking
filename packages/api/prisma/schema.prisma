@@ -19,8 +19,7 @@ model Monitor {
   // text/plain, application/json, text/xml, text/html, application/x-www-form-urlencoded or none
   bodyType        String?         @default("")
   body            String?
-  authType        String?
-  auth            String[]
+  auth            Json            @default("{}")
   headers         Json            @default("[]")
   queryParams     Json            @default("[]")
   cookies         String?

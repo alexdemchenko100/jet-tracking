@@ -31,7 +31,7 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react'
-import { Monitor, MonitorAssertion, MonitorTuples } from '@httpmon/db'
+import { Monitor, MonitorAssertion, MonitorAuth, MonitorTuples } from '@httpmon/db'
 import React from 'react'
 import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from 'react-hook-form'
 
@@ -310,9 +310,6 @@ export function MonitorEditor() {
   interface FormMonitor extends Monitor {
     frequencyScale: number
     showLocations: [string, string, boolean][]
-    authUsername: string
-    authPassword: string
-    authToken: string
   }
 
   function toShowLocations(locations?: string[]) {
@@ -355,11 +352,7 @@ export function MonitorEditor() {
       assertions: [{ type: 'code', op: '=', value: '200' }] as MonitorAssertion[],
       frequencyScale: 0,
       showLocations: defaultShowLocations,
-      authType: 'none',
-      authUsername: '',
-      authPassword: '',
-      authToken: '',
-      auth: [],
+      auth: {},
     },
   })
 
@@ -370,7 +363,6 @@ export function MonitorEditor() {
     handleSubmit,
     formState: { errors },
     getValues,
-    setValue,
   } = methods
 
   const { isLoading, error: loadError } = useQuery<FormMonitor>(
@@ -385,7 +377,6 @@ export function MonitorEditor() {
         ...resp.data,
       }
       formMon.frequencyScale = frequencyToScale(formMon.frequency)
-      console.log('scale: ', formMon.frequencyScale)
       formMon.showLocations = toShowLocations(resp.data.locations)
 
       reset(formMon)
@@ -417,7 +408,7 @@ export function MonitorEditor() {
   console.log(watched)
 
   function handleQuickRun() {
-    setOndemandMonitor({ ...watched })
+    setOndemandMonitor(prepareMonitor(watched))
     drawer.onOpen()
   }
 
@@ -431,20 +422,19 @@ export function MonitorEditor() {
   }
 
   function hasValidAuth() {
-    if (watched.authType == 'none') return false
-    if (watched.authType == 'basic') {
-      if (!watched.authUsername || !watched.authPassword) return false
+    if (watched.auth?.type === 'basic') {
+      if (watched.auth?.basic?.username) return true
     }
-    if (watched.authType == 'bearer') {
-      if (!watched.authToken) return false
+    if (watched.auth?.type == 'bearer') {
+      if (watched.auth?.bearer?.token) return true
     }
-    return true
+    return false
   }
 
   const toast = useToast()
   const navigate = useNavigate()
 
-  async function handleCreation(data: FormMonitor) {
+  function prepareMonitor(data: FormMonitor): Monitor {
     //cleanse data to become the monitor
     data.frequency = scaleToFrequency(data.frequencyScale)
     data.locations = fromShowLocations(data.showLocations)
@@ -464,6 +454,20 @@ export function MonitorEditor() {
       monitor.env = monitor.env.filter((item) => item[0])
     }
 
+    if (monitor.auth) {
+      if (monitor.auth.type == 'none') {
+        monitor.auth = {}
+      } else if (monitor.auth.type == 'basic') {
+        delete monitor.auth.bearer
+      } else if (monitor.auth.type == 'bearer') {
+        delete monitor.auth.basic
+      }
+    }
+    return monitor
+  }
+
+  async function handleCreation(data: FormMonitor) {
+    const monitor = prepareMonitor(data)
     const updating = Boolean(monitor.id)
     const monResp = await createMonitor(monitor)
 

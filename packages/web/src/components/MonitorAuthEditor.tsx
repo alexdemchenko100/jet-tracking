@@ -17,11 +17,11 @@ function BasicAuth() {
     <>
       <FormControl>
         <FormLabel htmlFor='username'>Username</FormLabel>
-        <Input type='name' {...register('authUsername')} />
+        <Input type='name' {...register('auth.basic.username')} />
       </FormControl>
       <FormControl>
         <FormLabel htmlFor='password'>Password</FormLabel>
-        <Input type='password' {...register('authPassword')} />
+        <Input type='password' {...register('auth.basic.password')} />
       </FormControl>
     </>
   )
@@ -33,7 +33,7 @@ function BearerAuth() {
   return (
     <FormControl>
       <FormLabel htmlFor='token'>Token</FormLabel>
-      <Input type='name' {...register('authToken')} />
+      <Input type='name' {...register('auth.bearer.token')} />
     </FormControl>
   )
 }
@@ -66,12 +66,13 @@ export function MonitorAuthEditor() {
   return (
     <Controller
       control={control}
-      name='authType'
+      name='auth.type'
       render={({ field }) => {
         return (
           <Tabs
             variant='soft-rounded'
             size='sm'
+            defaultIndex={authTypeToIndex(field.value)}
             index={authTypeToIndex(field.value)}
             onChange={(index) => {
               field.onChange(indexToAuthType(index))
