@@ -89,7 +89,7 @@ export const MonitorAssertionsFluentSchema = S.array()
   .minItems(0)
 
 export const MonitorAuthFluentSchema = S.object()
-  .prop('type', S.string().enum(['basic', 'bearer', 'none']).required())
+  .prop('type', S.string().enum(['basic', 'bearer', 'none']))
   .prop(
     'basic',
     S.object()

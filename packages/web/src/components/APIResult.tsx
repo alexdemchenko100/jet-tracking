@@ -82,10 +82,6 @@ export function APIResult({ result }: APIResultProps) {
 
   return (
     <>
-      <Heading size={'md'} mb={'10'}>
-        API Results
-      </Heading>
-      <Divider />
       <Box>
         <Badge
           colorScheme={isSuccessCode(result.code) ? 'green' : 'red'}

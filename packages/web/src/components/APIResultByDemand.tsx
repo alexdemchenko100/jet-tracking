@@ -6,7 +6,7 @@ import { APIResult } from './APIResult'
 
 type OnDemandMon = Pick<Monitor, 'method' | 'url' | 'headers' | 'queryParams'>
 interface Props {
-  onDemandMonitor: OnDemandMon
+  onDemandMonitor?: OnDemandMon
 }
 
 export function APIResultByDemand(props: Props) {
@@ -34,14 +34,19 @@ export function APIResultByDemand(props: Props) {
     isLoading,
     data: result,
     error,
-  } = useQuery<MonitorResult, Error>(['ondemand', props.onDemandMonitor], () =>
-    getOndemandMonitorResponse(props.onDemandMonitor)
+  } = useQuery<MonitorResult, Error>(
+    ['ondemand', props.onDemandMonitor],
+    () => getOndemandMonitorResponse(props.onDemandMonitor as OnDemandMon),
+    {
+      enabled: props.onDemandMonitor != null,
+    }
   )
 
   return (
     <>
       {isLoading && <p>Loading ...</p>}
       {error && <p>Err: {error.message}</p>}
+      {!props.onDemandMonitor && <p>Results will be shown here</p>}
       {result && <APIResult result={result} />}
     </>
   )

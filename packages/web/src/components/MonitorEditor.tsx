@@ -4,9 +4,6 @@ import {
   Checkbox,
   CheckboxGroup,
   Divider,
-  Drawer,
-  DrawerContent,
-  DrawerOverlay,
   Flex,
   FormControl,
   FormLabel,
@@ -31,16 +28,14 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react'
-import { Monitor, MonitorAssertion, MonitorAuth, MonitorTuples } from '@httpmon/db'
+import { Monitor, MonitorAssertion, MonitorTuples } from '@httpmon/db'
 import React from 'react'
 import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from 'react-hook-form'
 
 import { FiPlus, FiTrash2 } from 'react-icons/fi'
-import { useState } from 'react'
 import { useMutation, useQuery } from 'react-query'
 import axios from 'axios'
 import { useNavigate, useParams } from 'react-router-dom'
-import { APIResultByDemand } from './APIResultByDemand'
 import { MonitorAuthEditor } from './MonitorAuthEditor'
 
 const freqConfig: [numSeconds: number, label: string][] = [
@@ -303,10 +298,15 @@ function Assertions() {
   )
 }
 
-export function MonitorEditor() {
+interface EditProps {
+  handleOndemandMonitor: (mon: Monitor) => void
+}
+
+export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
   //id tells apart Edit to a new check creation
   const { id } = useParams()
   const drawer = useDisclosure()
+
   interface FormMonitor extends Monitor {
     frequencyScale: number
     showLocations: [string, string, boolean][]
@@ -402,14 +402,11 @@ export function MonitorEditor() {
     return resp.data as Monitor
   })
 
-  const [ondemandMonitor, setOndemandMonitor] = useState<Monitor>()
-
   const watched = watch()
   console.log(watched)
 
   function handleQuickRun() {
-    setOndemandMonitor(prepareMonitor(watched))
-    drawer.onOpen()
+    handleOndemandMonitor(prepareMonitor(watched))
   }
 
   function numValues<T extends 'headers' | 'queryParams' | 'env'>(name: T) {
@@ -487,149 +484,137 @@ export function MonitorEditor() {
   }
 
   return (
-    <Flex>
-      <Box>
-        <Heading size='md' mb='10'>
-          {id ? `Editing Monitor` : 'Create new API monitor'}
-        </Heading>
+    <Box>
+      <Heading size='md' mb='10'>
+        {id ? `Editing Monitor` : 'Create new API monitor'}
+      </Heading>
 
-        <Divider />
-        <FormProvider {...methods}>
-          <form onSubmit={handleSubmit(handleCreation)}>
-            <Box>
-              <Flex minH='100vh' justify='start' direction='column'>
-                <FormControl id='name'>
-                  <Flex alignItems='baseline'>
-                    <FormLabel htmlFor='name'>Name</FormLabel>
-                    <Input type='name' {...register('name')} />
-                  </Flex>
-                </FormControl>
-
-                <Flex justify='start' alignItems='end' mt='4'>
-                  <FormControl id='method' maxW='32'>
-                    <Select color='blue.500' fontWeight='bold' {...register('method')}>
-                      <option defaultValue='GET' value='GET'>
-                        GET
-                      </option>
-                      <option value='POST'>POST</option>
-                      <option value='OPTIONS'>OPTIONS</option>
-                    </Select>
-                  </FormControl>
-
-                  <FormControl id='url' ml='2'>
-                    <Input placeholder='https:// url here' {...register('url')} />
-                  </FormControl>
-
-                  <Button
-                    colorScheme='blue'
-                    variant='outline'
-                    ml='4'
-                    size='sm'
-                    disabled={watched.url == ''}
-                    onClick={() => handleQuickRun()}
-                  >
-                    Run now
-                  </Button>
+      <Divider />
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(handleCreation)}>
+          <Box>
+            <Flex minH='100vh' justify='start' direction='column'>
+              <FormControl id='name'>
+                <Flex alignItems='baseline'>
+                  <FormLabel htmlFor='name'>Name</FormLabel>
+                  <Input type='name' {...register('name')} />
                 </Flex>
+              </FormControl>
 
-                <Tabs mt='4'>
-                  <TabList>
-                    {watched.method != 'GET' && (
-                      <Tab>
-                        Body
-                        {watched.body && watched.body.length > 0 && <sup color='green'>1</sup>}
-                      </Tab>
-                    )}
-                    <Tab>
-                      Headers
-                      {numValues('headers') > 0 && (
-                        <sup color='green'>&nbsp;{numValues('headers')}</sup>
-                      )}
-                    </Tab>
-                    <Tab>
-                      Auth
-                      {hasValidAuth() && <sup color='green'>1</sup>}
-                    </Tab>
-                    <Tab>
-                      Query Params
-                      {numValues('queryParams') > 0 && (
-                        <sup color='green'>&nbsp;{numValues('queryParams')}</sup>
-                      )}
-                    </Tab>
-                    <Tab>
-                      Variables
-                      {numValues('env') > 0 && <sup color='green'>&nbsp;{numValues('env')}</sup>}
-                    </Tab>
-                  </TabList>
-
-                  <TabPanels>
-                    {watched.method != 'GET' && (
-                      <TabPanel>
-                        <BodyInput />
-                        {watched.bodyType != '' && (
-                          <Textarea mt='4' h='36' {...register('body')}></Textarea>
-                        )}
-                      </TabPanel>
-                    )}
-
-                    <TabPanel>
-                      <TupleEditor name='headers' />
-                    </TabPanel>
-                    <TabPanel>
-                      <MonitorAuthEditor />
-                    </TabPanel>
-                    <TabPanel>
-                      <TupleEditor name='queryParams' />
-                    </TabPanel>
-                    <TabPanel>
-                      <TupleEditor name='env' />
-                    </TabPanel>
-                  </TabPanels>
-                </Tabs>
-
-                <Heading size='sm' mt='10' mb='4'>
-                  Choose Test Criteria For Success
-                </Heading>
-                <Assertions />
-
-                <FormControl id='frequency' maxW='80%'>
-                  <Heading size='sm' mt='10' mb='4'>
-                    How Often To Run The Monitor?
-                  </Heading>
-                  <SliderThumbWithTooltip />
+              <Flex justify='start' alignItems='end' mt='4'>
+                <FormControl id='method' maxW='32'>
+                  <Select color='blue.500' fontWeight='bold' {...register('method')}>
+                    <option defaultValue='GET' value='GET'>
+                      GET
+                    </option>
+                    <option value='POST'>POST</option>
+                    <option value='OPTIONS'>OPTIONS</option>
+                  </Select>
                 </FormControl>
 
-                <Heading size='sm' mt='10' mb='4'>
-                  Choose Locations to Run The Monitor
-                </Heading>
-                <Locations />
+                <FormControl id='url' ml='2'>
+                  <Input placeholder='https:// url here' {...register('url')} />
+                </FormControl>
 
                 <Button
                   colorScheme='blue'
-                  mt='10'
-                  size='md'
-                  w='40'
-                  variant='solid'
-                  disabled={!watched.url || !watched.name}
-                  type='submit'
+                  variant='outline'
+                  ml='4'
+                  size='sm'
+                  disabled={watched.url == ''}
+                  onClick={() => handleQuickRun()}
                 >
-                  {id ? 'Update' : 'Create'}
+                  Run now
                 </Button>
               </Flex>
-            </Box>
-          </form>
-        </FormProvider>
-      </Box>
-      {ondemandMonitor && (
-        <Drawer isOpen={drawer.isOpen} onClose={drawer.onClose} placement='right' size='xl'>
-          <DrawerOverlay />
-          <DrawerContent>
-            <Box ml='4'>
-              <APIResultByDemand onDemandMonitor={ondemandMonitor} />
-            </Box>
-          </DrawerContent>
-        </Drawer>
-      )}
-    </Flex>
+
+              <Tabs mt='4'>
+                <TabList>
+                  {watched.method != 'GET' && (
+                    <Tab>
+                      Body
+                      {watched.body && watched.body.length > 0 && <sup color='green'>1</sup>}
+                    </Tab>
+                  )}
+                  <Tab>
+                    Headers
+                    {numValues('headers') > 0 && (
+                      <sup color='green'>&nbsp;{numValues('headers')}</sup>
+                    )}
+                  </Tab>
+                  <Tab>
+                    Auth
+                    {hasValidAuth() && <sup color='green'>1</sup>}
+                  </Tab>
+                  <Tab>
+                    Query Params
+                    {numValues('queryParams') > 0 && (
+                      <sup color='green'>&nbsp;{numValues('queryParams')}</sup>
+                    )}
+                  </Tab>
+                  <Tab>
+                    Variables
+                    {numValues('env') > 0 && <sup color='green'>&nbsp;{numValues('env')}</sup>}
+                  </Tab>
+                </TabList>
+
+                <TabPanels>
+                  {watched.method != 'GET' && (
+                    <TabPanel>
+                      <BodyInput />
+                      {watched.bodyType != '' && (
+                        <Textarea mt='4' h='36' {...register('body')}></Textarea>
+                      )}
+                    </TabPanel>
+                  )}
+
+                  <TabPanel>
+                    <TupleEditor name='headers' />
+                  </TabPanel>
+                  <TabPanel>
+                    <MonitorAuthEditor />
+                  </TabPanel>
+                  <TabPanel>
+                    <TupleEditor name='queryParams' />
+                  </TabPanel>
+                  <TabPanel>
+                    <TupleEditor name='env' />
+                  </TabPanel>
+                </TabPanels>
+              </Tabs>
+
+              <Heading size='sm' mt='10' mb='4'>
+                Choose Test Criteria For Success
+              </Heading>
+              <Assertions />
+
+              <FormControl id='frequency' maxW='80%'>
+                <Heading size='sm' mt='10' mb='4'>
+                  How Often To Run The Monitor?
+                </Heading>
+                <SliderThumbWithTooltip />
+              </FormControl>
+
+              <Heading size='sm' mt='10' mb='4'>
+                Choose Locations to Run The Monitor
+              </Heading>
+              <Locations />
+
+              <Button
+                colorScheme='blue'
+                mt='10'
+                size='md'
+                w='40'
+                variant='solid'
+                disabled={!watched.url || !watched.name}
+                type='submit'
+              >
+                {id ? 'Update' : 'Create'}
+              </Button>
+            </Flex>
+          </Box>
+        </form>
+      </FormProvider>
+    </Box>
   )
 }

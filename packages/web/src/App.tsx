@@ -15,6 +15,7 @@ import NewEnv from './components/NewEnv'
 import { MonitorDashboard } from './components/MonitorDashboard'
 import MonitorResultTable from './components/MonitorResultTable'
 import { MonitorView } from './components/MonitorView'
+import { MonitorEditPanel } from './components/MonitorEditPanel'
 const history = createBrowserHistory()
 
 function App() {
@@ -26,8 +27,8 @@ function App() {
           <Route path='/console' element={<Console />}>
             <Route path='/console/monitors' element={<MonitorDashboard />} />
             <Route path='/console/monitors/:id' element={<MonitorView />} />
-            <Route path='/console/monitors/:id/edit' element={<MonitorEditor />} />
-            <Route path='/console/monitors/newapi' element={<MonitorEditor />} />
+            <Route path='/console/monitors/:id/edit' element={<MonitorEditPanel />} />
+            <Route path='/console/monitors/newapi' element={<MonitorEditPanel />} />
             <Route path='/console/env/new' element={<NewEnv />} />
           </Route>
 
