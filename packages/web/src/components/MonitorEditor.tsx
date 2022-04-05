@@ -485,25 +485,13 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
 
   return (
     <Box>
-      <Heading size='md' mb='10'>
-        {id ? `Editing Monitor` : 'Create new API monitor'}
-      </Heading>
-
-      <Divider />
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(handleCreation)}>
           <Box>
             <Flex minH='100vh' justify='start' direction='column'>
-              <FormControl id='name'>
-                <Flex alignItems='baseline'>
-                  <FormLabel htmlFor='name'>Name</FormLabel>
-                  <Input type='name' {...register('name')} />
-                </Flex>
-              </FormControl>
-
               <Flex justify='start' alignItems='end' mt='4'>
                 <FormControl id='method' maxW='32'>
-                  <Select color='blue.500' fontWeight='bold' {...register('method')}>
+                  <Select color='blue.500' fontWeight='extrabold' {...register('method')}>
                     <option defaultValue='GET' value='GET'>
                       GET
                     </option>
@@ -517,14 +505,14 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
                 </FormControl>
 
                 <Button
-                  colorScheme='blue'
-                  variant='outline'
+                  colorScheme='green'
+                  variant='solid'
                   ml='4'
                   size='sm'
                   disabled={watched.url == ''}
                   onClick={() => handleQuickRun()}
                 >
-                  Run now
+                  Send
                 </Button>
               </Flex>
 
@@ -599,6 +587,13 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
                 Choose Locations to Run The Monitor
               </Heading>
               <Locations />
+
+              <FormControl id='name' mt='4'>
+                <Flex alignItems='baseline'>
+                  <FormLabel htmlFor='name'>Name</FormLabel>
+                  <Input type='name' {...register('name')} />
+                </Flex>
+              </FormControl>
 
               <Button
                 colorScheme='blue'

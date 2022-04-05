@@ -11,7 +11,6 @@ const useDrag = (
   minPaneSize = 400
 ) => {
   const isHorizontal = orientation === 'horizontal'
-  const isVertical = orientation === 'vertical'
 
   const [paneSize, setPaneSize] = useState<number | null>(null)
   const dragPos = useRef<number | null>(null)
@@ -66,7 +65,11 @@ const useDrag = (
   // const [gridProp, setGridProp] = useState(0);
   // useEffect(() => {
   const showInitialSize = paneSize === null
-  const paneGridSize = showInitialSize ? initialPaneSize : `${paneSize}px`
+
+  const paneGridSize = showInitialSize
+    ? initialPaneSize
+    : `${((paneSize || 1) / getRefSize(containerRef)) * 100}%`
+
   let gridTemplateProp = `${paneGridSize} ${handleSize}px 1fr`
 
   console.log('enableSplit', enableSplit)
@@ -80,7 +83,7 @@ const useDrag = (
   // setGridProp(gridProp);
   // }, [paneSize, initialPaneSize, handleSize, isHorizontal]);
 
-  return { isHorizontal, isVertical, onMouseDown, paneSize, ...gridProp }
+  return { isHorizontal, onMouseDown, ...gridProp }
 }
 
 interface SplitPaneProps {
