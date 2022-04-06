@@ -1,6 +1,7 @@
 import {
   Badge,
   Box,
+  Center,
   Flex,
   FlexProps,
   Grid,
@@ -87,7 +88,7 @@ export function APIResult({ result }: APIResultProps) {
 
   return (
     <Grid gap='4' mx='2'>
-      <Flex>
+      <Flex alignItems='center'>
         <Badge
           colorScheme={isSuccessCode(result.code) ? 'green' : 'red'}
           fontSize='md'
@@ -100,18 +101,12 @@ export function APIResult({ result }: APIResultProps) {
           {result.url || 'unknown'}
         </Tag>
         <Tag colorScheme='gray' fontSize='md' fontWeight='bold' ml='12'>
-          Response Time: {result.totalTime}ms
+          Response: {result.totalTime}ms
           <Icon ml='1' as={FiClock} />
         </Tag>
       </Flex>
 
-      <Box>
-        <Heading size='sm'>
-          Timings <Tag>of {result.totalTime}ms</Tag>
-        </Heading>
-
-        <TimingBar width='100%' result={result} />
-      </Box>
+      <TimingBar width='100%' result={result} />
 
       <Tabs overflow='auto'>
         <TabList>

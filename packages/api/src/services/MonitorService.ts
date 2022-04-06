@@ -109,6 +109,7 @@ export class MonitorService {
         'tcpTime',
         'tlsTime',
         'uploadTime',
+        'ttfb',
         'downloadTime',
         'totalTime',
         'ip',
