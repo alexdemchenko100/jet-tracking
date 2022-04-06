@@ -80,6 +80,50 @@ function TimingBar({ result, ...rest }: TimingBarProps) {
   )
 }
 
+function AssertionResults({ result }: { result: MonitorResult }) {
+  if (
+    !result.assertResults ||
+    !Array.isArray(result.assertResults) ||
+    result.assertResults.length === 0
+  ) {
+    return (
+      <Box>
+        <Text fontSize='sm'>No assertions</Text>
+      </Box>
+    )
+  }
+
+  return (
+    <Table>
+      <Thead>
+        <Tr>
+          <Th>Assertion</Th>
+          <Th>Result</Th>
+        </Tr>
+      </Thead>
+      <Tbody>
+        {result.assertResults.map((res) => {
+          return (
+            <Tr key={res.name}>
+              <Td>
+                {res.type} {res.name} {res.op} {res.value}{' '}
+              </Td>
+              {res.fail ? (
+                <Td>
+                  <Badge colorScheme='red'>Failed</Badge>
+                </Td>
+              ) : (
+                <Td>
+                  <Badge colorScheme='green'>Passed</Badge>
+                </Td>
+              )}
+            </Tr>
+          )
+        })}
+      </Tbody>
+    </Table>
+  )
+}
 interface APIResultProps {
   result: MonitorResult
 }
@@ -114,13 +158,13 @@ export function APIResult({ result }: APIResultProps) {
             Body <Tag colorScheme='gray'>{result.bodySize}b</Tag>
           </Tab>
           <Tab>Headers</Tab>
+          <Tab>Tests</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
             <pre>{result.body}</pre>
           </TabPanel>
           <TabPanel>
-            {' '}
             <Table mt='2' variant='striped' size='md' maxW='100%'>
               <Thead>
                 <Tr>
@@ -141,6 +185,9 @@ export function APIResult({ result }: APIResultProps) {
                 })}
               </Tbody>
             </Table>
+          </TabPanel>
+          <TabPanel>
+            <AssertionResults result={result} />
           </TabPanel>
         </TabPanels>
       </Tabs>

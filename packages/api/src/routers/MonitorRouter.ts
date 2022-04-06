@@ -9,6 +9,7 @@ import {
   MonitorResultFluentSchemaArray,
   MonitorTuples,
 } from '@httpmon/db'
+import { processAssertions } from 'src/services/assertions.js'
 
 export default async function MonitorRouter(app: FastifyInstance) {
   const monitorSvc = MonitorService.getInstance()
@@ -197,9 +198,15 @@ export default async function MonitorRouter(app: FastifyInstance) {
       const mon = req.body
       req.log.info(mon, 'exec')
 
-      const resp = await execMonitor(mon)
+      const result = await execMonitor(mon)
+      const asserionResults = processAssertions(mon, result)
+      result.assertResults = asserionResults
+      if (!result.err)
+        result.err = asserionResults.some((a) => a.fail)
+          ? 'assertions failed'
+          : ''
 
-      reply.code(200).send(resp)
+      reply.code(200).send(result)
     }
   )
 }
