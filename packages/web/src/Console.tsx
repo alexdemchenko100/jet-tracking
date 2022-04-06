@@ -29,6 +29,8 @@ import { MdHome, MdKeyboardArrowRight } from 'react-icons/md'
 import { logoTitle } from './Assets'
 import { Outlet, useNavigate } from 'react-router-dom'
 
+const SIDEBAR_WIDTH = '40'
+
 export default function Console() {
   const sidebar = useDisclosure()
   const apiMonitorNav = useDisclosure()
@@ -91,11 +93,11 @@ export default function Console() {
       bg={useColorModeValue('white', 'gray.800')}
       borderColor={useColorModeValue('inherit', 'gray.700')}
       borderRightWidth='1px'
-      w='60'
+      w={SIDEBAR_WIDTH}
       {...props}
     >
-      <Flex px='4' py='5' align='center'>
-        <Image src={logoTitle} />
+      <Flex px='2' py='5' align='center'>
+        <Image src={logoTitle} w='50' />
       </Flex>
       <Flex direction='column' as='nav' fontSize='sm' color='gray.600' aria-label='Main Navigation'>
         <NavItem icon={MdHome} to='/console/monitors'>
@@ -135,7 +137,7 @@ export default function Console() {
           <SidebarContent w='full' borderRight='none' />
         </DrawerContent>
       </Drawer>
-      <Box ml={{ base: 0, md: 60 }} transition='.3s ease'>
+      <Box ml={{ base: 0, md: SIDEBAR_WIDTH }} transition='.3s ease'>
         <Flex
           as='header'
           align='center'
