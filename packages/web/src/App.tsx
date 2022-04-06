@@ -1,6 +1,7 @@
 import { ChakraProvider } from '@chakra-ui/react'
 import { Home } from './Home'
 import './App.css'
+import 'focus-visible/dist/focus-visible'
 
 import { Routes, Route } from 'react-router-dom'
 
@@ -10,10 +11,8 @@ import { SignIn } from './components/SignIn'
 import SignUp from './components/SignUp'
 import ForgotPassword from './components/ForgotPassword'
 import Console from './Console'
-import { MonitorEditor } from './components/MonitorEditor'
 import NewEnv from './components/NewEnv'
 import { MonitorDashboard } from './components/MonitorDashboard'
-import MonitorResultTable from './components/MonitorResultTable'
 import { MonitorView } from './components/MonitorView'
 import { MonitorEditPanel } from './components/MonitorEditPanel'
 const history = createBrowserHistory()

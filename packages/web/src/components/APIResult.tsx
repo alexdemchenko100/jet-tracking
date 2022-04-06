@@ -1,12 +1,17 @@
 import {
   Badge,
   Box,
-  Divider,
   Flex,
   FlexProps,
+  Grid,
   Heading,
   Icon,
+  Tab,
   Table,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   Tag,
   Tbody,
   Td,
@@ -81,8 +86,8 @@ export function APIResult({ result }: APIResultProps) {
   const isSuccessCode = (code: number) => code >= 200 && code < 300
 
   return (
-    <>
-      <Box>
+    <Grid gap='4' mx='2'>
+      <Flex>
         <Badge
           colorScheme={isSuccessCode(result.code) ? 'green' : 'red'}
           fontSize='md'
@@ -98,52 +103,52 @@ export function APIResult({ result }: APIResultProps) {
           Response Time: {result.totalTime}ms
           <Icon ml='1' as={FiClock} />
         </Tag>
+      </Flex>
 
-        <Heading size='sm' mt='4' mb='3'>
+      <Box>
+        <Heading size='sm'>
           Timings <Tag>of {result.totalTime}ms</Tag>
         </Heading>
 
-        <TimingBar width='80%' result={result} />
-
-        <Heading size='sm' mt='6' mb='3'>
-          Body <Tag colorScheme='gray'>{result.bodySize} bytes</Tag>
-        </Heading>
-
-        {result.body && (
-          <Box maxH='400' overflow='auto'>
-            <code>
-              <pre>{result.body}</pre>
-            </code>
-          </Box>
-        )}
-
-        <Heading size='md' mt='4'>
-          Headers
-        </Heading>
-
-        <Box>
-          <Table mt='2' variant='striped' size='md' maxW='100%'>
-            <Thead>
-              <Tr>
-                <Th minW='30%'>Name</Th>
-                <Th maxW='70%'>Value</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {(result.headers as MonitorTuples).map((header) => {
-                return (
-                  <Tr key={header[0] + header[1]}>
-                    <Td fontWeight='semibold' color='blue.500'>
-                      {header[0]}
-                    </Td>
-                    <Td>{header[1]} </Td>
-                  </Tr>
-                )
-              })}
-            </Tbody>
-          </Table>
-        </Box>
+        <TimingBar width='100%' result={result} />
       </Box>
-    </>
+
+      <Tabs overflow='auto'>
+        <TabList>
+          <Tab>
+            Body <Tag colorScheme='gray'>{result.bodySize}b</Tag>
+          </Tab>
+          <Tab>Headers</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel>
+            <pre>{result.body}</pre>
+          </TabPanel>
+          <TabPanel>
+            {' '}
+            <Table mt='2' variant='striped' size='md' maxW='100%'>
+              <Thead>
+                <Tr>
+                  <Th minW='30%'>Name</Th>
+                  <Th maxW='70%'>Value</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {(result.headers as MonitorTuples).map((header) => {
+                  return (
+                    <Tr key={header[0] + header[1]}>
+                      <Td fontWeight='semibold' color='blue.500'>
+                        {header[0]}
+                      </Td>
+                      <Td>{header[1]} </Td>
+                    </Tr>
+                  )
+                })}
+              </Tbody>
+            </Table>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+    </Grid>
   )
 }

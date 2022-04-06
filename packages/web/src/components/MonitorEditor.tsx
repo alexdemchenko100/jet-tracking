@@ -3,7 +3,6 @@ import {
   Button,
   Checkbox,
   CheckboxGroup,
-  Divider,
   Flex,
   FormControl,
   FormLabel,
@@ -484,13 +483,13 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
   }
 
   return (
-    <Box>
+    <Box mx='2'>
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(handleCreation)}>
           <Box>
             <Flex minH='100vh' justify='start' direction='column'>
               <Flex justify='start' alignItems='end' mt='4'>
-                <FormControl id='method' maxW='32'>
+                <FormControl id='method' maxW='28'>
                   <Select color='blue.500' fontWeight='extrabold' {...register('method')}>
                     <option defaultValue='GET' value='GET'>
                       GET

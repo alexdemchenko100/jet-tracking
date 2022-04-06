@@ -164,7 +164,7 @@ export default function Console() {
           </Flex>
         </Flex>
 
-        <Box as='main' p='4'>
+        <Box as='main' m='2'>
           {/* Add content here, remove div below  */}
           <Outlet />
         </Box>
