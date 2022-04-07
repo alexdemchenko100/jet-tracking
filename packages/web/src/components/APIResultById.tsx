@@ -5,6 +5,7 @@ import { APIResult } from './APIResult'
 
 interface Props {
   id: string
+  onClose?: () => void
 }
 
 /**
@@ -13,7 +14,7 @@ interface Props {
  * @param id
  * @returns
  */
-export function APIResultById({ id }: Props) {
+export function APIResultById({ id, onClose }: Props) {
   const {
     isLoading,
     data: result,
@@ -36,7 +37,7 @@ export function APIResultById({ id }: Props) {
     <>
       {isLoading && <p>Loading ...</p>}
       {error && <p>Err: {error.message}</p>}
-      {result && <APIResult result={result} />}
+      {result && <APIResult result={result} onClose={onClose} />}
     </>
   )
 }

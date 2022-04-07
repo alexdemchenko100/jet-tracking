@@ -4,7 +4,6 @@ import { useQuery } from 'react-query'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 
-import { useState } from 'react'
 import {
   Table,
   Thead,
@@ -20,9 +19,6 @@ import {
   Spacer,
   Heading,
   Tag,
-  Drawer,
-  DrawerContent,
-  DrawerOverlay,
   useDisclosure,
 } from '@chakra-ui/react'
 import {
@@ -36,7 +32,6 @@ import {
 
 import { useTable, useSortBy, usePagination, Column, useRowSelect } from 'react-table'
 import { useParams } from 'react-router-dom'
-import { APIResultById } from './APIResultById'
 
 dayjs.extend(relativeTime)
 
@@ -74,9 +69,11 @@ const columns: Column<MonitorResult>[] = [
   },
 ]
 
-export function MonitorResultTable() {
-  const [currentMonId, setCurrentMonId] = useState<string>()
+interface MonitorResultTableProps {
+  onShowMonitorResult: (monitorId: string) => void
+}
 
+export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTableProps) {
   const { id } = useParams()
 
   async function getMonitorResults() {
@@ -180,8 +177,9 @@ export function MonitorResultTable() {
                   <Tr
                     className='tr1'
                     onClick={() => {
-                      setCurrentMonId(row.original.id)
-                      drawer.onOpen()
+                      if (row.original.id) {
+                        onShowMonitorResult(row.original.id)
+                      }
                       toggleAllRowsSelected(false)
                       toggleRowSelected(row.id, true)
                     }}
@@ -286,17 +284,6 @@ export function MonitorResultTable() {
           />
         </Flex>
       </Flex>
-
-      {currentMonId && (
-        <Drawer isOpen={drawer.isOpen} onClose={drawer.onClose} placement='right' size='xl'>
-          <DrawerOverlay />
-          <DrawerContent>
-            <Box ml='4'>
-              <APIResultById id={currentMonId} />
-            </Box>
-          </DrawerContent>
-        </Drawer>
-      )}
     </>
   )
 }

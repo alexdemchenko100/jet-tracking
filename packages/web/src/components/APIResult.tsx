@@ -156,7 +156,7 @@ export function APIResult({ result, onClose }: APIResultProps) {
   const isSuccessCode = (code: number) => code >= 200 && code < 300
 
   return (
-    <Grid gap='4' mx='2'>
+    <Grid gap='1em' mx='2'>
       <Flex alignItems='center'>
         <Badge
           colorScheme={isSuccessCode(result.code) ? 'green' : 'red'}

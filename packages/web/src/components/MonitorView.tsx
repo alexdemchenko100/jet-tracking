@@ -18,6 +18,7 @@ import {
   MenuItemOption,
   MenuList,
   Tag,
+  useBreakpointValue,
   useDisclosure,
 } from '@chakra-ui/react'
 import { Monitor } from '@httpmon/db'
@@ -27,8 +28,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 import MonitorResultTable from './MonitorResultTable'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { MonitorTimeChart } from './MonitorTimeChart'
+import SplitPane from './SplitPane'
+import { APIResultById } from './APIResultById'
 
 dayjs.extend(duration)
 
@@ -115,6 +118,14 @@ export function MonitorView() {
     return <p>Missing id: Need to show stats</p>
   }
 
+  const [monitorResultId, setMonitorResultId] = useState<string>()
+
+  function onShowMonitorResult(id: string) {
+    setMonitorResultId(id)
+  }
+
+  const vertical = useBreakpointValue({ base: true, lg: false })
+
   const {
     isLoading,
     data: mon,
@@ -130,61 +141,66 @@ export function MonitorView() {
   const freqFormat = useMemo(() => formatFrequency(mon?.frequency ?? 0), [mon])
 
   return (
-    <Grid gap='1em'>
-      <Flex justifyContent='end'>
-        <Menu>
-          <MenuButton
-            alignSelf='center'
-            variant='outline'
-            mx='1em'
-            size='sm'
-            as={Button}
-            colorScheme='blue'
-            onClick={() => navigate(`/console/monitors/${id}/edit`)}
-          >
-            Edit
-          </MenuButton>
-        </Menu>
-        <Menu>
-          <MenuButton
-            alignSelf='center'
-            rightIcon={<ChevronDownIcon />}
-            variant='outline'
-            mx='1em'
-            size='sm'
-            as={Button}
-            colorScheme='blue'
-          >
-            Actions
-          </MenuButton>
-          <MenuList color='gray.800' zIndex='3'>
-            <MenuGroup onChange={(e) => {}}>
-              <DoubleCheckDelete id={id} />
-            </MenuGroup>
-          </MenuList>
-        </Menu>
-      </Flex>
+    <SplitPane orientation={vertical ? 'vertical' : 'horizontal'}>
+      <Grid gap='1em'>
+        <Flex justifyContent='end'>
+          <Menu>
+            <MenuButton
+              alignSelf='center'
+              variant='outline'
+              mx='1em'
+              size='sm'
+              as={Button}
+              colorScheme='blue'
+              onClick={() => navigate(`/console/monitors/${id}/edit`)}
+            >
+              Edit
+            </MenuButton>
+          </Menu>
+          <Menu>
+            <MenuButton
+              alignSelf='center'
+              rightIcon={<ChevronDownIcon />}
+              variant='outline'
+              mx='1em'
+              size='sm'
+              as={Button}
+              colorScheme='blue'
+            >
+              Actions
+            </MenuButton>
+            <MenuList color='gray.800' zIndex='3'>
+              <MenuGroup onChange={(e) => {}}>
+                <DoubleCheckDelete id={id} />
+              </MenuGroup>
+            </MenuList>
+          </Menu>
+        </Flex>
 
-      {mon && (
-        <>
-          <Heading size='lg'>{mon.name}</Heading>
-          <Flex alignItems='center'>
-            <Tag size='md' colorScheme='blue'>
-              {mon.method}
-            </Tag>
-            <Heading size='md' ml='4'>
-              {mon.url}
-            </Heading>
-            <Tag size='lg' ml='4' colorScheme='green'>
-              {freqFormat}
-            </Tag>
-          </Flex>
-          <MonitorTimeChart id={id} width='800px' height='200px' />
-        </>
+        {mon && (
+          <>
+            <Heading size='lg'>{mon.name}</Heading>
+            <Flex alignItems='center'>
+              <Tag size='md' colorScheme='blue'>
+                {mon.method}
+              </Tag>
+              <Heading size='md' ml='4'>
+                {mon.url}
+              </Heading>
+              <Tag size='lg' ml='4' colorScheme='green'>
+                {freqFormat}
+              </Tag>
+            </Flex>
+            <MonitorTimeChart id={id} width='800px' height='200px' />
+          </>
+        )}
+
+        <Divider />
+        <MonitorResultTable onShowMonitorResult={setMonitorResultId} />
+      </Grid>
+      {monitorResultId && (
+        <APIResultById id={monitorResultId} onClose={() => setMonitorResultId(undefined)} />
       )}
-
-      <Divider />
-      <MonitorResultTable />
-    </Grid>
+    </SplitPane>
   )
 }
