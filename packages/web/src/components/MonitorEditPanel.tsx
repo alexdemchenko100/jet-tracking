@@ -18,6 +18,11 @@ export function MonitorEditPanel() {
     drawer.onOpen()
   }
 
+  function onClose() {
+    setOndemandMonitor(undefined)
+    drawer.onClose()
+  }
+
   return (
     <Box>
       <SplitPane orientation={vertical ? 'vertical' : 'horizontal'}>
@@ -26,7 +31,7 @@ export function MonitorEditPanel() {
         </Box>
         {drawer.isOpen && (
           <Box overflow='auto'>
-            <APIResultByDemand onDemandMonitor={ondemandMonitor} />
+            <APIResultByDemand onDemandMonitor={ondemandMonitor} onClose={onClose} />
           </Box>
         )}
       </SplitPane>

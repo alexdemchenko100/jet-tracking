@@ -7,6 +7,7 @@ import { APIResult } from './APIResult'
 type OnDemandMon = Pick<Monitor, 'method' | 'url' | 'headers' | 'queryParams'>
 interface Props {
   onDemandMonitor?: OnDemandMon
+  onClose?: () => void
 }
 
 export function APIResultByDemand(props: Props) {
@@ -47,7 +48,7 @@ export function APIResultByDemand(props: Props) {
       {isLoading && <p>Loading ...</p>}
       {error && <p>Err: {error.message}</p>}
       {!props.onDemandMonitor && <p>Results will be shown here</p>}
-      {result && <APIResult result={result} />}
+      {result && <APIResult result={result} onClose={props.onClose} />}
     </>
   )
 }

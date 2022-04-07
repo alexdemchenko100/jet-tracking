@@ -1,6 +1,7 @@
 import {
   Badge,
   Box,
+  Button,
   Center,
   Flex,
   FlexProps,
@@ -22,7 +23,7 @@ import {
   Tr,
 } from '@chakra-ui/react'
 import { MonitorResult, MonitorTuples } from '@httpmon/db'
-import { FiClock } from 'react-icons/fi'
+import { FiClock, FiX } from 'react-icons/fi'
 import CodeMirror from '@uiw/react-codemirror'
 import { javascript } from '@codemirror/lang-javascript'
 
@@ -126,10 +127,32 @@ function AssertionResults({ result }: { result: MonitorResult }) {
     </Table>
   )
 }
+
+function formatBodySize(size: number) {
+  if (size < 1024) {
+    return `${size} B`
+  }
+  if (size < 1024 * 1024) {
+    return `${(size / 1024).toFixed(2)} KB`
+  }
+  if (size < 1024 * 1024 * 1024) {
+    return `${(size / 1024 / 1024).toFixed(2)} MB`
+  }
+  return `${(size / 1024 / 1024 / 1024).toFixed(2)} GB`
+}
+
+function hasFailedAssertions(result: MonitorResult) {
+  if (!Array.isArray(result.assertResults)) {
+    return false
+  }
+  return result.assertResults?.some((res) => res.fail)
+}
+
 interface APIResultProps {
   result: MonitorResult
+  onClose?: () => void
 }
-export function APIResult({ result }: APIResultProps) {
+export function APIResult({ result, onClose }: APIResultProps) {
   const isSuccessCode = (code: number) => code >= 200 && code < 300
 
   return (
@@ -150,6 +173,12 @@ export function APIResult({ result }: APIResultProps) {
           Response: {result.totalTime}ms
           <Icon ml='1' as={FiClock} />
         </Tag>
+
+        {onClose && (
+          <Button ml='auto' onClick={onClose}>
+            <Icon as={FiX} cursor='pointer' />
+          </Button>
+        )}
       </Flex>
 
       <TimingBar width='100%' result={result} />
@@ -157,10 +186,22 @@ export function APIResult({ result }: APIResultProps) {
       <Tabs overflow='auto'>
         <TabList>
           <Tab>
-            Body <Tag colorScheme='gray'>{result.bodySize}b</Tag>
+            Body
+            <Text color='green'>&nbsp;{formatBodySize(result.bodySize)}</Text>
           </Tab>
-          <Tab>Headers</Tab>
-          <Tab>Tests</Tab>
+          <Tab>
+            Headers
+            {result.headers && <sup color='green'>&nbsp;{result.headers.length}</sup>}
+          </Tab>
+
+          <Tab>
+            Tests
+            {result.assertResults && (
+              <sup color={hasFailedAssertions(result) ? 'red' : 'green'}>
+                &nbsp;{result.assertResults.length}
+              </sup>
+            )}
+          </Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
