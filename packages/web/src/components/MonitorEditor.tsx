@@ -36,6 +36,8 @@ import { useMutation, useQuery } from 'react-query'
 import axios from 'axios'
 import { useNavigate, useParams } from 'react-router-dom'
 import { MonitorAuthEditor } from './MonitorAuthEditor'
+import CodeMirror from '@uiw/react-codemirror'
+import { javascript } from '@codemirror/lang-javascript'
 
 const freqConfig: [numSeconds: number, label: string][] = [
   [10, '10s'],
@@ -357,6 +359,7 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
 
   const {
     register,
+    control,
     reset,
     watch,
     handleSubmit,
@@ -517,12 +520,10 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
 
               <Tabs mt='4'>
                 <TabList>
-                  {watched.method != 'GET' && (
-                    <Tab>
-                      Body
-                      {watched.body && watched.body.length > 0 && <sup color='green'>1</sup>}
-                    </Tab>
-                  )}
+                  <Tab>
+                    Body
+                    {watched.body && watched.body.length > 0 && <sup color='green'>1</sup>}
+                  </Tab>
                   <Tab>
                     Headers
                     {numValues('headers') > 0 && (
@@ -546,15 +547,26 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
                 </TabList>
 
                 <TabPanels>
-                  {watched.method != 'GET' && (
-                    <TabPanel>
-                      <BodyInput />
-                      {watched.bodyType != '' && (
-                        <Textarea mt='4' h='36' {...register('body')}></Textarea>
-                      )}
-                    </TabPanel>
-                  )}
-
+                  <TabPanel>
+                    <BodyInput />
+                    {watched.bodyType != '' && (
+                      <Controller
+                        control={control}
+                        name='body'
+                        render={({ field }) => {
+                          return (
+                            <CodeMirror
+                              height='200px'
+                              extensions={[javascript({ jsx: true })]}
+                              onChange={(value, viewUpdate) => {
+                                field.onChange(value)
+                              }}
+                            />
+                          )
+                        }}
+                      />
+                    )}
+                  </TabPanel>
                   <TabPanel>
                     <TupleEditor name='headers' />
                   </TabPanel>
@@ -571,7 +583,7 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
               </Tabs>
 
               <Heading size='sm' mt='10' mb='4'>
-                Choose Test Criteria For Success
+                Choose Test Criteria
               </Heading>
               <Assertions />
 

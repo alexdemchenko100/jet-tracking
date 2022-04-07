@@ -15,6 +15,7 @@ const customGot = got.extend({
     'user-agent': 'API Checker/1.0',
   },
   timeout: { request: 10000 },
+  allowGetBody: true,
 })
 
 Handlebars.registerHelper('RandomInt', function () {
@@ -169,7 +170,7 @@ export async function execMonitor(monitor: Monitor) {
   try {
     const resp = await customGot(mon.url, {
       method: mon.method as Method,
-      body: Boolean(mon.body) ? mon.body : undefined,
+      body: Boolean(mon.body) && Boolean(mon.bodyType) ? mon.body : undefined,
       agent: {
         https: new https.Agent({ keepAlive: false }),
       },

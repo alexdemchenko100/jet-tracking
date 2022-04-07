@@ -23,6 +23,8 @@ import {
 } from '@chakra-ui/react'
 import { MonitorResult, MonitorTuples } from '@httpmon/db'
 import { FiClock } from 'react-icons/fi'
+import CodeMirror from '@uiw/react-codemirror'
+import { javascript } from '@codemirror/lang-javascript'
 
 interface TimingBarProps extends FlexProps {
   result: MonitorResult
@@ -162,7 +164,11 @@ export function APIResult({ result }: APIResultProps) {
         </TabList>
         <TabPanels>
           <TabPanel>
-            <pre>{result.body}</pre>
+            <CodeMirror
+              editable={false}
+              value={result.body}
+              extensions={[javascript({ jsx: true })]}
+            />
           </TabPanel>
           <TabPanel>
             <Table mt='2' variant='striped' size='md' maxW='100%'>
