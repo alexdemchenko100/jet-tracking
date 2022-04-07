@@ -21,14 +21,15 @@ if (process.env.NODE_ENV === 'production') {
     root: path.join(process.cwd(), './packages/web/dist/'),
     prefix: '/', // optional: default '/'
   })
-  server.setNotFoundHandler((req, reply) => {
+  server.setNotFoundHandler(async (req, reply) => {
     //this is hack with knowledge of route prefix /api built in
     //unfortunately, router-specifc handler is not being called
     if (req.url.startsWith('/api')) {
       reply.code(404).send('not found')
       return
     }
-    reply.sendFile('index.html')
+    //@ts-ignore
+    await reply.sendFile('index.html')
   })
 } else {
   server.register(fastifyCors)

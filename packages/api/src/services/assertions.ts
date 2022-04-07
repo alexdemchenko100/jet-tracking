@@ -96,7 +96,11 @@ export function processAssertions(
             wrap: false,
           })
 
-          resp = checkAssertion(assertion, JSON.stringify(result))
+          if (typeof result === 'string') {
+            resp = checkAssertion(assertion, result)
+          } else {
+            resp = checkAssertion(assertion, JSON.stringify(result))
+          }
         } catch (e) {}
         break
     }
