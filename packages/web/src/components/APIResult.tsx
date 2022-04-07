@@ -148,6 +148,23 @@ function hasFailedAssertions(result: MonitorResult) {
   return result.assertResults?.some((res) => res.fail)
 }
 
+function isContentTypeJson(result: MonitorResult) {
+  if (!Array.isArray(result.headers)) {
+    return false
+  }
+  return result.headers.some(
+    (header) => header[0].toLowerCase() === 'content-type' && header[1].includes('json')
+  )
+}
+
+function getFormattedBody(result: MonitorResult) {
+  if (isContentTypeJson(result) && result.body) {
+    if (result.body.length > 0 && !result.body.match(/\n/))
+      return JSON.stringify(JSON.parse(result.body), null, 2)
+  }
+  return result.body
+}
+
 interface APIResultProps {
   result: MonitorResult
   onClose?: () => void
@@ -207,7 +224,7 @@ export function APIResult({ result, onClose }: APIResultProps) {
           <TabPanel>
             <CodeMirror
               editable={false}
-              value={result.body}
+              value={getFormattedBody(result)}
               extensions={[javascript({ jsx: true })]}
             />
           </TabPanel>
