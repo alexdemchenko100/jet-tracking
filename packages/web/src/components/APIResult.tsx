@@ -187,7 +187,7 @@ export function APIResult({ result, onClose }: APIResultProps) {
           {result.url || 'unknown'}
         </Tag>
         <Tag colorScheme='gray' fontSize='md' fontWeight='bold' ml='12'>
-          Response: {result.totalTime}ms
+          Response Time: {result.totalTime}ms
           <Icon ml='1' as={FiClock} />
         </Tag>
 
