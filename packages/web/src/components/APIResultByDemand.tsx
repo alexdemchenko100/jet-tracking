@@ -7,6 +7,7 @@ import { browserExecMonitor } from '../services/BrowserAPIExec'
 
 interface Props {
   onDemandMonitor?: Monitor
+  refresh?: number
   onClose?: () => void
 }
 
@@ -36,7 +37,7 @@ export function APIResultByDemand(props: Props) {
     data: result,
     error,
   } = useQuery<MonitorResult, Error>(
-    ['ondemand', props.onDemandMonitor],
+    ['ondemand', [props.refresh || 0, props.onDemandMonitor]],
     () => getOndemandMonitorResponse(props.onDemandMonitor as Monitor),
     {
       enabled: props.onDemandMonitor != null,

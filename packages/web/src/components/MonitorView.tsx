@@ -15,6 +15,7 @@ import {
   Menu,
   MenuButton,
   MenuGroup,
+  MenuItem,
   MenuItemOption,
   MenuList,
   Tag,
@@ -32,6 +33,7 @@ import { useMemo, useRef, useState } from 'react'
 import { MonitorTimeChart } from './MonitorTimeChart'
 import SplitPane from './SplitPane'
 import { APIResultById } from './APIResultById'
+import { APIResultByDemand } from './APIResultByDemand'
 
 dayjs.extend(duration)
 
@@ -80,7 +82,7 @@ function DoubleCheckDelete({ id }: DeleteProps) {
 
   return (
     <>
-      <MenuItemOption onClick={onOpen}>Delete</MenuItemOption>
+      <MenuItem onClick={onOpen}>Delete</MenuItem>
       <AlertDialog
         motionPreset='slideInBottom'
         leastDestructiveRef={cancelRef}
@@ -119,8 +121,11 @@ export function MonitorView() {
   }
 
   const [monitorResultId, setMonitorResultId] = useState<string>()
+  const [monitorOnDemandId, setMonitorOnDemandId] = useState<string>()
+  const [refreshOnDemand, setRefreshOnDemand] = useState(0)
 
   function onShowMonitorResult(id: string) {
+    setMonitorOnDemandId(undefined)
     setMonitorResultId(id)
   }
 
@@ -144,19 +149,21 @@ export function MonitorView() {
     <SplitPane orientation={vertical ? 'vertical' : 'horizontal'}>
       <Grid gap='1em'>
         <Flex justifyContent='end'>
-          <Menu>
-            <MenuButton
-              alignSelf='center'
-              variant='outline'
-              mx='1em'
-              size='sm'
-              as={Button}
-              colorScheme='blue'
-              onClick={() => navigate(`/console/monitors/${id}/edit`)}
-            >
-              Edit
-            </MenuButton>
-          </Menu>
+          <Button
+            alignSelf='center'
+            variant='solid'
+            mx='1em'
+            size='sm'
+            colorScheme='green'
+            onClick={() => {
+              setMonitorOnDemandId(mon?.id ?? '')
+              setRefreshOnDemand(refreshOnDemand + 1)
+              setMonitorResultId(undefined)
+            }}
+          >
+            Run now!
+          </Button>
+
           <Menu>
             <MenuButton
               alignSelf='center'
@@ -170,9 +177,8 @@ export function MonitorView() {
               Actions
             </MenuButton>
             <MenuList color='gray.800' zIndex='3'>
-              <MenuGroup onChange={(e) => {}}>
-                <DoubleCheckDelete id={id} />
-              </MenuGroup>
+              <MenuItem onClick={() => navigate(`/console/monitors/${id}/edit`)}>Edit</MenuItem>
+              <DoubleCheckDelete id={id} />
             </MenuList>
           </Menu>
         </Flex>
@@ -196,10 +202,19 @@ export function MonitorView() {
         )}
 
         <Divider />
-        <MonitorResultTable onShowMonitorResult={setMonitorResultId} />
+        <MonitorResultTable onShowMonitorResult={onShowMonitorResult} />
       </Grid>
-      {monitorResultId && (
+      {monitorResultId ? (
         <APIResultById id={monitorResultId} onClose={() => setMonitorResultId(undefined)} />
+      ) : (
+        monitorOnDemandId &&
+        mon && (
+          <APIResultByDemand
+            onDemandMonitor={mon}
+            refresh={refreshOnDemand}
+            onClose={() => setMonitorOnDemandId(undefined)}
+          />
+        )
       )}
     </SplitPane>
   )

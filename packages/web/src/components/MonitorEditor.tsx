@@ -491,7 +491,7 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
         <form onSubmit={handleSubmit(handleCreation)}>
           <Box>
             <Flex minH='100vh' justify='start' direction='column'>
-              <Flex justify='start' alignItems='end' mt='4'>
+              <Flex justify='start' alignItems='end'>
                 <FormControl id='method' maxW='28'>
                   <Select color='blue.500' fontWeight='extrabold' {...register('method')}>
                     <option defaultValue='GET' value='GET'>

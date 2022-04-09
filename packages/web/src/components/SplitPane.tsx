@@ -72,8 +72,6 @@ const useDrag = (
 
   let gridTemplateProp = `${paneGridSize} ${handleSize}px 1fr`
 
-  console.log('enableSplit', enableSplit)
-
   const gridProp = isHorizontal
     ? {
         gridTemplateColumns: enableSplit ? gridTemplateProp : '1fr',
@@ -98,7 +96,6 @@ const SplitPane = ({ orientation, children, ...props }: SplitPaneProps) => {
   let pane1 = children ? children[0] : null
   let handle = children && children?.length === 3 ? children[1] : null
   let pane2 = handle ? children[2] : children[1]
-  console.log('pane2', pane2)
 
   const { isHorizontal, onMouseDown, gridTemplateColumns, gridTemplateRows } = useDrag(
     orientation,
@@ -132,8 +129,6 @@ const SplitPane = ({ orientation, children, ...props }: SplitPaneProps) => {
 
   // TODO: find handle component by using the type of the children
   // console.log("handle.type is DragHandle", handle?.type === DragHandle);
-  console.log('cols', gridTemplateColumns)
-  console.log('rows', gridTemplateRows)
 
   return (
     <div
