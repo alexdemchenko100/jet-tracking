@@ -38,6 +38,7 @@ import { useState } from 'react'
 type FilterOptionType = {
   label: string
   value: string
+  colorScheme?: string
 }
 
 dayjs.extend(relativeTime)
@@ -86,7 +87,7 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
   const [startDate, setStartDate] = useState(dayjs().subtract(7, 'day').toDate())
   const [endDate, setEndDate] = useState(dayjs().toDate())
   const [locations, setLocations] = useState<FilterOptionType[]>()
-  const [status, setStatus] = useState<FilterOptionType>()
+  const [status, setStatus] = useState<FilterOptionType[]>()
   const [timePeriod, setTimePeriod] = useState<FilterOptionType>()
 
   function onSetLocation(value: FilterOptionType[]) {
@@ -97,12 +98,27 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
     setLocations(value)
   }
 
-  function onSetStatus(value: FilterOptionType) {
-    if (value.value === 'all') {
+  function onSetStatus(value: FilterOptionType[]) {
+    if (value.some((v) => v.value === 'all')) {
       setStatus(undefined)
       return
     }
     setStatus(value)
+  }
+
+  function getTimePeriod(value: FilterOptionType) {
+    switch (value.value) {
+      case 'last-week':
+        return [dayjs().subtract(7, 'day').toDate(), dayjs().toDate()]
+      case 'last-month':
+        return [dayjs().subtract(1, 'month').toDate(), dayjs().toDate()]
+      case 'last-day':
+        return [dayjs().subtract(24, 'hour').toDate(), dayjs().toDate()]
+      case 'last-hour':
+        return [dayjs().subtract(1, 'hour').toDate(), dayjs().toDate()]
+      default:
+        return [startDate || '', endDate || '']
+    }
   }
 
   async function getMonitorResults() {
@@ -114,7 +130,7 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
         endTime: endDate.toISOString(),
         locations:
           locations && locations.length > 0 ? locations?.map((v) => v.value).join(',') : undefined,
-        status: status?.value,
+        status: status && status.length > 0 ? status?.map((v) => v.value).join(',') : undefined,
       },
     })
 
@@ -154,15 +170,12 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
     canNextPage,
     canPreviousPage,
     pageOptions,
-    gotoPage,
-    pageCount,
     state,
     toggleRowSelected,
     toggleAllRowsSelected,
   } = tableInstance
 
   const { pageIndex } = state
-  const drawer = useDisclosure()
 
   return (
     <>
@@ -187,7 +200,7 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
                 value: 'last-hour',
               },
               {
-                label: 'Last Day',
+                label: 'Last 24 Hours',
                 value: 'last-day',
               },
               {
@@ -224,19 +237,22 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
             ]}
           />
         </Box>
-        <Box width='200px' ml='4'>
+        <Box width='280px' ml='4'>
           <Select
-            placeholder='All results'
+            isMulti
+            placeholder='All Results'
             value={status}
-            onChange={(value) => onSetStatus(value as FilterOptionType)}
+            onChange={(value) => onSetStatus(value as FilterOptionType[])}
             options={[
               {
-                label: 'Success',
-                value: 'success',
+                label: 'OK',
+                value: 'ok',
+                colorScheme: 'green',
               },
               {
-                label: 'Failed',
-                value: 'fail',
+                label: 'Error',
+                value: 'error',
+                colorScheme: 'red',
               },
               {
                 label: 'All Results',
