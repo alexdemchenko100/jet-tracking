@@ -6,6 +6,15 @@ import pino from 'pino'
 
 const logger = pino()
 
+export interface ResultQueryString {
+  startTime: string
+  endTime: string
+  limit: number
+  offset: number
+  ok?: boolean
+  locations: string
+}
+
 /**
  *
  * Super hacky function to go around type safety
@@ -92,6 +101,15 @@ export class MonitorService {
 
   /**
    * Reads the last 100 monitor results for the given monitor
+   *
+   * Ideally:
+   *
+   * - We should be able to query for results in a given time range
+   *  (e.g. last 15 mins, 1 hour, 3 hours, 1 day, 7 days, 30 days, custom range)
+   *
+   * - We should be able to query for results for a given location
+   * - We should be able to query for results for successful or failed
+   *
    */
   public async getMonitorResults(monitorId?: string) {
     //having a const column array causes type error which is weird
@@ -125,6 +143,55 @@ export class MonitorService {
       .limit(100)
       .orderBy('MonitorResult.createdAt', 'desc')
       .execute()
+
+    return results
+  }
+
+  public async getMonitorResultsEx(
+    monitorId: string,
+    query: ResultQueryString
+  ) {
+    logger.info(query, 'query')
+    const locations = query.locations ? query.locations.split(',') : []
+    logger.info(locations, 'locations')
+
+    //having a const column array causes type error which is weird
+    const results = await db
+      .selectFrom('MonitorResult')
+      .select([
+        'id',
+        'monitorId',
+        'url',
+        'code',
+        'codeStatus',
+        'createdAt',
+        'waitTime',
+        'dnsTime',
+        'tcpTime',
+        'tlsTime',
+        'uploadTime',
+        'ttfb',
+        'downloadTime',
+        'totalTime',
+        'ip',
+        'location',
+        'err',
+        'protocol',
+        'ttfb',
+        'assertResults',
+      ])
+      .if(Boolean(monitorId), (qb) =>
+        qb.where('monitorId', '=', monitorId as string)
+      )
+      .orderBy('MonitorResult.createdAt', 'desc')
+      .where('createdAt', '>=', query.startTime)
+      .where('createdAt', '<', query.endTime)
+      .if(locations.length > 0, (qb) => qb.where('location', 'in', locations))
+      .limit(query.limit)
+      .offset(query.offset)
+      .execute()
+
+    logger.info(results, 'resultsEx')
 
     return results
   }

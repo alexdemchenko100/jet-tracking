@@ -15,7 +15,6 @@ import {
   Box,
   IconButton,
   Flex,
-  Input,
   Spacer,
   Heading,
   Tag,
@@ -32,6 +31,14 @@ import {
 
 import { useTable, useSortBy, usePagination, Column, useRowSelect } from 'react-table'
 import { useParams } from 'react-router-dom'
+import { Select } from 'chakra-react-select'
+import { DatePicker } from './DatePicker/DatePicker'
+import { useState } from 'react'
+
+type FilterOptionType = {
+  label: string
+  value: string
+}
 
 dayjs.extend(relativeTime)
 
@@ -76,10 +83,39 @@ interface MonitorResultTableProps {
 export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTableProps) {
   const { id } = useParams()
 
+  const [startDate, setStartDate] = useState(dayjs().subtract(7, 'day').toDate())
+  const [endDate, setEndDate] = useState(dayjs().toDate())
+  const [locations, setLocations] = useState<FilterOptionType[]>()
+  const [status, setStatus] = useState<FilterOptionType>()
+  const [timePeriod, setTimePeriod] = useState<FilterOptionType>()
+
+  function onSetLocation(value: FilterOptionType[]) {
+    if (value.some((v) => v.value === 'all')) {
+      setLocations(undefined)
+      return
+    }
+    setLocations(value)
+  }
+
+  function onSetStatus(value: FilterOptionType) {
+    if (value.value === 'all') {
+      setStatus(undefined)
+      return
+    }
+    setStatus(value)
+  }
+
   async function getMonitorResults() {
     let resp = await axios({
       method: 'GET',
-      url: '/monitors/' + id + '/results',
+      url: '/monitors/' + id + '/resultsEx',
+      params: {
+        startTime: startDate.toISOString(),
+        endTime: endDate.toISOString(),
+        locations:
+          locations && locations.length > 0 ? locations?.map((v) => v.value).join(',') : undefined,
+        status: status?.value,
+      },
     })
 
     if (resp.status == 200) {
@@ -89,8 +125,9 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
     throw Error('Failed to get odemand results')
   }
 
-  const { data: results } = useQuery<MonitorResult[], Error>(['monitor-result', id], () =>
-    getMonitorResults()
+  const { data: results } = useQuery<MonitorResult[], Error>(
+    ['monitor-result', id, locations, status],
+    () => getMonitorResults()
   )
 
   const tableInstance = useTable(
@@ -132,6 +169,84 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
       <Heading size='sm' mb='4'>
         Monitor Results
       </Heading>
+      <Flex zIndex='2'>
+        <Box width='200px'>
+          <Select
+            defaultValue={{
+              label: 'Last 1 Hour',
+              value: 'last-hour',
+            }}
+            value={timePeriod}
+            onChange={(value) => {
+              setTimePeriod(value as FilterOptionType)
+            }}
+            placeholder='Time Period'
+            options={[
+              {
+                label: 'Last 1 Hour',
+                value: 'last-hour',
+              },
+              {
+                label: 'Last Day',
+                value: 'last-day',
+              },
+              {
+                label: 'Last Week',
+                value: 'last-week',
+              },
+              {
+                label: 'Last 20 Entries',
+                value: 'last-20',
+              },
+            ]}
+          />
+        </Box>
+        {/* <DatePicker selected={startDate} onChange={(date: Date) => setStartDate(date)} /> */}
+        <Box width='400px'>
+          <Select
+            isMulti
+            placeholder='All Locations'
+            value={locations}
+            onChange={(value) => onSetLocation(value as FilterOptionType[])}
+            options={[
+              {
+                label: 'US-East',
+                value: 'us-east',
+              },
+              {
+                label: 'Europe-West',
+                value: 'europe-west',
+              },
+              {
+                label: 'All Locations',
+                value: 'all',
+              },
+            ]}
+          />
+        </Box>
+        <Box width='200px' ml='4'>
+          <Select
+            placeholder='All results'
+            value={status}
+            onChange={(value) => onSetStatus(value as FilterOptionType)}
+            options={[
+              {
+                label: 'Success',
+                value: 'success',
+              },
+              {
+                label: 'Failed',
+                value: 'fail',
+              },
+              {
+                label: 'All Results',
+                value: 'all',
+              },
+            ]}
+          />
+        </Box>
+      </Flex>
+
       <Box maxH='30em' overflowY='scroll'>
         <Table {...getTableProps()} size='sm' variant='simple'>
           <Thead
@@ -209,18 +324,6 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
         <Spacer />
         <Flex alignContent='center'>
           <IconButton
-            aria-label='goto'
-            _focus={{ boxShadow: '' }}
-            _hover={{ backgroundColor: '' }}
-            _active={{ backgroundColor: '' }}
-            color='gray.800'
-            bg='white'
-            fontSize='15px'
-            icon={<ArrowLeftIcon />}
-            disabled={!canPreviousPage}
-            onClick={() => gotoPage(0)}
-          />
-          <IconButton
             aria-label='prev'
             _focus={{ boxShadow: '' }}
             _hover={{ backgroundColor: '' }}
@@ -246,41 +349,6 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
             icon={<ChevronRightIcon />}
             disabled={!canNextPage}
             onClick={() => nextPage()}
-          />
-          <IconButton
-            aria-label='gotoprev'
-            _focus={{ boxShadow: '' }}
-            _hover={{ backgroundColor: '' }}
-            _active={{ backgroundColor: '' }}
-            color='gray.800'
-            bg='white'
-            fontSize='15px'
-            icon={<ArrowRightIcon />}
-            disabled={!canNextPage}
-            onClick={() => gotoPage(pageCount - 1)}
-          />
-          <Text
-            m='0'
-            alignSelf='center'
-            borderRightColor=''
-            defaultChecked={Boolean(pageIndex + 1)}
-            borderColor='gray.300'
-            fontWeight='bold'
-            fontSize='sm'
-            whiteSpace='nowrap'
-          >
-            Go to page
-          </Text>
-          <Input
-            mx='5px'
-            alignSelf='center'
-            borderColor='gray.600'
-            onChange={(e) => {
-              let pageNumber = e.target.value ? Number(e.target.value) - 1 : 0
-              gotoPage(pageNumber)
-            }}
-            w='10%'
-            size='sm'
           />
         </Flex>
       </Flex>

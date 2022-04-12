@@ -1,3 +1,4 @@
+import { ResultQueryString } from './../services/MonitorService'
 import { execMonitor } from '../services/monitor-exec.js'
 import { MonitorService } from '../services/MonitorService.js'
 import { FastifyInstance } from 'fastify'
@@ -124,6 +125,38 @@ export default async function MonitorRouter(app: FastifyInstance) {
     },
     async function ({ params: { id } }, reply) {
       const results = await monitorSvc.getMonitorResults(id)
+      if (results) {
+        reply.send(results)
+      } else {
+        reply.code(404).send('Not found')
+      }
+    }
+  )
+
+  const ResultQueryParamsSchema = S.object()
+    .prop('startTime', S.string())
+    .required()
+    .prop('endTime', S.string())
+    .required()
+    .prop('limit', S.number().default(20))
+    .prop('offset', S.number().default(0))
+    .prop('ok', S.boolean())
+    .prop('locations', S.string())
+
+  app.get<{ Params: Params; Querystring: ResultQueryString }>(
+    '/:id/resultsEx',
+    {
+      schema: {
+        params: ParamsSchema,
+        querystring: ResultQueryParamsSchema,
+        response: { 200: MonitorResultFluentSchemaArray },
+      },
+    },
+    async function (req, reply) {
+      const results = await monitorSvc.getMonitorResultsEx(
+        req.params.id,
+        req.query
+      )
       if (results) {
         reply.send(results)
       } else {
