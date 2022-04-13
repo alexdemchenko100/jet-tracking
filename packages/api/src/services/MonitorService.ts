@@ -13,6 +13,7 @@ export interface ResultQueryString {
   offset: number
   status?: string
   locations: string
+  getTotals: boolean
 }
 
 /**
@@ -151,17 +152,35 @@ export class MonitorService {
     monitorId: string,
     query: ResultQueryString
   ) {
-    logger.info(query, 'query')
     const locations = query.locations ? query.locations.split(',') : []
     const okStatus = query.status?.includes('ok') ?? false
     const errStatus = query.status?.includes('err') ?? false
 
-    logger.info(okStatus, 'okStatus')
-    logger.info(errStatus, 'errStatus')
+    logger.error(query, 'query')
+    logger.error(okStatus, 'okStatus')
+    logger.error(errStatus, 'errStatus')
 
     //having a const column array causes type error which is weird
     let q = db
       .selectFrom('MonitorResult')
+      .if(Boolean(monitorId), (qb) =>
+        qb.where('monitorId', '=', monitorId as string)
+      )
+      .where('createdAt', '>=', new Date(query.startTime))
+      .where('createdAt', '<', new Date(query.endTime))
+      .if(locations.length > 0, (qb) => qb.where('location', 'in', locations))
+
+    if (okStatus || errStatus) {
+      if (okStatus && errStatus) {
+        q = q.where((qb) => qb.where('err', '<>', '').orWhere('err', '=', ''))
+      } else if (okStatus) {
+        q = q.where((qb) => qb.where('err', '=', ''))
+      } else {
+        q = q.where((qb) => qb.where('err', '<>', ''))
+      }
+    }
+
+    let queryResults = q
       .select([
         'id',
         'monitorId',
@@ -184,27 +203,31 @@ export class MonitorService {
         'ttfb',
         'assertResults',
       ])
-      .if(Boolean(monitorId), (qb) =>
-        qb.where('monitorId', '=', monitorId as string)
-      )
       .orderBy('MonitorResult.createdAt', 'desc')
-      .where('createdAt', '>=', query.startTime)
-      .if(locations.length > 0, (qb) => qb.where('location', 'in', locations))
       .offset(query.offset)
       .if(query.limit != undefined, (qb) => qb.limit(query.limit as number))
 
-    if (okStatus || errStatus) {
-      if (okStatus && errStatus) {
-        q = q.where((qb) => qb.where('err', '<>', '').orWhere('err', '=', ''))
-      } else if (okStatus) {
-        q = q.where((qb) => qb.where('err', '=', ''))
-      } else {
-        q = q.where((qb) => qb.where('err', '<>', ''))
+    logger.error(q.compile().sql, 'q')
+
+    const { count } = db.fn
+    logger.error(
+      q.select(count<number>('createdAt').as('numItems')).compile().sql,
+      'sql'
+    )
+
+    if (query.getTotals) {
+      let queryTotals = await q
+        .select(count<number>('createdAt').as('numItems'))
+        .execute()
+      return {
+        items: await queryResults.execute(),
+        totalItemCount: queryTotals[0].numItems,
+      }
+    } else {
+      return {
+        items: await queryResults.execute(),
       }
     }
-
-    const results = await q.execute()
-    return results
   }
 
   public async setEnv(monitorId: string, env: MonitorTuples) {

@@ -1,4 +1,4 @@
-import { MonitorResult } from '@httpmon/db'
+import { MonitorResult, MonitorResultQuery } from '@httpmon/db'
 import axios from 'axios'
 import { useQuery } from 'react-query'
 import dayjs from 'dayjs'
@@ -18,23 +18,18 @@ import {
   Spacer,
   Heading,
   Tag,
-  useDisclosure,
 } from '@chakra-ui/react'
 import {
   TriangleDownIcon,
   TriangleUpIcon,
   ChevronRightIcon,
-  ArrowRightIcon,
   ChevronLeftIcon,
-  ArrowLeftIcon,
 } from '@chakra-ui/icons'
 
 import { useTable, useSortBy, usePagination, Column, useRowSelect } from 'react-table'
 import { useParams } from 'react-router-dom'
 import { Select } from 'chakra-react-select'
-import { DatePicker } from './DatePicker/DatePicker'
-import { useState } from 'react'
-import { querystringDecode } from '.pnpm/@firebase+util@1.4.3/node_modules/@firebase/util'
+import { useEffect, useReducer, useState } from 'react'
 
 type FilterOptionType = {
   label: string
@@ -85,15 +80,60 @@ interface MonitorResultTableProps {
 export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTableProps) {
   const { id } = useParams()
 
-  const [startDate, setStartDate] = useState(dayjs().subtract(7, 'day').toDate())
-  const [endDate, setEndDate] = useState(dayjs().toDate())
   const [locations, setLocations] = useState<FilterOptionType[]>()
   const [status, setStatus] = useState<FilterOptionType[]>()
   const [timePeriod, setTimePeriod] = useState<FilterOptionType>()
+  const [totalItemCount, setTotalItemCount] = useState<number>()
+  const [startDate, setStartDate] = useState<string | undefined>()
+  const [endDate, setEndDate] = useState<string | undefined>()
+
+  if (!timePeriod) {
+    setTimePeriodEx({ label: 'Last 1 Hour', value: 'last-hour' })
+  }
+
+  type PaginationState = {
+    queryPageIndex: number
+    queryPageSize: number
+    totalItemCount?: number
+  }
+
+  const initialState: PaginationState = {
+    queryPageIndex: 0,
+    queryPageSize: 10,
+  }
+
+  const PAGE_CHANGED = 'PAGE_CHANGED'
+  const PAGE_SIZE_CHANGED = 'PAGE_SIZE_CHANGED'
+  const TOTAL_COUNT_CHANGED = 'TOTAL_COUNT_CHANGED'
+
+  const reducer = (
+    state: PaginationState,
+    { type, payload }: { type: string; payload: number }
+  ) => {
+    switch (type) {
+      case PAGE_CHANGED:
+        return {
+          ...state,
+          queryPageIndex: payload,
+        }
+      case PAGE_SIZE_CHANGED:
+        return {
+          ...state,
+          queryPageSize: payload,
+        }
+      case TOTAL_COUNT_CHANGED:
+        return {
+          ...state,
+          totalCount: payload,
+        }
+      default:
+        throw new Error(`Unhandled action type: ${type}`)
+    }
+  }
 
   function onSetLocation(value: FilterOptionType[]) {
     if (value.some((v) => v.value === 'all')) {
-      setLocations(undefined)
+      setLocations([] as FilterOptionType[])
       return
     }
     setLocations(value)
@@ -101,7 +141,7 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
 
   function onSetStatus(value: FilterOptionType[]) {
     if (value.some((v) => v.value === 'all')) {
-      setStatus(undefined)
+      setStatus([] as FilterOptionType[])
       return
     }
     setStatus(value)
@@ -110,53 +150,90 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
   function getTimePeriod(timePeriod?: string) {
     switch (timePeriod) {
       case 'last-week':
-        return [dayjs().subtract(7, 'day').toDate(), dayjs().toDate()]
+        return [dayjs().subtract(7, 'day').toISOString(), dayjs().toISOString()]
       case 'last-month':
-        return [dayjs().subtract(1, 'month').toDate(), dayjs().toDate()]
+        return [dayjs().subtract(1, 'month').toISOString(), dayjs().toISOString()]
       case 'last-day':
-        return [dayjs().subtract(24, 'hour').toDate(), dayjs().toDate()]
+        return [dayjs().subtract(24, 'hour').toISOString(), dayjs().toISOString()]
       case 'last-hour':
-        return [dayjs().subtract(1, 'hour').toDate(), dayjs().toDate()]
-      default:
-        return [startDate, endDate]
+        return [dayjs().subtract(1, 'hour').toISOString(), dayjs().toISOString()]
     }
-    return [null, null]
+    return [undefined, undefined]
   }
 
-  async function getMonitorResults() {
-    const [startTime, endTime] = getTimePeriod(timePeriod?.value)
+  function setTimePeriodEx(timePeriod: FilterOptionType) {
+    setTimePeriod(timePeriod)
+    const [start, end] = getTimePeriod(timePeriod.value)
+    setStartDate(start)
+    setEndDate(end)
+    setTotalItemCount(undefined)
+  }
 
+  async function getMonitorResults(offset: number, limit: number) {
     let resp = await axios({
       method: 'GET',
       url: '/monitors/' + id + '/resultsEx',
       params: {
-        startTime: startTime?.toISOString(),
-        endTime: endTime?.toISOString(),
+        startTime: startDate,
+        endTime: endDate,
         locations:
           locations && locations.length > 0 ? locations?.map((v) => v.value).join(',') : undefined,
         status: status && status.length > 0 ? status?.map((v) => v.value).join(',') : undefined,
+        offset,
+        limit,
+        getTotals: true, //totalItemCount === undefined,
       },
     })
 
     if (resp.status == 200) {
-      const results = resp.data as MonitorResult[]
+      const results = resp.data as MonitorResultQuery
       return results
     }
     throw Error('Failed to get odemand results')
   }
 
-  const { data: results } = useQuery<MonitorResult[], Error>(
-    ['monitor-result', id, locations, status],
-    () => getMonitorResults()
+  const [{ queryPageIndex, queryPageSize }, dispatch] = useReducer(reducer, initialState)
+
+  const { data: resultQueryResp } = useQuery<MonitorResultQuery, Error>(
+    [
+      'monitor-result',
+      id,
+      locations,
+      status,
+      timePeriod,
+      startDate,
+      endDate,
+      queryPageIndex,
+      queryPageSize,
+    ],
+    () => getMonitorResults(queryPageIndex * queryPageSize, queryPageSize),
+    {
+      staleTime: Infinity,
+    }
   )
+
+  if (resultQueryResp?.totalItemCount) {
+    if (resultQueryResp.totalItemCount != totalItemCount) {
+      setTotalItemCount(resultQueryResp.totalItemCount)
+    }
+  }
 
   const tableInstance = useTable(
     {
       columns,
-      data: results ?? [],
+      data: resultQueryResp?.items ?? [],
       autoResetSortBy: false,
       autoResetPage: false,
       autoResetSelectedRows: false,
+      initialState: {
+        pageIndex: queryPageIndex,
+        pageSize: queryPageSize,
+      },
+      manualPagination: true, // Tell the usePagination
+      // hook that we'll handle our own data fetching
+      // This means we'll also have to provide our own
+      // pageCount.
+      pageCount: totalItemCount ? Math.ceil(totalItemCount / queryPageSize) : undefined,
     },
     useSortBy,
     usePagination,
@@ -169,22 +246,33 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
     headerGroups,
     prepareRow,
     page,
+    pageCount,
     nextPage,
     previousPage,
     canNextPage,
     canPreviousPage,
+    gotoPage,
     pageOptions,
     state,
     toggleRowSelected,
     toggleAllRowsSelected,
   } = tableInstance
 
-  const { pageIndex } = state
+  const { pageIndex, pageSize } = state
+
+  useEffect(() => {
+    dispatch({ type: PAGE_CHANGED, payload: pageIndex })
+  }, [pageIndex])
+
+  useEffect(() => {
+    dispatch({ type: PAGE_SIZE_CHANGED, payload: pageSize })
+    gotoPage(Math.min(pageIndex, pageCount - 1))
+  }, [pageSize, pageCount, gotoPage])
 
   return (
     <>
       <Heading size='sm' mb='4'>
-        Monitor Results
+        Monitor Results &nbsp; {totalItemCount}
       </Heading>
       <Flex zIndex='2'>
         <Box width='200px'>
@@ -195,7 +283,7 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
             }}
             value={timePeriod}
             onChange={(value) => {
-              setTimePeriod(value as FilterOptionType)
+              setTimePeriodEx(value as FilterOptionType)
             }}
             placeholder='Time Period'
             options={[

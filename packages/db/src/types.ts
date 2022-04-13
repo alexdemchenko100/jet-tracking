@@ -48,6 +48,11 @@ export const MonitorResultFluentSchema = S.object()
 export const MonitorResultFluentSchemaArray = S.array().items(
   MonitorResultFluentSchema
 )
+
+export const MonitorResultQueryResponseSchema = S.object()
+  .prop('items', MonitorResultFluentSchemaArray)
+  .prop('totalItemCount', S.number())
+
 export interface MonitorResultTable {
   id?: string
   createdAt?: String | Date
@@ -76,6 +81,11 @@ export interface MonitorResultTable {
 }
 
 export type MonitorResult = MonitorResultTable
+
+export type MonitorResultQuery = {
+  items: MonitorResult[]
+  totalItemCount?: number
+}
 
 export const MonitorAssertionsFluentSchema = S.array()
   .items(

@@ -8,6 +8,7 @@ import {
   MonitorFluentSchema,
   MonitorResultFluentSchema,
   MonitorResultFluentSchemaArray,
+  MonitorResultQueryResponseSchema,
   MonitorTuples,
 } from '@httpmon/db'
 import { processAssertions } from 'src/services/assertions.js'
@@ -142,6 +143,7 @@ export default async function MonitorRouter(app: FastifyInstance) {
     .prop('offset', S.number().default(0))
     .prop('status', S.string())
     .prop('locations', S.string())
+    .prop('getTotals', S.boolean().default(false))
 
   app.get<{ Params: Params; Querystring: ResultQueryString }>(
     '/:id/resultsEx',
@@ -149,7 +151,7 @@ export default async function MonitorRouter(app: FastifyInstance) {
       schema: {
         params: ParamsSchema,
         querystring: ResultQueryParamsSchema,
-        response: { 200: MonitorResultFluentSchemaArray },
+        response: { 200: MonitorResultQueryResponseSchema },
       },
     },
     async function (req, reply) {
