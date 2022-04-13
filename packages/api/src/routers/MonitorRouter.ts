@@ -138,7 +138,7 @@ export default async function MonitorRouter(app: FastifyInstance) {
     .required()
     .prop('endTime', S.string())
     .required()
-    .prop('limit', S.number().default(20))
+    .prop('limit', S.number().default(100))
     .prop('offset', S.number().default(0))
     .prop('status', S.string())
     .prop('locations', S.string())

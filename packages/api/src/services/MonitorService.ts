@@ -9,7 +9,7 @@ const logger = pino()
 export interface ResultQueryString {
   startTime: string
   endTime: string
-  limit: number
+  limit?: number
   offset: number
   status?: string
   locations: string
@@ -153,11 +153,14 @@ export class MonitorService {
   ) {
     logger.info(query, 'query')
     const locations = query.locations ? query.locations.split(',') : []
-    const okStatus = query.status === 'ok'
-    const errStatus = query.status === 'err'
+    const okStatus = query.status?.includes('ok') ?? false
+    const errStatus = query.status?.includes('err') ?? false
+
+    logger.info(okStatus, 'okStatus')
+    logger.info(errStatus, 'errStatus')
 
     //having a const column array causes type error which is weird
-    const results = await db
+    let q = db
       .selectFrom('MonitorResult')
       .select([
         'id',
@@ -186,16 +189,21 @@ export class MonitorService {
       )
       .orderBy('MonitorResult.createdAt', 'desc')
       .where('createdAt', '>=', query.startTime)
-      .where('createdAt', '<', query.endTime)
       .if(locations.length > 0, (qb) => qb.where('location', 'in', locations))
-      .if(okStatus, (qb) => qb.where('err', '=', ''))
-      .if(errStatus, (qb) => qb.where('err', '<>', ''))
       .offset(query.offset)
-      .limit(query.limit)
-      .execute()
+      .if(query.limit != undefined, (qb) => qb.limit(query.limit as number))
 
-    logger.info(results, 'resultsEx')
+    if (okStatus || errStatus) {
+      if (okStatus && errStatus) {
+        q = q.where((qb) => qb.where('err', '<>', '').orWhere('err', '=', ''))
+      } else if (okStatus) {
+        q = q.where((qb) => qb.where('err', '=', ''))
+      } else {
+        q = q.where((qb) => qb.where('err', '<>', ''))
+      }
+    }
 
+    const results = await q.execute()
     return results
   }
 

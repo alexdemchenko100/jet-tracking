@@ -34,6 +34,7 @@ import { useParams } from 'react-router-dom'
 import { Select } from 'chakra-react-select'
 import { DatePicker } from './DatePicker/DatePicker'
 import { useState } from 'react'
+import { querystringDecode } from '.pnpm/@firebase+util@1.4.3/node_modules/@firebase/util'
 
 type FilterOptionType = {
   label: string
@@ -106,8 +107,8 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
     setStatus(value)
   }
 
-  function getTimePeriod(value: FilterOptionType) {
-    switch (value.value) {
+  function getTimePeriod(timePeriod?: string) {
+    switch (timePeriod) {
       case 'last-week':
         return [dayjs().subtract(7, 'day').toDate(), dayjs().toDate()]
       case 'last-month':
@@ -117,17 +118,20 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
       case 'last-hour':
         return [dayjs().subtract(1, 'hour').toDate(), dayjs().toDate()]
       default:
-        return [startDate || '', endDate || '']
+        return [startDate, endDate]
     }
+    return [null, null]
   }
 
   async function getMonitorResults() {
+    const [startTime, endTime] = getTimePeriod(timePeriod?.value)
+
     let resp = await axios({
       method: 'GET',
       url: '/monitors/' + id + '/resultsEx',
       params: {
-        startTime: startDate.toISOString(),
-        endTime: endDate.toISOString(),
+        startTime: startTime?.toISOString(),
+        endTime: endTime?.toISOString(),
         locations:
           locations && locations.length > 0 ? locations?.map((v) => v.value).join(',') : undefined,
         status: status && status.length > 0 ? status?.map((v) => v.value).join(',') : undefined,
