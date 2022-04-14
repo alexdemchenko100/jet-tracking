@@ -1,3 +1,5 @@
+import dayjs from 'dayjs'
+import duration from 'dayjs/plugin/duration'
 export interface FrequencyScale {
   scaleIndex: number
   frequencyMS: number
@@ -53,4 +55,23 @@ export function frequencyMSToLabel(frequencyMS: number) {
     }
   }
   return '10s'
+}
+
+dayjs.extend(duration)
+
+export function formatFrequency(freq: number) {
+  let fmt = 'Every '
+  let d = dayjs.duration(freq, 'seconds')
+  let [sec, minutes, hour] = [d.seconds(), d.minutes(), d.hours()]
+
+  if (hour) {
+    fmt += `${hour} hours `
+  }
+  if (minutes > 0) {
+    fmt += `${minutes} minute` + (minutes == 1 ? ' ' : 's ')
+  }
+  if (sec) {
+    fmt += `${sec} seconds`
+  }
+  return fmt
 }

@@ -12,6 +12,7 @@ import {
   Flex,
   Grid,
   Heading,
+  Icon,
   Menu,
   MenuButton,
   MenuGroup,
@@ -27,32 +28,14 @@ import axios from 'axios'
 import { useMutation, useQuery } from 'react-query'
 import { useNavigate, useParams } from 'react-router-dom'
 import MonitorResultTable from './MonitorResultTable'
-import dayjs from 'dayjs'
-import duration from 'dayjs/plugin/duration'
 import { useMemo, useRef, useState } from 'react'
 import { MonitorTimeChart } from './MonitorTimeChart'
 import SplitPane from './SplitPane'
 import { APIResultById } from './APIResultById'
 import { APIResultByDemand } from './APIResultByDemand'
-
-dayjs.extend(duration)
-
-function formatFrequency(freq: number) {
-  let fmt = 'Every '
-  let d = dayjs.duration(freq, 'seconds')
-  let [sec, minutes, hour] = [d.seconds(), d.minutes(), d.hours()]
-
-  if (hour) {
-    fmt += `${hour} hours `
-  }
-  if (minutes > 0) {
-    fmt += `${minutes} minute` + (minutes == 1 ? ' ' : 's ')
-  }
-  if (sec) {
-    fmt += `${sec} seconds`
-  }
-  return fmt
-}
+import { formatFrequency } from '../services/FrequencyScale'
+import { getMonitorLocationName } from '../services/MonitorLocations'
+import { FiMapPin } from 'react-icons/fi'
 
 interface DeleteProps {
   id: string
@@ -197,6 +180,17 @@ export function MonitorView() {
                 {freqFormat}
               </Tag>
             </Flex>
+            {mon.locations && mon.locations.length > 0 && (
+              <Flex alignItems='center'>
+                <Icon name='location' mr='1em' as={FiMapPin} />
+                {mon.locations.map((loc) => (
+                  <Tag size='lg' colorScheme='blue' mr='1em'>
+                    {getMonitorLocationName(loc)}
+                  </Tag>
+                ))}
+              </Flex>
+            )}
+
             <MonitorTimeChart id={id} width='800px' height='200px' />
           </>
         )}
