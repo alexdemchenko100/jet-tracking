@@ -157,6 +157,8 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
         return [dayjs().subtract(24, 'hour').toISOString(), dayjs().toISOString()]
       case 'last-hour':
         return [dayjs().subtract(1, 'hour').toISOString(), dayjs().toISOString()]
+      case 'last-4-hours':
+        return [dayjs().subtract(4, 'hour').toISOString(), dayjs().toISOString()]
     }
     return [undefined, undefined]
   }
@@ -292,6 +294,10 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
                 value: 'last-hour',
               },
               {
+                label: 'Last 4 Hours',
+                value: 'last-4-hours',
+              },
+              {
                 label: 'Last 24 Hours',
                 value: 'last-day',
               },
@@ -300,8 +306,8 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
                 value: 'last-week',
               },
               {
-                label: 'Last 20 Entries',
-                value: 'last-20',
+                label: 'Last Month',
+                value: 'last-month',
               },
             ]}
           />
@@ -322,10 +328,6 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
                 label: 'Europe-West',
                 value: 'europe-west',
               },
-              {
-                label: 'All Locations',
-                value: 'all',
-              },
             ]}
           />
         </Box>
@@ -345,10 +347,6 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
                 label: 'Error',
                 value: 'error',
                 colorScheme: 'red',
-              },
-              {
-                label: 'All Results',
-                value: 'all',
               },
             ]}
           />
