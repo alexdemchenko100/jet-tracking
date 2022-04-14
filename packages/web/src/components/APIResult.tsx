@@ -27,6 +27,8 @@ import { FiClock, FiX } from 'react-icons/fi'
 import CodeMirror from '@uiw/react-codemirror'
 import { javascript } from '@codemirror/lang-javascript'
 
+import { Store } from '../services/Store'
+
 interface TimingBarProps extends FlexProps {
   result: MonitorResult
 }
@@ -200,7 +202,11 @@ export function APIResult({ result, onClose }: APIResultProps) {
 
       <TimingBar width='100%' result={result} />
 
-      <Tabs overflow='auto'>
+      <Tabs
+        defaultIndex={Store.ui.APIResultTabIndex}
+        onChange={(index) => { Store.ui.APIResultTabIndex = index }}
+        overflow='auto'
+      >
         <TabList>
           <Tab>
             Body

@@ -7,16 +7,22 @@ interface UserState {
   isLoggedIn: boolean
 }
 
-const userState: UserState = { isLoggedIn: false }
-const store = {
-  user: proxy(userState),
+interface UItate {
+  APIResultTabIndex: number
 }
 
-const operator = {
+const userState: UserState = { isLoggedIn: false }
+const uiState: UItate = { APIResultTabIndex: 1 }
+const store = {
+  user: proxy(userState),
+  ui: proxy(uiState),
+}
+
+export const Store = {
   ...store,
   watch: useSnapshot,
 }
 
 if (process.env.NODE_ENV === 'development') devtools(proxy(store), 'store')
 
-export default operator
+export default Store
