@@ -29,7 +29,8 @@ import {
 import { useTable, useSortBy, usePagination, Column, useRowSelect } from 'react-table'
 import { useParams } from 'react-router-dom'
 import { Select } from 'chakra-react-select'
-import { useEffect, useReducer, useState } from 'react'
+import { useEffect, useMemo, useReducer, useState } from 'react'
+import { MonitorLocations } from '../services/MonitorLocations'
 
 type FilterOptionType = {
   label: string
@@ -271,6 +272,17 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
     gotoPage(Math.min(pageIndex, pageCount - 1))
   }, [pageSize, pageCount, gotoPage])
 
+  const LocationOptions = useMemo(
+    () =>
+      MonitorLocations.map((loc) => {
+        return {
+          label: loc.name,
+          value: loc.region,
+        }
+      }),
+    [MonitorLocations]
+  )
+
   return (
     <>
       <Heading size='sm' mb='4'>
@@ -319,16 +331,7 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
             placeholder='All Locations'
             value={locations}
             onChange={(value) => onSetLocation(value as FilterOptionType[])}
-            options={[
-              {
-                label: 'US-East',
-                value: 'us-east',
-              },
-              {
-                label: 'Europe-West',
-                value: 'europe-west',
-              },
-            ]}
+            options={LocationOptions}
           />
         </Box>
         <Box width='280px' ml='4'>

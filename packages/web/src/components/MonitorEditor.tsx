@@ -38,6 +38,14 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { MonitorAuthEditor } from './MonitorAuthEditor'
 import CodeMirror from '@uiw/react-codemirror'
 import { javascript } from '@codemirror/lang-javascript'
+import {
+  getRegionsFromShowLocations,
+  getShowLocationsFromRegions,
+  MonitorLocation,
+  MonitorLocations,
+  syncShowLocationsWithStore,
+} from '../services/MonitorLocations'
+import { Store } from '../services/Store'
 
 const freqConfig: [numSeconds: number, label: string][] = [
   [10, '10s'],
@@ -199,12 +207,12 @@ function Locations() {
               <Controller
                 key={locEntry.id}
                 control={control}
-                name={`showLocations.${index}.2`}
+                name={`showLocations.${index}.set`}
                 render={({ field }) => {
                   return (
                     <Checkbox isChecked={field.value} onChange={field.onChange}>
                       {/* //accessing internal representation of RHF */}
-                      {(locEntry as any)['0']}
+                      {(locEntry as any)['name']}
                     </Checkbox>
                   )
                 }}
@@ -310,40 +318,8 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
 
   interface FormMonitor extends Monitor {
     frequencyScale: number
-    showLocations: [string, string, boolean][]
+    showLocations: MonitorLocation[]
   }
-
-  function toShowLocations(locations?: string[]) {
-    //reset defaultValues to false so server data overrides them
-    let showLocations = [...defaultShowLocations]
-    for (let i = 0; i < showLocations.length; i++) {
-      showLocations[i][2] = false
-    }
-
-    //now, update local values to be same as server
-    if (Array.isArray(locations)) {
-      locations.forEach((loc) => {
-        for (let i = 0; i < showLocations.length; i++) {
-          if (showLocations[i][1] == loc) showLocations[i][2] = true
-        }
-      })
-    }
-    return showLocations
-  }
-
-  function fromShowLocations(showLoc: [string, string, boolean][]) {
-    let locations: string[] = []
-    showLoc.forEach(([_label, loc, valid]) => {
-      if (valid) locations.push(loc)
-    })
-    return locations
-  }
-
-  const defaultShowLocations: [string, string, boolean][] = [
-    ['US-East', 'us-east', true],
-    ['Europe-West', 'europe-west', false],
-    ['Asia-Singapore', 'asia-singapore', false],
-  ]
 
   const methods = useForm<FormMonitor>({
     defaultValues: {
@@ -352,7 +328,7 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
       env: [] as MonitorTuples,
       assertions: [{ type: 'code', op: '=', value: '200' }] as MonitorAssertion[],
       frequencyScale: 0,
-      showLocations: defaultShowLocations,
+      showLocations: Store.ui.locations,
       auth: {},
     },
   })
@@ -379,7 +355,7 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
         ...resp.data,
       }
       formMon.frequencyScale = frequencyToScale(formMon.frequency)
-      formMon.showLocations = toShowLocations(resp.data.locations)
+      formMon.showLocations = getShowLocationsFromRegions(resp.data.locations)
 
       reset(formMon)
       return formMon
@@ -436,7 +412,8 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
   function prepareMonitor(data: FormMonitor): Monitor {
     //cleanse data to become the monitor
     data.frequency = scaleToFrequency(data.frequencyScale)
-    data.locations = fromShowLocations(data.showLocations)
+    data.locations = getRegionsFromShowLocations(data.showLocations)
+    syncShowLocationsWithStore(data.showLocations)
 
     let { frequencyScale, showLocations, ...monitor } = data //remove scale
 

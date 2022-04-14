@@ -48,7 +48,7 @@ function emptyResponse() {
     code: 0,
     location:
       process.env.PA_REGION ||
-      ['us-east', 'europe-west'][Math.floor(Math.random() * 2)],
+      ['us-east1', 'eu-west3'][Math.floor(Math.random() * 2)],
   }
 }
 function responseToMonitorResult(resp?: Response<string>) {

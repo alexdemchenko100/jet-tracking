@@ -1,3 +1,4 @@
+import { MonitorLocation, MonitorLocations } from './MonitorLocations'
 import { User } from 'firebase/auth'
 import { proxy, useSnapshot } from 'valtio'
 import { devtools } from 'valtio/utils'
@@ -9,10 +10,11 @@ interface UserState {
 
 interface UItate {
   APIResultTabIndex: number
+  locations: MonitorLocation[]
 }
 
 const userState: UserState = { isLoggedIn: false }
-const uiState: UItate = { APIResultTabIndex: 1 }
+const uiState: UItate = { APIResultTabIndex: 1, locations: [...MonitorLocations] }
 const store = {
   user: proxy(userState),
   ui: proxy(uiState),
