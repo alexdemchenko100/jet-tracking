@@ -8,13 +8,19 @@ interface UserState {
   isLoggedIn: boolean
 }
 
-interface UItate {
+interface UIState {
   APIResultTabIndex: number
-  locations: MonitorLocation[]
+  editor: {
+    monitorLocations: MonitorLocation[]
+    frequencyScale: number
+  }
 }
 
 const userState: UserState = { isLoggedIn: false }
-const uiState: UItate = { APIResultTabIndex: 1, locations: [...MonitorLocations] }
+const uiState: UIState = {
+  APIResultTabIndex: 1,
+  editor: { monitorLocations: [...MonitorLocations], frequencyScale: 0 },
+}
 const store = {
   user: proxy(userState),
   ui: proxy(uiState),

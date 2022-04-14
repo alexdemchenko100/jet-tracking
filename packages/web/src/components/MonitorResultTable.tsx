@@ -30,7 +30,7 @@ import { useTable, useSortBy, usePagination, Column, useRowSelect } from 'react-
 import { useParams } from 'react-router-dom'
 import { Select } from 'chakra-react-select'
 import { useEffect, useMemo, useReducer, useState } from 'react'
-import { MonitorLocations } from '../services/MonitorLocations'
+import { getMonitorLocationName, MonitorLocations } from '../services/MonitorLocations'
 
 type FilterOptionType = {
   label: string
@@ -66,7 +66,9 @@ const columns: Column<MonitorResult>[] = [
   },
   {
     Header: 'Location',
-    accessor: 'location',
+    accessor: (row, _index) => {
+      return <Text>{getMonitorLocationName(row.location)}</Text>
+    },
   },
   {
     Header: () => 'Time Taken',

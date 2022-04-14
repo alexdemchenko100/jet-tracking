@@ -39,6 +39,7 @@ import { useTable, useSortBy, usePagination, Column } from 'react-table'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { FiEdit, FiTrash2 } from 'react-icons/fi'
 import { MdDelete, MdEdit } from 'react-icons/md'
+import { frequencyMSToLabel } from '../services/FrequencyScale'
 
 export function MonitorDashboard() {
   const navigate = useNavigate()
@@ -85,7 +86,7 @@ export function MonitorDashboard() {
       },
       {
         Header: 'Frequency',
-        accessor: 'frequency',
+        accessor: (row, _index) => frequencyMSToLabel(row.frequency),
       },
       {
         Header: '',
