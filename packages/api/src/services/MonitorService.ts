@@ -3,6 +3,8 @@ import emitter from './emitter.js'
 import { db, Monitor, MonitorResult, MonitorTuples } from '@httpmon/db'
 import { nanoid } from 'nanoid'
 import pino from 'pino'
+import dayjs from 'dayjs'
+import { sql } from 'kysely'
 
 const logger = pino()
 
@@ -228,6 +230,51 @@ export class MonitorService {
         items: await queryResults.execute(),
       }
     }
+  }
+
+  public async getMonitorStats(monitorId: string) {
+    const { avg, sum, count } = db.fn
+
+    const weekAgoStartime = dayjs().subtract(7, 'day').toDate()
+    const dayAgoStartime = dayjs().subtract(1, 'day').toDate()
+    const now = dayjs().toDate()
+
+    //having a const column array causes type error which is weird
+    const queryStats = db
+      .selectFrom('MonitorResult')
+      .select(
+        sql<string>`PERCENTILE_CONT(0.5) WITHIN GROUP (order by "totalTime")`.as(
+          'p50'
+        )
+      )
+      .select(
+        sql<string>`PERCENTILE_CONT(0.95) WITHIN GROUP (order by "totalTime")`.as(
+          'p95'
+        )
+      )
+      .select(avg<number>('totalTime').as('avg'))
+      .select(count<number>('totalTime').as('numItems'))
+      .select(
+        sql<string>`sum(CASE WHEN err <> '' THEN 1 ELSE 0 END)`.as('numErrors')
+      )
+      .where('monitorId', '=', monitorId)
+
+    const weekAgo = queryStats
+      .where('createdAt', '>=', weekAgoStartime)
+      .where('createdAt', '<', now)
+
+    let weekResults = await weekAgo.executeTakeFirst()
+
+    const dayAgo = queryStats
+      .where('createdAt', '>=', dayAgoStartime)
+      .where('createdAt', '<', now)
+
+    let dayResults = await dayAgo.executeTakeFirst()
+
+    let res = { week: weekResults, day: dayResults }
+
+    logger.error(JSON.stringify(res), 'res')
+    return res
   }
 
   public async setEnv(monitorId: string, env: MonitorTuples) {

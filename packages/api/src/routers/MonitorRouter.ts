@@ -9,6 +9,7 @@ import {
   MonitorResultFluentSchema,
   MonitorResultFluentSchemaArray,
   MonitorResultQueryResponseSchema,
+  MonitorResultStatsResponseSchema,
   MonitorTuples,
 } from '@httpmon/db'
 import { processAssertions } from 'src/services/assertions.js'
@@ -164,6 +165,20 @@ export default async function MonitorRouter(app: FastifyInstance) {
       } else {
         reply.code(404).send('Not found')
       }
+    }
+  )
+
+  app.get<{ Params: Params }>(
+    '/:id/stats',
+    {
+      schema: {
+        params: ParamsSchema,
+        response: { 200: MonitorResultStatsResponseSchema },
+      },
+    },
+    async (req, res) => {
+      const resp = await monitorSvc.getMonitorStats(req.params.id)
+      res.send(resp)
     }
   )
 

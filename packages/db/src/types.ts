@@ -59,6 +59,30 @@ export const MonitorResultQueryResponseSchema = S.object()
   .prop('items', MonitorResultFluentSchemaArray)
   .prop('totalItemCount', S.number())
 
+export const MonitorResultStatsSchema = S.object()
+  .prop('p95', S.number())
+  .prop('p50', S.number())
+  .prop('avg', S.number())
+  .prop('numItems', S.number())
+  .prop('numErrors', S.number())
+
+export const MonitorResultStatsResponseSchema = S.object()
+  .prop('week', MonitorResultStatsSchema)
+  .prop('day', MonitorResultStatsSchema)
+
+export type MonitorPeriodStats = {
+  p95: number
+  p50: number
+  avg: number
+  numItems: number
+  numErrors: number
+}
+
+export type MonitorStats = {
+  week: MonitorPeriodStats
+  day: MonitorPeriodStats
+}
+
 export interface MonitorResultTable {
   id?: string
   createdAt?: String | Date

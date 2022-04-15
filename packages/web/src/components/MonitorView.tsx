@@ -7,6 +7,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogOverlay,
+  Box,
   Button,
   Divider,
   Flex,
@@ -19,11 +20,14 @@ import {
   MenuItem,
   MenuItemOption,
   MenuList,
+  Stat,
+  StatLabel,
+  StatNumber,
   Tag,
   useBreakpointValue,
   useDisclosure,
 } from '@chakra-ui/react'
-import { Monitor } from '@httpmon/db'
+import { Monitor, MonitorPeriodStats, MonitorStats } from '@httpmon/db'
 import axios from 'axios'
 import { useMutation, useQuery } from 'react-query'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -95,6 +99,45 @@ function DoubleCheckDelete({ id }: DeleteProps) {
   )
 }
 
+interface MonitorStatsProps {
+  stats: MonitorPeriodStats
+  title: string
+}
+
+function round(v: number) {
+  return v.toFixed(v % 1 && 1)
+}
+
+function MonitorStatsView({ stats, title }: MonitorStatsProps) {
+  return (
+    <Box p='1' border='1px' borderColor='blue' borderStyle='solid'>
+      <Heading size='md'>{title}</Heading>
+      <Flex alignItems='start' justifyContent='space-around'>
+        <Stat>
+          <StatLabel>Total</StatLabel>
+          <StatNumber>{stats.numItems}</StatNumber>
+        </Stat>
+        <Stat>
+          <StatLabel>Errors</StatLabel>
+          <StatNumber>{stats.numErrors}</StatNumber>
+        </Stat>
+        <Stat>
+          <StatLabel>Avg</StatLabel>
+          <StatNumber>{round(stats.avg)}ms</StatNumber>
+        </Stat>
+        <Stat>
+          <StatLabel>Median</StatLabel>
+          <StatNumber>{round(stats.p50)}ms</StatNumber>
+        </Stat>
+        <Stat>
+          <StatLabel>P95</StatLabel>
+          <StatNumber>{round(stats.p95)}ms</StatNumber>
+        </Stat>
+      </Flex>
+    </Box>
+  )
+}
+
 export function MonitorView() {
   const navigate = useNavigate()
   const { id } = useParams()
@@ -124,6 +167,15 @@ export function MonitorView() {
       url: `/monitors/${id}`,
     })
     return resp.data
+  })
+
+  const { data: stats, error: statError } = useQuery<MonitorStats>(['stats', id], async () => {
+    const resp = await axios({
+      method: 'GET',
+      url: `/monitors/${id}/stats`,
+    })
+    console.log(stats)
+    return resp.data as MonitorStats
   })
 
   const freqFormat = useMemo(() => formatFrequency(mon?.frequency ?? 0), [mon])
@@ -191,6 +243,8 @@ export function MonitorView() {
               </Flex>
             )}
 
+            {stats && stats.week && <MonitorStatsView stats={stats.week} title='Last 7 Days' />}
+            {stats && stats.day && <MonitorStatsView stats={stats.day} title='Last 24 Hours' />}
             <MonitorTimeChart id={id} width='800px' height='200px' />
           </>
         )}
