@@ -1,4 +1,4 @@
-import { Monitor, MonitorTable } from '@httpmon/db'
+import { Monitor, MonitorStats, MonitorTable } from '@httpmon/db'
 import axios from 'axios'
 import { useQuery } from 'react-query'
 
@@ -57,16 +57,50 @@ export function MonitorDashboard() {
     throw Error('Failed to get odemand results')
   }
 
-  const { isLoading, data } = useQuery<Monitor[], Error>(
-    'monitors-dashboard',
+  const { isLoading, data: monitors } = useQuery<Monitor[], Error>(
+    ['monitors-list'],
     () => getMonitors(),
     {}
   )
 
-  type DashMon = Pick<MonitorTable, 'url' | 'method' | 'name' | 'frequency'>
+  async function getMonitorStats() {
+    let resp = await axios({
+      method: 'GET',
+      url: '/monitors/stats',
+    })
 
-  const columns = useMemo<Column<MonitorTable>[]>(
+    if (resp.status == 200) {
+      const results = resp.data as MonitorStats[]
+      return results
+    }
+    throw Error('Failed to get odemand results')
+  }
+
+  const { data: stats } = useQuery<MonitorStats[], Error>(['monitors-stats'], () =>
+    getMonitorStats()
+  )
+
+  type MonitorsWithStats = Monitor & MonitorStats
+
+  const columns = useMemo<Column<MonitorsWithStats>[]>(
     () => [
+      {
+        Header: 'Status',
+        accessor: (row, _index) => {
+          if (row.lastResults) {
+            if (row.lastResults.length > 0) {
+              return (
+                <Tag
+                  fontWeight='extrabold'
+                  colorScheme={row.lastResults[0].err == '' ? 'green' : 'red'}
+                >
+                  {row.lastResults[0].err == '' ? 'OK' : 'ALERT'}
+                </Tag>
+              )
+            }
+          }
+        },
+      },
       {
         Header: 'Name',
         accessor: 'name',
@@ -88,6 +122,27 @@ export function MonitorDashboard() {
         Header: 'Frequency',
         accessor: (row, _index) => frequencyMSToLabel(row.frequency),
       },
+      {
+        Header: '24Hr Uptime',
+        accessor: (row, _index) => (
+          <Text>
+            {(((row.day.numItems - row.day.numErrors) / row.day.numItems) * 100).toFixed()}%
+          </Text>
+        ),
+      },
+      {
+        Header: '24Hr Avg',
+        accessor: (row, _index) => row.day?.avg.toFixed() || 0,
+      },
+      {
+        Header: '24 Hr Median',
+        accessor: (row, _index) => row.day?.p50.toFixed() || 0,
+      },
+      {
+        Header: '24 Hr P95',
+        accessor: (row, _index) => row.day?.p95.toFixed() || 0,
+      },
+
       {
         Header: '',
         accessor: (row, _rowIndex) => {
@@ -111,10 +166,23 @@ export function MonitorDashboard() {
     []
   )
 
+  const monData = useMemo<MonitorsWithStats[]>(() => {
+    if (!monitors || !stats) {
+      return []
+    }
+    return monitors.map((mon) => {
+      const stat = stats.find((s) => s.monitorId == mon.id)
+      if (!stat) {
+        return {} as MonitorsWithStats
+      }
+      return { ...mon, ...stat }
+    })
+  }, [monitors, stats])
+
   const tableInstance = useTable(
     {
       columns,
-      data: data ?? [],
+      data: monData ?? [],
       autoResetSortBy: false,
       autoResetPage: false,
     },

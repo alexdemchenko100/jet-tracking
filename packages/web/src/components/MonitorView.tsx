@@ -189,7 +189,6 @@ export function MonitorView() {
       method: 'GET',
       url: `/monitors/${id}/stats`,
     })
-    console.log(stats)
     return resp.data as MonitorStats
   })
 

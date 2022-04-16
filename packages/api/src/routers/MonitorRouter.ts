@@ -9,7 +9,7 @@ import {
   MonitorResultFluentSchema,
   MonitorResultFluentSchemaArray,
   MonitorResultQueryResponseSchema,
-  MonitorResultStatsResponseSchema,
+  MonitorStatSummarySchema,
   MonitorTuples,
 } from '@httpmon/db'
 import { processAssertions } from 'src/services/assertions.js'
@@ -173,11 +173,25 @@ export default async function MonitorRouter(app: FastifyInstance) {
     {
       schema: {
         params: ParamsSchema,
-        response: { 200: MonitorResultStatsResponseSchema },
+        response: { 200: MonitorStatSummarySchema },
       },
     },
     async (req, res) => {
-      const resp = await monitorSvc.getMonitorStats(req.params.id)
+      const resp = await monitorSvc.getMonitorStatSummary(req.params.id)
+      res.send(resp)
+    }
+  )
+
+  app.get<{ Params: Params }>(
+    '/stats',
+    {
+      schema: {
+        params: ParamsSchema,
+        response: { 200: S.array().items(MonitorStatSummarySchema) },
+      },
+    },
+    async (req, res) => {
+      const resp = await monitorSvc.getAllMonitorStatSummaries()
       res.send(resp)
     }
   )

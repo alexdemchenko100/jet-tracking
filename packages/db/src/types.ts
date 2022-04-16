@@ -66,9 +66,26 @@ export const MonitorResultStatsSchema = S.object()
   .prop('numItems', S.number())
   .prop('numErrors', S.number())
 
-export const MonitorResultStatsResponseSchema = S.object()
+export const StatsQueryStringSchema = S.object()
+  .prop('startDate', S.string())
+  .prop('endDate', S.string())
+  .prop('location', S.string())
+
+export const MonitorStatSummarySchema = S.object()
+  .prop('monitorId', S.string())
   .prop('week', MonitorResultStatsSchema)
   .prop('day', MonitorResultStatsSchema)
+  .prop(
+    'lastResults',
+    S.array().items(
+      S.object()
+        .prop('id', S.string())
+        .prop('err', S.string())
+        .prop('location', S.string())
+        .prop('totalTime', S.number())
+    )
+  )
+
 
 export type MonitorPeriodStats = {
   p95: number
@@ -79,8 +96,15 @@ export type MonitorPeriodStats = {
 }
 
 export type MonitorStats = {
+  monitorId: string
   week: MonitorPeriodStats
   day: MonitorPeriodStats
+  lastResults: [{
+    id: string
+    err: string
+    location: string
+    totalTime: number
+  }]
 }
 
 export interface MonitorResultTable {

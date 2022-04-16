@@ -18,6 +18,12 @@ export interface ResultQueryString {
   getTotals: boolean
 }
 
+export interface StatsQueryString {
+  startDate: string
+  endDate: string
+  locations: string
+}
+
 /**
  *
  * Super hacky function to go around type safety
@@ -232,8 +238,8 @@ export class MonitorService {
     }
   }
 
-  public async getMonitorStats(monitorId: string) {
-    const { avg, sum, count } = db.fn
+  public async getMonitorStatSummary(monitorId: string) {
+    const { avg, count } = db.fn
 
     const weekAgoStartime = dayjs().subtract(7, 'day').toDate()
     const dayAgoStartime = dayjs().subtract(1, 'day').toDate()
@@ -260,21 +266,84 @@ export class MonitorService {
       .where('monitorId', '=', monitorId)
 
     const weekAgo = queryStats
-      .where('createdAt', '>=', weekAgoStartime)
-      .where('createdAt', '<', now)
+      .where('createdAt', '>', weekAgoStartime)
+      .where('createdAt', '<=', now)
 
     let weekResults = await weekAgo.executeTakeFirst()
 
     const dayAgo = queryStats
-      .where('createdAt', '>=', dayAgoStartime)
-      .where('createdAt', '<', now)
+      .where('createdAt', '>', dayAgoStartime)
+      .where('createdAt', '<=', now)
 
     let dayResults = await dayAgo.executeTakeFirst()
 
-    let res = { week: weekResults, day: dayResults }
+    const lastResults = await db
+      .selectFrom('MonitorResult')
+      .select(['id', 'err', 'location', 'totalTime'])
+      .where('monitorId', '=', monitorId)
+      .orderBy('createdAt', 'desc')
+      .limit(12)
+      .execute()
+
+    let res = {
+      monitorId: monitorId,
+      week: weekResults,
+      day: dayResults,
+      lastResults: lastResults.filter((res) => {
+        return {
+          id: res.id,
+          err: res.err,
+          totalTime: res.totalTime,
+          location: res.location,
+        }
+      }),
+    }
 
     logger.error(JSON.stringify(res), 'res')
     return res
+  }
+
+  public async getAllMonitorStatSummaries() {
+    const monitors = await this.list()
+
+    const results = await Promise.all(
+      monitors.map(async (monitor) => {
+        return await this.getMonitorStatSummary(monitor.id as string)
+      })
+    )
+    return results
+  }
+
+  public async getMonitorStatsByPeriod(
+    monitorId: string,
+    query: StatsQueryString
+  ) {
+    const { avg, count } = db.fn
+
+    //having a const column array causes type error which is weird
+    const queryStats = db
+      .selectFrom('MonitorResult')
+      .select(
+        sql<string>`PERCENTILE_CONT(0.5) WITHIN GROUP (order by "totalTime")`.as(
+          'p50'
+        )
+      )
+      .select(
+        sql<string>`PERCENTILE_CONT(0.95) WITHIN GROUP (order by "totalTime")`.as(
+          'p95'
+        )
+      )
+      .select(avg<number>('totalTime').as('avg'))
+      .select(count<number>('totalTime').as('numItems'))
+      .select(
+        sql<string>`sum(CASE WHEN err <> '' THEN 1 ELSE 0 END)`.as('numErrors')
+      )
+      .where('monitorId', '=', monitorId)
+      .where('createdAt', '>', query.startDate)
+      .where('createdAt', '<=', query.endDate)
+
+    const results = await queryStats.executeTakeFirst()
+    return results
   }
 
   public async setEnv(monitorId: string, env: MonitorTuples) {
