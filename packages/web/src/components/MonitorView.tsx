@@ -108,6 +108,17 @@ function round(v: number) {
   return v.toFixed(v % 1 && 1)
 }
 
+function uptime(stats: MonitorPeriodStats) {
+  if (stats.numItems > 0) {
+    const numSucess = stats.numItems - stats.numErrors
+    const uptime = numSucess / stats.numItems
+
+    //return uptime as a percentage
+    return round(uptime * 100) + '%'
+  }
+  return '0%'
+}
+
 function MonitorStatsView({ stats, title }: MonitorStatsProps) {
   return (
     <Box p='1' border='1px' borderColor='blue' borderStyle='solid'>
@@ -120,6 +131,10 @@ function MonitorStatsView({ stats, title }: MonitorStatsProps) {
         <Stat>
           <StatLabel>Errors</StatLabel>
           <StatNumber>{stats.numErrors}</StatNumber>
+        </Stat>
+        <Stat>
+          <StatLabel>Uptime</StatLabel>
+          <StatNumber>{uptime(stats)}</StatNumber>
         </Stat>
         <Stat>
           <StatLabel>Avg</StatLabel>
@@ -196,7 +211,7 @@ export function MonitorView() {
               setMonitorResultId(undefined)
             }}
           >
-            Run now!
+            Run now
           </Button>
 
           <Menu>

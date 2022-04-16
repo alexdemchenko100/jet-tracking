@@ -31,6 +31,7 @@ import { useParams } from 'react-router-dom'
 import { Select } from 'chakra-react-select'
 import { useEffect, useMemo, useReducer, useState } from 'react'
 import { getMonitorLocationName, MonitorLocations } from '../services/MonitorLocations'
+import { TimePeriods, useTimePeriod } from '../services/MonitorTimePeriod'
 
 type FilterOptionType = {
   label: string
@@ -85,14 +86,8 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
 
   const [locations, setLocations] = useState<FilterOptionType[]>()
   const [status, setStatus] = useState<FilterOptionType[]>()
-  const [timePeriod, setTimePeriod] = useState<FilterOptionType>()
   const [totalItemCount, setTotalItemCount] = useState<number>()
-  const [startDate, setStartDate] = useState<string | undefined>()
-  const [endDate, setEndDate] = useState<string | undefined>()
-
-  if (!timePeriod) {
-    setTimePeriodEx({ label: 'Last 1 Hour', value: 'last-hour' })
-  }
+  const { startDate, endDate, timePeriod, setTimePeriod } = useTimePeriod()
 
   type PaginationState = {
     queryPageIndex: number
@@ -134,46 +129,6 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
     }
   }
 
-  function onSetLocation(value: FilterOptionType[]) {
-    if (value.some((v) => v.value === 'all')) {
-      setLocations([] as FilterOptionType[])
-      return
-    }
-    setLocations(value)
-  }
-
-  function onSetStatus(value: FilterOptionType[]) {
-    if (value.some((v) => v.value === 'all')) {
-      setStatus([] as FilterOptionType[])
-      return
-    }
-    setStatus(value)
-  }
-
-  function getTimePeriod(timePeriod?: string) {
-    switch (timePeriod) {
-      case 'last-week':
-        return [dayjs().subtract(7, 'day').toISOString(), dayjs().toISOString()]
-      case 'last-month':
-        return [dayjs().subtract(1, 'month').toISOString(), dayjs().toISOString()]
-      case 'last-day':
-        return [dayjs().subtract(24, 'hour').toISOString(), dayjs().toISOString()]
-      case 'last-hour':
-        return [dayjs().subtract(1, 'hour').toISOString(), dayjs().toISOString()]
-      case 'last-4-hours':
-        return [dayjs().subtract(4, 'hour').toISOString(), dayjs().toISOString()]
-    }
-    return [undefined, undefined]
-  }
-
-  function setTimePeriodEx(timePeriod: FilterOptionType) {
-    setTimePeriod(timePeriod)
-    const [start, end] = getTimePeriod(timePeriod.value)
-    setStartDate(start)
-    setEndDate(end)
-    setTotalItemCount(undefined)
-  }
-
   async function getMonitorResults(offset: number, limit: number) {
     let resp = await axios({
       method: 'GET',
@@ -186,7 +141,7 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
         status: status && status.length > 0 ? status?.map((v) => v.value).join(',') : undefined,
         offset,
         limit,
-        getTotals: true, //totalItemCount === undefined,
+        getTotals: true,
       },
     })
 
@@ -293,37 +248,13 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
       <Flex zIndex='2'>
         <Box width='200px'>
           <Select
-            defaultValue={{
-              label: 'Last 1 Hour',
-              value: 'last-hour',
-            }}
             value={timePeriod}
             onChange={(value) => {
-              setTimePeriodEx(value as FilterOptionType)
+              const timePeriod = value as FilterOptionType
+              setTimePeriod(timePeriod)
             }}
             placeholder='Time Period'
-            options={[
-              {
-                label: 'Last 1 Hour',
-                value: 'last-hour',
-              },
-              {
-                label: 'Last 4 Hours',
-                value: 'last-4-hours',
-              },
-              {
-                label: 'Last 24 Hours',
-                value: 'last-day',
-              },
-              {
-                label: 'Last Week',
-                value: 'last-week',
-              },
-              {
-                label: 'Last Month',
-                value: 'last-month',
-              },
-            ]}
+            options={TimePeriods}
           />
         </Box>
         {/* <DatePicker selected={startDate} onChange={(date: Date) => setStartDate(date)} /> */}
@@ -332,7 +263,7 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
             isMulti
             placeholder='All Locations'
             value={locations}
-            onChange={(value) => onSetLocation(value as FilterOptionType[])}
+            onChange={(value) => setLocations(value as FilterOptionType[])}
             options={LocationOptions}
           />
         </Box>
@@ -341,7 +272,7 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
             isMulti
             placeholder='All Results'
             value={status}
-            onChange={(value) => onSetStatus(value as FilterOptionType[])}
+            onChange={(value) => setStatus(value as FilterOptionType[])}
             options={[
               {
                 label: 'OK',

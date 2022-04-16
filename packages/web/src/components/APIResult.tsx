@@ -203,8 +203,10 @@ export function APIResult({ result, onClose }: APIResultProps) {
       <TimingBar width='100%' result={result} />
 
       <Tabs
-        defaultIndex={Store.ui.APIResultTabIndex}
-        onChange={(index) => { Store.ui.APIResultTabIndex = index }}
+        defaultIndex={Store.ui.results.tabIndex}
+        onChange={(index) => {
+          Store.ui.results.tabIndex = index
+        }}
         overflow='auto'
       >
         <TabList>

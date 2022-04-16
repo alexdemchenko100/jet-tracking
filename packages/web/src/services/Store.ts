@@ -1,3 +1,4 @@
+import { TimePeriods } from './MonitorTimePeriod'
 import { MonitorLocation, MonitorLocations } from './MonitorLocations'
 import { User } from 'firebase/auth'
 import { proxy, useSnapshot } from 'valtio'
@@ -9,17 +10,30 @@ interface UserState {
 }
 
 interface UIState {
-  APIResultTabIndex: number
   editor: {
     monitorLocations: MonitorLocation[]
     frequencyScale: number
+  }
+  results: {
+    tabIndex: number
+    filter: {
+      timePeriod: { label: string; value: string }
+      status: string
+      locations: string[]
+    }
   }
 }
 
 const userState: UserState = { isLoggedIn: false }
 const uiState: UIState = {
-  APIResultTabIndex: 1,
-  editor: { monitorLocations: [...MonitorLocations], frequencyScale: 0 },
+  editor: {
+    monitorLocations: [...MonitorLocations],
+    frequencyScale: 0,
+  },
+  results: {
+    tabIndex: 0,
+    filter: { timePeriod: TimePeriods[0], status: '', locations: [] },
+  },
 }
 const store = {
   user: proxy(userState),
