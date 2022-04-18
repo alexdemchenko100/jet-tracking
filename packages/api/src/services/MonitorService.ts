@@ -1,3 +1,4 @@
+import { currentUserInfo } from './../Context'
 import emitter from './emitter.js'
 
 import { db, Monitor, MonitorResult, MonitorTuples } from '@httpmon/db'
@@ -59,7 +60,11 @@ export class MonitorService {
 
     const monResp = await db
       .insertInto('Monitor')
-      .values({ ...monitorToDBMonitor(mon), id: nanoid() })
+      .values({
+        ...monitorToDBMonitor(mon),
+        id: nanoid(),
+        accountId: currentUserInfo().accountId,
+      })
       .returningAll()
       .executeTakeFirst()
 
@@ -68,6 +73,9 @@ export class MonitorService {
   }
 
   public async update(mon: Monitor) {
+    const accountId = currentUserInfo().accountId
+    if (!accountId) throw new Error('Account id mismatch')
+
     const monResp = await db
       .updateTable('Monitor')
       .set({ ...monitorToDBMonitor(mon) })
@@ -78,6 +86,9 @@ export class MonitorService {
   }
 
   public async delete(id: string) {
+    const accountId = currentUserInfo().accountId
+    if (!accountId) throw new Error('Account id mismatch')
+
     const resp = await db
       .deleteFrom('Monitor')
       .where('id', '=', id)
@@ -90,12 +101,17 @@ export class MonitorService {
       .selectFrom('Monitor')
       .selectAll()
       .where('id', '=', id)
+      .where('accountId', '=', currentUserInfo().accountId)
       .executeTakeFirst()
     return monResp
   }
 
   public async list() {
-    const monList = await db.selectFrom('Monitor').selectAll().execute()
+    const monList = await db
+      .selectFrom('Monitor')
+      .selectAll()
+      .where('accountId', '=', currentUserInfo().accountId)
+      .execute()
     return monList
   }
 
@@ -104,6 +120,7 @@ export class MonitorService {
       .selectFrom('MonitorResult')
       .selectAll()
       .where('id', '=', id)
+      .where('accountId', '=', currentUserInfo().accountId)
       .executeTakeFirst()
     return monResultResp
   }
@@ -149,6 +166,7 @@ export class MonitorService {
       .if(Boolean(monitorId), (qb) =>
         qb.where('monitorId', '=', monitorId as string)
       )
+      .where('accountId', '=', currentUserInfo().accountId)
       .limit(100)
       .orderBy('MonitorResult.createdAt', 'desc')
       .execute()
@@ -174,6 +192,7 @@ export class MonitorService {
       .if(Boolean(monitorId), (qb) =>
         qb.where('monitorId', '=', monitorId as string)
       )
+      .where('accountId', '=', currentUserInfo().accountId)
       .where('createdAt', '>=', new Date(query.startTime))
       .where('createdAt', '<', new Date(query.endTime))
       .if(locations.length > 0, (qb) => qb.where('location', 'in', locations))
@@ -264,6 +283,7 @@ export class MonitorService {
         sql<string>`sum(CASE WHEN err <> '' THEN 1 ELSE 0 END)`.as('numErrors')
       )
       .where('monitorId', '=', monitorId)
+      .where('accountId', '=', currentUserInfo().accountId)
 
     const weekAgo = queryStats
       .where('createdAt', '>', weekAgoStartime)
@@ -281,6 +301,7 @@ export class MonitorService {
       .selectFrom('MonitorResult')
       .select(['id', 'err', 'location', 'totalTime'])
       .where('monitorId', '=', monitorId)
+      .where('accountId', '=', currentUserInfo().accountId)
       .orderBy('createdAt', 'desc')
       .limit(12)
       .execute()
@@ -338,6 +359,7 @@ export class MonitorService {
         sql<string>`sum(CASE WHEN err <> '' THEN 1 ELSE 0 END)`.as('numErrors')
       )
       .where('monitorId', '=', monitorId)
+      .where('accountId', '=', currentUserInfo().accountId)
       .where('createdAt', '>', query.startDate)
       .where('createdAt', '<=', query.endDate)
 
@@ -350,6 +372,7 @@ export class MonitorService {
       .updateTable('Monitor')
       .set({ env: JSON.stringify(env) as any })
       .where('id', '=', monitorId)
+      .where('accountId', '=', currentUserInfo().accountId)
       .execute()
   }
 }

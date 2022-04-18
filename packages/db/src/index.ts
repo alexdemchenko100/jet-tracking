@@ -1,11 +1,13 @@
 import { Insertable, Kysely, PostgresDialect, sql } from 'kysely'
 
-import { MonitorResultTable, MonitorTable } from './types'
+import { Account, MonitorResultTable, MonitorTable, UserAccount } from './types'
 export * from './types.js'
 
 interface Database {
   MonitorResult: MonitorResultTable
   Monitor: MonitorTable
+  UserAccount: UserAccount
+  Account: Account
 }
 
 import * as dotenv from 'dotenv'

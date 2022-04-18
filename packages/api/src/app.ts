@@ -1,10 +1,12 @@
+import { logger } from './Context'
 import fastify from 'fastify'
 import fastifyCors from 'fastify-cors'
 import router from './router.js'
 import * as dotenv from 'dotenv'
 import path from 'path'
-import fastifyStatic from 'fastify-static'
 import { schedule } from './services/DevScheduler.js'
+import fastifyStatic from 'fastify-static'
+import { initializeRequestContext } from './Context.js'
 
 //find and load the .env from root folder of the project
 dotenv.config({ path: path.resolve(process.cwd(), '../..', '.env') })
@@ -16,12 +18,15 @@ const server = fastify({
   },
 })
 
+initializeRequestContext(server)
+
 if (process.env.NODE_ENV === 'production') {
   server.log.info('production mode')
   server.register(fastifyStatic, {
     root: path.join(process.cwd(), './packages/web/dist/'),
     prefix: '/', // optional: default '/'
   })
+
   server.setNotFoundHandler(async (req, reply) => {
     //this is hack with knowledge of route prefix /api built in
     //unfortunately, router-specifc handler is not being called
@@ -46,11 +51,6 @@ if (process.env.NODE_ENV === 'production') {
 server.register(router, {
   prefix: '/api',
 })
-
-// server.addHook('preValidation', (req, _, done) => {
-//   req.log.info({ url: req.url, body: req.body, id: req.id }, 'received request')
-//   done()
-// })
 
 server.setErrorHandler((error, _req, reply) => {
   // The expected errors will be handled here, but unexpected ones should eventually result in a crash.

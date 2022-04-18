@@ -31,10 +31,14 @@ export function SignIn() {
     error,
   } = useMutation<UserCredential, AuthError, SignInForm | undefined>(async (data?: SignInForm) => {
     let creds
-    if (!data) {
-      creds = await signInWithPopup(getAuth(), new GoogleAuthProvider())
-    } else {
-      creds = await signInWithEmailAndPassword(getAuth(), data.email, data.password)
+    try {
+      if (!data) {
+        creds = await signInWithPopup(getAuth(), new GoogleAuthProvider())
+      } else {
+        creds = await signInWithEmailAndPassword(getAuth(), data.email, data.password)
+      }
+    } catch (e) {
+      console.error(e)
     }
     if (!creds || !creds.user || !creds.user.emailVerified)
       throw new Error('auth call has internal failure')

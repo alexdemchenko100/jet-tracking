@@ -7,6 +7,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Account {
+  id    String        @id
+  name  String
+  users UserAccount[]
+}
+
+model UserAccount {
+  id        String  @id
+  userId    String
+  email     String
+  role      String  @default("")
+  default   Boolean @default(true)
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId String
+
+  @@unique([userId, accountId])
+}
+
 model Monitor {
   id              String          @id @default(cuid())
   createdAt       DateTime        @default(now())
@@ -30,6 +48,7 @@ model Monitor {
   assertions      Json            @default("[]") // custom syntax
   notifyEmail     String?
   env             Json            @default("[]") // custom syntax
+  accountId       String
 }
 
 model MonitorResult {
@@ -59,4 +78,5 @@ model MonitorResult {
 
   monitor   Monitor @relation(fields: [monitorId], references: [id], onDelete: Cascade)
   monitorId String // relation scalar field  (used in the `@relation` attribute above)
+  accountId String
 }

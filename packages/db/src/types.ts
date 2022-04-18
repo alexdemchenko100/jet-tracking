@@ -86,7 +86,6 @@ export const MonitorStatSummarySchema = S.object()
     )
   )
 
-
 export type MonitorPeriodStats = {
   p95: number
   p50: number
@@ -99,18 +98,21 @@ export type MonitorStats = {
   monitorId: string
   week: MonitorPeriodStats
   day: MonitorPeriodStats
-  lastResults: [{
-    id: string
-    err: string
-    location: string
-    totalTime: number
-  }]
+  lastResults: [
+    {
+      id: string
+      err: string
+      location: string
+      totalTime: number
+    }
+  ]
 }
 
 export interface MonitorResultTable {
   id?: string
   createdAt?: String | Date
   monitorId: string
+  accountId: string
   code: number
   codeStatus: string
   url: string
@@ -216,6 +218,7 @@ export type MonitorAssertionResult = MonitorAssertion & {
 export type MonitorTable = {
   id?: string
   createdAt?: string | Date
+  accountId: string
   name: string
   status: string
   method: string
@@ -236,3 +239,18 @@ export type MonitorTable = {
 }
 
 export type Monitor = MonitorTable
+
+export type UserAccount = {
+  id?: string
+  createdAt?: string | Date
+  userId: string
+  email: string
+  accountId: string
+  role: string
+  default: boolean
+}
+
+export type Account = {
+  id?: string
+  name: string
+}

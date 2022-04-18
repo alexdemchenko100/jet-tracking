@@ -41,6 +41,6 @@ export async function schedule() {
 
     //save to DB
     //createdAt caused type issue for db
-    await saveMonitorResult({ ...result })
+    await saveMonitorResult({ ...result, accountId: mon.accountId })
   }
 }
