@@ -17,6 +17,7 @@ const server = fastify({
 })
 
 if (process.env.NODE_ENV === 'production') {
+  server.log.info('production mode')
   server.register(fastifyStatic, {
     root: path.join(process.cwd(), './packages/web/dist/'),
     prefix: '/', // optional: default '/'
@@ -32,7 +33,13 @@ if (process.env.NODE_ENV === 'production') {
     await reply.sendFile('index.html')
   })
 } else {
-  server.register(fastifyCors)
+  server.log.info('test mode')
+  server.register(fastifyCors, {
+    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    credentials: true,
+  })
 }
 
 // Middleware: Router

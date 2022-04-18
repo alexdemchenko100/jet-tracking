@@ -299,7 +299,6 @@ export class MonitorService {
       }),
     }
 
-    logger.error(JSON.stringify(res), 'res')
     return res
   }
 

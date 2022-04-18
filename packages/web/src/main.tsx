@@ -7,7 +7,9 @@ import firebaseService from './FirebaseService'
 import axios from 'axios'
 firebaseService.isLoggedIn()
 
-//axios.defaults.withCredentials = true
+//with credentials requires server response with a concrete origin,
+//wildcard origin is not allowed
+axios.defaults.withCredentials = true
 axios.defaults.maxRedirects = 0
 axios.defaults.headers.common = { 'X-Requested-With': 'XMLHttpRequest' }
 if (process.env.NODE_ENV === 'production') {
