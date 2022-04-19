@@ -203,9 +203,9 @@ export function APIResult({ result, onClose }: APIResultProps) {
       <TimingBar width='100%' result={result} />
 
       <Tabs
-        defaultIndex={Store.ui.results.tabIndex}
+        defaultIndex={Store.UIState.results.tabIndex}
         onChange={(index) => {
-          Store.ui.results.tabIndex = index
+          Store.UIState.results.tabIndex = index
         }}
         overflow='auto'
       >

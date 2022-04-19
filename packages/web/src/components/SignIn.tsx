@@ -13,8 +13,9 @@ import { useMutation } from 'react-query'
 import { Spinner } from '@chakra-ui/react'
 import { Link, Navigate } from 'react-router-dom'
 
-import store from '../services/Store'
+import { Store } from '../services/Store'
 import { logoTitle, googleSigninButton } from '../Assets'
+import { isLoggedIn } from '../services/FirebaseAuth'
 
 export type SignInForm = {
   email: string
@@ -23,8 +24,6 @@ export type SignInForm = {
 }
 
 export function SignIn() {
-  let userInfo = store.watch(store.user)
-
   const {
     mutateAsync: signInAsync,
     isLoading,
@@ -40,12 +39,11 @@ export function SignIn() {
     } catch (e) {
       console.error(e)
     }
+
     if (!creds || !creds.user || !creds.user.emailVerified)
       throw new Error('auth call has internal failure')
 
-    store.user.user = creds.user
-    store.user.isLoggedIn = creds.user && creds.user.emailVerified
-
+    Store.UserState.user = creds.user
     return creds
   })
 
@@ -61,8 +59,8 @@ export function SignIn() {
     await signInAsync(data)
   }
 
-  if (userInfo.isLoggedIn) {
-    return <Navigate to='/' />
+  if (isLoggedIn()) {
+    return <Navigate to='/console/monitors' />
   }
 
   return (

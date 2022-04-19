@@ -302,8 +302,8 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
       queryParams: [] as MonitorTuples,
       env: [] as MonitorTuples,
       assertions: [{ type: 'code', op: '=', value: '200' }] as MonitorAssertion[],
-      frequencyScale: Store.ui.editor.frequencyScale,
-      showLocations: Store.ui.editor.monitorLocations,
+      frequencyScale: Store.UIState.editor.frequencyScale,
+      showLocations: Store.UIState.editor.monitorLocations,
       auth: {},
     },
   })
@@ -389,7 +389,7 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
     data.frequency = scaleToFrequencyMS(data.frequencyScale)
     data.locations = getRegionsFromShowLocations(data.showLocations)
     syncShowLocationsWithStore(data.showLocations)
-    Store.ui.editor.frequencyScale = data.frequencyScale
+    Store.UIState.editor.frequencyScale = data.frequencyScale
 
     let { frequencyScale, showLocations, ...monitor } = data //remove scale
 

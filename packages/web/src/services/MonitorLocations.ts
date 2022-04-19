@@ -46,7 +46,7 @@ export function getRegionsFromShowLocations(showLoc: MonitorLocation[]) {
 
 //given show locations, sync set value with store.ui.locations
 export function syncShowLocationsWithStore(showLocations: MonitorLocation[]) {
-  let locations = Store.ui.editor.monitorLocations
+  let locations = Store.UIState.editor.monitorLocations
   for (let i = 0; i < locations.length; i++) {
     for (let j = 0; j < showLocations.length; j++) {
       if (locations[i].region == showLocations[j].region) {

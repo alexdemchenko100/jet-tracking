@@ -2,7 +2,6 @@ import {
   createAccountIdByUser,
   getAccountIdByUser,
 } from './../services/DBService'
-import { getOrCreateAccountIdByUser } from '../services/DBService'
 import { firebaseApp, firebaseAuth } from './../Firebase'
 import { ResultQueryString } from './../services/MonitorService'
 import { execMonitor } from '../services/monitor-exec.js'
@@ -31,7 +30,7 @@ export default async function MonitorRouter(app: FastifyInstance) {
     const [bearer = '', token] = authHeader.split(' ')
     if (bearer.trim().toLowerCase() !== 'bearer') {
       app.log.error('error in parsing auth header')
-      reply.code(401).send({ message: 'Not authorized' })
+      reply.code(400).send({ message: 'Bad token format' })
       return
     }
 
@@ -42,9 +41,6 @@ export default async function MonitorRouter(app: FastifyInstance) {
       reply.code(401).send({ message: 'Not authorized' })
       return
     }
-
-    request.user = user
-    app.log.info(`user ${user.uid} ${user.email} authorized`)
 
     let accountId = await getAccountIdByUser(user.uid)
     if (!accountId) {
@@ -230,7 +226,7 @@ export default async function MonitorRouter(app: FastifyInstance) {
         response: { 200: S.array().items(MonitorStatSummarySchema) },
       },
     },
-    async (req, res) => {
+    async (_req, res) => {
       const resp = await monitorSvc.getAllMonitorStatSummaries()
       res.send(resp)
     }

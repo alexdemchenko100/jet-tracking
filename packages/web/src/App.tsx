@@ -15,11 +15,11 @@ import NewEnv from './components/NewEnv'
 import { MonitorDashboard } from './components/MonitorDashboard'
 import { MonitorView } from './components/MonitorView'
 import { MonitorEditPanel } from './components/MonitorEditPanel'
-const history = createBrowserHistory()
+import { Store } from './services/Store'
 
 function App() {
   return (
-    <HistoryRouter history={history}>
+    <HistoryRouter history={Store.History}>
       <ChakraProvider>
         <Routes>
           <Route path='/' element={<Home />} />

@@ -47,7 +47,7 @@ function getTimePeriodRange(timePeriod?: string) {
 }
 
 export function useTimePeriod() {
-  const [timePeriod, setTimePeriodInt] = useState(Store.ui.results.filter.timePeriod)
+  const [timePeriod, setTimePeriodInt] = useState(Store.UIState.results.filter.timePeriod)
   const [start, end] = getTimePeriodRange(timePeriod.value)
 
   const [startDate, setStartDate] = useState(start)
@@ -60,7 +60,7 @@ export function useTimePeriod() {
       const [newStart, newEnd] = getTimePeriodRange(period.value)
       setStartDate(newStart)
       setEndDate(newEnd)
-      Store.ui.results.filter.timePeriod = newTimePeriod
+      Store.UIState.results.filter.timePeriod = newTimePeriod
     }
   }
 

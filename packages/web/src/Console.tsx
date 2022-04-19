@@ -13,6 +13,10 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Spacer,
   useColorModeValue,
   useDisclosure,
@@ -28,6 +32,7 @@ import { MdHome, MdKeyboardArrowRight } from 'react-icons/md'
 
 import { logoTitle } from './Assets'
 import { Outlet, useNavigate } from 'react-router-dom'
+import { signOut } from './services/FirebaseAuth'
 
 const SIDEBAR_WIDTH = '40'
 
@@ -160,7 +165,24 @@ export default function Console() {
           <Spacer />
           <Flex align='center'>
             <Icon color='gray.500' as={FaBell} cursor='pointer' />
-            <Avatar ml='4' size='sm' name='' src='https://i.pravatar.cc/300' cursor='pointer' />
+
+            <Menu>
+              <MenuButton>
+                <Avatar ml='4' size='sm' name='' src='https://i.pravatar.cc/300' cursor='pointer' />
+              </MenuButton>
+              <MenuList>
+                <MenuItem>Profile</MenuItem>
+                <MenuItem
+                  onClick={async () => {
+                    await signOut()
+                    navigate('/console/signin')
+                    console.log('signed out')
+                  }}
+                >
+                  Logout
+                </MenuItem>
+              </MenuList>
+            </Menu>
           </Flex>
         </Flex>
 

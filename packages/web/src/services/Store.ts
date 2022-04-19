@@ -3,10 +3,11 @@ import { MonitorLocation, MonitorLocations } from './MonitorLocations'
 import { User } from 'firebase/auth'
 import { proxy, useSnapshot } from 'valtio'
 import { devtools } from 'valtio/utils'
+import { createBrowserHistory } from 'history'
+import { QueryClient } from 'react-query'
 
 interface UserState {
-  user?: User
-  isLoggedIn: boolean
+  user: User | null
 }
 
 interface UIState {
@@ -24,7 +25,7 @@ interface UIState {
   }
 }
 
-const userState: UserState = { isLoggedIn: false }
+const userState: UserState = { user: null }
 const uiState: UIState = {
   editor: {
     monitorLocations: [...MonitorLocations],
@@ -36,8 +37,10 @@ const uiState: UIState = {
   },
 }
 const store = {
-  user: proxy(userState),
-  ui: proxy(uiState),
+  UserState: proxy(userState),
+  UIState: proxy(uiState),
+  History: createBrowserHistory(),
+  QueryClient: new QueryClient(),
 }
 
 export const Store = {
@@ -45,6 +48,4 @@ export const Store = {
   watch: useSnapshot,
 }
 
-if (process.env.NODE_ENV === 'development') devtools(proxy(store), 'store')
-
-export default Store
+if (process.env.NODE_ENV != 'development') devtools(proxy(store), 'store')

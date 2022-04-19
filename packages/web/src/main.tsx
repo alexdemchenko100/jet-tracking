@@ -3,15 +3,17 @@ import ReactDOM from 'react-dom'
 import './index.css'
 import App from './App'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import firebaseService from './FirebaseService'
 import axios from 'axios'
-firebaseService.isLoggedIn()
+import { initFirebaseAuth } from './services/FirebaseAuth'
+import { Store } from './services/Store'
+
+//get firebase auth setup
+initFirebaseAuth()
 
 //with credentials requires server response with a concrete origin,
 //wildcard origin is not allowed
 axios.defaults.withCredentials = true
 axios.defaults.maxRedirects = 0
-axios.defaults.headers.common = { 'X-Requested-With': 'XMLHttpRequest' }
 if (process.env.NODE_ENV === 'production') {
   axios.defaults.baseURL = '/api'
 } else {
@@ -19,7 +21,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 ReactDOM.render(
-  <QueryClientProvider client={new QueryClient()}>
+  <QueryClientProvider client={Store.QueryClient}>
     <App />
   </QueryClientProvider>,
   document.getElementById('root')
