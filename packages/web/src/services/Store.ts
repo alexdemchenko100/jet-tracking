@@ -3,11 +3,18 @@ import { MonitorLocation, MonitorLocations } from './MonitorLocations'
 import { User } from 'firebase/auth'
 import { proxy, useSnapshot } from 'valtio'
 import { devtools } from 'valtio/utils'
-import { createBrowserHistory } from 'history'
+import { BrowserHistory } from 'history'
 import { QueryClient } from 'react-query'
 
 interface UserState {
   user: User | null
+}
+
+interface StoreState {
+  UserState: UserState
+  UIState: UIState
+  history: BrowserHistory | null
+  queryClient: QueryClient | null
 }
 
 interface UIState {
@@ -36,11 +43,11 @@ const uiState: UIState = {
     filter: { timePeriod: TimePeriods[0], status: '', locations: [] },
   },
 }
-const store = {
+const store: StoreState = {
   UserState: proxy(userState),
   UIState: proxy(uiState),
-  History: createBrowserHistory(),
-  QueryClient: new QueryClient(),
+  history: null,
+  queryClient: null,
 }
 
 export const Store = {

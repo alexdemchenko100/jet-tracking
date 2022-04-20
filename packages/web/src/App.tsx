@@ -17,9 +17,12 @@ import { MonitorView } from './components/MonitorView'
 import { MonitorEditPanel } from './components/MonitorEditPanel'
 import { Store } from './services/Store'
 
+const history = createBrowserHistory()
+Store.history = history //save for later
+
 function App() {
   return (
-    <HistoryRouter history={Store.History}>
+    <HistoryRouter history={history}>
       <ChakraProvider>
         <Routes>
           <Route path='/' element={<Home />} />

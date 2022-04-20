@@ -20,8 +20,11 @@ if (process.env.NODE_ENV === 'production') {
   axios.defaults.baseURL = 'http://localhost:8080/api'
 }
 
+const queryClient = new QueryClient()
+Store.queryClient = queryClient
+
 ReactDOM.render(
-  <QueryClientProvider client={Store.QueryClient}>
+  <QueryClientProvider client={queryClient}>
     <App />
   </QueryClientProvider>,
   document.getElementById('root')

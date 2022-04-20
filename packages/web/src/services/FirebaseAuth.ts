@@ -28,29 +28,45 @@ export function initFirebaseAuth() {
   auth = getAuth(app)
 
   auth.onIdTokenChanged((user: User | null) => {
-    Store.UserState = { user }
+    Store.UserState.user = user
 
-    if (user) {
-      user.getIdToken().then((token) => {
-        axios.defaults.headers.common = {
-          ...axios.defaults.headers.common,
-          Authorization: `Bearer ${token}`,
-        }
-      })
-    } else {
-      if (axios.defaults.headers.common.Authorization) {
-        delete axios.defaults.headers.common.Authorization
-      }
-    }
+    getIDTokenPossiblyRefreshed(user)
   })
 
   // Add a response interceptor
   axios.interceptors.response.use(undefined, async (error: AxiosError) => {
     if (error.response && error.response.status == 401) {
-      console.log('unauthorized')
-      Store.History.push('/console/signin?err=401')
+      console.log('unauthorized - get token again possibly')
+      await getIDTokenPossiblyRefreshed()
+
+      return axios(error.config)
+
+      // if (Store.history) {
+      //   Store.history.push('/console/signin?err=401')
+      // }
     }
   })
+}
+
+async function getIDTokenPossiblyRefreshed(user: User | null = null) {
+  if (!user) {
+    const auth = getAuth()
+    user = auth.currentUser
+  }
+
+  if (user) {
+    try {
+      const token = await user.getIdToken()
+      axios.defaults.headers.common = {
+        ...axios.defaults.headers.common,
+        Authorization: `Bearer ${token}`,
+      }
+    } catch (e) {
+      if (axios.defaults.headers.common.Authorization) {
+        delete axios.defaults.headers.common.Authorization
+      }
+    }
+  }
 }
 
 export async function signOut() {
@@ -58,7 +74,9 @@ export async function signOut() {
     await auth.signOut()
   }
   Store.UserState = { user: null }
-  Store.QueryClient.removeQueries()
+  if (Store.queryClient) {
+    Store.queryClient.removeQueries()
+  }
 }
 
 export function isLoggedIn() {
