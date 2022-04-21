@@ -10,9 +10,6 @@ import {
   Icon,
   IconButton,
   Image,
-  Input,
-  InputGroup,
-  InputLeftElement,
   Menu,
   MenuButton,
   MenuItem,
@@ -27,20 +24,17 @@ import { HiCollection } from 'react-icons/hi'
 import React, { ReactNode } from 'react'
 import { IconType } from 'react-icons/lib'
 import { FiSettings, FiClipboard, FiMenu, FiSearch } from 'react-icons/fi'
-import { HiCode } from 'react-icons/hi'
 import { MdHome, MdKeyboardArrowRight } from 'react-icons/md'
-
 import { logoTitle } from './Assets'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { signOut } from './services/FirebaseAuth'
+import { Store } from './services/Store'
 
 const SIDEBAR_WIDTH = '40'
 
 export default function Console() {
   const sidebar = useDisclosure()
-  const apiMonitorNav = useDisclosure()
   const envNav = useDisclosure()
-
   const navigate = useNavigate()
 
   interface Props extends FlexProps {
@@ -82,6 +76,24 @@ export default function Console() {
         {children}
       </Flex>
     )
+  }
+
+  const userState = Store.watch(Store.UserState)
+
+  function profileName() {
+    const user = userState.user
+    if (user) {
+      return user.displayName || user.email || ''
+    }
+    return ''
+  }
+
+  function profileImage() {
+    const user = userState.user
+    if (user && user.photoURL) {
+      return user.photoURL
+    }
+    return null
   }
 
   const SidebarContent = (props: any) => (
@@ -168,7 +180,13 @@ export default function Console() {
 
             <Menu>
               <MenuButton>
-                <Avatar ml='4' size='sm' name='' src='https://i.pravatar.cc/300' cursor='pointer' />
+                <Avatar
+                  ml='4'
+                  size='sm'
+                  name={profileName()}
+                  src={profileImage() || undefined}
+                  cursor='pointer'
+                />
               </MenuButton>
               <MenuList>
                 <MenuItem>Profile</MenuItem>

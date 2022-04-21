@@ -250,7 +250,7 @@ export function MonitorView() {
               <Flex alignItems='center'>
                 <Icon name='location' mr='1em' as={FiMapPin} />
                 {mon.locations.map((loc) => (
-                  <Tag size='lg' colorScheme='blue' mr='1em'>
+                  <Tag key={loc} size='lg' colorScheme='blue' mr='1em'>
                     {getMonitorLocationName(loc)}
                   </Tag>
                 ))}
