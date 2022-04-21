@@ -146,24 +146,33 @@ function TupleEditor({ name }: TupleProps) {
 }
 
 function BodyInput() {
-  const { control, register } = useFormContext()
+  const { control } = useFormContext()
 
   return (
-    <Flex alignItems='center'>
-      <RadioGroup>
-        <Stack direction='row'>
-          <Radio value='' defaultChecked {...register('bodyType')}>
-            none
-          </Radio>
-          <Radio value='application/json' {...register('bodyType')}>
-            application/json
-          </Radio>
-          <Radio value='text/html' {...register('bodyType')}>
-            text/html
-          </Radio>
-        </Stack>
-      </RadioGroup>
-    </Flex>
+    <Controller
+      control={control}
+      name='bodyType'
+      render={({ field }) => (
+        <Flex alignItems='center'>
+          <RadioGroup
+            size='sm'
+            defaultValue=''
+            value={field.value}
+            onChange={(v) => {
+              field.onChange(v)
+            }}
+          >
+            <Stack direction='row'>
+              <Radio value=''>None</Radio>
+              <Radio value='application/json'>JSON</Radio>
+              <Radio value='text/xml'>XML</Radio>
+              <Radio value='text/html'>HTML</Radio>
+              <Radio value='text/plain'>Text</Radio>
+            </Stack>
+          </RadioGroup>
+        </Flex>
+      )}
+    />
   )
 }
 
@@ -511,7 +520,8 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
                             <CodeMirror
                               height='200px'
                               extensions={[javascript({ jsx: true })]}
-                              onChange={(value, viewUpdate) => {
+                              value={field.value}
+                              onChange={(value, _viewUpdate) => {
                                 field.onChange(value)
                               }}
                             />

@@ -38,12 +38,6 @@ export function initFirebaseAuth() {
     if (error.response && error.response.status == 401) {
       console.log('unauthorized - get token again possibly')
       await getIDTokenPossiblyRefreshed()
-
-      return axios(error.config)
-
-      // if (Store.history) {
-      //   Store.history.push('/console/signin?err=401')
-      // }
     }
   })
 }
