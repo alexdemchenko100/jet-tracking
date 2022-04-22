@@ -91,10 +91,7 @@ export function MonitorDashboard() {
           if (row.lastResults) {
             if (row.lastResults.length > 0) {
               return (
-                <Tag
-                  fontWeight='extrabold'
-                  colorScheme={row.lastResults[0].err == '' ? 'green' : 'red'}
-                >
+                <Tag fontWeight='extrabold' color={row.lastResults[0].err == '' ? 'green' : 'red'}>
                   {row.lastResults[0].err == '' ? 'OK' : 'ALERT'}
                 </Tag>
               )
@@ -110,7 +107,7 @@ export function MonitorDashboard() {
         Header: 'Method',
         accessor: 'method',
         Cell: (c) => (
-          <Tag size='sm' colorScheme='blue'>
+          <Tag size='md' color='purple'>
             {c.cell.value}
           </Tag>
         ),
@@ -118,6 +115,7 @@ export function MonitorDashboard() {
       {
         Header: 'Url',
         accessor: 'url',
+        Cell: (c) => <Text maxW='400'>{c.cell.value}</Text>,
       },
       {
         Header: 'Frequency',
@@ -257,8 +255,8 @@ export function MonitorDashboard() {
         <Table {...getTableProps()} size='sm' variant='simple'>
           <Thead
             p='0'
-            position='sticky'
-            zIndex='1'
+            // position='sticky'
+            // zIndex='1'
             top='0px'
             style={{ overflow: 'scroll' }}
             bg='gray.100'

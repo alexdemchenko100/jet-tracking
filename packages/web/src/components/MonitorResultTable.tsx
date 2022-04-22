@@ -45,7 +45,19 @@ const columns: Column<MonitorResult>[] = [
   {
     Header: 'Status',
     accessor: (row, _index) => {
-      return <>{row.err ? <Tag color='red'>FAIL</Tag> : <Tag color='green'>OK</Tag>}</>
+      return (
+        <>
+          {row.err ? (
+            <Tag color='red'>
+              ALERT
+            </Tag>
+          ) : (
+            <Tag color='green'>
+              OK
+            </Tag>
+          )}
+        </>
+      )
     },
   },
   {

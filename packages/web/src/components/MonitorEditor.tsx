@@ -30,7 +30,7 @@ import { Monitor, MonitorAssertion, MonitorTuples } from '@httpmon/db'
 import React from 'react'
 import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from 'react-hook-form'
 
-import { FiPlus, FiTrash2 } from 'react-icons/fi'
+import { FiChevronsRight, FiPlus, FiTrash2 } from 'react-icons/fi'
 import { useMutation, useQuery } from 'react-query'
 import axios from 'axios'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -137,7 +137,7 @@ function TupleEditor({ name }: TupleProps) {
           </Flex>
         ))}
       </Box>
-      <Button variant='ghost' colorScheme='blue' onClick={() => append([['', '']])}>
+      <Button size='lg' variant='ghost' colorScheme='blue' onClick={() => append([['', '']])}>
         <Icon as={FiPlus} cursor='pointer' />
         {nameToLabel(name)}
       </Button>
@@ -189,7 +189,7 @@ function Locations() {
   return (
     <Flex alignItems='center'>
       <CheckboxGroup>
-        <Stack direction='row'>
+        <Stack direction='column'>
           {showLocations.map((locEntry, index) => (
             <Controller
               key={locEntry.id}
@@ -455,28 +455,32 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
             <Flex minH='100vh' justify='start' direction='column'>
               <Flex justify='start' alignItems='end'>
                 <FormControl id='method' maxW='28'>
-                  <Select color='blue.500' fontWeight='extrabold' {...register('method')}>
+                  <Select color='purple' fontWeight='extrabold' {...register('method')}>
                     <option defaultValue='GET' value='GET'>
                       GET
                     </option>
                     <option value='POST'>POST</option>
+                    <option value='PUT'>PUT</option>
+                    <option value='PATCH'>PATCH</option>
+                    <option value='DELETE'>DELETE</option>
                     <option value='OPTIONS'>OPTIONS</option>
                   </Select>
                 </FormControl>
 
                 <FormControl id='url' ml='2'>
-                  <Input placeholder='https:// url here' {...register('url')} />
+                  <Input placeholder='https:// URL here' {...register('url')} />
                 </FormControl>
 
                 <Button
-                  colorScheme='green'
+                  alignSelf='center'
                   variant='solid'
-                  ml='4'
+                  mx='1em'
                   size='sm'
+                  colorScheme='blue'
                   disabled={watched.url == ''}
                   onClick={() => handleQuickRun()}
                 >
-                  Send
+                  Run now
                 </Button>
               </Flex>
 
@@ -545,41 +549,50 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
                 </TabPanels>
               </Tabs>
 
-              <Heading size='sm' mt='10' mb='4'>
+              <Heading size='md' color='purple' mt='10' mb='4'>
+                <Icon name='info' mr='2' as={FiChevronsRight} />
                 Choose Test Criteria
               </Heading>
               <Assertions />
 
               <FormControl id='frequency' maxW='80%'>
-                <Heading size='sm' mt='10' mb='4'>
+                <Heading size='md' color='purple' mt='10' mb='4'>
+                  <Icon name='info' mr='2' as={FiChevronsRight} />
                   How Often To Run The Monitor?
                 </Heading>
                 <SliderThumbWithTooltip />
               </FormControl>
 
-              <Heading size='sm' mt='10' mb='4'>
+              <Heading size='md' color='darkmagenta' mt='10' mb='4'>
+                <Icon name='info' mr='2' as={FiChevronsRight} />
                 Choose Locations to Run The Monitor
               </Heading>
               <Locations />
 
-              <FormControl id='name' mt='4'>
-                <Flex alignItems='baseline'>
-                  <FormLabel htmlFor='name'>Name</FormLabel>
-                  <Input type='name' {...register('name')} />
-                </Flex>
-              </FormControl>
+              <Heading size='md' color='darkmagenta' mt='10' mb='4'>
+                <Icon name='info' mr='2' as={FiChevronsRight} />
+                Name and Save
+              </Heading>
 
-              <Button
-                colorScheme='blue'
-                mt='10'
-                size='md'
-                w='40'
-                variant='solid'
-                disabled={!watched.url || !watched.name}
-                type='submit'
-              >
-                {id ? 'Update' : 'Create'}
-              </Button>
+              <Flex mt='2'>
+                <FormControl id='name' w='200'>
+                  <Flex alignItems='baseline'>
+                    <Input type='name' {...register('name')} placeholder='Please choose a name' />
+                  </Flex>
+                </FormControl>
+
+                <Button
+                  ml='4'
+                  colorScheme='blue'
+                  size='md'
+                  w='40'
+                  variant='solid'
+                  disabled={!watched.url || !watched.name}
+                  type='submit'
+                >
+                  {id ? 'Update' : 'Create'}
+                </Button>
+              </Flex>
             </Flex>
           </Box>
         </form>

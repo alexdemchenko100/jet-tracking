@@ -206,7 +206,7 @@ export function MonitorView() {
             variant='solid'
             mx='1em'
             size='sm'
-            colorScheme='green'
+            colorScheme='blue'
             onClick={() => {
               setMonitorOnDemandId(mon?.id ?? '')
               setRefreshOnDemand(refreshOnDemand + 1)
@@ -239,7 +239,7 @@ export function MonitorView() {
           <>
             <Heading size='lg'>{mon.name}</Heading>
             <Flex alignItems='center'>
-              <Tag size='md' colorScheme='blue'>
+              <Tag size='lg' fontWeight='extrabold' color='purple'>
                 {mon.method}
               </Tag>
               <Heading size='md' ml='4'>
