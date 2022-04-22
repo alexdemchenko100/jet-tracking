@@ -45,6 +45,7 @@ import {
 } from '../services/MonitorLocations'
 import { Store } from '../services/Store'
 import { frequencyMSToScale, FrequencyScales, scaleToFrequencyMS } from '../services/FrequencyScale'
+import { MonitorNotifications } from './MonitorNotifications'
 
 function SliderThumbWithTooltip() {
   const { control } = useFormContext()
@@ -269,7 +270,8 @@ function Assertions() {
                 <option value='matches'>matches (regex)</option>
               </>
             )}
-            <option value='='>equals to</option>
+            <option value='='>equal to</option>
+            <option value='!='>not equal to</option>
             <option value='>'>greater than</option>
             <option value='<'>less than</option>
           </Select>
@@ -314,6 +316,7 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
       frequencyScale: Store.UIState.editor.frequencyScale,
       showLocations: Store.UIState.editor.monitorLocations,
       auth: {},
+      notifications: { failCount: 0 },
     },
   })
 
@@ -456,9 +459,7 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
               <Flex justify='start' alignItems='end'>
                 <FormControl id='method' maxW='28'>
                   <Select color='purple' fontWeight='extrabold' {...register('method')}>
-                    <option defaultValue='GET' value='GET'>
-                      GET
-                    </option>
+                    <option value='GET'>GET</option>
                     <option value='POST'>POST</option>
                     <option value='PUT'>PUT</option>
                     <option value='PATCH'>PATCH</option>
@@ -568,6 +569,12 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
                 Choose Locations to Run The Monitor
               </Heading>
               <Locations />
+
+              <Heading size='md' color='darkmagenta' mt='10' mb='4'>
+                <Icon name='info' mr='2' as={FiChevronsRight} />
+                Notifications
+              </Heading>
+              <MonitorNotifications />
 
               <Heading size='md' color='darkmagenta' mt='10' mb='4'>
                 <Icon name='info' mr='2' as={FiChevronsRight} />

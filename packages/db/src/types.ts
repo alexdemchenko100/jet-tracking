@@ -168,6 +168,22 @@ export const MonitorAuthFluentSchema = S.object()
   )
   .prop('bearer', S.object().prop('token', S.string()).required())
 
+export const MonitorNotificationSchema = S.object()
+  .prop('failCount', S.integer())
+  .prop('failTimeMS', S.integer())
+  .prop('onRecovery', S.boolean())
+  .prop(
+    'channels',
+    S.array().items(
+      S.object()
+        .prop('type', S.string())
+        .required()
+        .prop('target', S.string())
+        .required()
+        .prop('info', S.string())
+    )
+  )
+
 export const MonitorFluentSchema = S.object()
   .prop('id', S.string())
   .prop('createdAt', S.string())
@@ -185,9 +201,9 @@ export const MonitorFluentSchema = S.object()
   .prop('cookies', S.anyOf([S.string(), S.null()]))
   .prop('followRedirects', S.integer())
   .prop('timeout', S.integer())
-  .prop('notifyEmail', S.anyOf([S.string(), S.null()]))
   .prop('env', MonitorTupleFluentSchema)
   .prop('assertions', MonitorAssertionsFluentSchema)
+  .prop('notifications', MonitorNotificationSchema)
 
 export type MonitorAssertion = {
   type: 'code' | 'totalTime' | 'certExpiryDays' | 'header' | 'body' | 'jsonBody'
@@ -209,6 +225,19 @@ export type MonitorAuth = {
   type?: 'basic' | 'bearer' | 'none'
   basic?: MonitorBasicAuth
   bearer?: MonitorBearerAuth
+}
+
+export type NotificationChannel = {
+  type: string // email, slack, etc
+  target: string // email address or slack channel etc
+  info: string // email subject, slack channel, etc
+}
+
+export type MonitorNotifications = {
+  failCount?: number
+  failTimeMS?: number
+  onRecovery?: boolean
+  channels?: NotificationChannel[]
 }
 
 export type MonitorAssertionResult = MonitorAssertion & {
@@ -234,8 +263,8 @@ export type MonitorTable = {
   followRedirects?: number
   timeout?: number
   assertions?: MonitorAssertion[]
-  notifyEmail?: string
   env?: MonitorTuples
+  notifications?: MonitorNotifications
 }
 
 export type Monitor = MonitorTable

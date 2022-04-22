@@ -46,6 +46,7 @@ model Monitor {
   locations       String[]
   monitorResults  MonitorResult[]
   assertions      Json            @default("[]") // custom syntax
+  notifications   Json            @default("{}") // custom syntax
   notifyEmail     String?
   env             Json            @default("[]") // custom syntax
   accountId       String
