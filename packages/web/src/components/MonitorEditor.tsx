@@ -511,7 +511,7 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
                 <TabPanels>
                   <TabPanel>
                     <BodyInput />
-                    {watched.bodyType != '' && (
+                    {watched.bodyType && (
                       <Controller
                         control={control}
                         name='body'

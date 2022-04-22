@@ -15,7 +15,7 @@ import { Link, Navigate } from 'react-router-dom'
 
 import { Store } from '../services/Store'
 import { logoTitle, googleSigninButton } from '../Assets'
-import { isLoggedIn } from '../services/FirebaseAuth'
+import { isLoggedIn, setUser } from '../services/FirebaseAuth'
 
 export type SignInForm = {
   email: string
@@ -43,7 +43,7 @@ export function SignIn() {
     if (!creds || !creds.user || !creds.user.emailVerified)
       throw new Error('auth call has internal failure')
 
-    Store.UserState.user = creds.user
+    setUser(creds.user)
     return creds
   })
 
@@ -86,6 +86,7 @@ export function SignIn() {
           type='password'
           required
           placeholder='Your password'
+          autoComplete='on'
           {...register('password')}
         />
 

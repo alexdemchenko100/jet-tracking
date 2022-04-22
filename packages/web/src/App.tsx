@@ -3,7 +3,7 @@ import { Home } from './Home'
 import './App.css'
 import 'focus-visible/dist/focus-visible'
 
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 
 import { unstable_HistoryRouter as HistoryRouter } from 'react-router-dom'
 import { createBrowserHistory } from 'history'
@@ -16,22 +16,68 @@ import { MonitorDashboard } from './components/MonitorDashboard'
 import { MonitorView } from './components/MonitorView'
 import { MonitorEditPanel } from './components/MonitorEditPanel'
 import { Store } from './services/Store'
+import { ReactNode } from 'react'
 
 const history = createBrowserHistory()
 Store.history = history //save for later
 
+const ProtectedRoute = ({ isAllowed, children }: { isAllowed: boolean; children: JSX.Element }) => {
+  if (!isAllowed) {
+    return <Navigate to={'/console/signin'} replace />
+  }
+
+  return children
+}
+
 function App() {
+  const user = Store.watch(Store.UserState).user
+
   return (
     <HistoryRouter history={history}>
       <ChakraProvider>
         <Routes>
           <Route path='/' element={<Home />} />
           <Route path='/console' element={<Console />}>
-            <Route path='/console/monitors' element={<MonitorDashboard />} />
-            <Route path='/console/monitors/:id' element={<MonitorView />} />
-            <Route path='/console/monitors/:id/edit' element={<MonitorEditPanel />} />
-            <Route path='/console/monitors/newapi' element={<MonitorEditPanel />} />
-            <Route path='/console/env/new' element={<NewEnv />} />
+            <Route
+              path='/console/monitors'
+              element={
+                <ProtectedRoute isAllowed={!!user}>
+                  <MonitorDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/console/monitors/:id'
+              element={
+                <ProtectedRoute isAllowed={!!user}>
+                  <MonitorView />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/console/monitors/:id/edit'
+              element={
+                <ProtectedRoute isAllowed={!!user}>
+                  <MonitorEditPanel />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/console/monitors/newapi'
+              element={
+                <ProtectedRoute isAllowed={!!user}>
+                  <MonitorEditPanel />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/console/env/new'
+              element={
+                <ProtectedRoute isAllowed={!!user}>
+                  <NewEnv />
+                </ProtectedRoute>
+              }
+            />
           </Route>
 
           <Route path='/console/signin' element={<SignIn />} />

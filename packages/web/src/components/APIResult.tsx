@@ -6,7 +6,6 @@ import {
   Flex,
   FlexProps,
   Grid,
-  Heading,
   Icon,
   Tab,
   Table,
@@ -107,9 +106,9 @@ function AssertionResults({ result }: { result: MonitorResult }) {
         </Tr>
       </Thead>
       <Tbody>
-        {result.assertResults.map((res) => {
+        {result.assertResults.map((res, index) => {
           return (
-            <Tr key={res.name}>
+            <Tr key={res.name ?? '' + index}>
               <Td>
                 {res.type} {res.name} {res.op} {res.value}{' '}
               </Td>

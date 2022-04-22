@@ -28,9 +28,8 @@ export function initFirebaseAuth() {
   auth = getAuth(app)
 
   auth.onIdTokenChanged((user: User | null) => {
-    Store.UserState.user = user
-
-    getIDTokenPossiblyRefreshed(user)
+    // console.log('onIdTokenChanged', user)
+    setUser(user)
   })
 
   // Add a response interceptor
@@ -48,18 +47,17 @@ async function getIDTokenPossiblyRefreshed(user: User | null = null) {
     user = auth.currentUser
   }
 
-  if (user) {
-    try {
-      const token = await user.getIdToken()
-      axios.defaults.headers.common = {
-        ...axios.defaults.headers.common,
-        Authorization: `Bearer ${token}`,
-      }
-    } catch (e) {
-      if (axios.defaults.headers.common.Authorization) {
-        delete axios.defaults.headers.common.Authorization
-      }
+  if (!user) {
+    if (axios.defaults.headers.common.Authorization) {
+      delete axios.defaults.headers.common.Authorization
     }
+    return
+  }
+
+  const token = await user.getIdToken()
+  axios.defaults.headers.common = {
+    ...axios.defaults.headers.common,
+    Authorization: `Bearer ${token}`,
   }
 }
 
@@ -67,7 +65,7 @@ export async function signOut() {
   if (auth) {
     await auth.signOut()
   }
-  Store.UserState = { user: null }
+  Store.UserState.user = null
   if (Store.queryClient) {
     Store.queryClient.removeQueries()
   }
@@ -75,4 +73,9 @@ export async function signOut() {
 
 export function isLoggedIn() {
   return !!Store.UserState.user
+}
+
+export function setUser(user: User | null) {
+  Store.UserState.user = user
+  getIDTokenPossiblyRefreshed(user)
 }

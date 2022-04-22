@@ -40,6 +40,7 @@ import { APIResultByDemand } from './APIResultByDemand'
 import { formatFrequency } from '../services/FrequencyScale'
 import { getMonitorLocationName } from '../services/MonitorLocations'
 import { FiMapPin } from 'react-icons/fi'
+import { Store } from '../services/Store'
 
 interface DeleteProps {
   id: string
@@ -58,6 +59,8 @@ function DoubleCheckDelete({ id }: DeleteProps) {
       method: 'DELETE',
       url: `/monitors/${id}`,
     })
+
+    Store.queryClient?.invalidateQueries(['monitors-list'])
     return resp.data
   })
 

@@ -32,16 +32,19 @@ import { Store } from './services/Store'
 
 const SIDEBAR_WIDTH = '40'
 
+interface Props extends FlexProps {
+  icon?: IconType
+  children: ReactNode
+  to?: string
+}
+
 export default function Console() {
   const sidebar = useDisclosure()
   const envNav = useDisclosure()
   const navigate = useNavigate()
 
-  interface Props extends FlexProps {
-    icon?: IconType
-    children: ReactNode
-    to?: string
-  }
+  const userState = Store.watch(Store.UserState)
+  const user = userState.user
 
   const NavItem: React.FC<Props> = (props) => {
     const { icon, children, to, ...rest } = props
@@ -78,10 +81,7 @@ export default function Console() {
     )
   }
 
-  const userState = Store.watch(Store.UserState)
-
   function profileName() {
-    const user = userState.user
     if (user) {
       return user.displayName || user.email || ''
     }
@@ -89,7 +89,6 @@ export default function Console() {
   }
 
   function profileImage() {
-    const user = userState.user
     if (user && user.photoURL) {
       return user.photoURL
     }
@@ -197,7 +196,7 @@ export default function Console() {
                     console.log('signed out')
                   }}
                 >
-                  Logout
+                  Signout
                 </MenuItem>
               </MenuList>
             </Menu>

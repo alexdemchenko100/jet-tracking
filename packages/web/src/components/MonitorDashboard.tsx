@@ -1,4 +1,4 @@
-import { Monitor, MonitorStats, MonitorTable } from '@httpmon/db'
+import { Monitor, MonitorStats } from '@httpmon/db'
 import axios from 'axios'
 import { useQuery } from 'react-query'
 
@@ -17,11 +17,6 @@ import {
   Flex,
   Input,
   Spacer,
-  Menu,
-  MenuButton,
-  MenuItemOption,
-  MenuOptionGroup,
-  MenuList,
   Heading,
   Tag,
 } from '@chakra-ui/react'
@@ -32,13 +27,11 @@ import {
   ArrowRightIcon,
   ChevronLeftIcon,
   ArrowLeftIcon,
-  ChevronDownIcon,
 } from '@chakra-ui/icons'
 
 import { useTable, useSortBy, usePagination, Column } from 'react-table'
-import { Navigate, useNavigate } from 'react-router-dom'
-import { FiEdit, FiTrash2 } from 'react-icons/fi'
-import { MdDelete, MdEdit } from 'react-icons/md'
+import { useNavigate } from 'react-router-dom'
+import { MdEdit } from 'react-icons/md'
 import { frequencyMSToLabel } from '../services/FrequencyScale'
 
 export function MonitorDashboard() {
@@ -82,6 +75,14 @@ export function MonitorDashboard() {
 
   type MonitorsWithStats = Monitor & MonitorStats
 
+  const uptime24 = (m: MonitorsWithStats) => {
+    if (m.day?.numItems > 0) {
+      return Math.round(((m.day.numItems - m.day.numErrors) / m.day.numItems) * 100 * 100) / 100
+    } else {
+      return 0
+    }
+  }
+
   const columns = useMemo<Column<MonitorsWithStats>[]>(
     () => [
       {
@@ -124,11 +125,7 @@ export function MonitorDashboard() {
       },
       {
         Header: '24Hr Uptime',
-        accessor: (row, _index) => (
-          <Text>
-            {(((row.day.numItems - row.day.numErrors) / row.day.numItems) * 100).toFixed()}%
-          </Text>
-        ),
+        accessor: (row, _index) => <Text>{uptime24(row)}%</Text>,
       },
       {
         Header: '24Hr Avg',
