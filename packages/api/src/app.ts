@@ -1,4 +1,3 @@
-import { logger } from './Context'
 import fastify from 'fastify'
 import fastifyCors from 'fastify-cors'
 import router from './router.js'
@@ -6,7 +5,8 @@ import * as dotenv from 'dotenv'
 import path from 'path'
 import { schedule } from './services/DevScheduler.js'
 import fastifyStatic from 'fastify-static'
-import { initializeRequestContext } from './Context.js'
+import { initializeRequestContext, getCloudRegion } from './Context.js'
+import { db } from '@httpmon/db'
 
 //find and load the .env from root folder of the project
 dotenv.config({ path: path.resolve(process.cwd(), '../..', '.env') })
@@ -21,7 +21,7 @@ const server = fastify({
 initializeRequestContext(server)
 
 if (process.env.NODE_ENV === 'production') {
-  server.log.info('production mode')
+  server.log.info(`production mode: ${getCloudRegion()}`)
   server.register(fastifyStatic, {
     root: path.join(process.cwd(), './packages/web/dist/'),
     prefix: '/', // optional: default '/'
@@ -64,5 +64,13 @@ if (process.env.NODE_ENV !== 'production') {
     schedule()
   }, IntervalSeconds * 1000)
 }
+
+//set up exit handler
+process.on('SIGTERM', async function () {
+  server.log.info(`SIGTERM received, exiting gracefully: ${getCloudRegion()}`)
+  //close db connections
+  await db.destroy()
+  process.exit(0)
+})
 
 export default server

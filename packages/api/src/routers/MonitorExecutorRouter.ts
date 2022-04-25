@@ -63,25 +63,29 @@ export default async function MonitorExecutorRouter(app: FastifyInstance) {
       const key = await client.getSigningKey(kid)
       const signingKey = key.getPublicKey()
       const verified = jwt.verify(token, signingKey)
+      if (!verified) {
+        app.log.error('error in verifying token')
+        reply.code(200).send()
+        return
+      }
 
       const msg = req.body
 
       const monitorBuf = Buffer.from(msg.message.data, 'base64')
       const monitorObj = JSON.parse(monitorBuf.toString())
 
-      const valid = validateMonitor(monitorObj)
-      console.log(monitorObj)
-      console.log(valid)
-
       if (!validateMonitor(monitorObj)) {
-        app.log.error(validateMonitor.errors, 'schema err')
+        app.log.error(
+          validateMonitor.errors,
+          'Monitor exec failed due to schema validation errors'
+        )
         reply.code(200).send()
         return
       }
 
       const monitor = monitorObj as Monitor
 
-      app.log.info(monitor.name, 'exec-monitor-name')
+      app.log.info(`Exec monitor event: ${monitor.name}`)
 
       const result = await execMonitor(monitor)
 
@@ -93,8 +97,9 @@ export default async function MonitorExecutorRouter(app: FastifyInstance) {
           : ''
       }
 
-      app.log.info(result.code, 'exec-monitor-result-code')
-      app.log.info(result.totalTime, 'exec-monitor-result-time')
+      app.log.info(
+        `exec-monitor-result: code: ${result.code} err: ${result.err} totalTime: ${result.totalTime}`
+      )
 
       //createdAt caused type issue for db
       await saveMonitorResult({ ...result })

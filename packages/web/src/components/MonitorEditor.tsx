@@ -317,6 +317,8 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
       showLocations: Store.UIState.editor.monitorLocations,
       auth: {},
       notifications: { failCount: 0 },
+      bodyType: '',
+      body: '',
     },
   })
 
@@ -552,21 +554,21 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
 
               <Heading size='md' color='purple' mt='10' mb='4'>
                 <Icon name='info' mr='2' as={FiChevronsRight} />
-                Choose Test Criteria
+                Choose Test criteria
               </Heading>
               <Assertions />
 
               <FormControl id='frequency' maxW='80%'>
                 <Heading size='md' color='purple' mt='10' mb='4'>
                   <Icon name='info' mr='2' as={FiChevronsRight} />
-                  How Often To Run The Monitor?
+                  How Often To Run?
                 </Heading>
                 <SliderThumbWithTooltip />
               </FormControl>
 
               <Heading size='md' color='darkmagenta' mt='10' mb='4'>
                 <Icon name='info' mr='2' as={FiChevronsRight} />
-                Choose Locations to Run The Monitor
+                Choose Locations To Run From
               </Heading>
               <Locations />
 

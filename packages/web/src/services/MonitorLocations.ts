@@ -7,8 +7,8 @@ export interface MonitorLocation {
 }
 
 export const MonitorLocations: MonitorLocation[] = [
-  { region: 'us-east1', name: 'N. Carolina', set: true },
-  { region: 'eu-west3', name: 'Frankfurt', set: false },
+  { region: 'us-east1', name: 'S. Carolina', set: true },
+  { region: 'europe-west3', name: 'Frankfurt', set: false },
   { region: 'asia-southeast1', name: 'Singapore', set: false },
 ]
 

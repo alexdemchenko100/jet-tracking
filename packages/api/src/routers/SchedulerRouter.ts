@@ -5,6 +5,7 @@ import { PubSub } from '@google-cloud/pubsub'
 import { JwksClient } from 'jwks-rsa'
 import jwt from 'jsonwebtoken'
 import S from 'fluent-json-schema'
+import { logger } from '../Context'
 
 const PubsubMessageSchema = S.object()
   .prop('subscription', S.string())
@@ -40,10 +41,13 @@ async function publishMonitorMessage(mon: Monitor) {
   if (!mon.locations || mon.locations.length < 1) return
 
   mon.locations.forEach(async (loc) => {
+    const TOPIC_NAME = `${topicName}${loc}`
     try {
-      await pubsub.topic(topicName + loc).publishMessage({ json: mon })
+      await pubsub.topic(TOPIC_NAME).publishMessage({ json: mon })
     } catch (error) {
-      console.error(`Received error while publishing: ${error.message}`)
+      logger.error(
+        `Received error while publishing to ${TOPIC_NAME} - ${error.message}`
+      )
     }
   })
 }
@@ -96,13 +100,14 @@ export default async function SchedulerRouter(app: FastifyInstance) {
         .where(sql`${seconds} % frequency`, '=', 0)
         .execute()
 
-      app.log.error('publishing monitors')
+      app.log.info(`Schedler Event: exec ${monitors.length} monitors`)
+
       try {
         monitors.forEach((mon) => {
           publishMonitorMessage(mon)
         })
       } catch (e: any) {
-        app.log.error(e.toString())
+        app.log.error(`monitor exec failed: ${e.toString()}`)
       }
 
       reply.code(200).send()

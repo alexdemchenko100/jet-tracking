@@ -8,6 +8,7 @@ import { randomInt } from 'crypto'
 import got, { Method, RequestError, Response } from 'got'
 import pino from 'pino'
 import { Timings } from '@szmarczak/http-timer/dist/source'
+import { getCloudRegion } from '../Context'
 const logger = pino()
 
 const customGot = got.extend({
@@ -46,9 +47,7 @@ function emptyResponse() {
     certExpiryDays: 0,
     codeStatus: '',
     code: 0,
-    location:
-      process.env.PA_REGION ||
-      ['us-east1', 'eu-west3'][Math.floor(Math.random() * 2)],
+    location: getCloudRegion(),
   }
 }
 function responseToMonitorResult(resp?: Response<string>) {
@@ -208,6 +207,7 @@ export async function execMonitor(monitor: Monitor) {
           : mon.url,
       ...responseToMonitorResult(resp),
       monitorId: mon.id ?? 'ondemand',
+      accountId: mon.accountId,
       certCommonName,
       certExpiryDays,
       err: '',
@@ -219,6 +219,7 @@ export async function execMonitor(monitor: Monitor) {
     if (e instanceof RequestError) {
       return {
         monitorId: mon.id ?? 'ondemand',
+        accountId: mon.accountId,
         url: mon.url,
         ...emptyResponse(),
         ...convertTimings(e.timings),

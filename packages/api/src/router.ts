@@ -1,11 +1,9 @@
-import {
-  FastifyInstance,
-  FastifyPluginOptions,
-  HookHandlerDoneFunction,
-} from 'fastify'
+import { FastifyInstance } from 'fastify'
 import MonitorRouter from './routers/MonitorRouter.js'
 import MonitorExecutorRouter from './routers/MonitorExecutorRouter.js'
 import SchedulerRouter from './routers/SchedulerRouter.js'
+import * as gcpMetadata from 'gcp-metadata'
+import { logger } from './Context.js'
 
 export default async function router(fastify: FastifyInstance) {
   fastify.register(MonitorRouter, { prefix: '/monitors' })

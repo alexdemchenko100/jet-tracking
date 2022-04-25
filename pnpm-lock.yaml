@@ -38,6 +38,7 @@ importers:
       fastify-tsconfig: ^1.0.1
       firebase-admin: ^10.0.2
       fluent-json-schema: ^3.1.0
+      gcp-metadata: ^5.0.0
       got: 11.8.3
       handlebars: ^4.7.7
       jsonpath-plus: ^6.0.1
@@ -71,6 +72,7 @@ importers:
       fastify-static: 4.5.0
       firebase-admin: 10.0.2
       fluent-json-schema: 3.1.0
+      gcp-metadata: 5.0.0
       got: 11.8.3
       handlebars: 4.7.7
       jsonpath-plus: 6.0.1
@@ -4746,11 +4748,36 @@ packages:
       - supports-color
     dev: false
 
+  /gaxios/5.0.0:
+    resolution: {integrity: sha512-VD/yc5ln6XU8Ch1hyYY6kRMBE0Yc2np3fPyeJeYHhrPs1i8rgnsApPMWyrugkl7LLoSqpOJVBWlQIa87OAvt8Q==}
+    engines: {node: '>=12'}
+    dependencies:
+      abort-controller: 3.0.0
+      extend: 3.0.2
+      https-proxy-agent: 5.0.0
+      is-stream: 2.0.1
+      node-fetch: 2.6.7
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+    dev: false
+
   /gcp-metadata/4.3.1:
     resolution: {integrity: sha512-x850LS5N7V1F3UcV7PoupzGsyD6iVwTVvsh3tbXfkctZnBnjW5yu5z1/3k3SehF7TyoTIe78rJs02GMMy+LF+A==}
     engines: {node: '>=10'}
     dependencies:
       gaxios: 4.3.2
+      json-bigint: 1.0.0
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+    dev: false
+
+  /gcp-metadata/5.0.0:
+    resolution: {integrity: sha512-gfwuX3yA3nNsHSWUL4KG90UulNiq922Ukj3wLTrcnX33BB7PwB1o0ubR8KVvXu9nJH+P5w1j2SQSNNqto+H0DA==}
+    engines: {node: '>=12'}
+    dependencies:
+      gaxios: 5.0.0
       json-bigint: 1.0.0
     transitivePeerDependencies:
       - encoding
