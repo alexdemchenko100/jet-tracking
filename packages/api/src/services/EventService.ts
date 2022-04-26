@@ -1,10 +1,12 @@
 import { PubSub } from '@google-cloud/pubsub'
 import { logger, state } from '../Context'
 import S from 'fluent-json-schema'
+import emitter from './emitter'
 
 export interface SynthEvent {
   type: string
   id?: string
+  monitorId?: string
   accountId?: string
   name?: string
   message?: string
@@ -21,6 +23,11 @@ export const SynthEventSchema = S.object()
 let pubsub: PubSub | null = null
 
 export async function publishEvent(event: SynthEvent) {
+  if (state.projectId === '' || process.env.NODE_ENV !== 'production') {
+    publishLocally(event)
+    return
+  }
+
   const projectId = state.projectId
   if (!pubsub) {
     pubsub = new PubSub({ projectId })
@@ -39,4 +46,9 @@ export async function publishEvent(event: SynthEvent) {
       `Received error while publishing to ${projectId}-events - ${error.message}`
     )
   }
+}
+
+function publishLocally(event: SynthEvent) {
+  logger.info(event, 'Publishing locally')
+  emitter.emit(event.type, event)
 }

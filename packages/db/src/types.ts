@@ -169,8 +169,8 @@ export const MonitorAuthFluentSchema = S.object()
   .prop('bearer', S.object().prop('token', S.string()).required())
 
 export const MonitorNotificationSchema = S.object()
-  .prop('failCount', S.integer())
-  .prop('failTimeMS', S.integer())
+  .prop('failCount', S.integer().default(0))
+  .prop('failTimeMS', S.integer().default(0))
   .prop('onRecovery', S.boolean())
   .prop(
     'channels',
@@ -234,7 +234,7 @@ export type NotificationChannel = {
 }
 
 export type MonitorNotifications = {
-  failCount?: number
+  failCount: number
   failTimeMS?: number
   onRecovery?: boolean
   channels?: NotificationChannel[]

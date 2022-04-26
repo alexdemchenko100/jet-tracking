@@ -1,7 +1,7 @@
-import { saveMonitorResult, db } from '@httpmon/db'
+import { db } from '@httpmon/db'
 import { sql } from 'kysely'
-import { processAssertions } from './assertions'
-import { execMonitor } from './monitor-exec'
+
+import { execMonitorAndProcessResponse } from './MonitorExecutor'
 
 async function selectReadyMonitors() {
   const now = new Date(Date.now())
@@ -28,19 +28,6 @@ export async function schedule() {
   for (let i = 0; i < monitors.length; i++) {
     const mon = monitors[i]
 
-    const result = await execMonitor(mon)
-
-    if (result.err == '') {
-      const asserionResults = processAssertions(mon, result)
-      result.assertResults = asserionResults
-      if (!result.err)
-        result.err = asserionResults.some((a) => a.fail)
-          ? 'assertions failed'
-          : ''
-    }
-
-    //save to DB
-    //createdAt caused type issue for db
-    await saveMonitorResult({ ...result, accountId: mon.accountId })
+    await execMonitorAndProcessResponse(mon)
   }
 }

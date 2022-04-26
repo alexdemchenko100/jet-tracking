@@ -4,10 +4,7 @@ import { JwksClient } from 'jwks-rsa'
 import S from 'fluent-json-schema'
 import { Monitor, MonitorFluentSchema } from '@httpmon/db'
 import Ajv from 'ajv'
-import { execMonitor } from 'src/services/monitor-exec'
-import { processAssertions } from 'src/services/assertions'
-import { saveMonitorResult } from '@httpmon/db'
-import { publishEvent } from 'src/services/EventService'
+import { execMonitorAndProcessResponse } from 'src/services/MonitorExecutor'
 
 const PubsubMessageSchema = S.object()
   .prop('subscription', S.string())
@@ -88,33 +85,7 @@ export default async function MonitorExecutorRouter(app: FastifyInstance) {
 
       app.log.info(`Exec monitor event: ${monitor.name}`)
 
-      const result = await execMonitor(monitor)
-
-      if (result.err == '') {
-        const asserionResults = processAssertions(monitor, result)
-        result.assertResults = asserionResults
-        result.err = asserionResults.some((a) => a.fail)
-          ? 'assertions failed'
-          : ''
-      }
-
-      app.log.info(
-        `exec-monitor-result: code: ${result.code} err: ${result.err} totalTime: ${result.totalTime}`
-      )
-
-      //createdAt caused type issue for db
-      const monitorResult = await saveMonitorResult({ ...result })
-
-      if (result.err) {
-        publishEvent({
-          type: 'monitor-exec-error',
-          id: monitorResult?.id,
-          name: monitor.name,
-          accountId: monitor.accountId,
-          message: result.err,
-        })
-      }
-
+      await execMonitorAndProcessResponse(monitor)
       reply.code(200).send()
     }
   )

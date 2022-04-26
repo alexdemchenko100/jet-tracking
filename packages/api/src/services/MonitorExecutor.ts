@@ -6,10 +6,11 @@ import clone from 'lodash.clonedeep'
 import Handlebars from 'handlebars'
 import { randomInt } from 'crypto'
 import got, { Method, RequestError, Response } from 'got'
-import pino from 'pino'
 import { Timings } from '@szmarczak/http-timer/dist/source'
-import { getCloudRegion } from '../Context'
-const logger = pino()
+import { getCloudRegion, logger } from '../Context'
+import { processAssertions } from './Assertions'
+import { publishEvent } from './EventService'
+import { saveMonitorResult } from './DBService'
 
 const customGot = got.extend({
   headers: {
@@ -233,5 +234,35 @@ export async function execMonitor(monitor: Monitor) {
         monitorId: mon.id ?? 'ondemand',
       } as MonitorResult
     }
+  }
+}
+
+export async function execMonitorAndProcessResponse(monitor: Monitor) {
+  const result = await execMonitor(monitor)
+  if (result.err == '') {
+    const asserionResults = processAssertions(monitor, result)
+    result.assertResults = asserionResults
+    result.err = asserionResults.some((a) => a.fail) ? 'assertions failed' : ''
+  }
+
+  logger.info(
+    `exec-monitor-result: code: ${result.code} err: ${result.err} totalTime: ${result.totalTime}`
+  )
+
+  //createdAt caused type issue for db
+  const monitorResult = await saveMonitorResult({
+    ...result,
+    accountId: monitor.accountId,
+  })
+
+  if (result.err) {
+    publishEvent({
+      type: 'monitor-result-error',
+      id: monitorResult?.id,
+      monitorId: monitor.id,
+      name: monitor.name,
+      accountId: monitor.accountId,
+      message: result.err,
+    })
   }
 }

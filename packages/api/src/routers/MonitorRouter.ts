@@ -1,8 +1,8 @@
 import { createNewAccount, getAccountIdByUser } from './../services/DBService'
 import { firebaseAuth } from './../Firebase'
 import { ResultQueryString } from './../services/MonitorService'
-import { execMonitor } from '../services/monitor-exec.js'
-import { MonitorService } from '../services/MonitorService.js'
+import { execMonitor } from '../services/MonitorExecutor'
+import { MonitorService } from '../services/MonitorService'
 import { FastifyInstance } from 'fastify'
 import S from 'fluent-json-schema'
 import {
@@ -14,7 +14,7 @@ import {
   MonitorStatSummarySchema,
   MonitorTuples,
 } from '@httpmon/db'
-import { processAssertions } from 'src/services/assertions.js'
+import { processAssertions } from '../services/Assertions'
 import { requestContext } from 'fastify-request-context'
 
 export default async function MonitorRouter(app: FastifyInstance) {

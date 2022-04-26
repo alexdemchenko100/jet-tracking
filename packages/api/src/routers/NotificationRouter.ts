@@ -4,6 +4,9 @@ import { JwksClient } from 'jwks-rsa'
 import S from 'fluent-json-schema'
 import Ajv from 'ajv'
 import { SynthEvent, SynthEventSchema } from 'src/services/EventService'
+import emitter from 'src/services/emitter'
+import { logger } from 'src/Context'
+import { handleMonitorResultErorr } from 'src/services/NotificationService'
 
 const PubsubMessageSchema = S.object()
   .prop('subscription', S.string())
@@ -83,25 +86,16 @@ export default async function NotificationRouter(app: FastifyInstance) {
       app.log.info(event, 'Notification handling for event')
 
       //business logic
-
-      // app.log.info(
-      //   `exec-monitor-result: code: ${result.code} err: ${result.err} totalTime: ${result.totalTime}`
-      // )
-
-      // //createdAt caused type issue for db
-      // await saveMonitorResult({ ...result })
-
-      // if (result.err) {
-      //   publishEvent({
-      //     type: 'monitor-exec-error',
-      //     id: result.id,
-      //     name: monitor.name,
-      //     accountId: monitor.accountId,
-      //     message: result.err,
-      //   })
-      // }
+      await handleMonitorResultErorr(event)
 
       reply.code(200).send()
     }
   )
+}
+
+if (process.env.NODE_ENV !== 'production') {
+  emitter.on('monitor-result-error', async (event: SynthEvent) => {
+    logger.error(event, 'Handle Monitor result error here...')
+    await handleMonitorResultErorr(event)
+  })
 }

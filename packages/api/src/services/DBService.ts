@@ -1,4 +1,5 @@
-import { db } from '@httpmon/db'
+import { db, MonitorResultTable } from '@httpmon/db'
+import { Insertable } from 'kysely'
 import { nanoid } from 'nanoid'
 import { logger } from '../Context'
 
@@ -50,4 +51,41 @@ export const createNewAccount = async (userId: string, email: string) => {
   })
 
   return newAccountId
+}
+
+function objectToJSON(object: any) {
+  if (typeof object == 'string') {
+    return object
+  } else if (typeof object == 'object') {
+    return JSON.stringify(object)
+  }
+  throw Error('Cannot convert to JSON')
+}
+
+export async function saveMonitorResult(
+  result: Insertable<MonitorResultTable>
+) {
+  //Handle all JSON conversions here.. headers, cookies, variables etc
+  let resultForSaving = {
+    ...result,
+    headers: objectToJSON(result.headers),
+  }
+
+  if (result.assertResults) {
+    resultForSaving = {
+      ...resultForSaving,
+      assertResults: objectToJSON(result.assertResults),
+    }
+  }
+
+  try {
+    return await db
+      .insertInto('MonitorResult')
+      .values(resultForSaving)
+      .returningAll()
+      .executeTakeFirst()
+  } catch (e) {
+    console.log('exception: ', e)
+    return null
+  }
 }
