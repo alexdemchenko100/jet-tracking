@@ -1,5 +1,7 @@
-import { Box, Checkbox, Flex, Text, Select } from '@chakra-ui/react'
-import { useFormContext } from 'react-hook-form'
+import { Box, Checkbox, Flex, Text, Select, Grid, Input, Button, Icon } from '@chakra-ui/react'
+import { NotificationChannel } from '@httpmon/db'
+import { useFieldArray, useFormContext } from 'react-hook-form'
+import { FiPlus, FiTrash2 } from 'react-icons/fi'
 
 export function MonitorNotifications() {
   const { register } = useFormContext()
@@ -19,6 +21,53 @@ export function MonitorNotifications() {
           <option value='8'>8</option>
         </Select>
       </Flex>
+      <Channels />
     </>
+  )
+}
+
+function Channels() {
+  const { control, register, watch } = useFormContext()
+  const {
+    fields: channels,
+    append,
+    remove,
+  } = useFieldArray({
+    name: 'notifications.channels',
+    control,
+  })
+
+  const channelValues: NotificationChannel[] = watch('notifications.channels')
+
+  return (
+    <Grid gap='1'>
+      {channels.map((field, index) => (
+        <Flex key={field.id} gap='2'>
+          <Select {...register(`notifications.channels.${index}.type`)}>
+            <option value='Email'>Email</option>
+            <option value='Slack'>Slack</option>
+          </Select>
+
+          <Input
+            type='text'
+            {...register(`notifications.channels.${index}.target` as const)}
+            placeholder='target'
+          />
+
+          <Input
+            type='text'
+            {...register(`notifications.channels.${index}.info` as const)}
+            placeholder='info'
+          />
+
+          <Button onClick={() => remove(index)}>
+            <Icon color='red.500' as={FiTrash2} cursor='pointer' />
+          </Button>
+        </Flex>
+      ))}
+      <Button onClick={() => append([{ type: '', value: '' }])} maxW='42px'>
+        <Icon color='blue.500' as={FiPlus} cursor='pointer' />
+      </Button>
+    </Grid>
   )
 }

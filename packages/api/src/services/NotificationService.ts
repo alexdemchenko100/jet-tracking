@@ -1,6 +1,8 @@
-import { db } from '@httpmon/db'
+import { db, MonitorResult } from '@httpmon/db'
+import { send } from 'process'
 import { logger } from 'src/Context'
 import { SynthEvent } from './EventService'
+import { sendSlackNotification } from './SlackNotification'
 
 export async function handleMonitorResultErorr(event: SynthEvent) {
   //from event id, get monitor result from db
@@ -19,18 +21,19 @@ export async function handleMonitorResultErorr(event: SynthEvent) {
   }
 
   let bNotify = false
+  let result: MonitorResult | null = null
 
   try {
     //handle case where monitor has failed more than the threshold
     const failCount = monitor.notifications.failCount ?? 0
     logger.info(`monitor ${event.monitorId} failCount ${failCount}`)
 
-    if (failCount > 0) {
+    if (failCount > 0 && event.monitorId) {
       const results = await db
         .selectFrom('MonitorResult')
         .selectAll()
         .orderBy('createdAt', 'desc')
-        .where('id', '=', event.id)
+        .where('monitorId', '=', event.monitorId)
         .limit(failCount)
         .execute()
 
@@ -38,6 +41,7 @@ export async function handleMonitorResultErorr(event: SynthEvent) {
       if (results.length == failCount && results.every((r) => r.err != '')) {
         //send notification
         bNotify = true
+        result = results[0]
       }
     }
 
@@ -55,6 +59,7 @@ export async function handleMonitorResultErorr(event: SynthEvent) {
       if (results.length == 1 && results[0].totalTime > failTimeMS) {
         //send notification
         bNotify = true
+        result = results[0]
       }
     }
   } catch (e) {
@@ -63,5 +68,13 @@ export async function handleMonitorResultErorr(event: SynthEvent) {
 
   if (bNotify) {
     logger.info(`sending notification for monitor: ${event.monitorId}`)
+
+    monitor.notifications.channels?.forEach((channel) => {
+      if (channel.type == 'Slack' && result) {
+        const msg = `Monitor ${event.monitorId} failed`
+        logger.info(`sending notification to channel ${channel}`)
+        sendSlackNotification(channel, result)
+      }
+    })
   }
 }
