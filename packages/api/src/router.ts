@@ -2,13 +2,13 @@ import { FastifyInstance } from 'fastify'
 import MonitorRouter from './routers/MonitorRouter.js'
 import MonitorExecutorRouter from './routers/MonitorExecutorRouter.js'
 import SchedulerRouter from './routers/SchedulerRouter.js'
-import * as gcpMetadata from 'gcp-metadata'
-import { logger } from './Context.js'
+import NotificationRouter from './routers/NotificationRouter.js'
 
 export default async function router(fastify: FastifyInstance) {
   fastify.register(MonitorRouter, { prefix: '/monitors' })
   fastify.register(SchedulerRouter, { prefix: '/services/scheduler' })
   fastify.register(MonitorExecutorRouter, { prefix: '/services/monitor' })
+  fastify.register(NotificationRouter, { prefix: '/services/notification' })
 
   fastify.setNotFoundHandler((_req, reply) => {
     // The expected errors will be handled here, but unexpected ones should eventually result in a crash.

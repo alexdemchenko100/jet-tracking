@@ -2,12 +2,8 @@ import { FastifyInstance } from 'fastify'
 import jwt from 'jsonwebtoken'
 import { JwksClient } from 'jwks-rsa'
 import S from 'fluent-json-schema'
-import { Monitor, MonitorFluentSchema } from '@httpmon/db'
 import Ajv from 'ajv'
-import { execMonitor } from 'src/services/monitor-exec'
-import { processAssertions } from 'src/services/assertions'
-import { saveMonitorResult } from '@httpmon/db'
-import { publishEvent } from 'src/services/EventService'
+import { SynthEvent, SynthEventSchema } from 'src/services/EventService'
 
 const PubsubMessageSchema = S.object()
   .prop('subscription', S.string())
@@ -22,8 +18,8 @@ const PubsubMessageSchema = S.object()
       .prop('publishTime', S.string())
   )
 
-const validateMonitor = new Ajv({ allErrors: true }).compile<Monitor>(
-  MonitorFluentSchema.valueOf()
+const validateSynthEvent = new Ajv({ allErrors: true }).compile<SynthEvent>(
+  SynthEventSchema.valueOf()
 )
 type PubsubMessage = {
   subscription: string
@@ -38,7 +34,7 @@ var client = new JwksClient({
   jwksUri: 'https://www.googleapis.com/oauth2/v3/certs',
 })
 
-export default async function MonitorExecutorRouter(app: FastifyInstance) {
+export default async function NotificationRouter(app: FastifyInstance) {
   app.post<{ Body: PubsubMessage }>(
     '/',
     {
@@ -72,48 +68,38 @@ export default async function MonitorExecutorRouter(app: FastifyInstance) {
 
       const msg = req.body
 
-      const monitorBuf = Buffer.from(msg.message.data, 'base64')
-      const monitorObj = JSON.parse(monitorBuf.toString())
+      const buf = Buffer.from(msg.message.data, 'base64')
+      const event = JSON.parse(buf.toString())
 
-      if (!validateMonitor(monitorObj)) {
+      if (!validateSynthEvent(event)) {
         app.log.error(
-          validateMonitor.errors,
+          validateSynthEvent.errors,
           'Monitor exec failed due to schema validation errors'
         )
         reply.code(200).send()
         return
       }
 
-      const monitor = monitorObj as Monitor
+      app.log.info(event, 'Notification handling for event')
 
-      app.log.info(`Exec monitor event: ${monitor.name}`)
+      //business logic
 
-      const result = await execMonitor(monitor)
+      // app.log.info(
+      //   `exec-monitor-result: code: ${result.code} err: ${result.err} totalTime: ${result.totalTime}`
+      // )
 
-      if (result.err == '') {
-        const asserionResults = processAssertions(monitor, result)
-        result.assertResults = asserionResults
-        result.err = asserionResults.some((a) => a.fail)
-          ? 'assertions failed'
-          : ''
-      }
+      // //createdAt caused type issue for db
+      // await saveMonitorResult({ ...result })
 
-      app.log.info(
-        `exec-monitor-result: code: ${result.code} err: ${result.err} totalTime: ${result.totalTime}`
-      )
-
-      //createdAt caused type issue for db
-      const monitorResult = await saveMonitorResult({ ...result })
-
-      if (result.err) {
-        publishEvent({
-          type: 'monitor-exec-error',
-          id: monitorResult?.id,
-          name: monitor.name,
-          accountId: monitor.accountId,
-          message: result.err,
-        })
-      }
+      // if (result.err) {
+      //   publishEvent({
+      //     type: 'monitor-exec-error',
+      //     id: result.id,
+      //     name: monitor.name,
+      //     accountId: monitor.accountId,
+      //     message: result.err,
+      //   })
+      // }
 
       reply.code(200).send()
     }

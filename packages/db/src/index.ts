@@ -59,8 +59,13 @@ export async function saveMonitorResult(
   }
 
   try {
-    await db.insertInto('MonitorResult').values(resultForSaving).execute()
+    return await db
+      .insertInto('MonitorResult')
+      .values(resultForSaving)
+      .returningAll()
+      .executeTakeFirst()
   } catch (e) {
     console.log('exception: ', e)
+    return null
   }
 }

@@ -1,7 +1,4 @@
-import {
-  createNewAccount,
-  getAccountIdByUser,
-} from './../services/DBService'
+import { createNewAccount, getAccountIdByUser } from './../services/DBService'
 import { firebaseAuth } from './../Firebase'
 import { ResultQueryString } from './../services/MonitorService'
 import { execMonitor } from '../services/monitor-exec.js'
@@ -292,7 +289,7 @@ export default async function MonitorRouter(app: FastifyInstance) {
     },
     async function (req, reply) {
       const mon = req.body
-      req.log.info(mon, 'exec')
+      req.log.info('exec ondemand')
 
       const result = await execMonitor(mon)
       const asserionResults = processAssertions(mon, result)
