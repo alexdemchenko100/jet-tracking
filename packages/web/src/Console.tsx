@@ -12,6 +12,7 @@ import {
   Image,
   Menu,
   MenuButton,
+  MenuDivider,
   MenuItem,
   MenuList,
   Spacer,
@@ -27,7 +28,7 @@ import { FiSettings, FiClipboard, FiMenu, FiSearch } from 'react-icons/fi'
 import { MdHome, MdKeyboardArrowRight } from 'react-icons/md'
 import { logoTitle } from './Assets'
 import { Outlet, useNavigate } from 'react-router-dom'
-import { signOut } from './services/FirebaseAuth'
+import { signOut, useAuth } from './services/FirebaseAuth'
 import { Store } from './services/Store'
 
 const SIDEBAR_WIDTH = '40'
@@ -43,8 +44,7 @@ export default function Console() {
   const envNav = useDisclosure()
   const navigate = useNavigate()
 
-  const userState = Store.watch(Store.UserState)
-  const user = userState.user
+  const { user } = useAuth()
 
   const NavItem: React.FC<Props> = (props) => {
     const { icon, children, to, ...rest } = props
@@ -79,20 +79,6 @@ export default function Console() {
         {children}
       </Flex>
     )
-  }
-
-  function profileName() {
-    if (user) {
-      return user.displayName || user.email || ''
-    }
-    return ''
-  }
-
-  function profileImage() {
-    if (user && user.photoURL) {
-      return user.photoURL
-    }
-    return null
   }
 
   const SidebarContent = (props: any) => (
@@ -182,13 +168,15 @@ export default function Console() {
                 <Avatar
                   ml='4'
                   size='sm'
-                  name={profileName()}
-                  src={profileImage() || undefined}
+                  name={user?.displayName || user?.email || ''}
+                  src={user?.photoURL ?? undefined}
                   cursor='pointer'
                 />
               </MenuButton>
               <MenuList>
-                <MenuItem>Profile</MenuItem>
+                {user && user.displayName && <MenuItem color='purple'>{user.displayName}</MenuItem>}
+                {user && user.email && <MenuItem>{user.email}</MenuItem>}
+                <MenuDivider />
                 <MenuItem
                   onClick={async () => {
                     await signOut()

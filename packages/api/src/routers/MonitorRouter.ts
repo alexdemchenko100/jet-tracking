@@ -1,8 +1,8 @@
 import {
-  createAccountIdByUser,
+  createNewAccount,
   getAccountIdByUser,
 } from './../services/DBService'
-import { firebaseApp, firebaseAuth } from './../Firebase'
+import { firebaseAuth } from './../Firebase'
 import { ResultQueryString } from './../services/MonitorService'
 import { execMonitor } from '../services/monitor-exec.js'
 import { MonitorService } from '../services/MonitorService.js'
@@ -47,7 +47,7 @@ export default async function MonitorRouter(app: FastifyInstance) {
       app.log.error(`user ${user.uid} ${user.email} not found`)
 
       //It may be a new user, so create an account for them
-      accountId = await createAccountIdByUser(user.uid, user.email ?? '')
+      accountId = await createNewAccount(user.uid, user.email ?? '')
     }
 
     request.requestContext.set('user', { user: user.email, accountId })
@@ -68,9 +68,7 @@ export default async function MonitorRouter(app: FastifyInstance) {
       const mon = req.body
 
       const resp = await monitorSvc.create(mon)
-
-      req.log.info(mon, 'create mon')
-      req.log.info(resp, 'resp mon')
+      req.log.info(`Creating monitor: ${resp?.id}`)
 
       reply.send(resp)
     }
@@ -107,7 +105,7 @@ export default async function MonitorRouter(app: FastifyInstance) {
       if (mon) {
         reply.send(mon)
       } else {
-        reply.code(404).send('Not found')
+        reply.code(404).send(`${id} Not found`)
       }
     }
   )
@@ -125,14 +123,12 @@ export default async function MonitorRouter(app: FastifyInstance) {
     },
     async function ({ params: { id }, body: monitor, log }, reply) {
       if (id != monitor.id) {
-        reply.code(400).send('invalid monitor id')
+        reply.code(400).send('Monitor id is not valid')
         return
       }
 
       const resp = await monitorSvc.update(monitor)
-
-      log.info(monitor, 'updating monitor')
-      log.info(resp, 'resp mon')
+      log.info(`Updating monitor: ${monitor.id}`)
 
       reply.send(resp)
     }
@@ -148,7 +144,7 @@ export default async function MonitorRouter(app: FastifyInstance) {
     },
     async function ({ params: { id }, log }, reply) {
       const resp = await monitorSvc.delete(id)
-      log.info(resp, `deleted mon id: ${id}`)
+      log.info(resp, `Deleted monitor id: ${id}`)
       reply.send(resp)
     }
   )

@@ -1,6 +1,5 @@
 import { db } from '@httpmon/db'
 import { nanoid } from 'nanoid'
-
 import { logger } from '../Context'
 
 export const getAccountIdByUser = async (userId: string) => {
@@ -13,7 +12,7 @@ export const getAccountIdByUser = async (userId: string) => {
   return resp?.accountId
 }
 
-export const createAccountIdByUser = async (userId: string, email: string) => {
+export const createNewAccount = async (userId: string, email: string) => {
   let newAccountId = ''
 
   await db.transaction().execute(async (trx) => {

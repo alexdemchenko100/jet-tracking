@@ -7,6 +7,7 @@ import Ajv from 'ajv'
 import { execMonitor } from 'src/services/monitor-exec'
 import { processAssertions } from 'src/services/assertions'
 import { saveMonitorResult } from '@httpmon/db'
+import { publishEvent } from 'src/services/EventService'
 
 const PubsubMessageSchema = S.object()
   .prop('subscription', S.string())
@@ -103,6 +104,16 @@ export default async function MonitorExecutorRouter(app: FastifyInstance) {
 
       //createdAt caused type issue for db
       await saveMonitorResult({ ...result })
+
+      if (result.err) {
+        publishEvent({
+          type: 'monitor-exec-error',
+          id: result.id,
+          name: monitor.name,
+          accountId: monitor.accountId,
+          message: result.err,
+        })
+      }
 
       reply.code(200).send()
     }

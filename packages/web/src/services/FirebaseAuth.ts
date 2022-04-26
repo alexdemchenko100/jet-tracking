@@ -79,3 +79,12 @@ export function setUser(user: User | null) {
   Store.UserState.user = user
   getIDTokenPossiblyRefreshed(user)
 }
+
+export function useAuth() {
+  const userState = Store.watch(Store.UserState)
+  return {
+    isLoggedIn: !!userState.user,
+    signOut: signOut,
+    user: userState.user,
+  }
+}

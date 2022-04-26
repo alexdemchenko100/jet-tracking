@@ -5,7 +5,7 @@ import { PubSub } from '@google-cloud/pubsub'
 import { JwksClient } from 'jwks-rsa'
 import jwt from 'jsonwebtoken'
 import S from 'fluent-json-schema'
-import { logger } from '../Context'
+import { logger, state } from '../Context'
 
 const PubsubMessageSchema = S.object()
   .prop('subscription', S.string())
@@ -29,21 +29,28 @@ type PubsubMessage = {
   }
 }
 
-var client = new JwksClient({
+var jwkClient = new JwksClient({
   jwksUri: 'https://www.googleapis.com/oauth2/v3/certs',
 })
 
-const pubsub = new PubSub({ projectId: 'httpmon-test' })
+let pubsub: PubSub | null = null
 
-const topicName = 'httpmon-test-monitor-' //process.env.TOPIC_NAME
+//TOPIC name would be prohectId-monitor-locationName ex: httpmon-test-monitor-us-east1
 
 async function publishMonitorMessage(mon: Monitor) {
+  const projectId = state.projectId
+  if (!pubsub) {
+    pubsub = new PubSub({ projectId })
+  }
+
+  if (!pubsub) throw new Error('Pubsub is not initialized')
+
   if (!mon.locations || mon.locations.length < 1) return
 
-  mon.locations.forEach(async (loc) => {
-    const TOPIC_NAME = `${topicName}${loc}`
+  mon.locations.forEach(async (locationName) => {
+    const TOPIC_NAME = `${projectId}-monitor-${locationName}`
     try {
-      await pubsub.topic(TOPIC_NAME).publishMessage({ json: mon })
+      await pubsub?.topic(TOPIC_NAME).publishMessage({ json: mon })
     } catch (error) {
       logger.error(
         `Received error while publishing to ${TOPIC_NAME} - ${error.message}`
@@ -75,7 +82,7 @@ export default async function SchedulerRouter(app: FastifyInstance) {
       const decoded = jwt.decode(token, { complete: true })
 
       const kid = decoded?.header.kid
-      const key = await client.getSigningKey(kid)
+      const key = await jwkClient.getSigningKey(kid)
       const signingKey = key.getPublicKey()
       const verified = jwt.verify(token, signingKey)
 

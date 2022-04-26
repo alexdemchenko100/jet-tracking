@@ -8,6 +8,16 @@ import * as gcpMetadata from 'gcp-metadata'
 import pino from 'pino'
 const plogger = pino()
 
+interface WebAppState {
+  projectId: string
+  region: string
+}
+
+export const state: WebAppState = {
+  projectId: '',
+  region: '',
+}
+
 interface UserInfo {
   user: string
   accountId: string
@@ -17,8 +27,6 @@ declare module 'fastify-request-context' {
   interface RequestContextData {
     user: UserInfo
     logger: FastifyLoggerInstance
-    projectId: string
-    region: string
   }
 }
 
@@ -57,15 +65,16 @@ async function initGCPMetadata() {
     // level metadata, see:
     // https://cloud.google.com/compute/docs/storing-retrieving-metadata#project-instance-metadata
     if (isAvailable) {
-      const projectId = await gcpMetadata.project('project-id')
-      requestContext.set('projectId', projectId)
+      state.projectId = await gcpMetadata.project('project-id')
+
       const gcpRegion = await gcpMetadata.instance('region')
       //get last word after slash
-      const region = gcpRegion.split('/').pop()
-      requestContext.set('region', region)
-      const zone = await gcpMetadata.instance('zone')
+      state.region = gcpRegion.split('/').pop()
 
-      logger.info(`Project ID: ${projectId} Region: ${region} Zone: ${zone}`)
+      const zone = await gcpMetadata.instance('zone')
+      logger.info(
+        `Project ID: ${state.projectId} Region: ${state.region} Zone: ${zone}`
+      )
     }
   } catch (error) {
     logger.error(error)
