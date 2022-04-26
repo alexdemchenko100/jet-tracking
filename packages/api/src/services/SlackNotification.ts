@@ -7,7 +7,7 @@ export function sendSlackNotification(
 ) {
   got.post(channel.target, {
     json: {
-      text: `Monitor ${result.monitorId} failed: ${result.err}`,
+      text: `${result.id}:  Monitor ${result.monitorId} failed: ${result.err}`,
     },
   })
 }
