@@ -114,3 +114,28 @@ export function processAssertions(
 
   return assertionResults
 }
+
+//format assertion results as a string
+
+//format assertion result as a string
+function formatAssertResult(a: MonitorAssertionResult) {
+  if (a.fail) {
+    return `${a.type} ${a.name || ''} ${a.op} ${a.value} failed with: ${a.fail}`
+  }
+  return ''
+}
+
+export function formatAssertionResults(result: MonitorResult) {
+  if (!result.assertResults || typeof result.assertResults === 'string')
+    return ''
+
+  const bfailed = result.assertResults.some((a) => a.fail)
+  if (!bfailed) return ''
+
+  let assertionResults = result.assertResults ?? []
+  let s = ''
+  for (let i = 0; i < assertionResults.length; i++) {
+    s += formatAssertResult(assertionResults[i])
+  }
+  return s
+}

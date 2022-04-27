@@ -73,7 +73,7 @@ export async function handleMonitorResultErorr(event: SynthEvent) {
       if (channel.type == 'Slack' && result) {
         const msg = `Monitor ${event.monitorId} failed`
         logger.info(`sending notification to channel ${channel}`)
-        sendSlackNotification(channel, result)
+        sendSlackNotification(channel, monitor, result)
       }
     })
   }
