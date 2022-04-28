@@ -46,12 +46,13 @@ export const currentUserInfo = () => {
 }
 
 export const getCloudRegion = () => {
-  const region = requestContext.get('region')
-  if (!region) {
-    //if not in cloud environment, use a random region to spice things up
-    return ['us-east1', 'europe-west3'][Math.floor(Math.random() * 2)]
+  if (!state.region) {
+    if (process.env.NODE_ENV !== 'production') {
+      //if not in cloud environment, use a random region to spice things up
+      return ['us-east1', 'europe-west3'][Math.floor(Math.random() * 2)]
+    }
   }
-  return region
+  return state.region
 }
 
 async function initGCPMetadata() {

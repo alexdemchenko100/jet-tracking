@@ -71,7 +71,6 @@ export async function handleMonitorResultErorr(event: SynthEvent) {
 
     monitor.notifications.channels?.forEach((channel) => {
       if (channel.type == 'Slack' && result) {
-        const msg = `Monitor ${event.monitorId} failed`
         logger.info(`sending notification to channel ${channel}`)
         sendSlackNotification(channel, monitor, result)
       }
