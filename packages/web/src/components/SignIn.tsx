@@ -10,10 +10,25 @@ import {
 import { useForm } from 'react-hook-form'
 import { useMutation } from 'react-query'
 
-import { Spinner } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Checkbox,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+  Stack,
+  useColorModeValue,
+  Text,
+  Link as ChakraLink,
+  Image,
+  HStack,
+  VStack,
+} from '@chakra-ui/react'
 import { Link, Navigate } from 'react-router-dom'
 
-import { Store } from '../services/Store'
 import { logoTitle, googleSigninButton } from '../Assets'
 import { isLoggedIn, setUser } from '../services/FirebaseAuth'
 
@@ -24,6 +39,13 @@ export type SignInForm = {
 }
 
 export function SignIn() {
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm<SignInForm>()
+
   const {
     mutateAsync: signInAsync,
     isLoading,
@@ -40,19 +62,14 @@ export function SignIn() {
       console.error(e)
     }
 
-    if (!creds || !creds.user || !creds.user.emailVerified)
-      throw new Error('auth call has internal failure')
+    if (!creds || !creds.user || !creds.user.emailVerified) {
+      setError('email', { type: 'focus', message: 'invalid email/password' })
+      return null
+    }
 
     setUser(creds.user)
     return creds
   })
-
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm<SignInForm>()
 
   async function handleSignIn(data?: SignInForm) {
     // login and wait for response
@@ -64,64 +81,65 @@ export function SignIn() {
   }
 
   return (
-    <div className='bg-gray-100 h-screen text-gray-800 pt-24 font-raleway'>
-      {isLoading && <Spinner />}
-      <form className='mx-auto w-full sm:max-w-sm' onSubmit={handleSubmit(handleSignIn)}>
-        <img className='w-40 mx-auto' src={logoTitle} />
-
-        <h1 className='mt-8 text-4xl text-center leading-loose'>Sign in</h1>
-
-        <input
-          className='form-input mt-8 w-full text-gray-700 h-16'
-          id='username'
-          type='email'
-          placeholder='Your email'
-          required
-          {...register('email')}
-        />
-
-        <input
-          className='form-input mt-4 w-full text-gray-700 h-16'
-          id='password'
-          type='password'
-          required
-          placeholder='Your password'
-          autoComplete='on'
-          {...register('password')}
-        />
-
-        <p className='text-red-500 text-xs italic py-2'>{JSON.stringify(error, null, 2)}</p>
-
-        <div className='flex mt-2 mb-2 justify-between'>
-          <label className='flex items-center'>
-            <input type='checkbox' className='form-checkbox' {...register('remember')} />
-            <span className='ml-2'>Remember me</span>
-          </label>
-
-          <Link className='text-blue-600 hover:text-blue-800 text-center' to='/console/forgot'>
-            Forgot your password?
+    <Flex minH={'100vh'} justify={'center'} bg={useColorModeValue('gray.50', 'gray.800')}>
+      <Stack spacing='8' mx='auto' w='100%' maxW='lg' py='12' px='6'>
+        <Image w='40' mb='10' src={logoTitle} />
+        <form onSubmit={handleSubmit(handleSignIn)}>
+          <Box rounded={'lg'} bg={useColorModeValue('white', 'gray.700')} boxShadow={'lg'} p={8}>
+            <Stack align='center'>
+              <Heading fontSize='2xl' mb='10'>
+                Sign in to your account
+              </Heading>
+            </Stack>
+            <Stack spacing={4}>
+              <FormControl id='email'>
+                <FormLabel>Email</FormLabel>
+                <Input type='email' required {...register('email')} />
+              </FormControl>
+              {errors.email && <Text color='red.500'>{errors.email.message}</Text>}
+              <FormControl id='password'>
+                <FormLabel>Password</FormLabel>
+                <Input type='password' required autoComplete='on' {...register('password')} />
+              </FormControl>
+              {errors.password && <Text color='red.500'>{errors.password.message}</Text>}
+              <Stack spacing={10}>
+                <Stack
+                  direction={{ base: 'column', sm: 'row' }}
+                  align={'start'}
+                  justify={'space-between'}
+                >
+                  <Checkbox {...register('remember')}>Remember me</Checkbox>
+                  <Link to='/console/forgot'>
+                    <ChakraLink color={'blue.400'}>Forgot password?</ChakraLink>
+                  </Link>
+                </Stack>
+                <Button
+                  type='submit'
+                  bg={'blue.400'}
+                  color={'white'}
+                  _hover={{
+                    bg: 'blue.500',
+                  }}
+                >
+                  Sign in
+                </Button>
+                <VStack>
+                  <Text fontSize='md' whiteSpace='nowrap'>
+                    or continue with
+                  </Text>
+                  <Image w='60%' src={googleSigninButton} onClick={() => handleSignIn()}></Image>
+                </VStack>
+              </Stack>
+            </Stack>
+          </Box>
+        </form>
+        <HStack align='center' spacing={4}>
+          <Text>Don't have an account?</Text>
+          <Link to='/console/signup'>
+            <ChakraLink color={'blue.400'}>Sign up</ChakraLink>
           </Link>
-        </div>
-
-        <button
-          className='bg-gradient-callout mt-6 h-12 w-full text-2xl text-white rounded-lg focus:outline-none focus:shadow-outline'
-          type='submit'
-        >
-          Sign in
-        </button>
-      </form>
-      <p className='h-8 mt-4 mb-4 text-xl text-gray-800 text-center'>Or</p>
-      <div className='w-full flex justify-center'>
-        <button className='w-56' onClick={() => handleSignIn()}>
-          <img src={googleSigninButton} />
-        </button>
-      </div>
-      <p className='mt-4 text-center text-xl text-gray-600'>
-        Don't have an account yet?
-        <Link className='text-blue-600 hover:text-blue-800 text-center' to='/console/signup'>
-          &nbsp;Sign up
-        </Link>
-      </p>
-    </div>
+        </HStack>
+      </Stack>
+    </Flex>
   )
 }
