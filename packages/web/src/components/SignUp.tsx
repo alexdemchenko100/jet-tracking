@@ -1,6 +1,13 @@
 import {
+  Box,
   Button,
   Center,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  HStack,
+  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -8,7 +15,14 @@ import {
   ModalFooter,
   ModalOverlay,
   Spinner,
+  Stack,
+  useColorModeValue,
   useDisclosure,
+  VStack,
+  Image,
+  Link as ChakraLink,
+  Text,
+  Divider,
 } from '@chakra-ui/react'
 
 import {
@@ -47,11 +61,9 @@ export default function SignUp() {
     error,
     data,
     status,
-  } = useMutation<UserCredential, AuthError, SignUpParams>(
-    async (data: SignUpParams) => {
-      return await firebaseSignup(data)
-    }
-  )
+  } = useMutation<UserCredential, AuthError, SignUpParams>(async (data: SignUpParams) => {
+    return await firebaseSignup(data)
+  })
 
   async function firebaseSignup({ fullName, email, password }: SignUpParams) {
     let creds = await createUserWithEmailAndPassword(getAuth(), email, password)
@@ -70,82 +82,65 @@ export default function SignUp() {
   }
 
   return (
-    <div className="bg-gray-100 h-screen pt-24">
-      {isLoading && <Spinner />}
-      {isSuccess && <SignUpSuccess email={data?.user.email ?? ''} />}
-      {isError && <SignUpError error={error} />}
-
-      <div className="w-full sm:max-w-md mx-auto">
-        <form
-          className="mx-auto w-full sm:max-w-sm"
-          onSubmit={handleSubmit(handleSignUp)}
-        >
-          <img className="w-40 mx-auto" src={logoTitle} />
-          <h1 className="mt-8 text-4xl text-center leading-loose">
-            Create Account
-          </h1>
-          <input
-            type="text"
-            required
-            className="form-input block w-full h-16"
-            placeholder="Your full name"
-            {...register('fullName')}
-          />
-          <input
-            type="email"
-            required
-            className="form-input block w-full h-16 mt-4"
-            placeholder="you@company.com"
-            {...register('email')}
-          />
-          <input
-            type="password"
-            required
-            className="form-input block w-full h-16 mt-4"
-            placeholder="Enter a strong password"
-            {...register('password')}
-          />
-          {/* <input
-            type="password"
-            required
-            className="form-input block w-full h-16 mt-4"
-            placeholder="Confirm Password"
-            {...register('password')}
-          /> */}
-          <button
-            type="submit"
-            className="w-full text-xl text-center mt-4 py-3 rounded bg-gradient-callout text-white focus:outline-none"
-          >
-            Create Account
-          </button>
-          <div className="text-center text-sm text-gray-600 mt-4">
-            By signing up, you agree to the <br />
-            <a
-              className="no-underline border-b bg-gray-100 text-gray-600"
-              href="/docs/terms-of-service.html"
-            >
-              Terms of Service
-            </a>
-            &nbsp;and&nbsp;
-            <a
-              className="no-underline border-b bg-gray-100 text-gray-600"
-              href="/docs/privacy-policy.html"
-            >
-              Privacy Policy
-            </a>
-          </div>
-          <div className=" text-xl text-center text-gray-600 mt-6">
-            Already have an account?
-            <Link
-              className="text-blue-600 hover:text-blue-800 border-b border-blue text-blue"
-              to="/console/signin"
-            >
-              &nbsp;Sign in
-            </Link>
-          </div>
+    <Flex minH={'100vh'} justify={'center'} bg={useColorModeValue('gray.50', 'gray.800')}>
+      <Stack spacing='8' mx='auto' w='100%' maxW='lg' py='12' px='6'>
+        {isLoading && <Spinner />}
+        {isSuccess && <SignUpSuccess email={data?.user.email ?? ''} />}
+        {isError && <SignUpError error={error} />}
+        <Image w='40' mb='10' src={logoTitle} />
+        <form onSubmit={handleSubmit(handleSignUp)}>
+          <Box rounded={'lg'} bg={useColorModeValue('white', 'gray.700')} boxShadow={'lg'} p={8}>
+            <Stack align='center'>
+              <Heading fontSize='2xl' mb='10'>
+                Create your account
+              </Heading>
+            </Stack>
+            <Stack spacing='6'>
+              <FormControl id='email'>
+                <FormLabel>Email</FormLabel>
+                <Input type='email' required {...register('email')} />
+              </FormControl>
+              {errors.email && <Text color='red.500'>{errors.email.message}</Text>}
+              <FormControl id='fullName'>
+                <FormLabel>Full name</FormLabel>
+                <Input type='text' required {...register('fullName')} />
+              </FormControl>
+              {errors.fullName && <Text color='red.500'>{errors.fullName.message}</Text>}
+              <FormControl id='password'>
+                <FormLabel>Password</FormLabel>
+                <Input type='password' required {...register('password')} />
+              </FormControl>
+              {errors.password && <Text color='red.500'>{errors.password.message}</Text>}
+              <Divider />
+              <Button
+                type='submit'
+                bg='blue.400'
+                color='white'
+                _hover={{
+                  bg: 'blue.500',
+                }}
+              >
+                Create Account
+              </Button>
+              <VStack>
+                <Text size='xs'>By signing up, you agree to the</Text>
+                <Text size='xs'>
+                  <ChakraLink href='/terms'>Terms of Service</ChakraLink>
+                  &nbsp;and&nbsp;
+                  <ChakraLink href='/privacy'>Privacy Policy</ChakraLink>
+                </Text>
+              </VStack>
+            </Stack>
+          </Box>
         </form>
-      </div>
-    </div>
+        <HStack align='center' spacing='4'>
+          <Text>Have an account?</Text>
+          <Link to='/console/signin'>
+            <ChakraLink color='blue.400'>Sign in</ChakraLink>
+          </Link>
+        </HStack>
+      </Stack>
+    </Flex>
   )
 }
 
@@ -157,29 +152,36 @@ export function SignUpSuccess({ email }: { email: string }) {
       <ModalContent>
         <ModalCloseButton />
         <ModalBody>
-          <h1 className="mb-8 text-2xl text-center">
+          <Heading fontSize='2xl' mb='10'>
             Please verify your email
-          </h1>
-          <p>
-            You are almost there. We sent an email to <br />
-            <strong>{email}</strong>
-            <br />
-            <br />
-            Just click on the link provided in the email to complete your
-            signup. If you don't see the email, you may need to check{' '}
-            <strong>your spam folder</strong>
-            <br />
-          </p>
+          </Heading>
+          <Text>
+            We sent an email to <strong>{email}</strong> with a link to complete your signup. If you
+            don't see it in your inbox, check your spam folder.
+          </Text>
         </ModalBody>
 
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={onClose}>
+          <Button colorScheme='blue' mr='3' onClick={onClose}>
             Close
           </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
   )
+}
+
+function signupErrorMessgae(error: AuthError) {
+  if (error.code === 'auth/email-already-in-use') {
+    return 'Email already in use'
+  }
+  if (error.code === 'auth/invalid-email') {
+    return 'Invalid email'
+  }
+  if (error.code === 'auth/weak-password') {
+    return 'Weak password'
+  }
+  return 'Failed to signup'
 }
 
 export function SignUpError({ error }: { error: AuthError | null }) {
@@ -190,19 +192,15 @@ export function SignUpError({ error }: { error: AuthError | null }) {
         <ModalOverlay />
         <ModalContent>
           <ModalBody>
-            <div className="flex flex-col max-w-6xl px-8 mx-auto items-center justify-around h-64">
-              <div className="text-xl">
-                <p>
-                  Signup failed <br />
-                  {error && JSON.stringify(error, null, 2)}
-                </p>
-              </div>
-            </div>
+            <Heading fontSize='2xl' mb='10'>
+              Signup failed <br />
+            </Heading>
+            {error && <Text>{signupErrorMessgae(error)}</Text>}
           </ModalBody>
 
           <ModalFooter>
             <Center>
-              <Button colorScheme="blue" mr={3} onClick={onClose}>
+              <Button colorScheme='blue' mr='3' onClick={onClose}>
                 Close
               </Button>
             </Center>

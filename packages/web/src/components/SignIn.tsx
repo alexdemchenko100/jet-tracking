@@ -81,17 +81,17 @@ export function SignIn() {
   }
 
   return (
-    <Flex minH={'100vh'} justify={'center'} bg={useColorModeValue('gray.50', 'gray.800')}>
+    <Flex minH='100vh' justify='center' bg={useColorModeValue('gray.50', 'gray.800')}>
       <Stack spacing='8' mx='auto' w='100%' maxW='lg' py='12' px='6'>
         <Image w='40' mb='10' src={logoTitle} />
         <form onSubmit={handleSubmit(handleSignIn)}>
-          <Box rounded={'lg'} bg={useColorModeValue('white', 'gray.700')} boxShadow={'lg'} p={8}>
+          <Box rounded={'lg'} bg={useColorModeValue('white', 'gray.700')} boxShadow='lg' p='8'>
             <Stack align='center'>
               <Heading fontSize='2xl' mb='10'>
                 Sign in to your account
               </Heading>
             </Stack>
-            <Stack spacing={4}>
+            <Stack spacing='6'>
               <FormControl id='email'>
                 <FormLabel>Email</FormLabel>
                 <Input type='email' required {...register('email')} />
@@ -102,7 +102,7 @@ export function SignIn() {
                 <Input type='password' required autoComplete='on' {...register('password')} />
               </FormControl>
               {errors.password && <Text color='red.500'>{errors.password.message}</Text>}
-              <Stack spacing={10}>
+              <Stack spacing='10'>
                 <Stack
                   direction={{ base: 'column', sm: 'row' }}
                   align={'start'}
@@ -110,13 +110,13 @@ export function SignIn() {
                 >
                   <Checkbox {...register('remember')}>Remember me</Checkbox>
                   <Link to='/console/forgot'>
-                    <ChakraLink color={'blue.400'}>Forgot password?</ChakraLink>
+                    <ChakraLink color='blue.400'>Forgot password?</ChakraLink>
                   </Link>
                 </Stack>
                 <Button
                   type='submit'
-                  bg={'blue.400'}
-                  color={'white'}
+                  bg='blue.400'
+                  color='white'
                   _hover={{
                     bg: 'blue.500',
                   }}
@@ -133,10 +133,10 @@ export function SignIn() {
             </Stack>
           </Box>
         </form>
-        <HStack align='center' spacing={4}>
+        <HStack align='center' spacing='4'>
           <Text>Don't have an account?</Text>
           <Link to='/console/signup'>
-            <ChakraLink color={'blue.400'}>Sign up</ChakraLink>
+            <ChakraLink color='blue.400'>Sign up</ChakraLink>
           </Link>
         </HStack>
       </Stack>
