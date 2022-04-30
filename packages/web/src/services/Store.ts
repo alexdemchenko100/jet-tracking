@@ -6,8 +6,15 @@ import { devtools } from 'valtio/utils'
 import { BrowserHistory } from 'history'
 import { QueryClient } from 'react-query'
 
+interface UserInfo {
+  uid?: string
+  email?: string
+  displayName?: string
+  photoURL?: string
+}
+
 interface UserState {
-  user: User | null
+  userInfo: UserInfo
 }
 
 interface StoreState {
@@ -15,6 +22,7 @@ interface StoreState {
   UIState: UIState
   history: BrowserHistory | null
   queryClient: QueryClient | null
+  user: User | null
 }
 
 interface UIState {
@@ -32,7 +40,7 @@ interface UIState {
   }
 }
 
-const userState: UserState = { user: null }
+const userState: UserState = { userInfo: {} }
 const uiState: UIState = {
   editor: {
     monitorLocations: [...MonitorLocations],
@@ -48,6 +56,7 @@ const store: StoreState = {
   UIState: proxy(uiState),
   history: null,
   queryClient: null,
+  user: null,
 }
 
 export const Store = {

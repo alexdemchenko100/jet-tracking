@@ -65,26 +65,43 @@ export async function signOut() {
   if (auth) {
     await auth.signOut()
   }
-  Store.UserState.user = null
+  Store.UserState.userInfo = {}
   if (Store.queryClient) {
     Store.queryClient.removeQueries()
   }
 }
 
-export function isLoggedIn() {
-  return !!Store.UserState.user
+export function isLoggedIn(): boolean {
+  //if email is not set, then user is not logged in
+  if (
+    Store.UserState.userInfo.email &&
+    Store.UserState.userInfo.email.length > 0 &&
+    Store.user?.emailVerified
+  ) {
+    return true
+  }
+  return false
 }
 
 export function setUser(user: User | null) {
-  Store.UserState.user = user
-  getIDTokenPossiblyRefreshed(user)
+  if (user) {
+    const { uid, email, displayName, photoURL } = user
+    Store.UserState.userInfo.uid = uid
+    Store.UserState.userInfo.email = email || undefined
+    Store.UserState.userInfo.displayName = displayName || undefined
+    Store.UserState.userInfo.photoURL = photoURL || undefined
+    Store.user = user
+  }
+
+  getIDTokenPossiblyRefreshed()
 }
 
 export function useAuth() {
   const userState = Store.watch(Store.UserState)
+
   return {
-    isLoggedIn: !!userState.user,
+    isLoggedIn: isLoggedIn(),
     signOut: signOut,
-    user: userState.user,
+    userInfo: userState.userInfo,
   }
 }

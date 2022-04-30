@@ -29,7 +29,6 @@ import { MdHome, MdKeyboardArrowRight } from 'react-icons/md'
 import { logoTitle } from './Assets'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { signOut, useAuth } from './services/FirebaseAuth'
-import { Store } from './services/Store'
 
 const SIDEBAR_WIDTH = '40'
 
@@ -44,7 +43,7 @@ export default function Console() {
   const envNav = useDisclosure()
   const navigate = useNavigate()
 
-  const { user } = useAuth()
+  const { userInfo: user } = useAuth()
 
   const NavItem: React.FC<Props> = (props) => {
     const { icon, children, to, ...rest } = props

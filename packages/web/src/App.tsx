@@ -15,8 +15,8 @@ import NewEnv from './components/NewEnv'
 import { MonitorDashboard } from './components/MonitorDashboard'
 import { MonitorView } from './components/MonitorView'
 import { MonitorEditPanel } from './components/MonitorEditPanel'
+import { useAuth } from './services/FirebaseAuth'
 import { Store } from './services/Store'
-import { ReactNode } from 'react'
 
 const history = createBrowserHistory()
 Store.history = history //save for later
@@ -30,7 +30,7 @@ const ProtectedRoute = ({ isAllowed, children }: { isAllowed: boolean; children:
 }
 
 function App() {
-  const user = Store.watch(Store.UserState).user
+  const { isLoggedIn } = useAuth()
 
   return (
     <HistoryRouter history={history}>
@@ -41,7 +41,7 @@ function App() {
             <Route
               path='/console/monitors'
               element={
-                <ProtectedRoute isAllowed={!!user}>
+                <ProtectedRoute isAllowed={isLoggedIn}>
                   <MonitorDashboard />
                 </ProtectedRoute>
               }
@@ -49,7 +49,7 @@ function App() {
             <Route
               path='/console/monitors/:id'
               element={
-                <ProtectedRoute isAllowed={!!user}>
+                <ProtectedRoute isAllowed={isLoggedIn}>
                   <MonitorView />
                 </ProtectedRoute>
               }
@@ -57,7 +57,7 @@ function App() {
             <Route
               path='/console/monitors/:id/edit'
               element={
-                <ProtectedRoute isAllowed={!!user}>
+                <ProtectedRoute isAllowed={isLoggedIn}>
                   <MonitorEditPanel />
                 </ProtectedRoute>
               }
@@ -65,7 +65,7 @@ function App() {
             <Route
               path='/console/monitors/newapi'
               element={
-                <ProtectedRoute isAllowed={!!user}>
+                <ProtectedRoute isAllowed={isLoggedIn}>
                   <MonitorEditPanel />
                 </ProtectedRoute>
               }
@@ -73,7 +73,7 @@ function App() {
             <Route
               path='/console/env/new'
               element={
-                <ProtectedRoute isAllowed={!!user}>
+                <ProtectedRoute isAllowed={isLoggedIn}>
                   <NewEnv />
                 </ProtectedRoute>
               }

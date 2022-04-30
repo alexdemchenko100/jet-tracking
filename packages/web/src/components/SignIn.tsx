@@ -5,6 +5,7 @@ import {
   signInWithPopup,
   UserCredential,
   AuthError,
+  User,
 } from 'firebase/auth'
 
 import { useForm } from 'react-hook-form'
@@ -59,21 +60,25 @@ export function SignIn() {
         creds = await signInWithEmailAndPassword(getAuth(), data.email, data.password)
       }
     } catch (e) {
-      console.error(e)
+      //console.error(e)
     }
 
     if (!creds || !creds.user || !creds.user.emailVerified) {
       setError('email', { type: 'focus', message: 'invalid email/password' })
-      return null
+      throw new Error('invalid email/password')
     }
 
-    setUser(creds.user)
     return creds
   })
 
   async function handleSignIn(data?: SignInForm) {
     // login and wait for response
-    await signInAsync(data)
+    try {
+      const creds = await signInAsync(data)
+      setUser(creds.user)
+    } catch (e) {
+      setUser(null)
+    }
   }
 
   if (isLoggedIn()) {
