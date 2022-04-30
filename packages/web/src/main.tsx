@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import './index.css'
 import App from './App'
-import { QueryClient, QueryClientProvider } from 'react-query'
+import { QueryClient, QueryClientProvider, setLogger } from 'react-query'
 import axios from 'axios'
 import { initFirebaseAuth } from './services/FirebaseAuth'
 import { Store } from './services/Store'
@@ -22,6 +22,11 @@ if (process.env.NODE_ENV === 'production') {
 
 const queryClient = new QueryClient()
 Store.queryClient = queryClient
+setLogger({
+  log: () => {}, // do nothing console.log,
+  warn: () => {}, // do nothing console.warn,
+  error: () => {}, // do nothing
+})
 
 ReactDOM.render(
   <QueryClientProvider client={queryClient}>

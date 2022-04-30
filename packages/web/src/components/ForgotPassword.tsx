@@ -7,18 +7,28 @@ import {
   ModalContent,
   ModalFooter,
   ModalOverlay,
-  Spinner,
   useDisclosure,
   Center,
+  Box,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+  Text,
+  Image,
+  Stack,
+  useColorModeValue,
+  Divider,
+  Spinner,
+  toast,
+  useToast,
 } from '@chakra-ui/react'
-import {
-  AuthError,
-  getAuth,
-  ActionCodeSettings,
-  sendPasswordResetEmail,
-} from 'firebase/auth'
+import { AuthError, getAuth, ActionCodeSettings, sendPasswordResetEmail } from 'firebase/auth'
 import { useForm } from 'react-hook-form'
 import { useMutation } from 'react-query'
+import { useNavigate } from 'react-router-dom'
+import { useRef } from 'react'
 
 export default function ForgotPassword() {
   type ForgotParams = {
@@ -34,14 +44,35 @@ export default function ForgotPassword() {
   const {
     mutateAsync: forgotPasswordAsync,
     isLoading,
-    isError,
-    isSuccess,
     error,
-    data,
-    status,
-  } = useMutation<unknown, AuthError, ForgotParams>(
+  } = useMutation<void, AuthError, ForgotParams>(
     async (data: ForgotParams) => {
       await firebaseForgotPassword(data.email)
+    },
+    {
+      onSuccess: () => {
+        toast({
+          position: 'top',
+          title: 'Password reset email sent',
+          description: 'Check your email for instructions on how to reset your password',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+          onCloseComplete: () => {
+            navigate('/console/signin')
+          },
+        })
+      },
+      onError: (e: AuthError) => {
+        toast({
+          position: 'top',
+          title: 'Error sending password reset email',
+          description: forgotErrorMessgae(e),
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        })
+      },
     }
   )
 
@@ -50,107 +81,65 @@ export default function ForgotPassword() {
       url: window.location.origin + '/console/signin',
       handleCodeInApp: true,
     }
-    return await sendPasswordResetEmail(getAuth(), email, actionCodeSettings)
+    await sendPasswordResetEmail(getAuth(), email, actionCodeSettings)
   }
 
   async function handleForgotPassword(data: ForgotParams) {
-    await forgotPasswordAsync(data)
+    try {
+      await forgotPasswordAsync(data)
+    } catch (e) {}
+  }
+
+  const toast = useToast()
+  const navigate = useNavigate()
+
+  function forgotErrorMessgae(error: AuthError | undefined) {
+    if (error) {
+      if (error.code === 'auth/email-already-in-use') {
+        return 'Email already in use'
+      }
+      if (error.code === 'auth/invalid-email') {
+        return 'Invalid email'
+      }
+      if (error.code === 'auth/user-not-found') {
+        return 'User not found'
+      }
+    }
+    return 'Failed to reset password'
   }
 
   return (
-    <div className="bg-gray-100 text-gray-800 h-screen pt-24">
-      {isLoading && <Spinner />}
-      <img className="w-40 mx-auto" src={logoTitle} />
-      <div className="sm:max-w-md mx-auto p-8">
-        {isSuccess && <ForgotPasswordSuccess email={''} />}
-        {isError && <ForgotPasswordError error={error} />}
-
-        <form
-          v-else
-          className="flex flex-col items-center
-                      justify-center"
-          onSubmit={handleSubmit(handleForgotPassword)}
-        >
-          <h1 className="mt-8 text-4xl text-center leading-loose">
-            Reset Your Password
-          </h1>
-          <input
-            type="email"
-            required
-            className="form-input block w-full mt-4 h-12"
-            placeholder="Email"
-            {...register('email')}
-          />
-          <button
-            type="submit"
-            className="w-full text-center mt-4 py-3 rounded bg-gradient-callout
-                         text-white hover:bg-blue-700 focus:outline-none"
-          >
-            Send Reset Email
-          </button>
-        </form>
-      </div>
-    </div>
-  )
-}
-
-export function ForgotPasswordSuccess({ email }: { email: string }) {
-  const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true })
-  return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalCloseButton />
-        <ModalBody>
-          <div className="flex flex-col max-w-6xl px-8 mx-auto items-center justify-around">
-            <div className="border mt-4">
-              <p className="text-xl">Check your email</p>
-              <p className="mt-2">
-                We just sent you an email link that allows you to reset your
-                password. Please check your Spam folder if email is not found
-                within few minutes.
-              </p>
-            </div>
-          </div>
-        </ModalBody>
-
-        <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={onClose}>
-            Close
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  )
-}
-
-export function ForgotPasswordError({ error }: { error: AuthError | null }) {
-  const { isOpen, onOpen, onClose } = useDisclosure({ defaultIsOpen: true })
-  return (
-    <>
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalBody>
-            <div className="flex flex-col max-w-6xl px-8 mx-auto items-center justify-around h-64">
-              <div className="text-xl">
-                <p>
-                  Signup failed <br />
-                  {error && JSON.stringify(error, null, 2)}
-                </p>
-              </div>
-            </div>
-          </ModalBody>
-
-          <ModalFooter>
-            <Center>
-              <Button colorScheme="blue" mr={3} onClick={onClose}>
-                Close
+    <Flex minH='100vh' justify='center' bg={useColorModeValue('gray.50', 'gray.800')}>
+      <Stack spacing='8' mx='auto' w='100%' maxW='lg' py='12' px='6'>
+        <Image w='40' mb='10' src={logoTitle} />
+        <form onSubmit={handleSubmit(handleForgotPassword)}>
+          <Box rounded={'lg'} bg={useColorModeValue('white', 'gray.700')} boxShadow='lg' p='8'>
+            <Stack align='center'>
+              <Heading fontSize='2xl' mb='10'>
+                Reset your password
+              </Heading>
+            </Stack>
+            <Stack spacing='6'>
+              <FormControl id='email'>
+                <FormLabel>Email</FormLabel>
+                <Input type='email' required {...register('email')} />
+              </FormControl>
+              {errors.email && <Text color='red.500'>{errors.email.message}</Text>}
+              <Divider />
+              <Button
+                type='submit'
+                bg='blue.400'
+                color='white'
+                _hover={{
+                  bg: 'blue.500',
+                }}
+              >
+                Send reset email
               </Button>
-            </Center>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </>
+            </Stack>
+          </Box>
+        </form>
+      </Stack>
+    </Flex>
   )
 }

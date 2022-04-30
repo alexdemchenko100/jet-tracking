@@ -60,13 +60,12 @@ export default function SignUp() {
     isSuccess,
     error,
     data,
-    status,
   } = useMutation<UserCredential, AuthError, SignUpParams>(async (data: SignUpParams) => {
     return await firebaseSignup(data)
   })
 
   async function firebaseSignup({ fullName, email, password }: SignUpParams) {
-    let creds = await createUserWithEmailAndPassword(getAuth(), email, password)
+    const creds = await createUserWithEmailAndPassword(getAuth(), email, password)
     await updateProfile(creds.user, { displayName: fullName })
     const actionCodeSettings: ActionCodeSettings = {
       url: window.location.origin + '/console/signin',
@@ -78,7 +77,9 @@ export default function SignUp() {
 
   async function handleSignUp(data: SignUpParams) {
     // signin and wait for response
-    await signupAsync(data)
+    try {
+      await signupAsync(data)
+    } catch (e) {}
   }
 
   return (
@@ -98,17 +99,22 @@ export default function SignUp() {
             <Stack spacing='6'>
               <FormControl id='email'>
                 <FormLabel>Email</FormLabel>
-                <Input type='email' required {...register('email')} />
+                <Input type='email' required autoComplete='email' {...register('email')} />
               </FormControl>
               {errors.email && <Text color='red.500'>{errors.email.message}</Text>}
               <FormControl id='fullName'>
                 <FormLabel>Full name</FormLabel>
-                <Input type='text' required {...register('fullName')} />
+                <Input type='text' required autoComplete='name' {...register('fullName')} />
               </FormControl>
               {errors.fullName && <Text color='red.500'>{errors.fullName.message}</Text>}
               <FormControl id='password'>
                 <FormLabel>Password</FormLabel>
-                <Input type='password' required {...register('password')} />
+                <Input
+                  type='password'
+                  required
+                  autoComplete='new-password'
+                  {...register('password')}
+                />
               </FormControl>
               {errors.password && <Text color='red.500'>{errors.password.message}</Text>}
               <Divider />
@@ -135,9 +141,9 @@ export default function SignUp() {
         </form>
         <HStack align='center' spacing='4'>
           <Text>Have an account?</Text>
-          <Link to='/console/signin'>
-            <ChakraLink color='blue.400'>Sign in</ChakraLink>
-          </Link>
+          <ChakraLink as={Link} to='/console/signin' color='blue.400'>
+            Sign in
+          </ChakraLink>
         </HStack>
       </Stack>
     </Flex>

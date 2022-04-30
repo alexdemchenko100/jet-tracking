@@ -109,9 +109,9 @@ export function SignIn() {
                   justify={'space-between'}
                 >
                   <Checkbox {...register('remember')}>Remember me</Checkbox>
-                  <Link to='/console/forgot'>
-                    <ChakraLink color='blue.400'>Forgot password?</ChakraLink>
-                  </Link>
+                  <ChakraLink as={Link} to='/console/forgot' color='blue.400'>
+                    Forgot password?
+                  </ChakraLink>
                 </Stack>
                 <Button
                   type='submit'
@@ -135,9 +135,9 @@ export function SignIn() {
         </form>
         <HStack align='center' spacing='4'>
           <Text>Don't have an account?</Text>
-          <Link to='/console/signup'>
-            <ChakraLink color='blue.400'>Sign up</ChakraLink>
-          </Link>
+          <ChakraLink as={Link} to='/console/signup' color='blue.400'>
+            Sign up
+          </ChakraLink>
         </HStack>
       </Stack>
     </Flex>
