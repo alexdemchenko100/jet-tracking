@@ -3,7 +3,7 @@ import { Home } from './Home'
 import './App.css'
 import 'focus-visible/dist/focus-visible'
 
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 
 import { unstable_HistoryRouter as HistoryRouter } from 'react-router-dom'
 import { createBrowserHistory } from 'history'
@@ -22,8 +22,16 @@ const history = createBrowserHistory()
 Store.history = history //save for later
 
 const ProtectedRoute = ({ isAllowed, children }: { isAllowed: boolean; children: JSX.Element }) => {
+  const { bLoadingUserFirstTime } = Store.watch(Store.UserState)
+  const location = useLocation()
+
+  if (!bLoadingUserFirstTime) {
+    //wait for it
+    return <div>Loading...</div>
+  }
+
   if (!isAllowed) {
-    return <Navigate to={'/console/signin'} replace />
+    return <Navigate to={'/console/signin'} state={{ from: location }} replace />
   }
 
   return children

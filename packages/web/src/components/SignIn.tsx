@@ -28,7 +28,7 @@ import {
   HStack,
   VStack,
 } from '@chakra-ui/react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, useLocation } from 'react-router-dom'
 
 import { logoTitle, googleSigninButton } from '../Assets'
 import { isLoggedIn, setUser } from '../services/FirebaseAuth'
@@ -81,8 +81,17 @@ export function SignIn() {
     }
   }
 
+  interface LocationState {
+    from: {
+      pathname: string
+    }
+  }
+
+  const location = useLocation()
+  const { from } = (location.state as LocationState) || { from: { pathname: '/console/monitors' } }
+
   if (isLoggedIn()) {
-    return <Navigate to='/console/monitors' />
+    return <Navigate to={from} replace />
   }
 
   return (

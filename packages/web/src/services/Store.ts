@@ -15,6 +15,7 @@ interface UserInfo {
 
 interface UserState {
   userInfo: UserInfo
+  bLoadingUserFirstTime: boolean
 }
 
 interface StoreState {
@@ -40,7 +41,7 @@ interface UIState {
   }
 }
 
-const userState: UserState = { userInfo: {} }
+const userState: UserState = { userInfo: {}, bLoadingUserFirstTime: false }
 const uiState: UIState = {
   editor: {
     monitorLocations: [...MonitorLocations],

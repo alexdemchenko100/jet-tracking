@@ -28,7 +28,10 @@ export function initFirebaseAuth() {
   auth = getAuth(app)
 
   auth.onIdTokenChanged((user: User | null) => {
-    // console.log('onIdTokenChanged', user)
+    //On init, this flag is false and here set to true
+    //and it always stays true until the user logs out
+    //used to prevent the login redirects on force reload
+    Store.UserState.bLoadingUserFirstTime = true
     setUser(user)
   })
 
