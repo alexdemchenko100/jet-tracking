@@ -74,7 +74,7 @@ function TimingBar({ result, ...rest }: TimingBarProps) {
               <Text fontSize='sm' isTruncated>
                 {label}
               </Text>
-              <Box bg={color} fontSize='sm' verticalAlign='middle' ml='0.5'>
+              <Box bg={color} fontSize='sm' verticalAlign='middle' ml='0.5' isTruncated>
                 {time}
               </Box>
             </Flex>
@@ -171,16 +171,12 @@ interface APIResultProps {
   onClose?: () => void
 }
 export function APIResult({ result, onClose }: APIResultProps) {
-  const isSuccessCode = (code: number) => code >= 200 && code < 300
+  const isSuccess = result.err == '' || hasFailedAssertions(result) === false
 
   return (
     <Grid gap='1em' mx='2'>
       <Flex alignItems='center'>
-        <Badge
-          colorScheme={isSuccessCode(result.code) ? 'green' : 'red'}
-          fontSize='md'
-          fontWeight='bold'
-        >
+        <Badge colorScheme={isSuccess ? 'green' : 'red'} fontSize='md' fontWeight='bold'>
           {result.code} {result.codeStatus}
         </Badge>
 
@@ -221,8 +217,10 @@ export function APIResult({ result, onClose }: APIResultProps) {
           <Tab>
             Tests
             {result.assertResults && (
-              <sup color={hasFailedAssertions(result) ? 'red' : 'green'}>
-                &nbsp;{result.assertResults.length}
+              <sup>
+                <Text color={hasFailedAssertions(result) ? 'red' : 'green'}>
+                  &nbsp;{result.assertResults.length}
+                </Text>
               </sup>
             )}
           </Tab>
