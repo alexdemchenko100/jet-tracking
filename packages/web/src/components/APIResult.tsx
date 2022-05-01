@@ -171,7 +171,7 @@ interface APIResultProps {
   onClose?: () => void
 }
 export function APIResult({ result, onClose }: APIResultProps) {
-  const isSuccess = result.err == '' || hasFailedAssertions(result) === false
+  const isSuccess = result.err == '' && hasFailedAssertions(result) === false
 
   return (
     <Grid gap='1em' mx='2'>
