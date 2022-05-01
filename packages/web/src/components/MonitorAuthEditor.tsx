@@ -21,7 +21,7 @@ function BasicAuth() {
       </FormControl>
       <FormControl>
         <FormLabel htmlFor='password'>Password</FormLabel>
-        <Input type='password' {...register('auth.basic.password')} />
+        <Input type='password' autoComplete='off' {...register('auth.basic.password')} />
       </FormControl>
     </>
   )
@@ -39,7 +39,7 @@ function BearerAuth() {
 }
 
 export function MonitorAuthEditor() {
-  const { control, register } = useFormContext()
+  const { control } = useFormContext()
 
   const authTypeToIndex = (authType: string) => {
     switch (authType) {

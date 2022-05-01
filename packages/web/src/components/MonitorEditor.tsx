@@ -471,7 +471,7 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
                 </FormControl>
 
                 <FormControl id='url' ml='2'>
-                  <Input placeholder='https:// URL here' {...register('url')} />
+                  <Input placeholder='https:// URL here' autoComplete='url' {...register('url')} />
                 </FormControl>
 
                 <Button
@@ -586,7 +586,12 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
               <Flex mt='2'>
                 <FormControl id='name' w='200'>
                   <Flex alignItems='baseline'>
-                    <Input type='name' {...register('name')} placeholder='Please choose a name' />
+                    <Input
+                      type='name'
+                      autoComplete='name'
+                      {...register('name')}
+                      placeholder='Please choose a name'
+                    />
                   </Flex>
                 </FormControl>
 

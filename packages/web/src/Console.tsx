@@ -179,8 +179,7 @@ export default function Console() {
                 <MenuItem
                   onClick={async () => {
                     await signOut()
-                    navigate('/console/signin')
-                    console.log('signed out')
+                    navigate('/')
                   }}
                 >
                   Signout

@@ -32,7 +32,7 @@ import axios from 'axios'
 import { useMutation, useQuery } from 'react-query'
 import { useNavigate, useParams } from 'react-router-dom'
 import MonitorResultTable from './MonitorResultTable'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { MonitorTimeChart } from './MonitorTimeChart'
 import SplitPane from './SplitPane'
 import { APIResultById } from './APIResultById'
@@ -194,6 +194,10 @@ export function MonitorView() {
     })
     return resp.data as MonitorStats
   })
+
+  useEffect(() => {
+    document.title = 'Monitor View | ProAutoma'
+  }, [])
 
   const freqFormat = useMemo(() => formatFrequency(mon?.frequency ?? 0), [mon])
 

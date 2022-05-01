@@ -2,7 +2,7 @@ import { Monitor, MonitorStats } from '@httpmon/db'
 import axios from 'axios'
 import { useQuery } from 'react-query'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Table,
   Thead,
@@ -36,6 +36,10 @@ import { frequencyMSToLabel } from '../services/FrequencyScale'
 
 export function MonitorDashboard() {
   const navigate = useNavigate()
+
+  useEffect(() => {
+    document.title = 'Monitor Dashboard | ProAutoma'
+  }, [])
 
   async function getMonitors() {
     let resp = await axios({
