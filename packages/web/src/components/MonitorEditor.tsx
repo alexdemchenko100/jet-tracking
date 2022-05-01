@@ -5,13 +5,10 @@ import {
   CheckboxGroup,
   Flex,
   FormControl,
-  FormLabel,
   Grid,
   Heading,
   Icon,
   Input,
-  Radio,
-  RadioGroup,
   Select,
   Slider,
   SliderMark,
@@ -35,8 +32,6 @@ import { useMutation, useQuery } from 'react-query'
 import axios from 'axios'
 import { useNavigate, useParams } from 'react-router-dom'
 import { MonitorAuthEditor } from './MonitorAuthEditor'
-import CodeMirror from '@uiw/react-codemirror'
-import { javascript } from '@codemirror/lang-javascript'
 import {
   getRegionsFromShowLocations,
   getShowLocationsFromRegions,
@@ -46,6 +41,7 @@ import {
 import { Store } from '../services/Store'
 import { frequencyMSToScale, FrequencyScales, scaleToFrequencyMS } from '../services/FrequencyScale'
 import { MonitorNotifications } from './MonitorNotifications'
+import { MonitorBodyEditor } from './MonitorBodyEditor'
 
 function SliderThumbWithTooltip() {
   const { control } = useFormContext()
@@ -143,37 +139,6 @@ function TupleEditor({ name }: TupleProps) {
         {nameToLabel(name)}
       </Button>
     </>
-  )
-}
-
-function BodyInput() {
-  const { control } = useFormContext()
-
-  return (
-    <Controller
-      control={control}
-      name='bodyType'
-      render={({ field }) => (
-        <Flex alignItems='center'>
-          <RadioGroup
-            size='sm'
-            defaultValue=''
-            value={field.value}
-            onChange={(v) => {
-              field.onChange(v)
-            }}
-          >
-            <Stack direction='row'>
-              <Radio value=''>None</Radio>
-              <Radio value='application/json'>JSON</Radio>
-              <Radio value='text/xml'>XML</Radio>
-              <Radio value='text/html'>HTML</Radio>
-              <Radio value='text/plain'>Text</Radio>
-            </Stack>
-          </RadioGroup>
-        </Flex>
-      )}
-    />
   )
 }
 
@@ -395,6 +360,10 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
     return false
   }
 
+  function hasValidBody() {
+    return watched.bodyType != '' && Boolean(watched.body)
+  }
+
   const toast = useToast()
   const navigate = useNavigate()
 
@@ -491,7 +460,7 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
                 <TabList>
                   <Tab>
                     Body
-                    {watched.body && watched.body.length > 0 && <sup color='green'>1</sup>}
+                    {hasValidBody() && <sup color='green'>1</sup>}
                   </Tab>
                   <Tab>
                     Headers
@@ -517,25 +486,7 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
 
                 <TabPanels>
                   <TabPanel>
-                    <BodyInput />
-                    {watched.bodyType && (
-                      <Controller
-                        control={control}
-                        name='body'
-                        render={({ field }) => {
-                          return (
-                            <CodeMirror
-                              height='200px'
-                              extensions={[javascript({ jsx: true })]}
-                              value={field.value}
-                              onChange={(value, _viewUpdate) => {
-                                field.onChange(value)
-                              }}
-                            />
-                          )
-                        }}
-                      />
-                    )}
+                    <MonitorBodyEditor />
                   </TabPanel>
                   <TabPanel>
                     <TupleEditor name='headers' />
