@@ -28,7 +28,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { Monitor, MonitorPeriodStats, MonitorStats } from '@httpmon/db'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { useMutation, useQuery } from 'react-query'
 import { useNavigate, useParams } from 'react-router-dom'
 import MonitorResultTable from './MonitorResultTable'
@@ -179,12 +179,18 @@ export function MonitorView() {
     isLoading,
     data: mon,
     error,
-  } = useQuery<Monitor>(id, async () => {
-    const resp = await axios({
-      method: 'GET',
-      url: `/monitors/${id}`,
-    })
-    return resp.data
+  } = useQuery<Monitor | null>(id, async () => {
+    try {
+      const resp = await axios({ method: 'GET', url: `/monitors/${id}` })
+      if (resp) return resp.data as Monitor
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        //if the monitor is not found, redirect to the list
+        navigate('/console/monitors')
+      }
+      throw error
+    }
+    return null
   })
 
   const { data: stats, error: statError } = useQuery<MonitorStats>(['stats', id], async () => {

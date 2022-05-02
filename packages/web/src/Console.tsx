@@ -101,12 +101,8 @@ export default function Console() {
         <Image src={logoTitle} w='50' />
       </Flex>
       <Flex direction='column' as='nav' fontSize='sm' color='gray.600' aria-label='Main Navigation'>
-        <NavItem icon={MdHome} to='/console/monitors'>
-          Home
-        </NavItem>
-
         <NavItem icon={HiCollection} to='/console/monitors'>
-          API Monitors
+          Monitors
         </NavItem>
 
         <NavItem icon={FiClipboard} onClick={envNav.onToggle}>

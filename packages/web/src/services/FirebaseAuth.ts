@@ -40,6 +40,9 @@ export function initFirebaseAuth() {
     if (error.response && error.response.status == 401) {
       console.log('unauthorized - get token again possibly')
       await getIDTokenPossiblyRefreshed()
+    } else {
+      //let the error be handled by the caller
+      return Promise.reject(error)
     }
   })
 }
