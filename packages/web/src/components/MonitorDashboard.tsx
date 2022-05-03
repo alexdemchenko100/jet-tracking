@@ -33,6 +33,7 @@ import { useTable, useSortBy, usePagination, Column } from 'react-table'
 import { useNavigate } from 'react-router-dom'
 import { MdEdit } from 'react-icons/md'
 import { frequencyMSToLabel } from '../services/FrequencyScale'
+import { NewMonitorHero } from './NewMonitorHero'
 
 export function MonitorDashboard() {
   const navigate = useNavigate()
@@ -235,6 +236,10 @@ export function MonitorDashboard() {
       setSelectedSortColumn(tempColumn)
       setSortBy([tempColumn])
     }
+  }
+
+  if (monitors && monitors.length == 0) {
+    return <NewMonitorHero />
   }
 
   return (
