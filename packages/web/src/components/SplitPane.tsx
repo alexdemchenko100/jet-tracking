@@ -4,53 +4,82 @@ import React, { useEffect, useRef, useState } from 'react'
 const useDrag = (
   orientation: string,
   containerRef: React.RefObject<HTMLDivElement>,
-  leftPaneRef: React.RefObject<HTMLDivElement>,
+  paneOneRef: React.RefObject<HTMLDivElement>,
   enableSplit: boolean,
-  initialPaneSize = '1fr',
   handleSize = 10,
-  minPaneSize = 400
+  minPaneSize = 300
 ) => {
   const isHorizontal = orientation === 'horizontal'
 
-  const [paneSize, setPaneSize] = useState<number | null>(null)
-  const dragPos = useRef<number | null>(null)
-  const containerSize = useRef<number | null>(null)
+  const [paneOneWidth, setPaneOneWidth] = useState<number | null>(null)
+  const dragPosHorizontal = useRef<number | null>(null)
+  const containerWidth = useRef<number | null>(null)
+
+  const [paneOneHeight, setPaneOneHeight] = useState<number | null>(null)
+  const dragPosVertical = useRef<number | null>(null)
+  const containerHeight = useRef<number | null>(null)
 
   const getEventPos = (e: React.MouseEvent) => (isHorizontal ? e.clientX : e.clientY)
-  const getRefSize = (ref: React.RefObject<HTMLDivElement>): number => {
+
+  const getSplitContainerSize = (ref: React.RefObject<HTMLDivElement>): number => {
     if (ref.current) {
+      console.log('ref w, h', ref.current.clientWidth, ref.current.clientHeight)
       return isHorizontal ? ref.current.clientWidth : ref.current.clientHeight
     }
     return 0
   }
 
   const onMouseDown = useCallbackRef((e: React.MouseEvent) => {
-    dragPos.current = getEventPos(e)
-    containerSize.current = getRefSize(containerRef)
+    if (isHorizontal) {
+      dragPosHorizontal.current = getEventPos(e)
+      containerWidth.current = getSplitContainerSize(containerRef)
+    } else {
+      dragPosVertical.current = getEventPos(e)
+      containerHeight.current = getSplitContainerSize(containerRef)
+    }
   })
 
   const onMouseMove = useCallbackRef((e: React.MouseEvent) => {
-    if (!dragPos.current) {
-      return
+    if (isHorizontal && dragPosHorizontal.current) {
+      const pos = getEventPos(e)
+      const size = paneOneWidth || getSplitContainerSize(paneOneRef)
+
+      if (!containerWidth.current) return
+
+      const maxSize = containerWidth.current - handleSize - minPaneSize
+      console.log('maxWidth', maxSize)
+      const newPaneOneSize = Math.min(
+        maxSize,
+        Math.max(minPaneSize, size + pos - dragPosHorizontal.current)
+      )
+
+      dragPosHorizontal.current = pos
+      setPaneOneWidth(newPaneOneSize)
+    } else if (!isHorizontal && dragPosVertical.current) {
+      const pos = getEventPos(e)
+      const size = paneOneHeight || getSplitContainerSize(paneOneRef)
+
+      if (!containerHeight.current) return
+
+      const maxSize = containerHeight.current - handleSize - minPaneSize
+      console.log('maxHeight', maxSize)
+      const newPaneOneSize = Math.min(
+        maxSize,
+        Math.max(minPaneSize, size + pos - dragPosVertical.current)
+      )
+
+      dragPosVertical.current = pos
+
+      setPaneOneHeight(newPaneOneSize)
     }
-
-    const pos = getEventPos(e)
-
-    const size = paneSize || getRefSize(leftPaneRef)
-
-    if (!containerSize.current) return
-
-    const maxSize = containerSize.current - handleSize - minPaneSize
-    console.log('maxWidth', maxSize)
-    const newPaneSize = Math.min(maxSize, Math.max(minPaneSize, size + pos - dragPos.current))
-
-    dragPos.current = pos
-
-    setPaneSize(newPaneSize)
   })
 
   const onMouseUp = () => {
-    dragPos.current = null
+    if (isHorizontal) {
+      dragPosHorizontal.current = null
+    } else {
+      dragPosVertical.current = null
+    }
   }
 
   useEffect(() => {
@@ -64,19 +93,27 @@ const useDrag = (
 
   // const [gridProp, setGridProp] = useState(0);
   // useEffect(() => {
-  const showInitialSize = paneSize === null
 
-  const paneGridSize = showInitialSize
-    ? initialPaneSize
-    : `${((paneSize || 1) / getRefSize(containerRef)) * 100}%`
+  const showInitialSize = isHorizontal ? paneOneWidth === null : paneOneHeight === null
 
-  let gridTemplateProp = `${paneGridSize} ${handleSize}px 1fr`
+  let gridProp = { gridTemplateColumns: '1fr', gridTemplateRows: '1fr' }
+  if (isHorizontal) {
+    const newPaneOneSizeInGridUnits = showInitialSize
+      ? '1fr'
+      : `${((paneOneWidth || 1) / getSplitContainerSize(containerRef)) * 100}%`
 
-  const gridProp = isHorizontal
-    ? {
-        gridTemplateColumns: enableSplit ? gridTemplateProp : '1fr',
-      }
-    : { gridTemplateRows: enableSplit ? gridTemplateProp : '1fr' }
+    gridProp.gridTemplateColumns = enableSplit
+      ? `${newPaneOneSizeInGridUnits} ${handleSize}px 1fr`
+      : '1fr'
+  } else {
+    const newPaneOneSizeInGridUnits = showInitialSize
+      ? '1fr'
+      : `${((paneOneHeight || 1) / getSplitContainerSize(containerRef)) * 100}%`
+
+    gridProp.gridTemplateRows = enableSplit
+      ? `${newPaneOneSizeInGridUnits} ${handleSize}px 1fr`
+      : '1fr'
+  }
 
   // setGridProp(gridProp);
   // }, [paneSize, initialPaneSize, handleSize, isHorizontal]);
@@ -91,7 +128,7 @@ interface SplitPaneProps {
 
 const SplitPane = ({ orientation, children, ...props }: SplitPaneProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
-  const leftPaneRef = useRef<HTMLDivElement>(null)
+  const paneOneRef = useRef<HTMLDivElement>(null)
 
   let pane1 = children ? children[0] : null
   let handle = children && children?.length === 3 ? children[1] : null
@@ -100,19 +137,21 @@ const SplitPane = ({ orientation, children, ...props }: SplitPaneProps) => {
   const { isHorizontal, onMouseDown, gridTemplateColumns, gridTemplateRows } = useDrag(
     orientation,
     containerRef,
-    leftPaneRef,
+    paneOneRef,
     Boolean(pane2)
   )
 
   const containerStyle = {
+    width: '100%',
     // height: '100%',
-    // overflow: 'hidden',
+    height: 'calc(100vh - 5em)',
+    overflow: 'auto',
     display: 'grid',
   }
 
   const pane1Style = {
     // backgroundColor: 'yellow',
-    // height: '100%',
+    //height: '100%',
     overflow: 'auto',
   }
 
@@ -124,6 +163,7 @@ const SplitPane = ({ orientation, children, ...props }: SplitPaneProps) => {
 
   const pane2Style = {
     // backgroundColor: 'lime',
+    // height: '100%',
     overflow: 'auto',
   }
 
@@ -136,7 +176,7 @@ const SplitPane = ({ orientation, children, ...props }: SplitPaneProps) => {
       {...props}
       style={{ ...containerStyle, gridTemplateColumns, gridTemplateRows }}
     >
-      <div ref={leftPaneRef} style={pane1Style}>
+      <div ref={paneOneRef} style={pane1Style}>
         {pane1}
       </div>
       {pane2 && (
@@ -160,11 +200,7 @@ interface DragHandleProps {
 }
 
 export const DragHandle = ({ children, ...props }: DragHandleProps) => {
-  return (
-    <div style={{ width: '100%', height: '100%' }} {...props}>
-      {children}
-    </div>
-  )
+  return <div {...props}>{children}</div>
 }
 
 export default SplitPane

@@ -12,7 +12,7 @@ export function MonitorEditPanel() {
   const [ondemandMonitor, setOndemandMonitor] = useState<Monitor>()
   const [refreshOnDemand, setRefreshOnDemand] = useState(0)
 
-  const vertical = useBreakpointValue({ base: true, lg: false })
+  const vertical = useBreakpointValue({ base: true, xl: false })
 
   function handleQuickRun(monitor: Monitor) {
     setOndemandMonitor(monitor)

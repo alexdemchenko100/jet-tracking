@@ -173,7 +173,7 @@ export function MonitorView() {
     setMonitorResultId(id)
   }
 
-  const vertical = useBreakpointValue({ base: true, lg: false })
+  const vertical = useBreakpointValue({ base: true, xl: false })
 
   const {
     isLoading,
