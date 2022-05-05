@@ -1,0 +1,42 @@
+---
+  import logoTitle from '/assets/logo_title.svg'
+---
+    <div>
+      <div
+        class='relative z-50 font-raleway w-full h-14 flex items-center justify-center text-gray-900'>
+        <div class="flex-shrink-0 px-8 py-4">
+          <a href="/">
+            <img class="w-56 min-w-full" src={logoTitle} />
+          </a>
+        </div>
+        <div class="invisible md:visible md:w-2/3 flex items-center justify-center">
+          <div class="flex-1 flex items-center justify-center">
+            <a href="/product" class="hover:text-gray-400 px-4">
+              Product
+            </a>
+            <a href="/pricing" class="hover:text-gray-400 px-4">
+              Pricing
+            </a>
+            <a href="/services" class="hover:text-gray-400 px-4">
+              Services
+            </a>
+            <a href="/docs/index.html" class="hover:text-gray-400 px-4">
+              Docs
+            </a>
+            <a href="/about" class="hover:text-gray-400 px-4">
+              About
+            </a>
+          </div>
+          <div class="flex items-center justify-end">
+            <a href="/console/signin" class="hover:text-gray-400 px-4">
+              Sign in
+            </a>
+            <a href="/console/signup" class="text-black px-4">
+              <button class='rounded-lg p-2 mr-4 bg-blue-200'>
+                Get Started
+              </button>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>

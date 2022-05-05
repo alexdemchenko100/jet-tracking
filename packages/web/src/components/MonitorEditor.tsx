@@ -440,7 +440,7 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
                 </FormControl>
 
                 <FormControl id='url' ml='2'>
-                  <Input placeholder='https:// URL here' autoComplete='url' {...register('url')} />
+                  <Input placeholder='https:// URL here' type='url' {...register('url')} />
                 </FormControl>
 
                 <Button
