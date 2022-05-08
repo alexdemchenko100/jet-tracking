@@ -19,6 +19,11 @@ import SiteHeader from './SiteHeader.astro'
 
 import { Icon } from 'astro-icon'
 
+function callme(e: any) {
+  // console.log('called')
+  // 4+3
+}
+
 ---
 
 <div class="home min-h-screen font-raleway relative">
@@ -31,22 +36,24 @@ import { Icon } from 'astro-icon'
       <div class="flex flex-col pl-4">
         <p class="text-3xl text-gray-600 ">
         <span class='leading-loose font-bold text-4xl text-teal-600 border-teal-600 border-b-4'>
-          All the tools </span> &nbsp; you need to explore and monitor APIs
+          Explore and Monitor </span> &nbsp; APIs and Web sites with ease
           <br> <span class="font-semibold text-teal-600">round the clock and across the continents</span>
         </p>
         <p class="mt-12 w-3/5 text-gray-600 mb-4 text-xl">
           Monitor your APIs and Web sites seemlessly round the clock. Get notified on your favourite channel when behaviour is not as expected
         </p>
-        <div class="flex mt-12 items-begin pl-4">
-          <a href="/console/signup">
-            <button class="bg-blue-600 hover:bg-blue-800 w-56 rounded-full p-2 text-white text-xl ">
-              Start now - <span class="text-base">It's free</span>
-            </button>
-          </a>
-        </div>
       </div>
     </div>
-    
+
+    <form class="mt-20 p-4 flex items-center justify-start text-xl gap-4 border-4 border-orange-400 rounded-lg" method="get" action="/console/monitors/apinew/?">
+      <select id="method" name="method" class="w-20 m-2 bg-blue-100">
+        <option value="GET">GET</option>
+      </select>
+      <input id="url" name="url" class="ml-4" value="https://httpbin.org/get" />
+      <button type='submit' class="bg-orange-600 hover:bg-blue-800 rounded-full p-2 text-white text-xl">
+        Try now!
+      </button>
+    </form>
     
     <div class="mt-16 grid grid-cols-2 grid-rows-2 gap-10">
       {/*  Dashboard  */}
@@ -163,74 +170,27 @@ import { Icon } from 'astro-icon'
           </ul>
         </div>
       </div>
-      
     </div>
 
-    <div class="flex items-center justify-center">
-      {/* showcase rectangle grid */}
-      <div class="relative w-1/2 h-64 rounded-xl bg-blue-400 -ml-32 z-20">
-        {/* white dots */}
-        <img
-          class="absolute mt-8 mr-8 top-0 right-0"
-          src="../assets/whitedots_grid.png"
-        />
-        
-      </div>
-      <div class="mt-32 bg-gray-200 w-2/3 h-64 z-0 flex items-center justify-center">
-        <div class="flex flex-col items-start content-start w-1/3">
-          <p class="text-2xl">
-            About <span class="font-semibold">Product</span>
-          </p>
-          <p class="mt-2 text-gray-600">
-            TLS secured connections with public key server identity. Password
-            based user identity and ACL based topic authorizations
-          </p>
-          <a href="/docs/promqtt.html">
-            <p class="mt-4 text-sm text-red-600">
-              <img class="inline" src={rightArrowPointer} /> Learn more
-            </p>
+    <div class="flex gap-2">
+      <img src={blueDotGrid} />
+      <img src={blueDotGrid} />
+    </div>
+
+    {/* cloud edu*/}
+    <div class="relative mt-12 w-2/3 h-64 mx-auto">
+      <div class="flex items-center justify-center relative z-20 pt-8">
+        <div class="flex mt-12 items-begin pl-4">
+          <a href="/console/signup">
+            <button class="bg-blue-600 hover:bg-blue-800 w-56 rounded-full p-2 text-white text-xl ">
+              Start now - <span class="text-base">It's free</span>
+            </button>
           </a>
         </div>
+
       </div>
     </div>
-    {/* cloud edu*/}
-    <div class="relative mt-64 w-2/3 h-64 mx-auto">
-      <img class="absolute z-0" src={cloud} />
-      <div class="flex items-center justify-center relative z-20 pt-8">
-        <img src={blueDotGrid} />
-        <img class="ml-6" src={questionMark} />
-        <p class="ml-6 text-xl text-gray-600">
-          New to <span class="font-semibold">MQTT Brokers?</span>
-          <br />
-          <br />
-          <span>
-            MQTT is the protocol of choice for connecting IoT devices to the
-            internet. It has a number of advantages compared to HTTP in
-            operating in a constrained environment and efficiently using
-            limited bandwidth.
-          </span>
-        </p>
-      </div>
-    </div>
-    <div class="flex flex-col items-center justify-start">
-      <div class="mx-auto flex items-center justify-start mt-24 w-1/2 h-16 bg-gray-200">
-        <p class="ml-4">What is MQTT?</p>
-      </div>
-      <p class="ml-12 mt-4 w-2/5 text-sm text-gray-600">
-        MQTT is the protocol of choice for connecting IoT devices to the
-        internet. It has a number of advantages compared to HTTP in operating
-        in a onstrained environment and efficiently using limited bandwidth.
-        <br />
-        <br />
-        The protocol is designed by IBM researchers for connecting small
-        devices to the internet. All messages are binary and use a small
-        message header. When compared to HTTP, MQTT messages are much smaller.
-        It is also designed towards maintaining long lived persistent
-        connections unlike HTTP, which helps in real time bidirectional
-        communication. It also amortizes expensive but mandatory handshake in
-        establishing secure connections.
-      </p>
-    </div>
+    
     <!-- <div class="mt-12">
       <WebFooter></WebFooter>
     </div> -->
