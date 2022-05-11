@@ -14,7 +14,6 @@ import {
   MonitorStatSummarySchema,
   MonitorTuples,
 } from '@httpmon/db'
-import { processAssertions } from '../services/Assertions'
 import { requestContext } from 'fastify-request-context'
 
 export default async function MonitorRouter(app: FastifyInstance) {
@@ -27,7 +26,7 @@ export default async function MonitorRouter(app: FastifyInstance) {
     const [bearer = '', token] = authHeader.split(' ')
     if (bearer.trim().toLowerCase() !== 'bearer') {
       app.log.error('error in parsing auth header')
-      reply.code(400).send({ message: 'Bad token format' })
+      reply.code(401).send({ message: 'Bad token format' })
       return
     }
 
@@ -274,32 +273,6 @@ export default async function MonitorRouter(app: FastifyInstance) {
     async function (req, reply) {
       await monitorSvc.setEnv(req.params.id, req.body)
       reply.send('env set')
-    }
-  )
-
-  app.post<{ Body: Monitor }>(
-    '/ondemand',
-    {
-      schema: {
-        body: MonitorFluentSchema,
-        response: {
-          200: MonitorResultFluentSchema,
-        },
-      },
-    },
-    async function (req, reply) {
-      const mon = req.body
-      req.log.info('exec ondemand')
-
-      const result = await execMonitor(mon)
-      const asserionResults = processAssertions(mon, result)
-      result.assertResults = asserionResults
-      if (!result.err)
-        result.err = asserionResults.some((a) => a.fail)
-          ? 'assertions failed'
-          : ''
-
-      reply.code(200).send(result)
     }
   )
 }

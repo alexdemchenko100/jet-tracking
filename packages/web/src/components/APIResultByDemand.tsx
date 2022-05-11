@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import axios from 'axios'
 import { APIResult } from './APIResult'
-import { browserExecMonitor } from '../services/BrowserAPIExec'
 
 interface Props {
   onDemandMonitor?: Monitor
@@ -21,7 +20,7 @@ export function APIResultByDemand(props: Props) {
   async function getOndemandMonitorResponse(mon: Monitor) {
     let resp = await axios({
       method: 'POST',
-      url: '/monitors/ondemand',
+      url: '/ondemand/exec',
       data: { ...mon, name: 'ondemand', frequency: 86400 },
     })
 
@@ -43,24 +42,6 @@ export function APIResultByDemand(props: Props) {
       enabled: props.onDemandMonitor != null,
     }
   )
-
-  // async function getOndemandBrowserMonitorResponse(mon: Monitor) {
-  //   return await browserExecMonitor(mon)
-
-  //   throw Error('Failed to get odemand results')
-  // }
-
-  // const {
-  //   isLoading,
-  //   data: result,
-  //   error,
-  // } = useQuery<MonitorResult, Error>(
-  //   ['ondemand', props.onDemandMonitor],
-  //   () => getOndemandBrowserMonitorResponse(props.onDemandMonitor as Monitor),
-  //   {
-  //     enabled: props.onDemandMonitor != null,
-  //   }
-  // )
 
   return (
     <>

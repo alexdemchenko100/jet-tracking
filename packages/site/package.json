@@ -6,7 +6,8 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "local": "NODE_RUN=local astro build && astro preview"
   },
   "devDependencies": {
     "@astrojs/react": "^0.1.1",

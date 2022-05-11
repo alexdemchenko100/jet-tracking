@@ -1,174 +1,217 @@
 ---
-import Layout from '../components/Layout.astro';
+import Layout from '../components/Layout.astro'
+import SiteHeader from '../components/SiteHeader.astro'
+import SiteFooter from '../components/SiteFooter.astro'
+import { Icon } from 'astro-icon'
+
+import bars from '/assets/bars.svg'
+import blueDotGrid from '/assets/bluedot_grid.svg'
+import shield from '/assets/shield.svg'
+import monitor from '/assets/monitor.svg'
+import speedometer from '/assets/speedometer.svg'
+
+let APP_URI = import.meta.env.DEV ? 'http://localhost:3000' : ''
+
+console.log(APP_URI)
+
+console.log('node_env', import.meta.env)
+console.log('node_env', import.meta.env.NODE_ENV)
+console.log('node_run', import.meta.env.NODE_RUN)
+
+
+console.log('node_run', process.env.NODE_RUN)
+
+
+if (process.env.NODE_RUN == 'local') {
+  APP_URI = 'http://localhost:8080'
+}
+
+
+const ONDEMAND_URI = APP_URI + "/console/monitors/ondemand"
 ---
 
-<Layout title="Welcome to Astro.">
-	<main>
-		<h1>Welcome to <span class="text-gradient">Astro</span></h1>
-		<p class="instructions"><strong>Your first mission:</strong> tweak this message to try our hot module reloading. Check the <code>src/pages</code> directory!</p>
-		<ul role="list" class="link-card-grid">
-			<li class="link-card">
-				<a href="https://astro.build/integrations/">
-					<h2>Integrations <span>&rarr;</span></h2>
-					<p>Add component frameworks, Tailwind, Partytown, and more!</p>
-				</a>
-			</li>
-			<li class="link-card">
-				<a href="https://astro.build/themes/">
-					<h2>Themes <span>&rarr;</span></h2>
-					<p>Explore a galaxy of community-built starters.</p>
-				</a>
-			</li>
-			<li class="link-card">
-				<a href="https://docs.astro.build/">
-					<h2>Docs <span>&rarr;</span></h2>
-					<p>Learn our complete feature set and explore the API.</p>
-				</a>
-			</li>
-			<li class="link-card">
-				<a href="https://astro.build/chat/">
-					<h2>Chat <span>&rarr;</span></h2>
-					<p>
-						Ask, contribute, and have fun on our community Discord
-						<svg
-							class="heart"
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 512 512"
-							width="16"
-							height="16"
-							fill="currentColor"
-						>
-							<title>heart</title>
-							<path d="M256 448l-30.164-27.211C118.718 322.442 48 258.61 48 179.095 48 114.221 97.918 64 162.4 64c36.399 0 70.717 16.742 93.6 43.947C278.882 80.742 313.199 64 349.6 64 414.082 64 464 114.221 464 179.095c0 79.516-70.719 143.348-177.836 241.694L256 448z" />
-						</svg>
-					</p>
-				</a>
-			</li>
-		</ul>
-	</main>
+<Layout title="Welcome to API Monitoring">
+
+  <div class="home min-h-screen font-raleway relative">
+    <!-- <WebNavBar showHero={true} /> -->
+    <SiteHeader />
+
+    <div class="grid place-items-center h-screen">
+
+      <div class="flex items-start justify-start mt-20 z-20">
+        <div class="flex flex-col pl-4">
+          <p class="text-3xl text-gray-600 ">
+          <span class='leading-loose font-bold text-4xl text-teal-600 border-teal-600 border-b-4'>
+            Explore and Monitor </span> &nbsp; APIs and Web sites with ease
+            <br> <span class="font-semibold text-teal-600">round the clock and across the continents</span>
+          </p>
+          <p class="mt-12 w-3/5 text-gray-600 mb-4 text-xl">
+            Monitor your APIs and Web sites seemlessly round the clock. Get notified on your favourite channel when behaviour is not as expected
+          </p>
+        </div>
+      </div>
+
+      <form class="mt-20 p-4 flex items-center justify-start text-xl gap-4 border-4 border-orange-400 rounded-lg" 
+        method="get" action={ONDEMAND_URI}>
+        <select id="method" name="method" class="w-20 m-2 bg-blue-100">
+          <option value="GET">GET</option>
+        </select>
+        <input id="url" name="url" class="ml-4"  value="https://httpbin.org/get" />
+        <button type='submit' class="bg-orange-600 hover:bg-blue-800 rounded-full p-2 text-white text-xl">
+          Try now!
+        </button>
+      </form>
+      
+      <div class="mt-16 grid grid-cols-2 grid-rows-2 gap-10">
+        {/*  Dashboard  */}
+        <div class="flex items-start">
+          <div class="flex-shrink-0 flex align-middle items-center justify-center rounded-full bg-blue-100 w-10 h-10">
+            <img class="w-6 h-6" src={bars} />
+          </div>
+          <div class="ml-4 flex flex-col items-begin justify-start text-xl">
+            <p class="text-2xl text-blue-600 mb-2">Powerful API Explorer and Monitor</p>
+            <ul class="grid grid-cols-1 gap-2">
+              <li class="flex items-center justify-start">
+                <Icon name="fe:check" class="w-6 h-6 text-orange-600" /> 
+                <span class="text-gray-600 ml-2">Explore REST APIs with ease</span>
+              </li>
+              <li class="flex items-center justify-start">
+                <Icon name="fe:check" class="w-6 h-6 text-orange-600" /> 
+                <span class="text-gray-600 ml-2">Setup Monitors at regular intervals</span>
+              </li>
+              <li class="flex items-center justify-start">
+                <Icon name="fe:check" class="w-6 h-6 text-orange-600" /> 
+                <span class="text-gray-600 ml-2">Choose Test Criteria</span>
+              </li>
+              <li class="flex items-center justify-start">
+                <Icon name="fe:check" class="w-6 h-6 text-orange-600" /> 
+                <span class="text-gray-600 ml-2">Get notified wherever you are</span>
+              </li>
+              <li class="flex items-center justify-start">
+                <Icon name="fe:check" class="w-6 h-6 text-orange-600" /> 
+                <span class="text-gray-600 ml-2">Supports JSON, XML, HTML, Text inputs </span>
+              </li>
+              <li class="flex items-center justify-start">
+                <Icon name="fe:check" class="w-6 h-6 text-orange-600" /> 
+                <span class="text-gray-600 ml-2">Authenticate using Basic, Bearer and OAuth</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+
+        <div class="flex items-start">
+          <div class="flex-shrink-0 flex align-middle items-center justify-center rounded-full bg-green-100 w-10 h-10">
+            <img class="w-6 h-6" src={shield} />
+          </div>
+          <div class="ml-4 flex flex-col items-begin justify-start text-xl">
+            <p class="text-2xl text-green-600 mb-2">Analytics</p>
+            <ul class="grid grid-cols-1 gap-2">
+              <li class="flex items-center justify-start">
+                <Icon name="fe:check" class="w-6 h-6 text-orange-600" /> 
+                <span class="text-gray-600 ml-2">Uptime for any period to understand SLA</span>
+              </li>
+              <li class="flex items-center justify-start">
+                <Icon name="fe:check" class="w-6 h-6 text-orange-600" /> 
+                <span class="text-gray-600 ml-2">Latency metrics with connection timings</span>
+              </li>
+              <li class="flex items-center justify-start">
+                <Icon name="fe:check" class="w-6 h-6 text-orange-600" /> 
+                <span class="text-gray-600 ml-2">Gain insights by measuring in any time period</span>
+              </li>
+              <li class="flex items-center justify-start">
+                <Icon name="fe:check" class="w-6 h-6 text-orange-600" /> 
+                <span class="text-gray-600 ml-2">Dig deep into errors</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        {/*  Speed  */}
+        <div class="flex items-start">
+          <div class="flex-shrink-0 flex align-middle items-center rounded-full bg-green-100 w-10 h-10">
+            <img class="w-6 h-6" src={speedometer} />
+          </div>
+          <div class="ml-4 flex flex-col items-begin justify-start text-xl">
+            <p class="text-2xl text-green-600 mb-2">Geographic Locations</p>
+            <ul class="grid grid-cols-1 gap-2">
+              <li class="flex items-center justify-start">
+                <Icon name="fe:check" class="w-6 h-6 text-orange-600" /> 
+                <span class="text-gray-600 ml-2">Choose from world wide locations closer to your customers</span>
+              </li>
+              <li class="flex items-center justify-start">
+                <Icon name="fe:check" class="w-6 h-6 text-orange-600" /> 
+                <span class="text-gray-600 ml-2">Cover all continents and important cities</span>
+              </li>
+              <li class="flex items-center justify-start">
+                <Icon name="fe:check" class="w-6 h-6 text-orange-600" /> 
+                <span class="text-gray-600 ml-2">Optional Private Locations</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="flex items-start">
+          <div class="flex-shrink-0 flex align-middle items-center rounded-full bg-green-100 w-10 h-10">
+            <img class="w-6 h-6" src={monitor} />
+          </div>
+          <div class="ml-4 flex flex-col items-begin justify-start text-xl">
+            <p class="text-2xl text-red-600 mb-2">Security</p>
+            <ul class="grid grid-cols-1 gap-2">
+              <li class="flex items-center justify-start">
+                <Icon name="fe:check" class="w-6 h-6 text-orange-600" /> 
+                <span class="text-gray-600 ml-2">Sharebale Environments</span>
+              </li>
+              <li class="flex items-center justify-start">
+                <Icon name="fe:check" class="w-6 h-6 text-orange-600" /> 
+                <span class="text-gray-600 ml-2">Keep tabs on SSL certificate expiration</span>
+              </li>
+              <li class="flex items-center justify-start">
+                <Icon name="fe:check" class="w-6 h-6 text-orange-600" /> 
+                <span class="text-gray-600 ml-2">Encryption at Rest</span>
+              </li>
+              <li class="flex items-center justify-start">
+                <Icon name="fe:check" class="w-6 h-6 text-orange-600" /> 
+                <span class="text-gray-600 ml-2">Encryption during Transit</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-2 m-10">
+        <img src={blueDotGrid} />
+        <img src={blueDotGrid} />
+      </div>
+
+      <div class="relative mt-12 w-2/3 h-64 mx-auto">
+        
+        {/* Call for Action  */}
+        <div class="w-full bg-gradient-callout py-10 text-white flex justify-around mx-auto">
+          <div>
+            <span class="px-4 text-3xl font-light">
+              Free up time for your
+              <span class="font-semibold">core value generation</span>
+            </span>
+          </div>
+          <a href="/console/signup">
+            <button class="bg-white rounded-lg text-black text-2xl px-6 py-2">
+              Get Started
+            </button>
+          </a>
+        </div>
+      </div>
+
+    
+      <div class="mt-12">
+        <SiteFooter />
+      </div>
+    </div>
+  </div>  
 </Layout>
 
 <style>
-	:root {
-		--color-border: hsl(17, 24%, 90%);
-		--astro-gradient: linear-gradient(0deg,#4F39FA, #DA62C4);
-		--link-gradient: linear-gradient(45deg, #4F39FA, #DA62C4 30%, var(--color-border) 60%);
-		--night-sky-gradient: linear-gradient(0deg, #392362 -33%, #431f69 10%, #30216b 50%, #1f1638 100%);
-	}
-
-	h2 {
-		margin: 0;
-		transition: color 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-	}
-
-	h2 span {
-		display: inline-block;
-		transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-	}
-
-	code {
-		font-size: 0.875em;
-		border: 0.1em solid var(--color-border);
-		border-radius: 4px;
-		padding: 0.15em 0.25em;
-	}
-
-	main {
-		margin: auto;
-    padding: 1em;
-		max-width: 60ch;
-	}
-
-	.text-gradient {
-		font-weight: 900;
-		background-image: var(--astro-gradient);
-		-webkit-background-clip: text;
-  	-webkit-text-fill-color: transparent;
-		background-size: 100% 200%;
-		background-position-y: 100%;
-		border-radius: 0.4rem;
-		animation: pulse 4s ease-in-out infinite;
-	}
-
-	@keyframes pulse {
-		0%, 100% {
-			background-position-y: 0%;
-		}
-		50% {
-			background-position-y: 80%;
-		}
-	}
-
-	.instructions {
-		line-height: 1.8;
-		margin-bottom: 2rem;
-		background-image: var(--night-sky-gradient);
-		padding: 1.5rem;
-		border-radius: 0.4rem;
-		color: var(--color-bg);
-	}
-
-	.link-card-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(24ch, 1fr));
-		gap: 1rem;
-		padding: 0;
-	}
-
-	.link-card {
-		list-style: none;
-		display: flex;
-		padding: 0.15rem;
-		background-image: var(--link-gradient);
-		background-size: 400%;
-		border-radius: 0.5rem;
-		background-position: 100%;
-		transition: background-position 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-	}
-
-	.link-card > a {
-		width: 100%;
-		text-decoration: none;
-		line-height: 1.4;
-		padding: 1em 1.3em;
-		border-radius: 0.35rem;
-		color: var(--text-color);
-		background-color: white;
-		opacity: 0.8;
-	}
-
-	.link-card:is(:hover, :focus-within) {
-		background-position: 0;
-	}
-
-	.link-card:is(:hover, :focus-within) h2 {
-		color: #4F39FA;
-	}
-
-	.link-card:is(:hover, :focus-within) h2 span {
-		transform: translateX(2px);
-	}
-
-	.heart {
-		display: inline-block;
-		color: #DA62C4;
-		animation: heartbeat 3s ease-in-out infinite;
-	}
-
-	@keyframes heartbeat {
-		0%,
-		50%,
-		100% {
-			transform: scale(1);
-		}
-		5% {
-			transform: scale(1.125);
-		}
-		10% {
-			transform: scale(1.05);
-		}
-		15% {
-			transform: scale(1.25);
-		}
-	}
+.bg-gradient-callout {
+  background-image: linear-gradient(114deg, #428dfe 35%, #4c91f9 83%);
+}
 </style>

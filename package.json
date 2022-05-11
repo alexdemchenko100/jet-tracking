@@ -8,11 +8,17 @@
     "web-dev": "pnpm run dev -C packages/web",
     "api-dev": "pnpm run dev -C packages/api",
     "db-dev": "pnpm run dev -C packages/db",
+    "site-dev": "pnpm run dev -C packages/site",
+    "api-prod": "NODE_ENV=production NODE_RUN=local pnpm run dev -C packages/api",
+    "web-prod": "NODE_ENV=production NODE_RUN=local pnpm run dev -C packages/web",
+    "site-prod": "pnpm local -C packages/site",
     "web-build": "pnpm run build -C packages/web",
     "api-build": "pnpm run build -C packages/api",
     "db-build": "pnpm run build -C packages/db",
-    "dev": "concurrently pnpm:db-dev pnpm:api-dev pnpm:web-dev",
-    "build": "pnpm db-build && pnpm web-build && pnpm api-build"
+    "site-build": "pnpm run build -C packages/site",
+    "dev": "concurrently pnpm:db-dev pnpm:api-dev pnpm:web-dev pnpm:site-dev",
+    "build": "pnpm db-build && pnpm web-build && pnpm api-build && pnpm site-build",
+    "start": "concurrently pnpm:api-prod pnpm:site-prod"
   },
   "repository": {
     "type": "git",

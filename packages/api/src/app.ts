@@ -22,8 +22,14 @@ initializeRequestContext(server)
 
 if (process.env.NODE_ENV === 'production') {
   server.log.info(`production mode: ${getCloudRegion()}`)
+  const bLocal = process.env.NODE_RUN === 'local'
+
+  const appRoot = path.join(
+    process.cwd(),
+    bLocal ? '../../packages/web/dist/' : './packages/web/dist/'
+  )
   server.register(fastifyStatic, {
-    root: path.join(process.cwd(), './packages/web/dist/'),
+    root: appRoot,
     prefix: '/', // optional: default '/'
   })
 

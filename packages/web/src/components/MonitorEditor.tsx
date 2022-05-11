@@ -30,7 +30,7 @@ import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from
 import { FiChevronsRight, FiPlus, FiTrash2 } from 'react-icons/fi'
 import { useMutation, useQuery } from 'react-query'
 import axios from 'axios'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { MonitorAuthEditor } from './MonitorAuthEditor'
 import {
   getRegionsFromShowLocations,
@@ -265,7 +265,10 @@ interface EditProps {
 export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
   //id tells apart Edit to a new check creation
   const { id } = useParams()
-  const drawer = useDisclosure()
+
+  let [searchParams, _] = useSearchParams()
+  const queryUrl = searchParams.get('url')
+  const queryMethod = searchParams.get('method')
 
   interface FormMonitor extends Monitor {
     frequencyScale: number
@@ -284,6 +287,8 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
       notifications: { failCount: 0 },
       bodyType: '',
       body: '',
+      method: queryMethod || 'GET',
+      url: queryUrl || '',
     },
   })
 

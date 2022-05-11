@@ -78,6 +78,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path='/console/monitors/ondemand' element={<MonitorEditPanel />} />
             <Route
               path='/console/env/new'
               element={
