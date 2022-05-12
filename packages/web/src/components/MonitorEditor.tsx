@@ -20,11 +20,10 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
-  useDisclosure,
   useToast,
 } from '@chakra-ui/react'
 import { Monitor, MonitorAssertion, MonitorTuples } from '@httpmon/db'
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from 'react-hook-form'
 
 import { FiChevronsRight, FiPlus, FiTrash2 } from 'react-icons/fi'
@@ -269,6 +268,14 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
   let [searchParams, _] = useSearchParams()
   const queryUrl = searchParams.get('url')
   const queryMethod = searchParams.get('method')
+  const runOnDemand = useRef<boolean>(Boolean(searchParams.get('run')))
+
+  useEffect(() => {
+    if (runOnDemand.current) {
+      runOnDemand.current = false
+      handleQuickRun()
+    }
+  }, [])
 
   interface FormMonitor extends Monitor {
     frequencyScale: number
@@ -294,7 +301,6 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
 
   const {
     register,
-    control,
     reset,
     watch,
     handleSubmit,

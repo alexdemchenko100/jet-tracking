@@ -2,7 +2,6 @@ import { Box, useBreakpointValue, useDisclosure } from '@chakra-ui/react'
 import { Monitor } from '@httpmon/db'
 
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
 import { APIResultByDemand } from './APIResultByDemand'
 import { MonitorEditor } from './MonitorEditor'
 import SplitPane from './SplitPane'
