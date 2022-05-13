@@ -8,16 +8,16 @@ export function NewMonitorHero() {
     <Center h='50vh'>
       <VStack spacing='12'>
         <Text fontSize='6xl'>
-          <Text
+        Let's <Text
             as='span'
             fontFamily='Kontora, Poppins, Arial, "Helvetica Neue", Helvetica, sans-serif'
             fontWeight='extrabold'
             color='#2cb67d'
             borderBottom='7px solid'
           >
-            Let's start
+            explore and create 
           </Text>
-          <Text as='span'>&nbsp;by creating a new monitor</Text>
+          <Text as='span'>&nbsp;a new monitor</Text>
         </Text>
         <Button size='lg' colorScheme='blue' onClick={() => navigate('/console/monitors/newapi')}>
           New Monitor

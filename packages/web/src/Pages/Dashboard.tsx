@@ -51,6 +51,9 @@ function RunChart({ stats }: { stats?: MonitorStats }) {
             h={r.totalTime > p50 ? (r.totalTime > p95 ? '6' : '5') : '4'}
             bgColor={r.err ? 'red' : 'green'}
             borderRadius='2'
+            _hover={{
+              w: '2',
+            }}
             onClick={(e) => {
               e.stopPropagation()
               navigate('/console/apiruns/' + r.id)
@@ -74,9 +77,6 @@ function StatusDot({
   return (
     <Flex gap='2' alignItems='center'>
       <Box w={size} h={size} borderRadius='50%' bgColor={color}></Box>
-      {/* <Tag fontSize='md' color={color} fontWeight='extrabold' bgColor='blue.100'>
-        {label}
-      </Tag> */}
       <Heading size='md' color={color}>
         {label}
       </Heading>
@@ -160,20 +160,25 @@ function StatusHeader({ stats }: { stats: MonitorStats[] }) {
   }
 
   return nAll == nUP ? (
-    <StatusDot label='UP - All Services' color='green' size='30px' />
+    <Flex gap='2'>
+      <Icon as={FiCheckCircle} color='green' w='6' h='6' />
+      <Heading color='green' size='md'>
+        {'UP - All Monitors'}
+      </Heading>
+    </Flex>
   ) : (
     <Flex gap='4' direction='column'>
       <Flex gap='2'>
         <Icon as={FiCheckCircle} color='green' w='6' h='6' />
         <Heading color='green' size='md'>
-          {'UP - ' + nUP + ' Services'}
+          {'UP - ' + nUP + ' Monitors'}
         </Heading>
       </Flex>
 
       <Flex gap='2'>
         <Icon as={FiAlertCircle} color='red' w='6' h='6' />
         <Heading color='red' size='md'>
-          {'DOWN - ' + nDown + ' Services'}
+          {'DOWN - ' + nDown + ' Monitors'}
         </Heading>
       </Flex>
     </Flex>

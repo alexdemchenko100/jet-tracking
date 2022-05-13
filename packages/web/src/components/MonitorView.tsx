@@ -82,7 +82,7 @@ function DoubleCheckDelete({ id }: DeleteProps) {
         <AlertDialogOverlay />
 
         <AlertDialogContent>
-          <AlertDialogHeader>Deleting monitor</AlertDialogHeader>
+          <AlertDialogHeader>Delete Monitor</AlertDialogHeader>
           <AlertDialogCloseButton />
           <AlertDialogBody>
             Are you sure you want to delete this monitor? All corresponding monitor results will be
