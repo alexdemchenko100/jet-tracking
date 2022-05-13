@@ -17,6 +17,7 @@ import { MonitorView } from './components/MonitorView'
 import { MonitorEditPanel } from './components/MonitorEditPanel'
 import { useAuth } from './services/FirebaseAuth'
 import { Store } from './services/Store'
+import Dashboard from './Pages/Dashboard'
 
 const history = createBrowserHistory()
 Store.history = history //save for later
@@ -48,6 +49,14 @@ function App() {
           <Route path='/console' element={<Console />}>
             <Route
               path='/console/monitors'
+              element={
+                <ProtectedRoute isAllowed={isLoggedIn}>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/console/monitors2'
               element={
                 <ProtectedRoute isAllowed={isLoggedIn}>
                   <MonitorDashboard />

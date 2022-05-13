@@ -303,7 +303,7 @@ export class MonitorService {
       .where('monitorId', '=', monitorId)
       .where('accountId', '=', currentUserInfo().accountId)
       .orderBy('createdAt', 'desc')
-      .limit(12)
+      .limit(24)
       .execute()
 
     let res = {
