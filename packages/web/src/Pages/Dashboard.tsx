@@ -2,20 +2,16 @@ import { Monitor, MonitorStats } from '@httpmon/db'
 import axios from 'axios'
 import { useQuery } from 'react-query'
 
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import {
   Box,
   Button,
   Flex,
   Heading,
-  HStack,
-  VStack,
   Tag,
   Icon,
   Stat,
-  StatArrow,
   StatGroup,
-  StatHelpText,
   StatLabel,
   StatNumber,
 } from '@chakra-ui/react'
@@ -56,6 +52,29 @@ function RunChart({ stats }: { stats?: MonitorStats }) {
   )
 }
 
+function StatusUpOrDown({ stats }: { stats?: MonitorStats }) {
+  let bErr: boolean
+  let color: string
+  let label: string
+
+  if (!stats || !stats.lastResults || stats.lastResults.length < 1) {
+    label = 'No DATA'
+    color = 'gray.500'
+  } else {
+    bErr = Boolean(stats.lastResults[0].err)
+    color = bErr ? 'red' : 'green'
+    label = bErr ? 'DOWN' : 'UP'
+  }
+  return (
+    <>
+      <Box w='20px' h='20px' borderRadius='50%' bgColor={color}></Box>
+      <Tag fontSize='md' color={color} fontWeight='extrabold' bgColor='blue.100'>
+        {label}
+      </Tag>
+    </>
+  )
+}
+
 function MonitorStatusCard({ mon, stats }: StatusProps) {
   const navigate = useNavigate()
 
@@ -71,19 +90,11 @@ function MonitorStatusCard({ mon, stats }: StatusProps) {
       cursor='pointer'
       onClick={() => navigate(`/console/monitors/${mon.id}`)}
     >
-      <Flex gap='4'>
-        <Tag color='green' fontSize='md' fontWeight='extrabold' bgColor='blue.200'>
-          <Icon mr='2' as={FiCheckCircle} />
-          UP
-        </Tag>
-        <Heading size='md'>{mon.name}</Heading>
-
-        {/* <HStack spacing='4' ml='auto'>
-          <Tag color='green' fontSize='md' fontWeight='extrabold' bgColor='blue.200'>
-            Uptime
-          </Tag>
-          <Heading size='md'>{stats ? uptime24(stats) + 'ms' : ''}</Heading>
-        </HStack> */}
+      <Flex gap='2'>
+        <StatusUpOrDown stats={stats} />
+        <Heading size='md' ml='2'>
+          {mon.name}
+        </Heading>
       </Flex>
 
       <RunChart stats={stats} />
@@ -91,7 +102,7 @@ function MonitorStatusCard({ mon, stats }: StatusProps) {
       <StatGroup bgColor='blue.100'>
         <Stat>
           <StatLabel>UPTIME</StatLabel>
-          <StatNumber>{stats ? uptime24(stats) + 'ms' : ''}</StatNumber>
+          <StatNumber>{stats ? uptime24(stats) + '%' : ''}</StatNumber>
         </Stat>
 
         <Stat>
@@ -158,7 +169,7 @@ export function Dashboard() {
 
   const uptime24 = (m: MonitorAndStats) => {
     if (m.day?.numItems > 0) {
-      return Math.round(((m.day.numItems - m.day.numErrors) / m.day.numItems) * 100 * 100) / 100
+      return ((m.day.numItems - m.day.numErrors) / m.day.numItems) * 100
     } else {
       return 0
     }
@@ -169,17 +180,17 @@ export function Dashboard() {
   }
 
   return (
-    <>
+    <Flex direction='column' ml='4'>
       <Flex justify='space-between'>
         <Heading size='md' mb='8'>
           Monitors
         </Heading>
 
         <Button
-          size='sm'
+          size='md'
           mr='2'
           mb='2'
-          colorScheme='gray.200'
+          colorScheme='blue'
           onClick={() => navigate('/console/monitors/newapi')}
         >
           New Monitor
@@ -195,7 +206,7 @@ export function Dashboard() {
           />
         ))}
       </Flex>
-    </>
+    </Flex>
   )
 }
 
