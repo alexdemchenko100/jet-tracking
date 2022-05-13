@@ -7,7 +7,6 @@ import {
   Button,
   Flex,
   Heading,
-  Tag,
   Icon,
   Stat,
   StatGroup,
@@ -18,6 +17,7 @@ import {
 
 import { useNavigate } from 'react-router-dom'
 import { NewMonitorHero } from '../components/NewMonitorHero'
+import { FiAlertCircle, FiCheckCircle } from 'react-icons/fi'
 
 interface StatusProps {
   mon: Monitor
@@ -38,14 +38,17 @@ function RunChart({ stats }: { stats?: MonitorStats }) {
     return <></>
   }
 
+  const p50 = stats.day.p50
+  const p95 = stats.day.p95
+
   return (
-    <Flex gap='1'>
+    <Flex gap='1' alignItems='baseline'>
       {stats.lastResults.map((r) => (
-        <Tooltip label={r.totalTime + 'ms'}>
+        <Tooltip label={'Time - ' + r.totalTime + 'ms'}>
           <Box
             key={r.id}
             w='1.5'
-            h='6'
+            h={r.totalTime > p50 ? (r.totalTime > p95 ? '6' : '5') : '4'}
             bgColor={r.err ? 'red' : 'green'}
             borderRadius='2'
             onClick={(e) => {
@@ -160,8 +163,19 @@ function StatusHeader({ stats }: { stats: MonitorStats[] }) {
     <StatusDot label='UP - All Services' color='green' size='30px' />
   ) : (
     <Flex gap='4' direction='column'>
-      <StatusDot label={'UP - ' + nUP + ' Services'} color='green' size='30px' />
-      <StatusDot label={'DOWN - ' + nDown + ' Services'} color='red' size='30px' />
+      <Flex gap='2'>
+        <Icon as={FiCheckCircle} color='green' w='6' h='6' />
+        <Heading color='green' size='md'>
+          {'UP - ' + nUP + ' Services'}
+        </Heading>
+      </Flex>
+
+      <Flex gap='2'>
+        <Icon as={FiAlertCircle} color='red' w='6' h='6' />
+        <Heading color='red' size='md'>
+          {'DOWN - ' + nDown + ' Services'}
+        </Heading>
+      </Flex>
     </Flex>
   )
 }
@@ -241,13 +255,15 @@ export function Dashboard() {
 
         <Box mb='4' />
 
-        {monitors?.map((mon) => (
-          <MonitorStatusCard
-            mon={mon}
-            stats={stats?.find((s) => s.monitorId == mon.id)}
-            key={mon.id}
-          />
-        ))}
+        <Flex gap='4' wrap='wrap'>
+          {monitors?.map((mon) => (
+            <MonitorStatusCard
+              mon={mon}
+              stats={stats?.find((s) => s.monitorId == mon.id)}
+              key={mon.id}
+            />
+          ))}
+        </Flex>
       </Flex>
     </Flex>
   )
