@@ -1,7 +1,6 @@
 import { Monitor, MonitorStats } from '@httpmon/db'
 import axios from 'axios'
 import { useQuery } from 'react-query'
-
 import { useEffect } from 'react'
 import {
   Box,
@@ -14,14 +13,11 @@ import {
   StatGroup,
   StatLabel,
   StatNumber,
+  Tooltip,
 } from '@chakra-ui/react'
 
 import { useNavigate } from 'react-router-dom'
 import { NewMonitorHero } from '../components/NewMonitorHero'
-
-import { FiCheckCircle } from 'react-icons/fi'
-
-type MonitorAndStats = Monitor & MonitorStats
 
 interface StatusProps {
   mon: Monitor
@@ -37,6 +33,7 @@ const uptime24 = (m: MonitorStats) => {
 }
 
 function RunChart({ stats }: { stats?: MonitorStats }) {
+  const navigate = useNavigate()
   if (!stats || !stats.lastResults) {
     return <></>
   }
@@ -44,10 +41,42 @@ function RunChart({ stats }: { stats?: MonitorStats }) {
   return (
     <Flex gap='1'>
       {stats.lastResults.map((r) => (
-        <Box key={r.id}>
-          <Box w='1' h='4' bgColor={r.err ? 'red' : 'green'}></Box>
-        </Box>
+        <Tooltip label={r.totalTime + 'ms'}>
+          <Box
+            key={r.id}
+            w='1.5'
+            h='6'
+            bgColor={r.err ? 'red' : 'green'}
+            borderRadius='2'
+            onClick={(e) => {
+              e.stopPropagation()
+              navigate('/console/apiruns/' + r.id)
+            }}
+          />
+        </Tooltip>
       ))}
+    </Flex>
+  )
+}
+
+function StatusDot({
+  label,
+  color,
+  size = '20px',
+}: {
+  label: string
+  color: string
+  size?: string
+}) {
+  return (
+    <Flex gap='2' alignItems='center'>
+      <Box w={size} h={size} borderRadius='50%' bgColor={color}></Box>
+      {/* <Tag fontSize='md' color={color} fontWeight='extrabold' bgColor='blue.100'>
+        {label}
+      </Tag> */}
+      <Heading size='md' color={color}>
+        {label}
+      </Heading>
     </Flex>
   )
 }
@@ -58,21 +87,14 @@ function StatusUpOrDown({ stats }: { stats?: MonitorStats }) {
   let label: string
 
   if (!stats || !stats.lastResults || stats.lastResults.length < 1) {
-    label = 'No DATA'
+    label = ''
     color = 'gray.500'
   } else {
     bErr = Boolean(stats.lastResults[0].err)
     color = bErr ? 'red' : 'green'
     label = bErr ? 'DOWN' : 'UP'
   }
-  return (
-    <>
-      <Box w='20px' h='20px' borderRadius='50%' bgColor={color}></Box>
-      <Tag fontSize='md' color={color} fontWeight='extrabold' bgColor='blue.100'>
-        {label}
-      </Tag>
-    </>
-  )
+  return <StatusDot label={label} color={color} />
 }
 
 function MonitorStatusCard({ mon, stats }: StatusProps) {
@@ -124,6 +146,26 @@ function MonitorStatusCard({ mon, stats }: StatusProps) {
   )
 }
 
+function StatusHeader({ stats }: { stats: MonitorStats[] }) {
+  //find number of stats where err is false
+  const nAll = stats.length
+  const nUP = stats.filter((s) => !s.lastResults?.[0]?.err).length
+  const nDown = nAll - nUP
+
+  if (nAll === 0) {
+    return <></>
+  }
+
+  return nAll == nUP ? (
+    <StatusDot label='UP - All Services' color='green' size='30px' />
+  ) : (
+    <Flex gap='4' direction='column'>
+      <StatusDot label={'UP - ' + nUP + ' Services'} color='green' size='30px' />
+      <StatusDot label={'DOWN - ' + nDown + ' Services'} color='red' size='30px' />
+    </Flex>
+  )
+}
+
 export function Dashboard() {
   const navigate = useNavigate()
 
@@ -167,7 +209,7 @@ export function Dashboard() {
     getMonitorStats()
   )
 
-  const uptime24 = (m: MonitorAndStats) => {
+  const uptime24 = (m: MonitorStats) => {
     if (m.day?.numItems > 0) {
       return ((m.day.numItems - m.day.numErrors) / m.day.numItems) * 100
     } else {
@@ -182,14 +224,11 @@ export function Dashboard() {
   return (
     <Flex direction='column' ml='4'>
       <Flex justify='space-between'>
-        <Heading size='md' mb='8'>
-          Monitors
-        </Heading>
-
         <Button
           size='md'
           mr='2'
           mb='2'
+          ml='auto'
           colorScheme='blue'
           onClick={() => navigate('/console/monitors/newapi')}
         >
@@ -198,6 +237,10 @@ export function Dashboard() {
       </Flex>
 
       <Flex gap='4' direction='column'>
+        {stats && stats.length > 0 && <StatusHeader stats={stats} />}
+
+        <Box mb='4' />
+
         {monitors?.map((mon) => (
           <MonitorStatusCard
             mon={mon}

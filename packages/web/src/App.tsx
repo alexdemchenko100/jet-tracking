@@ -18,6 +18,7 @@ import { MonitorEditPanel } from './components/MonitorEditPanel'
 import { useAuth } from './services/FirebaseAuth'
 import { Store } from './services/Store'
 import Dashboard from './Pages/Dashboard'
+import { APIResultById } from './components/APIResultById'
 
 const history = createBrowserHistory()
 Store.history = history //save for later
@@ -84,6 +85,14 @@ function App() {
               element={
                 <ProtectedRoute isAllowed={isLoggedIn}>
                   <MonitorEditPanel />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/console/apiruns/:id'
+              element={
+                <ProtectedRoute isAllowed={isLoggedIn}>
+                  <APIResultById />
                 </ProtectedRoute>
               }
             />

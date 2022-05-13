@@ -2,9 +2,10 @@ import { MonitorResult } from '@httpmon/db'
 import { useQuery } from 'react-query'
 import axios from 'axios'
 import { APIResult } from './APIResult'
+import { useParams } from 'react-router-dom'
 
 interface Props {
-  id: string
+  id?: string
   onClose?: () => void
 }
 
@@ -15,21 +16,24 @@ interface Props {
  * @returns
  */
 export function APIResultById({ id, onClose }: Props) {
+  const params = useParams()
+  const resultID = id || params.id
+
   const {
     isLoading,
     data: result,
     error,
   } = useQuery<MonitorResult, Error>(
-    id ?? 'id', //only enabled when id is valid
+    resultID ?? 'id', //only enabled when id is valid
     async () => {
       const resp = await axios({
         method: 'GET',
-        url: `/monitors/results/${id}`,
+        url: `/monitors/results/${resultID}`,
       })
       return resp.data
     },
     {
-      enabled: Boolean(id),
+      enabled: Boolean(resultID),
     }
   )
 
