@@ -108,7 +108,7 @@ function TupleEditor({ name }: TupleProps) {
       case 'queryParams':
         return 'Add Query Param'
       case 'env':
-        return 'Add Variable'
+        return 'Add Env Variable'
       default:
         return ''
     }
@@ -490,7 +490,7 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
                     )}
                   </Tab>
                   <Tab>
-                    Variables
+                    Env Variables
                     {numValues('env') > 0 && <sup color='green'>&nbsp;{numValues('env')}</sup>}
                   </Tab>
                 </TabList>

@@ -24,7 +24,7 @@ import { AiFillGift } from 'react-icons/ai'
 import { HiCollection } from 'react-icons/hi'
 import React, { ReactNode } from 'react'
 import { IconType } from 'react-icons/lib'
-import { FiSettings, FiClipboard, FiMenu, FiSearch } from 'react-icons/fi'
+import { FiSettings, FiClipboard, FiMenu, FiSearch, FiPackage } from 'react-icons/fi'
 import { MdHome, MdKeyboardArrowRight } from 'react-icons/md'
 import { logoTitle } from './Assets'
 import { Outlet, useNavigate } from 'react-router-dom'
@@ -105,22 +105,15 @@ export default function Console() {
           Monitors
         </NavItem>
 
-        <NavItem icon={FiClipboard} onClick={envNav.onToggle}>
+        <NavItem icon={FiPackage} to='/console/environments'>
           Environments
-          <Icon
-            as={MdKeyboardArrowRight}
-            ml='auto'
-            transform={envNav.isOpen ? 'rotate(90deg)' : ''}
-          />
         </NavItem>
-        <Collapse in={envNav.isOpen}>
-          <NavItem pl='12' py='2' to='/console/env/new'>
-            New Environment
-          </NavItem>
-        </Collapse>
-
-        <NavItem icon={AiFillGift}>Dashboards</NavItem>
-        <NavItem icon={FiSettings}>Settings</NavItem>
+        <NavItem icon={FiClipboard} to='/console/dashboards'>
+          Dashboards
+        </NavItem>
+        <NavItem icon={FiSettings} to='/console/settings'>
+          Settings
+        </NavItem>
       </Flex>
     </Box>
   )

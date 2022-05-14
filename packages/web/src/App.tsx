@@ -7,8 +7,8 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 
 import { unstable_HistoryRouter as HistoryRouter } from 'react-router-dom'
 import { createBrowserHistory } from 'history'
-import { SignIn } from './components/SignIn'
-import SignUp from './components/SignUp'
+import { SignIn } from './Pages/SignIn'
+import SignUp from './Pages/SignUp'
 import ForgotPassword from './components/ForgotPassword'
 import Console from './Console'
 import NewEnv from './components/NewEnv'
@@ -17,8 +17,11 @@ import { MonitorView } from './components/MonitorView'
 import { MonitorEditPanel } from './components/MonitorEditPanel'
 import { useAuth } from './services/FirebaseAuth'
 import { Store } from './services/Store'
-import Dashboard from './Pages/Dashboard'
+import MainPage from './Pages/MainPage'
 import { APIResultById } from './components/APIResultById'
+import { Settings } from './Pages/Settings'
+import { Dashboards } from './Pages/Dashboards'
+import { Environments } from './Pages/Environments'
 
 const history = createBrowserHistory()
 Store.history = history //save for later
@@ -52,7 +55,7 @@ function App() {
               path='/console/monitors'
               element={
                 <ProtectedRoute isAllowed={isLoggedIn}>
-                  <Dashboard />
+                  <MainPage />
                 </ProtectedRoute>
               }
             />
@@ -101,6 +104,30 @@ function App() {
               element={
                 <ProtectedRoute isAllowed={isLoggedIn}>
                   <NewEnv />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/console/settings'
+              element={
+                <ProtectedRoute isAllowed={isLoggedIn}>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/console/dashboards'
+              element={
+                <ProtectedRoute isAllowed={isLoggedIn}>
+                  <Dashboards />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/console/environments'
+              element={
+                <ProtectedRoute isAllowed={isLoggedIn}>
+                  <Environments />
                 </ProtectedRoute>
               }
             />

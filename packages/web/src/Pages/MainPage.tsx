@@ -44,7 +44,7 @@ function RunChart({ stats }: { stats?: MonitorStats }) {
   return (
     <Flex gap='1' alignItems='baseline'>
       {stats.lastResults.map((r) => (
-        <Tooltip label={'Time - ' + r.totalTime + 'ms'}>
+        <Tooltip label={'Time - ' + r.totalTime + 'ms'} key={r.id}>
           <Box
             key={r.id}
             w='1.5'
@@ -185,7 +185,7 @@ function StatusHeader({ stats }: { stats: MonitorStats[] }) {
   )
 }
 
-export function Dashboard() {
+export function MainPage() {
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -274,4 +274,4 @@ export function Dashboard() {
   )
 }
 
-export default Dashboard
+export default MainPage

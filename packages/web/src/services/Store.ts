@@ -64,5 +64,3 @@ export const Store = {
   ...store,
   watch: useSnapshot,
 }
-
-if (process.env.NODE_ENV != 'development') devtools(proxy(store), 'store')

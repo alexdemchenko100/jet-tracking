@@ -42,7 +42,7 @@ export default function NewEnv() {
           </FormControl>
 
           <Flex align='center'>
-            <Heading size='sm'>Add Variable</Heading>
+            <Heading size='sm'>Add Env Variable</Heading>
             <Button ml='4' onClick={() => append([['', '']])}>
               <Icon color='blue.500' as={FiPlusCircle} cursor='pointer' />
             </Button>

@@ -19,6 +19,7 @@ import {
   Text,
   Th,
   Thead,
+  Tooltip,
   Tr,
 } from '@chakra-ui/react'
 import { MonitorResult, MonitorTuples } from '@httpmon/db'
@@ -70,14 +71,16 @@ function TimingBar({ result, ...rest }: TimingBarProps) {
       {stats.map(([label, time, timePct, color]) => {
         if (time > 2)
           return (
-            <Flex direction='column' width={`${timePct}%`} key={label}>
-              <Text fontSize='sm' isTruncated>
-                {label}
-              </Text>
-              <Box bg={color} fontSize='sm' verticalAlign='middle' ml='0.5' isTruncated>
-                {time}
-              </Box>
-            </Flex>
+            <Tooltip label='Conn Timings'>
+              <Flex direction='column' width={`${timePct}%`} key={label}>
+                <Text fontSize='sm' isTruncated>
+                  {label}
+                </Text>
+                <Box bg={color} fontSize='sm' verticalAlign='middle' ml='0.5' isTruncated>
+                  {time}
+                </Box>
+              </Flex>
+            </Tooltip>
           )
       })}
     </Flex>
