@@ -7,24 +7,25 @@
 
 import axios, { AxiosError } from 'axios'
 import { initializeApp } from 'firebase/app'
+import { getAnalytics } from 'firebase/analytics'
 import { getAuth, Auth, User } from 'firebase/auth'
 import { Store } from './Store'
 
 let auth: Auth | null = null
 
 export function initFirebaseAuth() {
-  const configOptions = {
-    apiKey: 'AIzaSyD0PU6XG2RMp2sPw6qZsSgx-My_i9t0djM',
-    authDomain: 'phoenix-mqtt-platform.firebaseapp.com',
-    databaseURL: 'https://phoenix-mqtt-platform.firebaseio.com',
-    projectId: 'phoenix-mqtt-platform',
-    storageBucket: 'phoenix-mqtt-platform.appspot.com',
-    messagingSenderId: '162202601276',
-    appId: '1:162202601276:web:a1e75b367c88b085700039',
-    measurementId: 'G-HFKL2R0EEY',
+  const firebaseConfig = {
+    apiKey: 'AIzaSyAqn0-0Bq3yUQaoVm3Yf-XU8dSN3nNUa9g',
+    authDomain: 'httpmon-test.firebaseapp.com',
+    projectId: 'httpmon-test',
+    storageBucket: 'httpmon-test.appspot.com',
+    messagingSenderId: '439355076640',
+    appId: '1:439355076640:web:3754458b85e17b34120c45',
+    measurementId: 'G-MGHY3X5DJN',
   }
 
-  const app = initializeApp(configOptions)
+  const app = initializeApp(firebaseConfig)
+  const analytics = getAnalytics(app)
   auth = getAuth(app)
 
   auth.onIdTokenChanged((user: User | null) => {

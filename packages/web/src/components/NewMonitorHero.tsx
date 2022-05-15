@@ -8,14 +8,14 @@ export function NewMonitorHero() {
     <Center h='50vh'>
       <VStack spacing='12'>
         <Text fontSize='6xl'>
-        Let's <Text
+        <Text
             as='span'
             fontFamily='Kontora, Poppins, Arial, "Helvetica Neue", Helvetica, sans-serif'
             fontWeight='extrabold'
             color='#2cb67d'
             borderBottom='7px solid'
           >
-            explore and create 
+            Explore API and create 
           </Text>
           <Text as='span'>&nbsp;a new monitor</Text>
         </Text>
