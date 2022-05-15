@@ -109,6 +109,7 @@ function MonitorStatusCard({ mon, stats }: StatusProps) {
       gap='4'
       borderRadius='xl'
       bgColor='blue.100'
+      boxShadow='md'
       p='2'
       w='40em'
       justifyContent='begin'

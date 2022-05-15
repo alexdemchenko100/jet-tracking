@@ -3,7 +3,7 @@ import { Flex, Heading } from '@chakra-ui/react'
 export function Dashboards() {
   return (
     <Flex>
-      <Heading>Dashboards</Heading>
+      <Heading size='md'>Dashboards</Heading>
     </Flex>
   )
 }
