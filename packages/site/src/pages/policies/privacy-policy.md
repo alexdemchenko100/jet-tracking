@@ -1,5 +1,5 @@
 ﻿---
-layout: ../../components/Layout.astro
+layout: ../../components/MDLayout.astro
 ---
 ProAutoma Privacy Policy
 

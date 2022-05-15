@@ -122,12 +122,14 @@ importers:
     specifiers:
       '@astrojs/react': ^0.1.2
       '@astrojs/tailwind': ^0.2.1
+      '@tailwindcss/typography': ^0.5.2
       astro: ^1.0.0-beta.27
       astro-icon: ^0.7.1
       prettier-plugin-astro: ^0.0.12
       react: ^18.1.0
       react-dom: ^18.1.0
     dependencies:
+      '@tailwindcss/typography': 0.5.2
       astro-icon: 0.7.1
       prettier-plugin-astro: 0.0.12
     devDependencies:
@@ -3024,6 +3026,16 @@ packages:
     dependencies:
       mini-svg-data-uri: 1.4.3
       tailwindcss: 3.0.23_2a12c91f48b4280adc4c14dfe7c50ae2
+    dev: false
+
+  /@tailwindcss/typography/0.5.2:
+    resolution: {integrity: sha512-coq8DBABRPFcVhVIk6IbKyyHUt7YTEC/C992tatFB+yEx5WGBQrCgsSFjxHUr8AWXphWckadVJbominEduYBqw==}
+    peerDependencies:
+      tailwindcss: '>=3.0.0 || >= 3.0.0-alpha.1 || insiders'
+    dependencies:
+      lodash.castarray: 4.4.0
+      lodash.isplainobject: 4.0.6
+      lodash.merge: 4.6.2
     dev: false
 
   /@tootallnate/once/2.0.0:
@@ -7149,6 +7161,10 @@ packages:
     resolution: {integrity: sha1-soqmKIorn8ZRA1x3EfZathkDMaY=}
     dev: false
 
+  /lodash.castarray/4.4.0:
+    resolution: {integrity: sha1-wCUTUV4wna3dTCTGDP3c9ZdtkRU=}
+    dev: false
+
   /lodash.clonedeep/4.5.0:
     resolution: {integrity: sha1-4j8/nE+Pvd6HJSnBBxhXoIblzO8=}
     dev: false
@@ -7175,6 +7191,10 @@ packages:
 
   /lodash.isstring/4.0.1:
     resolution: {integrity: sha1-1SfftUVuynzJu5XV2ur4i6VKVFE=}
+    dev: false
+
+  /lodash.merge/4.6.2:
+    resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
     dev: false
 
   /lodash.mergewith/4.6.2:

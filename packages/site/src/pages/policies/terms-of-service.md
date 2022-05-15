@@ -1,7 +1,9 @@
-﻿ProAutoma LLC Terms of Service
-Last updated February 15, 2020
+﻿---
+layout: ../../components/MDLayout.astro
+---
+ProAutoma LLC Terms of Service
 
-
+Last updated May 15, 2022
 ### AGREEMENT TO TERMS
 
 These Terms of Service constitute a legally binding agreement made between you, whether personally or on behalf of an entity (“you”) and ProAutoma LLC (“we,” “us” or “our”), concerning your access to and use of the www.proautoma.com website and the cloud services, APIs, as well as any other media form, media channel, mobile website or mobile application related, linked, or otherwise connected thereto (collectively, the “Site”). 
