@@ -51,17 +51,19 @@ const ONDEMAND_URI = APP_URI + "/console/monitors/ondemand/"
         </div>
       </div>
 
-      <form class="mt-20 p-4 flex items-center justify-start text-xl gap-4 border-4 border-blue-400 rounded-lg" 
-        method="get" action={ONDEMAND_URI}>
-        <select id="method" name="method" class="w-20 m-2 bg-blue-100  outline outline-blue-100">
-          <option value="GET">GET</option>
-        </select>
-        <input id="url" name="url" class="ml-4 outline outline-blue-100 w-96"  value="https://httpbin.org/headers" />
-        <input type="hidden" name="run" value="true" /> 
-        <button type='submit' class="bg-orange-600 hover:bg-blue-800 rounded-full p-2 text-white text-xl">
-          Try now!
-        </button>
-      </form>
+      <div class="mt-20 p-8 bg-blue-200 rounded-lg shadow-lg">
+        <form class="flex items-center justify-start text-xl gap-4 " 
+          method="get" action={ONDEMAND_URI}>
+          <select id="method" name="method" class="w-20 m-2 bg-blue-100  outline outline-blue-100">
+            <option value="GET">GET</option>
+          </select>
+          <input id="url" name="url" class="ml-4 outline outline-blue-100 w-96"  value="https://httpbin.org/headers" />
+          <input type="hidden" name="run" value="true" /> 
+          <button type='submit' class="bg-orange-600 hover:bg-blue-800 rounded-full p-2 text-white text-xl">
+            Try now!
+          </button>
+        </form>
+      </div>
       
       <div class="mt-16 grid grid-cols-2 grid-rows-2 gap-10">
         {/*  Dashboard  */}

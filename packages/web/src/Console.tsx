@@ -24,7 +24,7 @@ import { AiFillGift } from 'react-icons/ai'
 import { HiCollection } from 'react-icons/hi'
 import React, { ReactNode } from 'react'
 import { IconType } from 'react-icons/lib'
-import { FiSettings, FiClipboard, FiMenu, FiSearch, FiPackage } from 'react-icons/fi'
+import { FiSettings, FiClipboard, FiMenu, FiSearch, FiPackage, FiGrid } from 'react-icons/fi'
 import { MdHome, MdKeyboardArrowRight } from 'react-icons/md'
 import { logoTitle } from './Assets'
 import { Outlet, useNavigate } from 'react-router-dom'
@@ -108,7 +108,7 @@ export default function Console() {
         <NavItem icon={FiPackage} to='/console/environments'>
           Environments
         </NavItem>
-        <NavItem icon={FiClipboard} to='/console/dashboards'>
+        <NavItem icon={FiGrid} to='/console/dashboards'>
           Dashboards
         </NavItem>
         <NavItem icon={FiSettings} to='/console/settings'>
