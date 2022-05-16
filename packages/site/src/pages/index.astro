@@ -13,12 +13,7 @@ import speedometer from '/assets/speedometer.svg'
 let APP_URI = import.meta.env.DEV ? 'http://localhost:3000' : 'https://app.proautoma.com'
 
 console.log(APP_URI)
-
 console.log('node_env', import.meta.env)
-console.log('node_env', import.meta.env.NODE_ENV)
-console.log('node_run', import.meta.env.NODE_RUN)
-
-
 console.log('node_run', process.env.NODE_RUN)
 
 
@@ -33,7 +28,6 @@ const ONDEMAND_URI = APP_URI + "/console/monitors/ondemand/"
 <Layout title="Welcome to API Monitoring">
 
   <div class="home min-h-screen font-raleway relative">
-    <!-- <WebNavBar showHero={true} /> -->
     <SiteHeader />
 
     <div class="grid place-items-center h-screen">
@@ -190,13 +184,11 @@ const ONDEMAND_URI = APP_URI + "/console/monitors/ondemand/"
       <div class="relative mt-12 w-2/3 h-64 mx-auto">
         
         {/* Call for Action  */}
-        <div class="w-full bg-gradient-callout py-10 text-white flex justify-around mx-auto">
-          <div>
-            <span class="px-4 text-3xl font-light">
-              Free up time for your
-              <span class="font-semibold">core value generation</span>
-            </span>
-          </div>
+        <div class="w-full bg-gradient-callout py-10 text-white flex justify-around mx-auto align-middle">
+          <span class="px-4 text-2xl font-light">
+            Let us save you some time so you can use it for far better things. 
+          </span>
+          
           <a href="/console/signup">
             <button class="bg-white rounded-lg text-black text-2xl px-6 py-2">
               Get Started
@@ -204,7 +196,6 @@ const ONDEMAND_URI = APP_URI + "/console/monitors/ondemand/"
           </a>
         </div>
       </div>
-
     
       <div class="mt-12">
         <SiteFooter />
