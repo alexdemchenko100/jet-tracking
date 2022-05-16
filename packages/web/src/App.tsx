@@ -22,6 +22,7 @@ import { APIResultById } from './components/APIResultById'
 import { Settings } from './Pages/Settings'
 import { Dashboards } from './Pages/Dashboards'
 import { Environments } from './Pages/Environments'
+import NotFound from './Pages/NotFound'
 
 const history = createBrowserHistory()
 Store.history = history //save for later
@@ -49,7 +50,16 @@ function App() {
     <HistoryRouter history={history}>
       <ChakraProvider>
         <Routes>
-          <Route path='/' element={<Home />} />
+          <Route
+            path='/'
+            element={
+              isLoggedIn ? (
+                <Navigate to='/console/monitors' replace />
+              ) : (
+                <Navigate to='/console/signin' />
+              )
+            }
+          />
           <Route path='/console' element={<Console />}>
             <Route
               path='/console/monitors'
@@ -138,6 +148,7 @@ function App() {
           <Route path='/console/signin' element={<SignIn />} />
           <Route path='/console/signup' element={<SignUp />} />
           <Route path='/console/forgot' element={<ForgotPassword />} />
+          <Route path='*' element={<NotFound />} />
         </Routes>
       </ChakraProvider>
     </HistoryRouter>

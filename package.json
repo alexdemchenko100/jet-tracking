@@ -17,7 +17,7 @@
     "db-build": "pnpm run build -C packages/db",
     "site-build": "pnpm run build -C packages/site",
     "dev": "concurrently pnpm:db-dev pnpm:api-dev pnpm:web-dev pnpm:site-dev",
-    "build": "pnpm db-build && pnpm web-build && pnpm api-build && pnpm site-build",
+    "build": "pnpm db-build && pnpm web-build && pnpm api-build",
     "start": "concurrently pnpm:api-prod pnpm:site-prod"
   },
   "repository": {
