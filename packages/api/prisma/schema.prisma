@@ -13,6 +13,7 @@ model Account {
   users         UserAccount[]
   Monitor       Monitor[]
   MonitorResult MonitorResult[]
+  MonEnv        MonEnv[]
 }
 
 model UserAccount {
@@ -26,6 +27,31 @@ model UserAccount {
 
   @@unique([userId, accountId])
 }
+
+model MonEnv {
+  id        String  @id @default(cuid())
+  name      String
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId String
+  env       Json
+
+  @@unique([name, accountId])
+}
+
+// model EnvVariable {
+//   id        String   @id @default(cuid())
+//   createdAt DateTime @default(now())
+//   key       String
+//   value     String
+//   meta      String
+
+//   envId String
+//   env   MonEnv @relation(fields: [envId], references: [id])
+
+//   @@unique([key, envId])
+//   Account   Account? @relation(fields: [accountId], references: [id])
+//   accountId String?
+// }
 
 model Monitor {
   id              String          @id @default(cuid())

@@ -283,3 +283,25 @@ export type Account = {
   id?: string
   name: string
 }
+
+export type MonEnv = {
+  id?: string
+  createdAt?: string | Date
+  accountId: string
+  name: string
+  env: MonitorTuples
+}
+
+export const EnvFluentSchema = S.object()
+  .prop('name', S.string())
+  .prop('id', S.string())
+  .prop('env', MonitorTupleFluentSchema)
+
+// export type EnvVariable = {
+//   id?: string
+//   createdAt?: string | Date
+//   envId: string
+//   key: string
+//   value: string
+//   meta: string
+// }

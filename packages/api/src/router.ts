@@ -4,10 +4,12 @@ import MonitorExecutorRouter from './routers/MonitorExecutorRouter.js'
 import SchedulerRouter from './routers/SchedulerRouter.js'
 import NotificationRouter from './routers/NotificationRouter.js'
 import OndemandMonitorRouter from './routers/OndemandMonitorRouter.js'
+import EnvRouter from './routers/EnvRouter.js'
 
 export default async function router(fastify: FastifyInstance) {
   fastify.register(OndemandMonitorRouter, { prefix: '/ondemand' })
   fastify.register(MonitorRouter, { prefix: '/monitors' })
+  fastify.register(EnvRouter, { prefix: '/environments' })
   fastify.register(SchedulerRouter, { prefix: '/services/scheduler' })
   fastify.register(MonitorExecutorRouter, { prefix: '/services/monitor' })
   fastify.register(NotificationRouter, { prefix: '/services/notification' })

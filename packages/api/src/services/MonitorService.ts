@@ -92,6 +92,7 @@ export class MonitorService {
     const resp = await db
       .deleteFrom('Monitor')
       .where('id', '=', id)
+      .where('accountId', '=', currentUserInfo().accountId)
       .executeTakeFirst()
     return resp.numDeletedRows
   }
