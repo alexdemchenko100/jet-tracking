@@ -23,6 +23,7 @@ import { Settings } from './Pages/Settings'
 import { Dashboards } from './Pages/Dashboards'
 import { Environments } from './Pages/Environments'
 import NotFound from './Pages/NotFound'
+import { EnvEditor } from './Pages/EnvEditor'
 
 const history = createBrowserHistory()
 Store.history = history //save for later
@@ -106,6 +107,14 @@ function App() {
               element={
                 <ProtectedRoute isAllowed={isLoggedIn}>
                   <APIResultById />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/console/env/:id'
+              element={
+                <ProtectedRoute isAllowed={isLoggedIn}>
+                  <EnvEditor   />
                 </ProtectedRoute>
               }
             />

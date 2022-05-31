@@ -66,7 +66,9 @@ export default async function EnvRouter(app: FastifyInstance) {
     '/',
     {
       schema: {
-        response: {},
+        response: {
+          200: S.array().items(EnvFluentSchema),
+        },
       },
     },
     async function (_, reply) {
