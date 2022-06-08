@@ -21,12 +21,14 @@ import {
   TabPanels,
   Tabs,
   useToast,
+  InputGroup,
+  InputLeftElement,
 } from '@chakra-ui/react'
 import { Monitor, MonitorAssertion, MonitorTuples } from '@httpmon/db'
 import React, { useEffect, useRef } from 'react'
 import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from 'react-hook-form'
 
-import { FiChevronsRight, FiPlus, FiTrash2 } from 'react-icons/fi'
+import { FiChevronsRight, FiPlus, FiTrash2, FiSearch } from 'react-icons/fi'
 import { useMutation, useQuery } from 'react-query'
 import axios from 'axios'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -41,6 +43,10 @@ import { Store } from '../services/Store'
 import { frequencyMSToScale, FrequencyScales, scaleToFrequencyMS } from '../services/FrequencyScale'
 import { MonitorNotifications } from './MonitorNotifications'
 import { MonitorBodyEditor } from './MonitorBodyEditor'
+import Section from '../components/Section'
+import PrimaryButton from '../components/PrimaryButton'
+import Text from '../components/Text'
+import MonitorTab from '../components/MonitorTab'
 
 function SliderThumbWithTooltip() {
   const { control } = useFormContext()
@@ -438,81 +444,125 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
         <form onSubmit={handleSubmit(handleCreation)}>
           <Box>
             <Flex minH='100vh' justify='start' direction='column'>
-              <Flex justify='start' alignItems='end'>
-                <FormControl id='method' maxW='28'>
-                  <Select color='purple' fontWeight='extrabold' {...register('method')}>
-                    <option value='GET'>GET</option>
-                    <option value='POST'>POST</option>
-                    <option value='PUT'>PUT</option>
-                    <option value='PATCH'>PATCH</option>
-                    <option value='DELETE'>DELETE</option>
-                    <option value='OPTIONS'>OPTIONS</option>
-                  </Select>
-                </FormControl>
+              <Section>
+                <Flex alignItems='center' justify={'space-between'}>
+                  <Text variant='header' color='black'>Monitors</Text>
+                  <PrimaryButton
+                    label='Save Now'
+                    variant='emphasis'
+                    color={'white'}
+                    onClick={() => console.log('clicked')}
+                  ></PrimaryButton>
+                </Flex>
+              </Section>
+              <Section paddingTop='29px' paddingBottom='10px'>
+                <Flex justify='space-between' alignItems='center'>
+                  <Flex
+                    alignItems='center'
+                    padding={1}
+                    borderRadius='3xl'
+                    border='1px'
+                    flex={1}
+                    borderColor='gray.200'
+                    borderStyle='solid'
+                  >
+                    <FormControl id='method' maxW='28'>
+                      <Select
+                        bg='gray.100'
+                        color='white'
+                        border='0'
+                        borderRadius='3xl'
+                        fontWeight='bold'
+                        {...register('method')}
+                      >
+                        <option value='GET'>GET</option>
+                        <option value='POST'>POST</option>
+                        <option value='PUT'>PUT</option>
+                        <option value='PATCH'>PATCH</option>
+                        <option value='DELETE'>DELETE</option>
+                        <option value='OPTIONS'>OPTIONS</option>
+                      </Select>
+                    </FormControl>
 
-                <FormControl id='url' ml='2'>
-                  <Input placeholder='https:// URL here' type='url' {...register('url')} />
-                </FormControl>
+                    <FormControl id='url' ml='3'>
+                      <InputGroup>
+                        <InputLeftElement
+                          pointerEvents='none'
+                          fontSize='2xl'
+                          height='1em'
+                          color='gray.100'
+                          children={<FiSearch />}
+                        />
+                        <Input
+                          variant='unstyled'
+                          fontWeight='bold'
+                          color='gray.100'
+                          placeholder='https://'
+                          type='url'
+                          {...register('url')}
+                        />
+                      </InputGroup>
+                    </FormControl>
+                  </Flex>
 
-                <Button
-                  alignSelf='center'
-                  variant='solid'
-                  mx='1em'
-                  size='sm'
-                  colorScheme='blue'
-                  disabled={watched.url == ''}
-                  onClick={() => handleQuickRun()}
-                >
-                  Run now
-                </Button>
-              </Flex>
+                  <PrimaryButton
+                    label='Run now'
+                    variant='emphasis'
+                    color={'white'}
+                    disabled={watched.url == ''}
+                    onClick={handleQuickRun}
+                    marginLeft={2}
+                    padding={'14px 16px 15px'}
+                  ></PrimaryButton>
+                </Flex>
 
-              <Tabs mt='4'>
-                <TabList>
-                  <Tab>
-                    Body
-                    {hasValidBody() && <sup color='green'>1</sup>}
-                  </Tab>
-                  <Tab>
-                    Headers
-                    {numValues('headers') > 0 && (
-                      <sup color='green'>&nbsp;{numValues('headers')}</sup>
-                    )}
-                  </Tab>
-                  <Tab>
-                    Auth
-                    {hasValidAuth() && <sup color='green'>1</sup>}
-                  </Tab>
-                  <Tab>
-                    Query Params
-                    {numValues('queryParams') > 0 && (
-                      <sup color='green'>&nbsp;{numValues('queryParams')}</sup>
-                    )}
-                  </Tab>
-                  <Tab>
-                    Env Variables
-                    {numValues('env') > 0 && <sup color='green'>&nbsp;{numValues('env')}</sup>}
-                  </Tab>
-                </TabList>
+                <Tabs mt='4'>
+                  <TabList borderBottomColor='lightgray.100'>
+                    <MonitorTab>
+                      Body
+                      {hasValidBody() && <sup color='green'>1</sup>}
+                    </MonitorTab> 
+                    <MonitorTab>
+                      Headers
+                      {numValues('headers') > 0 && (
+                        <sup color='green'>&nbsp;{numValues('headers')}</sup>
+                      )}
+                    </MonitorTab>
+                    <MonitorTab>
+                      Auth
+                      {hasValidAuth() && <sup color='green'>1</sup>}
+                    </MonitorTab>
+                    <MonitorTab>
+                      Query Params
+                      {numValues('queryParams') > 0 && (
+                        <sup color='green'>&nbsp;{numValues('queryParams')}</sup>
+                      )}
+                    </MonitorTab>
+                    <MonitorTab>
+                      Env Variables
+                      {numValues('env') > 0 && <sup color='green'>&nbsp;{numValues('env')}</sup>}
+                    </MonitorTab>
+                  </TabList>
 
-                <TabPanels>
-                  <TabPanel>
-                    <MonitorBodyEditor />
-                  </TabPanel>
-                  <TabPanel>
-                    <TupleEditor name='headers' />
-                  </TabPanel>
-                  <TabPanel>
-                    <MonitorAuthEditor />
-                  </TabPanel>
-                  <TabPanel>
-                    <TupleEditor name='queryParams' />
-                  </TabPanel>
-                  <TabPanel>
-                    <TupleEditor name='env' />
-                  </TabPanel>
-                </TabPanels>
-              </Tabs>
+                  <TabPanels>
+                    <TabPanel px='0' pt='6' pb='0'>
+                      <MonitorBodyEditor />
+                    </TabPanel>
+                    <TabPanel px='0' pt='6' pb='0'>
+                      <TupleEditor name='headers' />
+                    </TabPanel>
+                    <TabPanel px='0' pt='6' pb='0'>
+                      <MonitorAuthEditor />
+                    </TabPanel>
+                    <TabPanel px='0' pt='6' pb='0'>
+                      <TupleEditor name='queryParams' />
+                    </TabPanel>
+                    <TabPanel px='0' pt='6' pb='0'>
+                      <TupleEditor name='env' />
+                    </TabPanel>
+                  </TabPanels>
+                </Tabs>
+              </Section>
 
               <Heading size='md' color='purple' mt='10' mb='4'>
                 <Icon name='info' mr='2' as={FiChevronsRight} />

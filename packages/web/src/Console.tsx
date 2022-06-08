@@ -119,7 +119,7 @@ export default function Console() {
   )
 
   return (
-    <Box as='section' bg={useColorModeValue('gray.50', 'gray.700')} minH='100vh'>
+    <Box as='section' bg={useColorModeValue('lightgray.100', 'gray.700')} minH='100vh'>
       <SidebarContent display={{ base: 'none', md: 'unset' }} />
       <Drawer isOpen={sidebar.isOpen} onClose={sidebar.onClose} placement='left'>
         <DrawerOverlay />

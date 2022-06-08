@@ -24,6 +24,7 @@ import { Dashboards } from './Pages/Dashboards'
 import { Environments } from './Pages/Environments'
 import NotFound from './Pages/NotFound'
 import { EnvEditor } from './Pages/EnvEditor'
+import { theme } from './services/ChakraTheme'
 
 const history = createBrowserHistory()
 Store.history = history //save for later
@@ -49,7 +50,7 @@ function App() {
 
   return (
     <HistoryRouter history={history}>
-      <ChakraProvider>
+      <ChakraProvider theme={theme}>
         <Routes>
           <Route
             path='/'
