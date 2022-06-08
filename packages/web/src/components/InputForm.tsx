@@ -6,7 +6,7 @@ import {
 const InputForm: React.FC<InputProps> = (props) => {
   const { ...rest } = props
   return (
-    <Input borderRadius={8} borderColor='gray.200' {...rest} />
+    <Input borderRadius={8} color='gray.100' borderColor='gray.200' {...rest} />
   )
 }
 

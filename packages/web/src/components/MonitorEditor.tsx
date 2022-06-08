@@ -47,6 +47,8 @@ import Section from '../components/Section'
 import PrimaryButton from '../components/PrimaryButton'
 import Text from '../components/Text'
 import MonitorTab from '../components/MonitorTab'
+import InputForm from '../components/InputForm'
+import SelectForm from '../components/SelectForm'
 
 function SliderThumbWithTooltip() {
   const { control } = useFormContext()
@@ -125,8 +127,8 @@ function TupleEditor({ name }: TupleProps) {
       <Box>
         {tuples.map((field, index) => (
           <Flex key={field.id} mb='3'>
-            <Input type='text' {...register(`${name}.${index}.0` as const)} placeholder='Name' />
-            <Input
+            <InputForm type='text' {...register(`${name}.${index}.0` as const)} placeholder='Name' />
+            <InputForm
               type='text'
               ml='2'
               {...register(`${name}.${index}.1` as const)}
@@ -215,53 +217,58 @@ function Assertions() {
   }
 
   return (
-    <Grid gap='1'>
-      {assertions.map((field, index) => (
-        <Flex key={field.id} gap='2'>
-          <Select {...register(`assertions.${index}.type`)}>
-            <option value='code'>Code</option>
-            <option value='totalTime'>Total Time</option>
-            <option value='certExpiryDays'>Days to Cert Expiry</option>
-            <option value='header'>Header</option>
-            <option value='body'>Body</option>
-            <option value='jsonBody'>JSON Body</option>
-          </Select>
+    <>
+      <Grid gap='3'>
+        {assertions.map((field, index) => (
+          <Flex key={field.id} gap='2'>
+            <SelectForm {...register(`assertions.${index}.type`)}>
+              <option value='code'>Code</option>
+              <option value='totalTime'>Total Time</option>
+              <option value='certExpiryDays'>Days to Cert Expiry</option>
+              <option value='header'>Header</option>
+              <option value='body'>Body</option>
+              <option value='jsonBody'>JSON Body</option>
+            </SelectForm>
 
-          {showNameField(assertValues[index]) && (
-            <Input
-              type='text'
-              {...register(`assertions.${index}.name` as const)}
-              placeholder={placeholder(assertValues[index].type)}
-            />
-          )}
-
-          <Select defaultValue='=' {...register(`assertions.${index}.op`)}>
-            {isStringField(assertValues[index]) && (
-              <>
-                <option value='contains'>contains</option>
-                <option value='matches'>matches (regex)</option>
-              </>
+            {showNameField(assertValues[index]) && (
+              <InputForm
+                type='text'
+                {...register(`assertions.${index}.name` as const)}
+                placeholder={placeholder(assertValues[index].type)}
+              />
             )}
-            <option value='='>equal to</option>
-            <option value='!='>not equal to</option>
-            <option value='>'>greater than</option>
-            <option value='<'>less than</option>
-          </Select>
-          <Input
-            type='text'
-            {...register(`assertions.${index}.value` as const)}
-            placeholder='value'
-          />
 
-          <Button onClick={() => remove(index)}>
-            <Icon color='red.500' as={FiTrash2} cursor='pointer' />
-          </Button>
+            <SelectForm color='gray.100' borderRadius={8} defaultValue='=' {...register(`assertions.${index}.op`)}>
+              {isStringField(assertValues[index]) && (
+                <>
+                  <option value='contains'>Contains</option>
+                  <option value='matches'>Matches (regex)</option>
+                </>
+              )}
+              <option value='='>Equal to</option>
+              <option value='!='>Not equal to</option>
+              <option value='>'>Greater than</option>
+              <option value='<'>Less than</option>
+            </SelectForm>
+            <InputForm
+              type='text'
+              {...register(`assertions.${index}.value` as const)}
+              placeholder='Value'
+            />
+
+            <Button borderRadius='4' bg='lightgray.100' color='' onClick={() => remove(index)}>
+              <Icon color='gray.100' as={FiTrash2} cursor='pointer' />
+            </Button>
+          </Flex>
+        ))}
+      </Grid>
+      <Button mt={3} px={0} variant='unstyled' onClick={() => append([{ type: '', value: '' }])}>
+        <Flex align='center'>
+          <Icon bg='lightgray.100' p='4px' width={6} height={6} mr='2' borderRadius='4' color='darkblue.100' as={FiPlus} cursor='pointer' />
+          <Text variant='text-field' color='darkblue.100'>Add new</Text>
         </Flex>
-      ))}
-      <Button onClick={() => append([{ type: '', value: '' }])} maxW='42px'>
-        <Icon color='blue.500' as={FiPlus} cursor='pointer' />
       </Button>
-    </Grid>
+    </>
   )
 }
 
@@ -566,11 +573,12 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
                 </Tabs>
               </Section>
 
-              <Heading size='md' color='purple' mt='10' mb='4'>
-                <Icon name='info' mr='2' as={FiChevronsRight} />
-                Choose Test criteria
-              </Heading>
-              <Assertions />
+              <Section py='4'>
+                <Text variant='title' color='black'>Choose Test criteria</Text>
+                <Box pt='6' pb='0'>
+                  <Assertions />
+                </Box>
+              </Section>
 
               <FormControl id='frequency' maxW='80%'>
                 <Heading size='md' color='purple' mt='10' mb='4'>
@@ -600,7 +608,7 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
               <Flex mt='2'>
                 <FormControl id='name' w='200'>
                   <Flex alignItems='baseline'>
-                    <Input
+                    <InputForm
                       type='name'
                       autoComplete='name'
                       {...register('name')}
