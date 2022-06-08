@@ -15,7 +15,6 @@ import {
   SliderThumb,
   SliderTrack,
   Stack,
-  Tab,
   TabList,
   TabPanel,
   TabPanels,
@@ -23,12 +22,16 @@ import {
   useToast,
   InputGroup,
   InputLeftElement,
+  Menu,
+  MenuItem,
+  MenuButton,
+  MenuList,
 } from '@chakra-ui/react'
 import { Monitor, MonitorAssertion, MonitorTuples } from '@httpmon/db'
 import React, { useEffect, useRef } from 'react'
 import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from 'react-hook-form'
 
-import { FiChevronsRight, FiPlus, FiTrash2, FiSearch } from 'react-icons/fi'
+import { FiChevronsRight, FiPlus, FiTrash2, FiSearch, FiChevronDown } from 'react-icons/fi'
 import { useMutation, useQuery } from 'react-query'
 import axios from 'axios'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -162,27 +165,45 @@ function Locations() {
   })
 
   return (
-    <Flex alignItems='center'>
-      <CheckboxGroup>
-        <Stack direction='column'>
-          {showLocations.map((locEntry, index) => (
-            <Controller
-              key={locEntry.id}
-              control={control}
-              name={`showLocations.${index}.set`}
-              render={({ field }) => {
-                return (
-                  <Checkbox isChecked={field.value} onChange={field.onChange}>
-                    {/* //accessing internal representation of RHF */}
-                    {(locEntry as any)['name']}
-                  </Checkbox>
-                )
-              }}
-            />
-          ))}
-        </Stack>
-      </CheckboxGroup>
-    </Flex>
+    <Menu>
+      <MenuButton
+        as={Button}
+        bg='transparent'
+        width='440px'
+        rightIcon={<FiChevronDown />}
+        border='1px'
+        borderStyle='solid'
+        borderColor='gray.200'
+        borderRadius={8}
+        textAlign='left'
+        _hover={{ bg: 'transparent' }}
+        _active={{ bg: 'transparent' }}
+      >
+        Locations
+      </MenuButton>
+      <MenuList width='440px' boxShadow='0px 4px 16px rgba(0, 0, 0, 0.1)' borderRadius={8}>
+        <CheckboxGroup>
+          <Stack direction='column'>
+            {showLocations.map((locEntry, index) => (
+              <Controller
+                key={locEntry.id}
+                control={control}
+                name={`showLocations.${index}.set`}
+                render={({ field }) => {
+                  return (
+                    <MenuItem px={5} _focus={{ bg: 'lightgray.100' }} _active={{ bg: 'lightgray.100' }} closeOnSelect={false}>
+                      <Checkbox colorScheme='cyan' borderRadius={4} width={'100%'} isChecked={field.value} onChange={field.onChange}>
+                        <Text variant='text-field' color='darkgray.100'>{(locEntry as any)['name']}</Text>
+                      </Checkbox>
+                    </MenuItem>
+                  )
+                }}
+              />
+            ))}
+          </Stack>
+        </CheckboxGroup>
+      </MenuList>
+    </Menu>
   )
 }
 
@@ -580,19 +601,19 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
                 </Box>
               </Section>
 
-              <FormControl id='frequency' maxW='80%'>
-                <Heading size='md' color='purple' mt='10' mb='4'>
-                  <Icon name='info' mr='2' as={FiChevronsRight} />
-                  How Often To Run?
-                </Heading>
-                <SliderThumbWithTooltip />
-              </FormControl>
+              <Section py='4'>
+                <Text variant='title' color='black'>How Often To Run?</Text>
+                <Box pt='6' pb='0'>
+                  <SliderThumbWithTooltip />
+                </Box>
+              </Section>
 
-              <Heading size='md' color='darkmagenta' mt='10' mb='4'>
-                <Icon name='info' mr='2' as={FiChevronsRight} />
-                Choose Locations To Run From
-              </Heading>
-              <Locations />
+              <Section py='4'>
+                <Text variant='title' color='black'>Choose Locations To Run From</Text>
+                <Box pt='5' pb='2'>
+                  <Locations />
+                </Box>
+              </Section>
 
               <Heading size='md' color='darkmagenta' mt='10' mb='4'>
                 <Icon name='info' mr='2' as={FiChevronsRight} />

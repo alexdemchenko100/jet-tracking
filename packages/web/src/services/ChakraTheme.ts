@@ -38,6 +38,10 @@ export const theme = extendTheme({
     lightblue: {
       100: "#68CCDF",
       200: "#10B2D7",
+    },
+    cyan: {
+      400: '#16166A',
+      500: '#17468F',
     }
   },
 })
