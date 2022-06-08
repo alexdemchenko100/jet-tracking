@@ -122,26 +122,28 @@ function TupleEditor({ name }: TupleProps) {
 
   return (
     <>
-      <Box mt='4'>
+      <Box>
         {tuples.map((field, index) => (
-          <Flex key={field.id} mb='2'>
-            <Input type='text' {...register(`${name}.${index}.0` as const)} placeholder='name' />
+          <Flex key={field.id} mb='3'>
+            <Input type='text' {...register(`${name}.${index}.0` as const)} placeholder='Name' />
             <Input
               type='text'
-              ml='4'
+              ml='2'
               {...register(`${name}.${index}.1` as const)}
-              placeholder='value'
+              placeholder='Value'
             />
 
-            <Button onClick={() => remove(index)}>
-              <Icon color='red.500' as={FiTrash2} cursor='pointer' />
+            <Button ml='2' borderRadius='4' bg='lightgray.100' color='' onClick={() => remove(index)}>
+              <Icon color='gray.100' as={FiTrash2} cursor='pointer' />
             </Button>
           </Flex>
         ))}
       </Box>
-      <Button size='lg' variant='ghost' colorScheme='blue' onClick={() => append([['', '']])}>
-        <Icon as={FiPlus} cursor='pointer' />
-        {nameToLabel(name)}
+      <Button px={0} variant='unstyled' onClick={() => append([['', '']])}>
+        <Flex align='center'>
+          <Icon bg='lightgray.100' p='4px' width={6} height={6} mr='2' borderRadius='4' color='darkblue.100' as={FiPlus} cursor='pointer' />
+          <Text variant='text-field' color='darkblue.100'>{nameToLabel(name)}</Text>
+        </Flex>
       </Button>
     </>
   )
@@ -455,7 +457,7 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
                   ></PrimaryButton>
                 </Flex>
               </Section>
-              <Section paddingTop='29px' paddingBottom='10px'>
+              <Section paddingTop='29px' paddingBottom='10px' height='440px'>
                 <Flex justify='space-between' alignItems='center'>
                   <Flex
                     alignItems='center'

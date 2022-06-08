@@ -2,28 +2,42 @@ import {
   Tabs,
   TabList,
   Tab,
+  TabProps,
   TabPanels,
   TabPanel,
   FormControl,
-  FormLabel,
-  Input,
+  Flex,
 } from '@chakra-ui/react'
 import { useFormContext, useFieldArray, Controller } from 'react-hook-form'
+import InputForm from './InputForm'
 
 function BasicAuth() {
   const { register } = useFormContext()
 
   return (
-    <>
-      <FormControl>
-        <FormLabel htmlFor='username'>Username</FormLabel>
-        <Input type='name' {...register('auth.basic.username')} />
-      </FormControl>
-      <FormControl>
-        <FormLabel htmlFor='password'>Password</FormLabel>
-        <Input type='password' autoComplete='off' {...register('auth.basic.password')} />
-      </FormControl>
-    </>
+    <Flex align='center'>
+      <InputForm type='name' {...register('auth.basic.username')} placeholder='Username' />
+      <InputForm ml='2' type='password' autoComplete='off' {...register('auth.basic.password')}  placeholder='Password' />
+    </Flex>
+  )
+}
+
+const AuthTab: React.FC<TabProps> = ({children}) => {
+  return (
+    <Tab
+      fontWeight='600'
+      color='gray.100'
+      bg='lightgray.100'
+      fontSize='md'
+      lineHeight='shorter'
+      borderRadius='3xl'
+      py='2'
+      px='4'
+      mr='4'
+      _selected={{ bg: 'lightblue.100', color: 'white' }}
+    >
+      {children}
+    </Tab>
   )
 }
 
@@ -32,8 +46,7 @@ function BearerAuth() {
 
   return (
     <FormControl>
-      <FormLabel htmlFor='token'>Token</FormLabel>
-      <Input type='name' {...register('auth.bearer.token')} />
+      <InputForm type='name' borderRadius={8} {...register('auth.bearer.token')} placeholder='Token' />
     </FormControl>
   )
 }
@@ -79,17 +92,17 @@ export function MonitorAuthEditor() {
             }}
           >
             <TabList>
-              <Tab>None</Tab>
-              <Tab>Basic Auth</Tab>
-              <Tab>Bearer Auth</Tab>
+              <AuthTab>None</AuthTab>
+              <AuthTab>Basic Auth</AuthTab>
+              <AuthTab>Bearer Auth</AuthTab>
             </TabList>
 
             <TabPanels>
               <TabPanel />
-              <TabPanel>
+              <TabPanel py='6' px='0'>
                 <BasicAuth />
               </TabPanel>
-              <TabPanel>
+              <TabPanel py='6' px='0'>
                 <BearerAuth />
               </TabPanel>
             </TabPanels>
