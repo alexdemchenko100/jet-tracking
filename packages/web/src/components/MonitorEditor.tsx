@@ -51,8 +51,6 @@ import Section from '../components/Section'
 import PrimaryButton from '../components/PrimaryButton'
 import Text from '../components/Text'
 import MonitorTab from '../components/MonitorTab'
-import InputForm from '../components/InputForm'
-import SelectForm from '../components/SelectForm'
 
 function SliderThumbWithTooltip() {
   const { control } = useFormContext()
@@ -144,8 +142,11 @@ function TupleEditor({ name }: TupleProps) {
       <Box>
         {tuples.map((field, index) => (
           <Flex key={field.id} mb='3'>
-            <InputForm type='text' {...register(`${name}.${index}.0` as const)} placeholder='Name' />
-            <InputForm
+            <Input borderRadius={8} color='gray.100' borderColor='gray.200' type='text' {...register(`${name}.${index}.0` as const)} placeholder='Name' />
+            <Input
+              borderRadius={8}
+              color='gray.100'
+              borderColor='gray.200' 
               type='text'
               ml='2'
               {...register(`${name}.${index}.1` as const)}
@@ -256,24 +257,27 @@ function Assertions() {
       <Grid gap='3'>
         {assertions.map((field, index) => (
           <Flex key={field.id} gap='2'>
-            <SelectForm {...register(`assertions.${index}.type`)}>
+            <Select borderRadius={8} color='gray.100' borderColor='gray.200' {...register(`assertions.${index}.type`)}>
               <option value='code'>Code</option>
               <option value='totalTime'>Total Time</option>
               <option value='certExpiryDays'>Days to Cert Expiry</option>
               <option value='header'>Header</option>
               <option value='body'>Body</option>
               <option value='jsonBody'>JSON Body</option>
-            </SelectForm>
+            </Select>
 
             {showNameField(assertValues[index]) && (
-              <InputForm
+              <Input
+                borderRadius={8}
+                color='gray.100'
+                borderColor='gray.200'
                 type='text'
                 {...register(`assertions.${index}.name` as const)}
                 placeholder={placeholder(assertValues[index].type)}
               />
             )}
 
-            <SelectForm color='gray.100' borderRadius={8} defaultValue='=' {...register(`assertions.${index}.op`)}>
+            <Select borderRadius={8} color='gray.100' borderColor='gray.200' defaultValue='=' {...register(`assertions.${index}.op`)}>
               {isStringField(assertValues[index]) && (
                 <>
                   <option value='contains'>Contains</option>
@@ -284,8 +288,11 @@ function Assertions() {
               <option value='!='>Not equal to</option>
               <option value='>'>Greater than</option>
               <option value='<'>Less than</option>
-            </SelectForm>
-            <InputForm
+            </Select>
+            <Input
+              borderRadius={8}
+              color='gray.100'
+              borderColor='gray.200'
               type='text'
               {...register(`assertions.${index}.value` as const)}
               placeholder='Value'
@@ -629,11 +636,12 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
                 </Box>
               </Section>
 
-              <Heading size='md' color='darkmagenta' mt='10' mb='4'>
-                <Icon name='info' mr='2' as={FiChevronsRight} />
-                Notifications
-              </Heading>
-              <MonitorNotifications />
+              <Section py='4'>
+                <Text variant='title' color='black'>Notifications</Text>
+                <Box pt='5' pb='2'>
+                  <MonitorNotifications />
+                </Box>
+              </Section>
 
               <Heading size='md' color='darkmagenta' mt='10' mb='4'>
                 <Icon name='info' mr='2' as={FiChevronsRight} />
@@ -643,7 +651,10 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
               <Flex mt='2'>
                 <FormControl id='name' w='200'>
                   <Flex alignItems='baseline'>
-                    <InputForm
+                    <Input
+                      borderRadius={8}
+                      color='gray.100'
+                      borderColor='gray.200'
                       type='name'
                       autoComplete='name'
                       {...register('name')}

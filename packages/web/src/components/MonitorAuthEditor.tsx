@@ -1,4 +1,5 @@
 import {
+  Input,
   Tabs,
   TabList,
   Tab,
@@ -9,15 +10,14 @@ import {
   Flex,
 } from '@chakra-ui/react'
 import { useFormContext, useFieldArray, Controller } from 'react-hook-form'
-import InputForm from './InputForm'
 
 function BasicAuth() {
   const { register } = useFormContext()
 
   return (
     <Flex align='center'>
-      <InputForm type='name' {...register('auth.basic.username')} placeholder='Username' />
-      <InputForm ml='2' type='password' autoComplete='off' {...register('auth.basic.password')}  placeholder='Password' />
+      <Input borderRadius={8} color='gray.100' borderColor='gray.200' type='name' {...register('auth.basic.username')} placeholder='Username' />
+      <Input borderRadius={8} color='gray.100' borderColor='gray.200' ml='2' type='password' autoComplete='off' {...register('auth.basic.password')}  placeholder='Password' />
     </Flex>
   )
 }
@@ -46,7 +46,7 @@ function BearerAuth() {
 
   return (
     <FormControl>
-      <InputForm type='name' borderRadius={8} {...register('auth.bearer.token')} placeholder='Token' />
+      <Input borderRadius={8} color='gray.100' borderColor='gray.200' type='name' {...register('auth.bearer.token')} placeholder='Token' />
     </FormControl>
   )
 }
