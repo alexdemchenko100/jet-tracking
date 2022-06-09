@@ -1,16 +1,20 @@
-import { Box, useBreakpointValue, useDisclosure } from '@chakra-ui/react'
+import { Box, useBreakpointValue, useDisclosure, Flex } from '@chakra-ui/react'
 import { Monitor } from '@httpmon/db'
 
 import { useState } from 'react'
 import { APIResultByDemand } from './APIResultByDemand'
 import { MonitorEditor } from './MonitorEditor'
 import SplitPane from './SplitPane'
+import Section from './Section'
+import Text from './Text'
+import PrimaryButton from './PrimaryButton'
 
 export function MonitorEditPanel() {
   const drawer = useDisclosure()
 
   const [ondemandMonitor, setOndemandMonitor] = useState<Monitor>()
   const [refreshOnDemand, setRefreshOnDemand] = useState(0)
+  const [modalOpen, setModalOpen] = useState(false)
 
   const vertical = useBreakpointValue({ base: true, xl: false })
 
@@ -27,18 +31,29 @@ export function MonitorEditPanel() {
 
   return (
     <Box>
+      <Section>
+        <Flex alignItems='center' justify={'space-between'}>
+          <Text variant='header' color='black'>Monitors</Text>
+          <PrimaryButton
+            label='Save Now'
+            variant='emphasis'
+            color={'white'}
+            onClick={() => setModalOpen(true)}
+          ></PrimaryButton>
+        </Flex>
+      </Section>
       <SplitPane orientation={vertical ? 'vertical' : 'horizontal'}>
-        <Box overflow='hidden'>
-          <MonitorEditor handleOndemandMonitor={handleQuickRun} />
+        <Box>
+          <MonitorEditor handleOndemandMonitor={handleQuickRun} isModalOpen={modalOpen} onClose={() => setModalOpen(false)} />
         </Box>
         {drawer.isOpen && (
-          <Box overflow='auto'>
+          <Section height='100%' py='4'>
             <APIResultByDemand
               onDemandMonitor={ondemandMonitor}
               refresh={refreshOnDemand}
               onClose={onClose}
             />
-          </Box>
+          </Section>
         )}
       </SplitPane>
     </Box>

@@ -9,7 +9,7 @@ interface Props extends ButtonProps {
   label: string,
   variant: TextVariants,
   color: string,
-  onClick: () => void,
+  onClick?: () => void,
 }
 
 const PrimaryButton: React.FC<Props> = (props) => {

@@ -70,7 +70,7 @@ export function MonitorBodyEditor() {
                 <Tab
                   key={index}
                   fontWeight='600'
-                  color='gray.100'
+                  color='gray.300'
                   bg='lightgray.100'
                   fontSize='md'
                   lineHeight='shorter'

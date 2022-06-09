@@ -68,10 +68,10 @@ function TimingBar({ result, ...rest }: TimingBarProps) {
       verticalAlign='middle'
       {...rest}
     >
-      {stats.map(([label, time, timePct, color]) => {
+      {stats.map(([label, time, timePct, color], index) => {
         if (time > 2)
           return (
-            <Tooltip label='Conn Timings'>
+            <Tooltip label='Conn Timings' key={index}>
               <Flex direction='column' width={`${timePct}%`} key={label}>
                 <Text fontSize='sm' isTruncated>
                   {label}
@@ -177,25 +177,27 @@ export function APIResult({ result, onClose }: APIResultProps) {
   const isSuccess = result.err == '' && hasFailedAssertions(result) === false
 
   return (
-    <Grid gap='1em' mx='2'>
-      <Flex alignItems='center'>
-        <Badge colorScheme={isSuccess ? 'green' : 'red'} fontSize='md' fontWeight='bold'>
-          {result.code} {result.codeStatus}
-        </Badge>
-
-        <Tag colorScheme='gray' fontSize='lg' fontWeight='bold'>
-          {result.url || 'unknown'}
-        </Tag>
-        <Tag colorScheme='gray' fontSize='md' fontWeight='bold' ml='12'>
+    <Grid gap='1em'>
+      {onClose && (
+        <Flex alignItems='end'>
+          <Button ml='auto' onClick={onClose} bg='lightgray.100'>
+            <Icon as={FiX} cursor='pointer' />
+          </Button>
+        </Flex>
+      )}
+      <Flex alignItems='center' justify='space-between'>
+        <Flex alignItems='center'>
+          <Badge borderRadius='2xl' py='1' px='4' colorScheme={isSuccess ? 'green' : 'red'} fontSize='sm' lineHeight='1.25' fontWeight='bold'>
+            {result.code} {result.codeStatus}
+          </Badge>
+          <Tag ml='2' borderRadius='2xl' py='1' px='4' bg='lightgray.100' colorScheme='gray' fontSize='sm' lineHeight='1.25' fontWeight='bold'>
+            {result.url || 'unknown'}
+          </Tag>
+        </Flex>
+        <Tag borderRadius='2xl' py='1' px='4' bg='lightgray.100' colorScheme='gray' fontSize='sm' lineHeight='1.25' fontWeight='bold'>
           Response Time: {result.totalTime}ms
           <Icon ml='1' as={FiClock} />
         </Tag>
-
-        {onClose && (
-          <Button ml='auto' onClick={onClose}>
-            <Icon as={FiX} cursor='pointer' />
-          </Button>
-        )}
       </Flex>
 
       <TimingBar width='100%' result={result} />

@@ -6,7 +6,6 @@ import {
   Flex,
   FormControl,
   Grid,
-  Heading,
   Icon,
   Input,
   Select,
@@ -27,12 +26,20 @@ import {
   MenuItem,
   MenuButton,
   MenuList,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
 } from '@chakra-ui/react'
 import { Monitor, MonitorAssertion, MonitorTuples } from '@httpmon/db'
 import React, { useEffect, useRef } from 'react'
 import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from 'react-hook-form'
 
-import { FiChevronsRight, FiPlus, FiTrash2, FiSearch, FiChevronDown } from 'react-icons/fi'
+import { FiPlus, FiTrash2, FiSearch, FiChevronDown } from 'react-icons/fi'
 import { useMutation, useQuery } from 'react-query'
 import axios from 'axios'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -94,7 +101,7 @@ function SliderThumbWithTooltip() {
                   ml={ml}
                   fontSize='sm'
                 >
-                  <Text color='gray.100' variant='text-field'>{scale.label}</Text>
+                  <Text color='gray.300' variant='text-field'>{scale.label}</Text>
                 </SliderMark>
               )
             })}
@@ -142,10 +149,10 @@ function TupleEditor({ name }: TupleProps) {
       <Box>
         {tuples.map((field, index) => (
           <Flex key={field.id} mb='3'>
-            <Input borderRadius={8} color='gray.100' borderColor='gray.200' type='text' {...register(`${name}.${index}.0` as const)} placeholder='Name' />
+            <Input borderRadius={8} color='gray.300' borderColor='gray.200' type='text' {...register(`${name}.${index}.0` as const)} placeholder='Name' />
             <Input
               borderRadius={8}
-              color='gray.100'
+              color='gray.300'
               borderColor='gray.200' 
               type='text'
               ml='2'
@@ -154,7 +161,7 @@ function TupleEditor({ name }: TupleProps) {
             />
 
             <Button ml='2' borderRadius='4' bg='lightgray.100' color='' onClick={() => remove(index)}>
-              <Icon color='gray.100' as={FiTrash2} cursor='pointer' />
+              <Icon color='gray.300' as={FiTrash2} cursor='pointer' />
             </Button>
           </Flex>
         ))}
@@ -208,7 +215,7 @@ function Locations() {
                   return (
                     <MenuItem px={5} _focus={{ bg: 'lightgray.100' }} _active={{ bg: 'lightgray.100' }} closeOnSelect={false}>
                       <Checkbox colorScheme='cyan' borderRadius={4} width={'100%'} isChecked={field.value} onChange={field.onChange}>
-                        <Text variant='text-field' color='darkgray.100'>{(locEntry as any)['name']}</Text>
+                        <Text variant='text-field' color='darkgray.300'>{(locEntry as any)['name']}</Text>
                       </Checkbox>
                     </MenuItem>
                   )
@@ -257,7 +264,7 @@ function Assertions() {
       <Grid gap='3'>
         {assertions.map((field, index) => (
           <Flex key={field.id} gap='2'>
-            <Select borderRadius={8} color='gray.100' borderColor='gray.200' {...register(`assertions.${index}.type`)}>
+            <Select borderRadius={8} color='gray.300' borderColor='gray.200' {...register(`assertions.${index}.type`)}>
               <option value='code'>Code</option>
               <option value='totalTime'>Total Time</option>
               <option value='certExpiryDays'>Days to Cert Expiry</option>
@@ -269,7 +276,7 @@ function Assertions() {
             {showNameField(assertValues[index]) && (
               <Input
                 borderRadius={8}
-                color='gray.100'
+                color='gray.300'
                 borderColor='gray.200'
                 type='text'
                 {...register(`assertions.${index}.name` as const)}
@@ -277,7 +284,7 @@ function Assertions() {
               />
             )}
 
-            <Select borderRadius={8} color='gray.100' borderColor='gray.200' defaultValue='=' {...register(`assertions.${index}.op`)}>
+            <Select borderRadius={8} color='gray.300' borderColor='gray.200' defaultValue='=' {...register(`assertions.${index}.op`)}>
               {isStringField(assertValues[index]) && (
                 <>
                   <option value='contains'>Contains</option>
@@ -291,7 +298,7 @@ function Assertions() {
             </Select>
             <Input
               borderRadius={8}
-              color='gray.100'
+              color='gray.300'
               borderColor='gray.200'
               type='text'
               {...register(`assertions.${index}.value` as const)}
@@ -299,7 +306,7 @@ function Assertions() {
             />
 
             <Button borderRadius='4' bg='lightgray.100' color='' onClick={() => remove(index)}>
-              <Icon color='gray.100' as={FiTrash2} cursor='pointer' />
+              <Icon color='gray.300' as={FiTrash2} cursor='pointer' />
             </Button>
           </Flex>
         ))}
@@ -316,9 +323,11 @@ function Assertions() {
 
 interface EditProps {
   handleOndemandMonitor: (mon: Monitor) => void
+  isModalOpen: boolean,
+  onClose: () => void,
 }
 
-export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
+export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: EditProps) {
   //id tells apart Edit to a new check creation
   const { id } = useParams()
 
@@ -475,6 +484,7 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
     const monResp = await createMonitor(monitor)
 
     if (monResp.id) {
+      onClose() // close save modal
       toast({
         position: 'top',
         title: 'Monitor ' + updating ? 'updated.' : 'created',
@@ -490,22 +500,11 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
   }
 
   return (
-    <Box mx='2'>
+    <Box>
       <FormProvider {...methods}>
-        <form onSubmit={handleSubmit(handleCreation)}>
+        <form>
           <Box>
             <Flex minH='100vh' justify='start' direction='column'>
-              <Section>
-                <Flex alignItems='center' justify={'space-between'}>
-                  <Text variant='header' color='black'>Monitors</Text>
-                  <PrimaryButton
-                    label='Save Now'
-                    variant='emphasis'
-                    color={'white'}
-                    onClick={() => console.log('clicked')}
-                  ></PrimaryButton>
-                </Flex>
-              </Section>
               <Section paddingTop='29px' paddingBottom='10px' height='440px'>
                 <Flex justify='space-between' alignItems='center'>
                   <Flex
@@ -519,7 +518,7 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
                   >
                     <FormControl id='method' maxW='28'>
                       <Select
-                        bg='gray.100'
+                        bg='gray.300'
                         color='white'
                         border='0'
                         borderRadius='3xl'
@@ -541,13 +540,13 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
                           pointerEvents='none'
                           fontSize='2xl'
                           height='1em'
-                          color='gray.100'
+                          color='gray.300'
                           children={<FiSearch />}
                         />
                         <Input
                           variant='unstyled'
                           fontWeight='bold'
-                          color='gray.100'
+                          color='gray.300'
                           placeholder='https://'
                           type='url'
                           {...register('url')}
@@ -643,38 +642,52 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
                 </Box>
               </Section>
 
-              <Heading size='md' color='darkmagenta' mt='10' mb='4'>
-                <Icon name='info' mr='2' as={FiChevronsRight} />
-                Name and Save
-              </Heading>
+              <Modal isOpen={isModalOpen} onClose={onClose}>
+                <ModalOverlay />
+                <ModalContent>
+                  <ModalHeader pb={2}><Text color='black' variant="header">{id ? 'Update' : 'Add'} Monitor</Text></ModalHeader>
+                  <ModalCloseButton />
+                  <ModalBody>
+                    <FormControl id='name' w='200'>
+                      <Flex alignItems='baseline'>
+                        <Input
+                          borderRadius={8}
+                          color='gray.300'
+                          borderColor='gray.200'
+                          type='name'
+                          autoComplete='name'
+                          {...register('name')}
+                          placeholder='Add name'
+                        />
+                      </Flex>
+                    </FormControl>
+                  </ModalBody>
 
-              <Flex mt='2'>
-                <FormControl id='name' w='200'>
-                  <Flex alignItems='baseline'>
-                    <Input
-                      borderRadius={8}
-                      color='gray.100'
-                      borderColor='gray.200'
-                      type='name'
-                      autoComplete='name'
-                      {...register('name')}
-                      placeholder='Please choose a name'
-                    />
-                  </Flex>
-                </FormControl>
-
-                <Button
-                  ml='4'
-                  colorScheme='blue'
-                  size='md'
-                  w='40'
-                  variant='solid'
-                  disabled={!watched.url || !watched.name}
-                  type='submit'
-                >
-                  {id ? 'Update' : 'Create'}
-                </Button>
-              </Flex>
+                  <ModalFooter>
+                    <Button
+                      variant="outline"
+                      borderRadius={24}
+                      border='2px'
+                      px='22px'
+                      color='darkblue.100'
+                      borderColor='darkblue.100'
+                      _hover={{ bg: 'transparent' }}
+                      mr={3}
+                      onClick={onClose}
+                    >
+                      Cancel
+                    </Button>
+                    <PrimaryButton
+                      label='Save'
+                      disabled={!watched.url || !watched.name}
+                      variant='emphasis'
+                      color='white'
+                      onClick={handleSubmit(handleCreation)}
+                    >
+                    </PrimaryButton>
+                  </ModalFooter>
+                </ModalContent>
+              </Modal>
             </Flex>
           </Box>
         </form>

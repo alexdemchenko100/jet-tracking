@@ -7,7 +7,7 @@ export function MonitorNotifications() {
   const { register } = useFormContext()
   return (
     <>
-      <Flex alignItems='center'>
+      <Flex alignItems='center' mb={3}>
         <Text>Notify after this many number of failures </Text>
         <Select ml='4' w='20' {...register('notifications.failCount')}>
           <option value='0'>0</option>
@@ -40,7 +40,7 @@ function Channels() {
   const channelValues: NotificationChannel[] = watch('notifications.channels')
 
   return (
-    <Grid gap='1'>
+    <Grid gap='3'>
       {channels.map((field, index) => (
         <Flex key={field.id} gap='2'>
           <Select {...register(`notifications.channels.${index}.type`)}>
@@ -60,13 +60,13 @@ function Channels() {
             placeholder='info'
           />
 
-          <Button onClick={() => remove(index)}>
-            <Icon color='red.500' as={FiTrash2} cursor='pointer' />
+          <Button bg='lightgray.100' onClick={() => remove(index)}>
+            <Icon color='gray.300' as={FiTrash2} cursor='pointer' />
           </Button>
         </Flex>
       ))}
-      <Button onClick={() => append([{ type: '', value: '' }])} maxW='42px'>
-        <Icon color='blue.500' as={FiPlus} cursor='pointer' />
+      <Button bg='lightgray.100' onClick={() => append([{ type: '', value: '' }])} maxW='42px'>
+        <Icon color='blue.100' as={FiPlus} cursor='pointer' />
       </Button>
     </Grid>
   )

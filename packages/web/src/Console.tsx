@@ -134,6 +134,9 @@ export default function Console() {
           justify='space-between'
           w='full'
           px='4'
+          position='sticky'
+          top='0'
+          zIndex={1000}
           bg={useColorModeValue('white', 'gray.800')}
           borderBottomWidth='1px'
           borderColor={useColorModeValue('inherit', 'gray.700')}
@@ -178,7 +181,7 @@ export default function Console() {
           </Flex>
         </Flex>
 
-        <Box as='main' m='2'>
+        <Box as='main' p='2' overflow={'auto'}>
           {/* Add content here, remove div below  */}
           <Outlet />
         </Box>

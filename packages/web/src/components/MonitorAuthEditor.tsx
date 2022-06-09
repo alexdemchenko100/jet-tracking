@@ -16,8 +16,8 @@ function BasicAuth() {
 
   return (
     <Flex align='center'>
-      <Input borderRadius={8} color='gray.100' borderColor='gray.200' type='name' {...register('auth.basic.username')} placeholder='Username' />
-      <Input borderRadius={8} color='gray.100' borderColor='gray.200' ml='2' type='password' autoComplete='off' {...register('auth.basic.password')}  placeholder='Password' />
+      <Input borderRadius={8} color='gray.300' borderColor='gray.200' type='name' {...register('auth.basic.username')} placeholder='Username' />
+      <Input borderRadius={8} color='gray.300' borderColor='gray.200' ml='2' type='password' autoComplete='off' {...register('auth.basic.password')}  placeholder='Password' />
     </Flex>
   )
 }
@@ -26,7 +26,7 @@ const AuthTab: React.FC<TabProps> = ({children}) => {
   return (
     <Tab
       fontWeight='600'
-      color='gray.100'
+      color='gray.300'
       bg='lightgray.100'
       fontSize='md'
       lineHeight='shorter'
@@ -46,7 +46,7 @@ function BearerAuth() {
 
   return (
     <FormControl>
-      <Input borderRadius={8} color='gray.100' borderColor='gray.200' type='name' {...register('auth.bearer.token')} placeholder='Token' />
+      <Input borderRadius={8} color='gray.300' borderColor='gray.200' type='name' {...register('auth.bearer.token')} placeholder='Token' />
     </FormControl>
   )
 }
