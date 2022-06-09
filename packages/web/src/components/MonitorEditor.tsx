@@ -13,6 +13,7 @@ import {
   Slider,
   SliderMark,
   SliderThumb,
+  SliderFilledTrack,
   SliderTrack,
   Stack,
   TabList,
@@ -75,22 +76,35 @@ function SliderThumbWithTooltip() {
             onMouseEnter={() => setShowTooltip(true)}
             onMouseLeave={() => setShowTooltip(false)}
           >
-            {FrequencyScales.map((scale) => {
+            {FrequencyScales.map((scale, index) => {
+              let ml;
+              switch (index) {
+                case 0:
+                  ml = '-1.5';
+                  break;
+                case (FrequencyScales.length - 1):
+                  ml = '-5';
+                  break;
+                default:
+                  ml = '-3'
+              }
               return (
                 <SliderMark
                   key={scale.label}
                   value={scale.scaleIndex}
-                  mt='1'
-                  ml='-2.5'
+                  mt='2'
+                  ml={ml}
                   fontSize='sm'
                 >
-                  {scale.label}
+                  <Text color='gray.100' variant='text-field'>{scale.label}</Text>
                 </SliderMark>
               )
             })}
 
-            <SliderTrack bg={'gray.400'}>{/* <SliderFilledTrack /> */}</SliderTrack>
-            <SliderThumb bg={'blue.200'} />
+            <SliderTrack bg={'gray.200'} h={2} borderRadius={8}>
+              <SliderFilledTrack bg={'darkblue.100'} h={2} borderRadius={8} />
+            </SliderTrack>
+            <SliderThumb h={4} w={4} bg={'darkblue.100'} border='1px' borderColor={'white'} borderStyle='solid' />
           </Slider>
         )
       }}
@@ -603,7 +617,7 @@ export function MonitorEditor({ handleOndemandMonitor }: EditProps) {
 
               <Section py='4'>
                 <Text variant='title' color='black'>How Often To Run?</Text>
-                <Box pt='6' pb='0'>
+                <Box pt='6' pb='16' mx={1}>
                   <SliderThumbWithTooltip />
                 </Box>
               </Section>
