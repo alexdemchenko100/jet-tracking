@@ -5,23 +5,32 @@ import { useEffect } from 'react'
 import {
   Box,
   Button,
+  Grid,
   Flex,
   Heading,
   Icon,
   Stat,
   StatGroup,
-  StatLabel,
-  StatNumber,
   Tooltip,
+  Select,
 } from '@chakra-ui/react'
-
+import { useForm } from "react-hook-form";
 import { useNavigate } from 'react-router-dom'
 import { NewMonitorHero } from '../components/NewMonitorHero'
-import { FiAlertCircle, FiCheckCircle } from 'react-icons/fi'
+import { FiAlertCircle, FiCheckCircle, FiEdit, FiTrendingUp, FiTrendingDown } from 'react-icons/fi'
+import Section from '../components/Section'
+import Text from '../components/Text'
+import PrimaryButton from '../components/PrimaryButton'
 
 interface StatusProps {
   mon: Monitor
   stats?: MonitorStats
+  horizontalMode?: boolean
+}
+
+interface IFormInputs {
+  filter: string
+  sortBy: string
 }
 
 const uptime24 = (m: MonitorStats) => {
@@ -32,7 +41,7 @@ const uptime24 = (m: MonitorStats) => {
   }
 }
 
-function RunChart({ stats }: { stats?: MonitorStats }) {
+function RunChart({ stats, horizontalMode }: { stats?: MonitorStats, horizontalMode?: boolean }) {
   const navigate = useNavigate()
   if (!stats || !stats.lastResults) {
     return <></>
@@ -45,47 +54,45 @@ function RunChart({ stats }: { stats?: MonitorStats }) {
     <Flex gap='1' alignItems='baseline'>
       {stats.lastResults.map((r) => (
         <Tooltip label={'Time - ' + r.totalTime + 'ms'} key={r.id}>
-          <Box
-            key={r.id}
-            w='1.5'
-            h={r.totalTime > p50 ? (r.totalTime > p95 ? '6' : '5') : '4'}
-            bgColor={r.err ? 'red' : 'green'}
-            borderRadius='2'
-            _hover={{
-              w: '2',
-            }}
-            onClick={(e) => {
-              e.stopPropagation()
-              navigate('/console/apiruns/' + r.id)
-            }}
-          />
+          {horizontalMode ? (
+            <Box
+              key={r.id}
+              h='1'
+              w={r.totalTime > p50 ? (r.totalTime > p95 ? '6' : '5') : '4'}
+              bgColor={r.err ? 'red.200' : 'green.200'}
+              borderRadius='4'
+              _hover={{
+                h: '1.5',
+              }}
+              onClick={(e) => {
+                e.stopPropagation()
+                navigate('/console/apiruns/' + r.id)
+              }}
+            />
+          ) : (
+            <Box
+              key={r.id}
+              w='1'
+              h={r.totalTime > p50 ? (r.totalTime > p95 ? '6' : '5') : '4'}
+              bgColor={r.err ? 'red.200' : 'green.200'}
+              borderRadius='4'
+              _hover={{
+                w: '1.5',
+              }}
+              onClick={(e) => {
+                e.stopPropagation()
+                navigate('/console/apiruns/' + r.id)
+              }}
+            />
+          )}
         </Tooltip>
       ))}
     </Flex>
   )
 }
 
-function StatusDot({
-  label,
-  color,
-  size = '20px',
-}: {
-  label: string
-  color: string
-  size?: string
-}) {
-  return (
-    <Flex gap='2' alignItems='center'>
-      <Box w={size} h={size} borderRadius='50%' bgColor={color}></Box>
-      <Heading size='md' color={color}>
-        {label}
-      </Heading>
-    </Flex>
-  )
-}
-
 function StatusUpOrDown({ stats }: { stats?: MonitorStats }) {
-  let bErr: boolean
+  let bErr: boolean = false
   let color: string
   let label: string
 
@@ -94,104 +101,93 @@ function StatusUpOrDown({ stats }: { stats?: MonitorStats }) {
     color = 'gray.500'
   } else {
     bErr = Boolean(stats.lastResults[0].err)
-    color = bErr ? 'red' : 'green'
+    color = bErr ? 'red.200' : 'green.200'
     label = bErr ? 'DOWN' : 'UP'
   }
-  return <StatusDot label={label} color={color} />
+  return (
+    <Flex ml='4' alignItems='center' justifyContent='center' bg={color} borderRadius='16' px='3' py='2'>
+      {bErr ?
+        <Icon color='white' as={FiTrendingDown} />
+        : 
+        <Icon color='white' as={FiTrendingUp} />
+      }
+      <Box w={1}></Box>
+      <Text variant='details' color='white'>{label}</Text>
+    </Flex>
+  )
 }
 
-function MonitorStatusCard({ mon, stats }: StatusProps) {
+function MonitorStatusCard({ mon, stats, horizontalMode }: StatusProps) {
   const navigate = useNavigate()
 
   return (
     <Flex
       flexDirection='column'
-      gap='4'
-      borderRadius='xl'
-      bgColor='blue.100'
-      boxShadow='md'
-      p='2'
-      w='40em'
+      gap='2'
+      borderRadius='8'
+      border='1px'
+      borderColor='gray.200'
+      borderStyle='solid'
+      boxShadow='0px 4px 16px rgba(224, 224, 224, 0.1)'
+      bgColor='white'
+      p='6'
+      pb='5'
       justifyContent='begin'
-      cursor='pointer'
-      onClick={() => navigate(`/console/monitors/${mon.id}`)}
+      
     >
-      <Flex gap='2'>
-        <StatusUpOrDown stats={stats} />
-        <Heading size='md' ml='2'>
-          {mon.name}
-        </Heading>
+      <Flex justify='space-between' alignItems='center'>
+        <Flex alignItems='center' cursor='pointer' onClick={() => navigate(`/console/monitors/${mon.id}`)}>
+          <Text variant='header' color='black'>{mon.name}</Text>
+          <StatusUpOrDown stats={stats} />
+        </Flex>
+        <Button borderRadius='4' bg='lightgray.100' p='0' onClick={() => navigate(`/console/monitors/${mon.id}/edit`)}>
+          <Icon color='gray.300' as={FiEdit} cursor='pointer' />
+        </Button>
       </Flex>
-
-      <RunChart stats={stats} />
-
-      <StatGroup bgColor='blue.100'>
+      <Text variant='text-field' color='gray.300'>{mon.url}</Text>
+      <Box my={2}>
+        <RunChart stats={stats} horizontalMode={horizontalMode} />
+      </Box>
+      <StatGroup>
         <Stat>
-          <StatLabel>UPTIME</StatLabel>
-          <StatNumber>{stats ? uptime24(stats) + '%' : ''}</StatNumber>
+          <Text variant='emphasis' color='black'>UPTIME</Text><br/>
+          <Text variant='emphasis' color='gray.300'>{stats ? uptime24(stats) + '%' : ''}</Text>
         </Stat>
 
         <Stat>
-          <StatLabel>24Hr AVG</StatLabel>
-          <StatNumber>{stats?.day.avg.toFixed(2)}</StatNumber>
+          <Text variant='emphasis' color='black'>24Hr AVG</Text><br/>
+          <Text variant='emphasis' color='gray.300'>{stats?.day.avg.toFixed(2)}</Text>
         </Stat>
 
         <Stat>
-          <StatLabel>24Hr MEDIAN</StatLabel>
-          <StatNumber>{stats?.day.p50.toFixed(2)}</StatNumber>
+          <Text variant='emphasis' color='black'>24Hr MEDIAN</Text><br/>
+          <Text variant='emphasis' color='gray.300'>{stats?.day.p50.toFixed(2)}</Text>
         </Stat>
 
         <Stat>
-          <StatLabel>24 Hr P95</StatLabel>
-          <StatNumber>{stats?.day.p95.toFixed(2)}</StatNumber>
+          <Text variant='emphasis' color='black'>24 Hr P95</Text><br/>
+          <Text variant='emphasis' color='gray.300'>{stats?.day.p95.toFixed(2)}</Text>
         </Stat>
       </StatGroup>
     </Flex>
   )
 }
 
-function StatusHeader({ stats }: { stats: MonitorStats[] }) {
-  //find number of stats where err is false
-  const nAll = stats.length
-  const nUP = stats.filter((s) => !s.lastResults?.[0]?.err).length
-  const nDown = nAll - nUP
-
-  if (nAll === 0) {
-    return <></>
-  }
-
-  return nAll == nUP ? (
-    <Flex gap='2'>
-      <Icon as={FiCheckCircle} color='green' w='6' h='6' />
-      <Heading color='green' size='md'>
-        {'UP - All Monitors'}
-      </Heading>
-    </Flex>
-  ) : (
-    <Flex gap='4' direction='column'>
-      <Flex gap='2'>
-        <Icon as={FiCheckCircle} color='green' w='6' h='6' />
-        <Heading color='green' size='md'>
-          {'UP - ' + nUP + ' Monitors'}
-        </Heading>
-      </Flex>
-
-      <Flex gap='2'>
-        <Icon as={FiAlertCircle} color='red' w='6' h='6' />
-        <Heading color='red' size='md'>
-          {'DOWN - ' + nDown + ' Monitors'}
-        </Heading>
-      </Flex>
-    </Flex>
-  )
-}
-
 export function MainPage() {
   const navigate = useNavigate()
+  const { register, watch } = useForm<IFormInputs>();
+  watch()
 
   useEffect(() => {
     document.title = 'Dashboard | ProAutoma'
   }, [])
+
+  useEffect(() => {
+    const subscription = watch((value, { name, type }) => {
+      console.log(value, name, type)
+    })
+    return () => subscription.unsubscribe()
+  }, [watch])
 
   async function getMonitors() {
     let resp = await axios({
@@ -242,35 +238,42 @@ export function MainPage() {
   }
 
   return (
-    <Flex direction='column' ml='4'>
-      <Flex justify='space-between'>
-        <Button
-          size='md'
-          mr='2'
-          mb='2'
-          ml='auto'
-          colorScheme='blue'
-          onClick={() => navigate('/console/monitors/newapi')}
-        >
-          New Monitor
-        </Button>
-      </Flex>
-
-      <Flex gap='4' direction='column'>
-        {stats && stats.length > 0 && <StatusHeader stats={stats} />}
-
-        <Box mb='4' />
-
-        <Flex gap='4' wrap='wrap'>
-          {monitors?.map((mon) => (
+    <Flex direction='column'>
+      <Section>
+        <Flex alignItems='center' justify={'space-between'}>
+          <Text variant='header' color='black'>All monitors</Text>
+          <PrimaryButton
+            label='New monitor'
+            variant='emphasis'
+            color={'white'}
+            onClick={() => navigate('/console/monitors/newapi')}
+          ></PrimaryButton>
+        </Flex>
+      </Section>
+      <Section py={4} minHeight='500px'>
+        <Flex mb='6' alignItems={'center'} justify='end'>
+          <Text variant='paragraph' color='darkgray.100'>View</Text>
+          <Select ml='2' borderRadius={8} width='140px' color='gray.300' borderColor='gray.200' {...register(`filter`)}>
+            <option value='all'>All</option>
+            <option value='up'>Up</option>
+            <option value='down'>Down</option>
+          </Select>
+          <Select ml='2' borderRadius={8} width='140px' color='gray.300' borderColor='gray.200' {...register(`sortBy`)}>
+            <option value='latest'>Latest</option>
+            <option value='oldest'>Oldest</option>
+          </Select>
+        </Flex>
+        <Grid gap='6' templateColumns={'1fr 1fr'}>
+          {monitors?.map((mon, index) => (
             <MonitorStatusCard
               mon={mon}
               stats={stats?.find((s) => s.monitorId == mon.id)}
+              horizontalMode={index % 2 === 0}
               key={mon.id}
             />
           ))}
-        </Flex>
-      </Flex>
+        </Grid>
+      </Section>
     </Flex>
   )
 }
