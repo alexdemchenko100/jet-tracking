@@ -7,44 +7,63 @@ import { TextVariants } from '../types/common'
 interface Props extends BoxProps {
   variant: TextVariants,
   color: string,
+  showUnderline?: boolean,
   children: React.ReactNode,
 }
 
 const Text: React.FC<Props> = (props) => {
-  const { variant, color, children } = props
+  const { variant, color, showUnderline, children, ...rest } = props
+  let fontSize, lineHeight, fontWeight;
+  switch (variant) {
+    case 'header':
+      fontSize = 'xl'
+      lineHeight='39px'
+      fontWeight='extrabold'
+      break;
+    case 'title':
+      fontSize = 'lg'
+      lineHeight='22px'
+      fontWeight='bold'
+      break;
+    case 'text-field':
+      fontSize = 'md'
+      lineHeight='19px'
+      fontWeight='semibold'
+      break;
+    case 'paragraph':
+      fontSize = 'md'
+      lineHeight='19px'
+      fontWeight='normal'
+      break;
+    case 'emphasis':
+      fontSize = 'md'
+      lineHeight='19px'
+      fontWeight='bold'
+      break;
+    case 'details':
+      fontSize = 'xs'
+      lineHeight='15px'
+      fontWeight='bold'
+      break;
+    default:
+  }
+
   return (
-    <>
-      {variant === 'header' && (
-        <Box as='span' color={color} fontSize='xl' fontFamily='heading' lineHeight='39px' fontWeight='extrabold'>
-          {children}
-        </Box>
+    <Box 
+      as='span'
+      position='relative'
+      color={color}
+      fontSize={fontSize}
+      fontFamily='heading'
+      lineHeight={lineHeight}
+      fontWeight={fontWeight}
+      {...rest}
+    >
+      {children}
+      {showUnderline && (
+        <Box w={8} position='absolute' bottom='-1.5' left='0' h={1} bg='green.200' borderRadius={4}></Box>
       )}
-      {variant === 'title' && (
-        <Box as='span' color={color} fontSize='lg' fontFamily='heading' lineHeight='22px' fontWeight='bold'>
-          {children}
-        </Box>
-      )}
-      {variant === 'text-field' && (
-        <Box as='span' color={color} fontSize='md' fontFamily='heading' lineHeight='19px' fontWeight='semibold'>
-          {children}
-        </Box>
-      )}
-      {variant === 'paragraph' && (
-        <Box as='span' fontSize='md' fontFamily='heading' lineHeight='19px' fontWeight='normal'>
-          {children}
-        </Box>
-      )}
-      {variant === 'emphasis' && (
-        <Box as='span' color={color} fontSize='md' fontFamily='heading' lineHeight='19px' fontWeight='bold'>
-          {children}
-        </Box>
-      )}
-      {variant === 'details' && (
-        <Box as='span' color={color} fontSize='xs' fontFamily='heading' lineHeight='15px' fontWeight='bold'>
-          {children}
-        </Box>
-      )}
-    </>
+    </Box>
   )
 }
 

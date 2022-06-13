@@ -14,6 +14,7 @@ import {
   Grid,
   Heading,
   Icon,
+  IconButton,
   Menu,
   MenuButton,
   MenuGroup,
@@ -30,7 +31,7 @@ import {
 import { Monitor, MonitorPeriodStats, MonitorStats } from '@httpmon/db'
 import axios, { AxiosError } from 'axios'
 import { useMutation, useQuery } from 'react-query'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, Link } from 'react-router-dom'
 import MonitorResultTable from './MonitorResultTable'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { MonitorTimeChart } from './MonitorTimeChart'
@@ -39,8 +40,12 @@ import { APIResultById } from './APIResultById'
 import { APIResultByDemand } from './APIResultByDemand'
 import { formatFrequency } from '../services/FrequencyScale'
 import { getMonitorLocationName } from '../services/MonitorLocations'
-import { FiMapPin } from 'react-icons/fi'
+import { FiMapPin, FiChevronRight, FiEdit, FiMoreHorizontal, FiGlobe, FiClock } from 'react-icons/fi'
 import { Store } from '../services/Store'
+import Text from './Text'
+import Section from './Section'
+import PrimaryButton from './PrimaryButton'
+import StatusUpOrDown from './StatusUpOrDown'
 
 interface DeleteProps {
   id: string
@@ -124,32 +129,34 @@ function uptime(stats: MonitorPeriodStats) {
 
 function MonitorStatsView({ stats, title }: MonitorStatsProps) {
   return (
-    <Box p='1' border='1px' borderColor='blue' borderStyle='solid'>
-      <Heading size='md'>{title}</Heading>
-      <Flex alignItems='start' justifyContent='space-around'>
+    <Box py='7' px='6' border='1px' borderColor='gray.200' borderStyle='solid' borderRadius={8}>
+      <Flex>
+        <Text variant='title' color='black' showUnderline>{title}</Text>
+      </Flex>
+      <Flex alignItems='start' justifyContent='space-around' mt={10}>
         <Stat>
-          <StatLabel>Total</StatLabel>
-          <StatNumber>{stats.numItems}</StatNumber>
+          <Text variant='emphasis' color='black'>Total</Text><br/>
+          <Text variant='emphasis' color='gray.300'>{stats.numItems}</Text>
         </Stat>
         <Stat>
-          <StatLabel>Errors</StatLabel>
-          <StatNumber>{stats.numErrors}</StatNumber>
+          <Text variant='emphasis' color='black'>Errors</Text><br/>
+          <Text variant='emphasis' color='gray.300'>{stats.numErrors}</Text>
         </Stat>
         <Stat>
-          <StatLabel>Uptime</StatLabel>
-          <StatNumber>{uptime(stats)}</StatNumber>
+          <Text variant='emphasis' color='black'>Uptime</Text><br/>
+          <Text variant='emphasis' color='gray.300'>{uptime(stats)}</Text>
         </Stat>
         <Stat>
-          <StatLabel>Avg</StatLabel>
-          <StatNumber>{round(stats.avg)}ms</StatNumber>
+          <Text variant='emphasis' color='black'>Avg</Text><br/>
+          <Text variant='emphasis' color='gray.300'>{round(stats.avg)}ms</Text>
         </Stat>
         <Stat>
-          <StatLabel>Median</StatLabel>
-          <StatNumber>{round(stats.p50)}ms</StatNumber>
+          <Text variant='emphasis' color='black'>Median</Text><br/>
+          <Text variant='emphasis' color='gray.300'>{round(stats.p50)}ms</Text>
         </Stat>
         <Stat>
-          <StatLabel>P95</StatLabel>
-          <StatNumber>{round(stats.p95)}ms</StatNumber>
+          <Text variant='emphasis' color='black'>P95</Text><br/>
+          <Text variant='emphasis' color='gray.300'>{round(stats.p95)}ms</Text>
         </Stat>
       </Flex>
     </Box>
@@ -206,91 +213,104 @@ export function MonitorView() {
   }, [])
 
   const freqFormat = useMemo(() => formatFrequency(mon?.frequency ?? 0), [mon])
+  const locations = mon && mon.locations ? mon.locations : []
 
   return (
-    <SplitPane orientation={vertical ? 'vertical' : 'horizontal'}>
-      <Grid gap='1em'>
-        <Flex justifyContent='end'>
-          <Button
-            alignSelf='center'
-            variant='solid'
-            mx='1em'
-            size='sm'
-            colorScheme='blue'
-            onClick={() => {
-              setMonitorOnDemandId(mon?.id ?? '')
-              setRefreshOnDemand(refreshOnDemand + 1)
-              setMonitorResultId(undefined)
-            }}
-          >
-            Run now
-          </Button>
-
-          <Menu>
-            <MenuButton
-              alignSelf='center'
-              rightIcon={<ChevronDownIcon />}
-              variant='outline'
-              mx='1em'
-              size='sm'
-              as={Button}
-              colorScheme='blue'
-            >
-              Actions
-            </MenuButton>
-            <MenuList color='gray.800' zIndex='3'>
-              <MenuItem onClick={() => navigate(`/console/monitors/${id}/edit`)}>Edit</MenuItem>
-              <DoubleCheckDelete id={id} />
-            </MenuList>
-          </Menu>
+    <>
+      <Section py={4}>
+        <Flex mb={2} alignItems='center'>
+          <Flex as={Link} alignItems='center' to="/console/monitors">
+            <Text variant='details' color='darkblue.100'>Monitors</Text>
+            <Icon name='location' fontSize={'sm'} mx='1' as={FiChevronRight} />
+          </Flex>
+          <Text variant='details' color='gray.300'>Details</Text>
         </Flex>
-
-        {mon && (
-          <>
-            <Heading size='lg'>{mon.name}</Heading>
+        <Flex alignItems='center' justify={'space-between'}>
+          <Text variant='header' color='black' showUnderline>{mon?.name}</Text>
+          <Flex gap='4' alignItems={'center'}>
+            <Menu>
+              <MenuButton
+                as={IconButton}
+                aria-label='Options'
+                width={6}
+                minW={6}
+                h={6}
+                bg='lightgray.100'
+                icon={<FiMoreHorizontal />}
+              />
+              <MenuList color='gray.800' zIndex='3'>
+                <DoubleCheckDelete id={id} />
+              </MenuList>
+            </Menu>
+            <PrimaryButton
+              label='Run Now'
+              variant='emphasis'
+              color={'white'}
+              onClick={() => {
+                setMonitorOnDemandId(mon?.id ?? '')
+                setRefreshOnDemand(refreshOnDemand + 1)
+                setMonitorResultId(undefined)
+              }}
+            ></PrimaryButton>
+            <Button borderRadius='4' bg='lightgray.100' p='0' onClick={() => navigate(`/console/monitors/${id}/edit`)}>
+              <Icon color='gray.300' as={FiEdit} cursor='pointer' />
+            </Button>
+          </Flex>
+        </Flex>
+        <Flex alignItems={'center'} mt={5}>
+          <Flex alignItems={'center'}>
+            <Icon fontSize='md' color='black' as={FiGlobe} cursor='pointer' mr='1' />
+            <Text variant='title' color='black'>{mon?.url}</Text>
+          </Flex>
+          <Flex alignItems={'center'} ml={2} py={1} px={4} bg='lightgray.100' borderRadius={16}>
+            <Icon fontSize='sm' color='darkgray.100' mr='1' as={FiClock} cursor='pointer' />
+            <Text variant='details' color='darkgray.100'>{freqFormat}</Text>
+          </Flex>
+          <Box w='1px' h='3' bg='gray.300' mx={4}></Box>
+          {locations.length > 0 && (
             <Flex alignItems='center'>
-              <Tag size='lg' fontWeight='extrabold' color='purple'>
-                {mon.method}
-              </Tag>
-              <Heading size='md' ml='4'>
-                {mon.url}
-              </Heading>
-              <Tag size='lg' ml='4' colorScheme='green'>
-                {freqFormat}
-              </Tag>
+              <Icon name='location' mr='2' color='black' as={FiMapPin} />
+              {locations.map((loc, index) => (
+                <Text variant='title' color='black' mr={2}>
+                  {getMonitorLocationName(loc)}
+                  {(index !== locations.length - 1) ? ',' : ''}
+                </Text>
+              ))}
             </Flex>
-            {mon.locations && mon.locations.length > 0 && (
-              <Flex alignItems='center'>
-                <Icon name='location' mr='1em' as={FiMapPin} />
-                {mon.locations.map((loc) => (
-                  <Tag key={loc} size='lg' colorScheme='blue' mr='1em'>
-                    {getMonitorLocationName(loc)}
-                  </Tag>
-                ))}
-              </Flex>
+          )}
+        </Flex>
+      </Section>
+      <SplitPane orientation={vertical ? 'vertical' : 'horizontal'}>
+        <Box>
+          <Section py={4}>
+            <Text variant='title' color='black'>Analytics</Text>
+            {mon && (
+              <>
+                <Grid templateColumns={'1fr 1fr'} gap={6} mt={4}>
+                  {stats && stats.week && <MonitorStatsView stats={stats.week} title='Last 7 Days' />}
+                  {stats && stats.day && <MonitorStatsView stats={stats.day} title='Last 24 Hours' />}
+                </Grid>
+                <MonitorTimeChart id={id} width='100%' height='200px'/>
+              </>
             )}
-
-            {stats && stats.week && <MonitorStatsView stats={stats.week} title='Last 7 Days' />}
-            {stats && stats.day && <MonitorStatsView stats={stats.day} title='Last 24 Hours' />}
-            <MonitorTimeChart id={id} width='800px' height='200px' />
-          </>
+          </Section>
+          <Section py={4}>
+            <MonitorResultTable onShowMonitorResult={onShowMonitorResult} />
+          </Section>
+        </Box>
+        {monitorResultId ? (
+          <APIResultById id={monitorResultId} onClose={() => setMonitorResultId(undefined)} />
+        ) : (
+          monitorOnDemandId &&
+          mon && (
+            <APIResultByDemand
+              onDemandMonitor={mon}
+              refresh={refreshOnDemand}
+              onClose={() => setMonitorOnDemandId(undefined)}
+            />
+          )
         )}
-
-        <Divider />
-        <MonitorResultTable onShowMonitorResult={onShowMonitorResult} />
-      </Grid>
-      {monitorResultId ? (
-        <APIResultById id={monitorResultId} onClose={() => setMonitorResultId(undefined)} />
-      ) : (
-        monitorOnDemandId &&
-        mon && (
-          <APIResultByDemand
-            onDemandMonitor={mon}
-            refresh={refreshOnDemand}
-            onClose={() => setMonitorOnDemandId(undefined)}
-          />
-        )
-      )}
-    </SplitPane>
+      </SplitPane>
+    </>
   )
 }

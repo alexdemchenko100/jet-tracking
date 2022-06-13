@@ -7,7 +7,6 @@ import {
   Button,
   Grid,
   Flex,
-  Heading,
   Icon,
   Stat,
   StatGroup,
@@ -17,10 +16,11 @@ import {
 import { useForm } from "react-hook-form";
 import { useNavigate } from 'react-router-dom'
 import { NewMonitorHero } from '../components/NewMonitorHero'
-import { FiAlertCircle, FiCheckCircle, FiEdit, FiTrendingUp, FiTrendingDown } from 'react-icons/fi'
+import { FiEdit } from 'react-icons/fi'
 import Section from '../components/Section'
 import Text from '../components/Text'
 import PrimaryButton from '../components/PrimaryButton'
+import StatusUpOrDown from '../components/StatusUpOrDown'
 
 interface StatusProps {
   mon: Monitor
@@ -51,7 +51,7 @@ function RunChart({ stats, horizontalMode }: { stats?: MonitorStats, horizontalM
   const p95 = stats.day.p95
 
   return (
-    <Flex gap='1' alignItems='baseline'>
+    <Flex gap='1' alignItems={horizontalMode ? 'center' : 'baseline'} height={horizontalMode ? '1.5' : 'auto'}>
       {stats.lastResults.map((r) => (
         <Tooltip label={'Time - ' + r.totalTime + 'ms'} key={r.id}>
           {horizontalMode ? (
@@ -87,32 +87,6 @@ function RunChart({ stats, horizontalMode }: { stats?: MonitorStats, horizontalM
           )}
         </Tooltip>
       ))}
-    </Flex>
-  )
-}
-
-function StatusUpOrDown({ stats }: { stats?: MonitorStats }) {
-  let bErr: boolean = false
-  let color: string
-  let label: string
-
-  if (!stats || !stats.lastResults || stats.lastResults.length < 1) {
-    label = ''
-    color = 'gray.500'
-  } else {
-    bErr = Boolean(stats.lastResults[0].err)
-    color = bErr ? 'red.200' : 'green.200'
-    label = bErr ? 'DOWN' : 'UP'
-  }
-  return (
-    <Flex ml='4' alignItems='center' justifyContent='center' bg={color} borderRadius='16' px='3' py='2'>
-      {bErr ?
-        <Icon color='white' as={FiTrendingDown} />
-        : 
-        <Icon color='white' as={FiTrendingUp} />
-      }
-      <Box w={1}></Box>
-      <Text variant='details' color='white'>{label}</Text>
     </Flex>
   )
 }

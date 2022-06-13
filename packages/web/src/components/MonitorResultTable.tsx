@@ -11,12 +11,10 @@ import {
   Tr,
   Th,
   Td,
-  Text,
   Box,
   IconButton,
   Flex,
   Spacer,
-  Heading,
   Tag,
 } from '@chakra-ui/react'
 import {
@@ -32,6 +30,7 @@ import { Select } from 'chakra-react-select'
 import { useEffect, useMemo, useReducer, useState } from 'react'
 import { getMonitorLocationName, MonitorLocations } from '../services/MonitorLocations'
 import { TimePeriods, useTimePeriod } from '../services/MonitorTimePeriod'
+import Text from '../components/Text'
 
 type FilterOptionType = {
   label: string
@@ -254,54 +253,56 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
 
   return (
     <>
-      <Heading size='sm' mb='4'>
-        Monitor Results &nbsp; {totalItemCount}
-      </Heading>
-      <Flex zIndex='2'>
-        <Box width='200px'>
-          <Select
-            value={timePeriod}
-            onChange={(value) => {
-              const timePeriod = value as FilterOptionType
-              setTimePeriod(timePeriod)
-            }}
-            placeholder='Time Period'
-            options={TimePeriods}
-          />
-        </Box>
-        {/* <DatePicker selected={startDate} onChange={(date: Date) => setStartDate(date)} /> */}
-        <Box width='400px'>
-          <Select
-            isMulti
-            placeholder='All Locations'
-            value={locations}
-            onChange={(value) => setLocations(value as FilterOptionType[])}
-            options={LocationOptions}
-          />
-        </Box>
-        <Box width='280px' ml='4'>
-          <Select
-            isMulti
-            placeholder='All Results'
-            value={status}
-            onChange={(value) => setStatus(value as FilterOptionType[])}
-            options={[
-              {
-                label: 'OK',
-                value: 'ok',
-                colorScheme: 'green',
-              },
-              {
-                label: 'Error',
-                value: 'error',
-                colorScheme: 'red',
-              },
-            ]}
-          />
-        </Box>
+      <Flex alignItems='center' justifyContent='space-between'>
+        <Text variant='title' color='black'>
+          Monitor Results ({totalItemCount})
+        </Text>
+        <Flex zIndex='2'>
+          <Box width='200px' mr={4}>
+            <Select
+              value={timePeriod}
+              onChange={(value) => {
+                const timePeriod = value as FilterOptionType
+                setTimePeriod(timePeriod)
+              }}
+              placeholder='Time Period'
+              options={TimePeriods}
+            />
+          </Box>
+          {/* <DatePicker selected={startDate} onChange={(date: Date) => setStartDate(date)} /> */}
+          <Box minWidth='400px' mr={4}>
+            <Select
+              isMulti
+              placeholder='All Locations'
+              value={locations}
+              onChange={(value) => setLocations(value as FilterOptionType[])}
+              options={LocationOptions}
+            />
+          </Box>
+          <Box minWidth='200px'>
+            <Select
+              isMulti
+              placeholder='All Results'
+              value={status}
+              onChange={(value) => setStatus(value as FilterOptionType[])}
+              options={[
+                {
+                  label: 'OK',
+                  value: 'ok',
+                  colorScheme: 'green',
+                },
+                {
+                  label: 'Error',
+                  value: 'error',
+                  colorScheme: 'red',
+                },
+              ]}
+            />
+          </Box>
+        </Flex>
       </Flex>
 
-      <Box maxH='30em' overflowY='scroll'>
+      <Box mt={6} maxH='30em' overflowY='scroll'>
         <Table {...getTableProps()} size='sm' variant='simple'>
           <Thead
             p='0'

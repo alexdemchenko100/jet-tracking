@@ -64,16 +64,18 @@ export function MonitorTimeChart(props: ChartProps) {
   )
 
   return (
-    <Box {...props}>
-      {data && data.length > 0 && (
-        <Chart
-          options={{
-            data,
-            primaryAxis,
-            secondaryAxes,
-          }}
-        />
-      )}
+    <Box p='6' border='1px' borderColor='gray.200' borderStyle='solid' borderRadius={8} mt={4}>
+      <Box {...props}>
+        {data && data.length > 0 && (
+          <Chart
+            options={{
+              data,
+              primaryAxis,
+              secondaryAxes,
+            }}
+          />
+        )}
+      </Box>
     </Box>
   )
 }
