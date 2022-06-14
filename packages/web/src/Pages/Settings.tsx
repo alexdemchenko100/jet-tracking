@@ -5,7 +5,7 @@ export function Settings() {
   const { userInfo } = useAuth()
 
   return (
-    <Flex direction='column' gap='4'>
+    <Flex direction='column' gap='4' m={2}>
       <Heading size='md'>Settings</Heading>
       <Divider />
       <Flex direction='column' gap='2' boxShadow='lg' p='2' bgColor=''>

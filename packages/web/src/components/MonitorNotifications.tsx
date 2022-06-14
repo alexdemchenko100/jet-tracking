@@ -66,7 +66,7 @@ function Channels() {
         </Flex>
       ))}
       <Button bg='lightgray.100' onClick={() => append([{ type: '', value: '' }])} maxW='42px'>
-        <Icon color='blue.100' as={FiPlus} cursor='pointer' />
+        <Icon color='darkblue.100' as={FiPlus} cursor='pointer' />
       </Button>
     </Grid>
   )

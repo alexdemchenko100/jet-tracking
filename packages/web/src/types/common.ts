@@ -1,1 +1,1 @@
-export type TextVariants = 'header' | 'title' | 'text-field' | 'paragraph' | 'emphasis' | 'details';
+export type TextVariants = 'header' | 'title' | 'text-field' | 'paragraph' | 'emphasis' | 'details' | 'small';

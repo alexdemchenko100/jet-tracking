@@ -51,7 +51,7 @@ function RunChart({ stats, horizontalMode }: { stats?: MonitorStats, horizontalM
   const p95 = stats.day.p95
 
   return (
-    <Flex gap='1' alignItems={horizontalMode ? 'center' : 'baseline'} height={horizontalMode ? '1.5' : 'auto'}>
+    <Flex gap='1' alignItems={horizontalMode ? 'center' : 'baseline'} maxW={'430px'} height={horizontalMode ? '6' : 'auto'}>
       {stats.lastResults.map((r) => (
         <Tooltip label={'Time - ' + r.totalTime + 'ms'} key={r.id}>
           {horizontalMode ? (
@@ -97,7 +97,9 @@ function MonitorStatusCard({ mon, stats, horizontalMode }: StatusProps) {
   return (
     <Flex
       flexDirection='column'
-      gap='2'
+      flex='1'
+      minW={'480px'}
+      maxW={'650px'}
       borderRadius='8'
       border='1px'
       borderColor='gray.200'
@@ -119,30 +121,30 @@ function MonitorStatusCard({ mon, stats, horizontalMode }: StatusProps) {
         </Button>
       </Flex>
       <Text variant='text-field' color='gray.300'>{mon.url}</Text>
-      <Box my={2}>
+      <Box my={3}>
         <RunChart stats={stats} horizontalMode={horizontalMode} />
       </Box>
-      <StatGroup>
-        <Stat>
-          <Text variant='emphasis' color='black'>UPTIME</Text><br/>
+      <Flex>
+        <Flex flexDirection={'column'} mr={10}>
+          <Text variant='emphasis' color='black' mb={2}>UPTIME</Text>
           <Text variant='emphasis' color='gray.300'>{stats ? uptime24(stats) + '%' : ''}</Text>
-        </Stat>
+        </Flex>
 
-        <Stat>
-          <Text variant='emphasis' color='black'>24Hr AVG</Text><br/>
+        <Flex flexDirection={'column'} mr={10}>
+          <Text variant='emphasis' color='black' mb={2}>24Hr AVG</Text>
           <Text variant='emphasis' color='gray.300'>{stats?.day.avg.toFixed(2)}</Text>
-        </Stat>
+        </Flex>
 
-        <Stat>
-          <Text variant='emphasis' color='black'>24Hr MEDIAN</Text><br/>
+        <Flex flexDirection={'column'} mr={10}>
+          <Text variant='emphasis' color='black' mb={2}>24Hr MEDIAN</Text>
           <Text variant='emphasis' color='gray.300'>{stats?.day.p50.toFixed(2)}</Text>
-        </Stat>
+        </Flex>
 
-        <Stat>
-          <Text variant='emphasis' color='black'>24 Hr P95</Text><br/>
+        <Flex flexDirection={'column'}>
+          <Text variant='emphasis' color='black' mb={2}>24 Hr P95</Text>
           <Text variant='emphasis' color='gray.300'>{stats?.day.p95.toFixed(2)}</Text>
-        </Stat>
-      </StatGroup>
+        </Flex>
+      </Flex>
     </Flex>
   )
 }
@@ -237,7 +239,7 @@ export function MainPage() {
             <option value='oldest'>Oldest</option>
           </Select>
         </Flex>
-        <Grid gap='6' templateColumns={'1fr 1fr'}>
+        <Flex gap='6' flexWrap={'wrap'}>
           {monitors?.map((mon, index) => (
             <MonitorStatusCard
               mon={mon}
@@ -246,7 +248,7 @@ export function MainPage() {
               key={mon.id}
             />
           ))}
-        </Grid>
+        </Flex>
       </Section>
     </Flex>
   )

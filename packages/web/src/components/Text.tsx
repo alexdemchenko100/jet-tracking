@@ -45,6 +45,10 @@ const Text: React.FC<Props> = (props) => {
       lineHeight='15px'
       fontWeight='bold'
       break;
+    case 'small':
+      fontSize = '10px'
+      lineHeight='12px'
+      fontWeight='semibold'
     default:
   }
 

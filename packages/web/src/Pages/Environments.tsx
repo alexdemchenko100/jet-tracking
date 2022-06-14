@@ -115,7 +115,7 @@ export function Environments() {
           </form>
         </ModalContent>
       </Modal>
-      <Flex justify='space-between'>
+      <Flex justify='space-between' m={2}>
         <Heading size='lg' mb='8'>
           Environments
         </Heading>

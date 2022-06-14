@@ -1,6 +1,9 @@
 import { extendTheme } from '@chakra-ui/react'
 
 export const theme = extendTheme({
+  breakpoints: {
+    md: '800px',
+  },
   fonts: {
     heading: "'Inter', sans-serif",
     body: "'Inter', sans-serif",
