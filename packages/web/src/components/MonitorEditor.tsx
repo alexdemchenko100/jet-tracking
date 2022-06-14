@@ -327,6 +327,18 @@ interface EditProps {
   onClose: () => void,
 }
 
+interface OptionProps {
+  children: React.ReactNode,
+  value: string,
+}
+
+function SelectOption (props: OptionProps) {
+  const { children, ...rest } = props
+  return (
+    <option style={{ background: 'transparent' }} {...rest}>{children}</option>
+  )
+}
+
 export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: EditProps) {
   //id tells apart Edit to a new check creation
   const { id } = useParams()
@@ -516,7 +528,7 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
                     borderColor='gray.200'
                     borderStyle='solid'
                   >
-                    <FormControl id='method' maxW='28'>
+                    <FormControl id='method' maxW='32'>
                       <Select
                         bg='gray.300'
                         color='white'
@@ -525,12 +537,12 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
                         fontWeight='bold'
                         {...register('method')}
                       >
-                        <option value='GET'>GET</option>
-                        <option value='POST'>POST</option>
-                        <option value='PUT'>PUT</option>
-                        <option value='PATCH'>PATCH</option>
-                        <option value='DELETE'>DELETE</option>
-                        <option value='OPTIONS'>OPTIONS</option>
+                        <SelectOption value='GET'>GET</SelectOption>
+                        <SelectOption value='POST'>POST</SelectOption>
+                        <SelectOption value='PUT'>PUT</SelectOption>
+                        <SelectOption value='PATCH'>PATCH</SelectOption>
+                        <SelectOption value='DELETE'>DELETE</SelectOption>
+                        <SelectOption value='OPTIONS'>OPTIONS</SelectOption>
                       </Select>
                     </FormControl>
 

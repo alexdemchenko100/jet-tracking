@@ -14,8 +14,6 @@ import {
   Box,
   IconButton,
   Flex,
-  Spacer,
-  Tag,
 } from '@chakra-ui/react'
 import {
   TriangleDownIcon,
@@ -265,7 +263,7 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
           Monitor Results ({totalItemCount})
         </Text>
         <Flex zIndex='2' flexWrap='wrap'>
-          <Box width='200px' mr={4} mb={3}>
+          <Box minWidth='230px' mr={4} mb={3}>
             <Select
               value={timePeriod}
               onChange={(value) => {
@@ -310,7 +308,7 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
               }}
             />
           </Box>
-          <Box minWidth='200px'>
+          <Box minWidth='230px'>
             <Select
               isMulti
               placeholder='All Results'
