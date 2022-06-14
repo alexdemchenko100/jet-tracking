@@ -28,6 +28,7 @@ import CodeMirror from '@uiw/react-codemirror'
 import { javascript } from '@codemirror/lang-javascript'
 
 import { Store } from '../services/Store'
+import Section from '../components/Section'
 
 interface TimingBarProps extends FlexProps {
   result: MonitorResult
@@ -177,94 +178,96 @@ export function APIResult({ result, onClose }: APIResultProps) {
   const isSuccess = result.err == '' && hasFailedAssertions(result) === false
 
   return (
-    <Grid gap='1em'>
-      {onClose && (
-        <Flex alignItems='end'>
-          <Button ml='auto' onClick={onClose} bg='lightgray.100'>
-            <Icon as={FiX} cursor='pointer' />
-          </Button>
-        </Flex>
-      )}
-      <Flex alignItems='center' justify='space-between'>
-        <Flex alignItems='center'>
-          <Badge borderRadius='2xl' py='1' px='4' colorScheme={isSuccess ? 'green' : 'red'} fontSize='sm' lineHeight='1.25' fontWeight='bold'>
-            {result.code} {result.codeStatus}
-          </Badge>
-          <Tag ml='2' borderRadius='2xl' py='1' px='4' bg='lightgray.100' colorScheme='gray' fontSize='sm' lineHeight='1.25' fontWeight='bold'>
-            {result.url || 'unknown'}
+    <Section py={4} h='100%' position={'sticky'} top={'65px'}>
+      <Grid gap='1em'>
+        {onClose && (
+          <Flex alignItems='end'>
+            <Button ml='auto' onClick={onClose} bg='lightgray.100'>
+              <Icon as={FiX} cursor='pointer' />
+            </Button>
+          </Flex>
+        )}
+        <Flex alignItems='center' justify='space-between'>
+          <Flex alignItems='center'>
+            <Badge borderRadius='2xl' py='1' px='4' colorScheme={isSuccess ? 'green' : 'red'} fontSize='sm' lineHeight='1.25' fontWeight='bold'>
+              {result.code} {result.codeStatus}
+            </Badge>
+            <Tag ml='2' borderRadius='2xl' py='1' px='4' bg='lightgray.100' colorScheme='gray' fontSize='sm' lineHeight='1.25' fontWeight='bold'>
+              {result.url || 'unknown'}
+            </Tag>
+          </Flex>
+          <Tag borderRadius='2xl' py='1' px='4' bg='lightgray.100' colorScheme='gray' fontSize='sm' lineHeight='1.25' fontWeight='bold'>
+            Response Time: {result.totalTime}ms
+            <Icon ml='1' as={FiClock} />
           </Tag>
         </Flex>
-        <Tag borderRadius='2xl' py='1' px='4' bg='lightgray.100' colorScheme='gray' fontSize='sm' lineHeight='1.25' fontWeight='bold'>
-          Response Time: {result.totalTime}ms
-          <Icon ml='1' as={FiClock} />
-        </Tag>
-      </Flex>
 
-      <TimingBar width='100%' result={result} />
+        <TimingBar width='100%' result={result} />
 
-      <Tabs
-        defaultIndex={Store.UIState.results.tabIndex}
-        onChange={(index) => {
-          Store.UIState.results.tabIndex = index
-        }}
-        overflow='auto'
-      >
-        <TabList>
-          <Tab>
-            Body
-            <Text color='green'>&nbsp;{formatBodySize(result.bodySize)}</Text>
-          </Tab>
-          <Tab>
-            Headers
-            {result.headers && <sup color='green'>&nbsp;{result.headers.length}</sup>}
-          </Tab>
+        <Tabs
+          defaultIndex={Store.UIState.results.tabIndex}
+          onChange={(index) => {
+            Store.UIState.results.tabIndex = index
+          }}
+          overflow='auto'
+        >
+          <TabList>
+            <Tab>
+              Body
+              <Text color='green'>&nbsp;{formatBodySize(result.bodySize)}</Text>
+            </Tab>
+            <Tab>
+              Headers
+              {result.headers && <sup color='green'>&nbsp;{result.headers.length}</sup>}
+            </Tab>
 
-          <Tab>
-            Tests
-            {result.assertResults && (
-              <sup>
-                <Text color={hasFailedAssertions(result) ? 'red' : 'green'}>
-                  &nbsp;{result.assertResults.length}
-                </Text>
-              </sup>
-            )}
-          </Tab>
-        </TabList>
-        <TabPanels>
-          <TabPanel>
-            <CodeMirror
-              editable={false}
-              value={getFormattedBody(result)}
-              extensions={[javascript({ jsx: true })]}
-            />
-          </TabPanel>
-          <TabPanel>
-            <Table mt='2' variant='striped' size='md' maxW='100%'>
-              <Thead>
-                <Tr>
-                  <Th minW='30%'>Name</Th>
-                  <Th maxW='70%'>Value</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {(result.headers as MonitorTuples).map((header) => {
-                  return (
-                    <Tr key={header[0] + header[1]}>
-                      <Td fontWeight='semibold' color='blue.500'>
-                        {header[0]}
-                      </Td>
-                      <Td>{header[1]} </Td>
-                    </Tr>
-                  )
-                })}
-              </Tbody>
-            </Table>
-          </TabPanel>
-          <TabPanel>
-            <AssertionResults result={result} />
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
-    </Grid>
+            <Tab>
+              Tests
+              {result.assertResults && (
+                <sup>
+                  <Text color={hasFailedAssertions(result) ? 'red' : 'green'}>
+                    &nbsp;{result.assertResults.length}
+                  </Text>
+                </sup>
+              )}
+            </Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <CodeMirror
+                editable={false}
+                value={getFormattedBody(result)}
+                extensions={[javascript({ jsx: true })]}
+              />
+            </TabPanel>
+            <TabPanel>
+              <Table mt='2' variant='striped' size='md' maxW='100%'>
+                <Thead>
+                  <Tr>
+                    <Th minW='30%'>Name</Th>
+                    <Th maxW='70%'>Value</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {(result.headers as MonitorTuples).map((header) => {
+                    return (
+                      <Tr key={header[0] + header[1]}>
+                        <Td fontWeight='semibold' color='blue.500'>
+                          {header[0]}
+                        </Td>
+                        <Td>{header[1]} </Td>
+                      </Tr>
+                    )
+                  })}
+                </Tbody>
+              </Table>
+            </TabPanel>
+            <TabPanel>
+              <AssertionResults result={result} />
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      </Grid>
+    </Section>
   )
 }

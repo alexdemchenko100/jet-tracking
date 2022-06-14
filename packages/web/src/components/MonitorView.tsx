@@ -83,23 +83,36 @@ function DoubleCheckDelete({ id }: DeleteProps) {
         leastDestructiveRef={cancelRef}
         onClose={onClose}
         isOpen={isOpen}
+        isCentered
       >
         <AlertDialogOverlay />
-
-        <AlertDialogContent>
-          <AlertDialogHeader>Delete Monitor</AlertDialogHeader>
+        <AlertDialogContent borderRadius={16} boxShadow='0px 4px 16px rgba(38, 50, 56, 0.1)'>
+          <AlertDialogHeader><Text color='black' variant="header">Delete this monitor?</Text></AlertDialogHeader>
           <AlertDialogCloseButton />
           <AlertDialogBody>
-            Are you sure you want to delete this monitor? All corresponding monitor results will be
-            deleted permanently.
+            <Text variant='paragraph' color='gray.300'>All related information will be lost, this action is permanent, and cannot be undone.</Text>
           </AlertDialogBody>
-          <AlertDialogFooter>
-            <Button ref={cancelRef} onClick={onClose}>
-              No
+          <AlertDialogFooter pb={6}>
+            <Button
+              variant="outline"
+              borderRadius={24}
+              border='2px'
+              px='22px'
+              color='darkblue.100'
+              borderColor='darkblue.100'
+              _hover={{ bg: 'transparent' }}
+              mr={3}
+              onClick={onDelete}
+            >
+              <Text color='darkblue.100' variant="emphasis">Delete</Text>
             </Button>
-            <Button colorScheme='red' onClick={onDelete} ml={3}>
-              Yes
-            </Button>
+            <PrimaryButton
+              label='Cancel'
+              variant='emphasis'
+              color='white'
+              onClick={onClose}
+            >
+            </PrimaryButton>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -129,7 +142,7 @@ function uptime(stats: MonitorPeriodStats) {
 
 function MonitorStatsView({ stats, title }: MonitorStatsProps) {
   return (
-    <Box py='7' px='6' border='1px' borderColor='gray.200' borderStyle='solid' borderRadius={8}>
+    <Box py='7' m={3} flex={1} px='6' border='1px' borderColor='gray.200' borderStyle='solid' borderRadius={8}>
       <Flex>
         <Text variant='title' color='black' showUnderline>{title}</Text>
       </Flex>
@@ -266,7 +279,7 @@ export function MonitorView() {
             <Icon fontSize='sm' color='darkgray.100' mr='1' as={FiClock} cursor='pointer' />
             <Text variant='details' color='darkgray.100'>{freqFormat}</Text>
           </Flex>
-          <Box w='1px' h='3' bg='gray.300' mx={4}></Box>
+          <Box w='1px' h='6' bg='gray.300' mx={4}></Box>
           {locations.length > 0 && (
             <Flex alignItems='center'>
               <Icon name='location' mr='2' color='black' as={FiMapPin} />
@@ -286,10 +299,10 @@ export function MonitorView() {
             <Text variant='title' color='black'>Analytics</Text>
             {mon && (
               <>
-                <Grid templateColumns={'1fr 1fr'} gap={6} mt={4}>
+                <Flex mt={4} mx={-3} flexWrap='wrap'>
                   {stats && stats.week && <MonitorStatsView stats={stats.week} title='Last 7 Days' />}
                   {stats && stats.day && <MonitorStatsView stats={stats.day} title='Last 24 Hours' />}
-                </Grid>
+                </Flex>
                 <MonitorTimeChart id={id} width='100%' height='200px'/>
               </>
             )}

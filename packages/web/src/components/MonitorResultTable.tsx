@@ -47,13 +47,15 @@ const columns: Column<MonitorResult>[] = [
       return (
         <>
           {row.err ? (
-            <Tag color='red'>
-              ALERT
-            </Tag>
+            <Flex alignItems={'center'}>
+              <Box w={2} h={2} borderRadius={8} bg={'red.200'} mr={2}></Box>
+              <Text variant='paragraph' color='gray.300'>Alert</Text>
+            </Flex>
           ) : (
-            <Tag color='green'>
-              OK
-            </Tag>
+            <Flex alignItems={'center'}>
+              <Box w={2} h={2} borderRadius={8} bg={'green.200'} mr={2}></Box>
+              <Text variant='paragraph' color='gray.300'>Ok</Text>
+            </Flex>
           )}
         </>
       )
@@ -63,28 +65,33 @@ const columns: Column<MonitorResult>[] = [
     Header: 'When',
     accessor: (row, _index) => {
       return (
-        <>
-          <Text as='span'>{dayjs(row.createdAt as string).fromNow()}</Text>&nbsp;&nbsp;
-          <Text as='span' fontStyle='italic'>
-            {dayjs(row.createdAt as string).format('M/DD/YY h:mm A')}
-          </Text>
-        </>
+        <Text variant='paragraph' color='gray.300' textTransform={'capitalize'}>
+          {dayjs(row.createdAt as string).fromNow()}&nbsp;&nbsp;{dayjs(row.createdAt as string).format('M/DD/YY h:mm A')}
+        </Text>
       )
     },
   },
   {
     Header: 'Code',
-    accessor: 'code',
+    accessor: (row) => (
+      <Text variant='paragraph' color='gray.300' textTransform={'capitalize'}>
+        {row.code}
+      </Text>
+    ),
   },
   {
     Header: 'Location',
     accessor: (row, _index) => {
-      return <Text>{getMonitorLocationName(row.location)}</Text>
+      return <Text variant='paragraph' color='gray.300' textTransform={'capitalize'}>{getMonitorLocationName(row.location)}</Text>
     },
   },
   {
-    Header: () => 'Time Taken',
-    accessor: 'totalTime',
+    Header: 'Time Taken',
+    accessor: (row) => (
+      <Text variant='paragraph' color='gray.300' textTransform={'capitalize'}>
+        {row.totalTime}
+      </Text>
+    ),
   },
 ]
 
@@ -253,12 +260,12 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
 
   return (
     <>
-      <Flex alignItems='center' justifyContent='space-between'>
-        <Text variant='title' color='black'>
+      <Flex alignItems='center' flexWrap='wrap' justifyContent='space-between'>
+        <Text variant='title' color='black' mb={4}>
           Monitor Results ({totalItemCount})
         </Text>
-        <Flex zIndex='2'>
-          <Box width='200px' mr={4}>
+        <Flex zIndex='2' flexWrap='wrap'>
+          <Box width='200px' mr={4} mb={3}>
             <Select
               value={timePeriod}
               onChange={(value) => {
@@ -267,16 +274,40 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
               }}
               placeholder='Time Period'
               options={TimePeriods}
+              chakraStyles={{
+                dropdownIndicator: (provided) => ({
+                  ...provided,
+                  bg: "transparent",
+                  px: 2,
+                  cursor: "inherit"
+                }),
+                indicatorSeparator: (provided) => ({
+                  ...provided,
+                  display: "none"
+                })
+              }}
             />
           </Box>
           {/* <DatePicker selected={startDate} onChange={(date: Date) => setStartDate(date)} /> */}
-          <Box minWidth='400px' mr={4}>
+          <Box minWidth='400px' mr={4} mb={3}>
             <Select
               isMulti
               placeholder='All Locations'
               value={locations}
               onChange={(value) => setLocations(value as FilterOptionType[])}
               options={LocationOptions}
+              chakraStyles={{
+                dropdownIndicator: (provided) => ({
+                  ...provided,
+                  bg: "transparent",
+                  px: 2,
+                  cursor: "inherit"
+                }),
+                indicatorSeparator: (provided) => ({
+                  ...provided,
+                  display: "none"
+                })
+              }}
             />
           </Box>
           <Box minWidth='200px'>
@@ -297,12 +328,24 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
                   colorScheme: 'red',
                 },
               ]}
+              chakraStyles={{
+                dropdownIndicator: (provided) => ({
+                  ...provided,
+                  bg: "transparent",
+                  px: 2,
+                  cursor: "inherit"
+                }),
+                indicatorSeparator: (provided) => ({
+                  ...provided,
+                  display: "none"
+                })
+              }}
             />
           </Box>
         </Flex>
       </Flex>
 
-      <Box mt={6} maxH='30em' overflowY='scroll'>
+      <Box mt={6} overflowX={'auto'}>
         <Table {...getTableProps()} size='sm' variant='simple'>
           <Thead
             p='0'
@@ -310,29 +353,28 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
             zIndex='1'
             top='0px'
             style={{ overflow: 'scroll' }}
-            bg='gray.100'
           >
             {headerGroups.map((headerGroup) => (
               <Tr p='0' {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map((column) => (
                   <Th
-                    borderColor='gray.200'
-                    p='1em'
-                    className='th1'
-                    color={'gray.800'}
+                    borderColor='lightgray.100'
+                    p='11px 16px'
+                    textTransform='capitalize'
                     {...column.getHeaderProps(column.getSortByToggleProps())}
                   >
-                    {/* This will render the Title of column */}
-                    {column.render('Header')}
-                    {column.isSorted ? (
-                      column.isSortedDesc ? (
-                        <TriangleDownIcon />
+                    <Flex alignItems={'center'}>
+                      <Text mr={2} variant='emphasis' color='black'>{column.render('Header')}</Text>
+                      {column.isSorted ? (
+                        column.isSortedDesc ? (
+                          <TriangleDownIcon />
+                        ) : (
+                          <TriangleUpIcon />
+                        )
                       ) : (
-                        <TriangleUpIcon />
-                      )
-                    ) : (
-                      ''
-                    )}
+                        ''
+                      )}
+                    </Flex>
                   </Th>
                 ))}
               </Tr>
@@ -353,13 +395,13 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
                       toggleAllRowsSelected(false)
                       toggleRowSelected(row.id, true)
                     }}
-                    bgColor={row.isSelected ? 'gray.300' : 'auto'}
-                    sx={{ ':hover': { bgColor: 'gray.200' } }}
+                    bgColor={row.isSelected ? 'gray.200' : 'auto'}
+                    sx={{ ':hover': { bgColor: 'lightgray.100' } }}
                     {...row.getRowProps()}
                   >
                     {row.cells.map((cell) => {
                       return (
-                        <Td className='td1' color='gray.600' {...cell.getCellProps()}>
+                        <Td className='td1' color='gray.600' py={3} {...cell.getCellProps()}>
                           {cell.render('Cell')}{' '}
                         </Td>
                       )
@@ -370,7 +412,7 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
             ) : (
               <Tr>
                 <Td>
-                  <Text textAlign='center' fontSize='1em' mx='auto'>
+                  <Text textAlign='center' variant='text-field' color='black' mx='auto'>
                     No Data Found
                   </Text>
                 </Td>
@@ -379,37 +421,37 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
           </Tbody>
         </Table>
       </Box>
-      <Flex borderTop='5px solid' borderColor='gray.200' justifyContent='flex-end'>
-        <Spacer />
-        <Flex alignContent='center'>
+      <Flex borderBottom='1px solid' p='1' borderColor='lightgray.100' alignItems='center' justifyContent='space-between'>
+        <Text variant='text-field' color='gray.300'>Show 10 results of {totalItemCount}</Text>
+        <Flex alignItems='center'>
           <IconButton
             aria-label='prev'
             _focus={{ boxShadow: '' }}
             _hover={{ backgroundColor: '' }}
             _active={{ backgroundColor: '' }}
-            color='gray.800'
-            bg='white'
+            color='darkblue.100'
+            bg='transparent'
             fontSize='30px'
             icon={<ChevronLeftIcon />}
             disabled={!canPreviousPage}
             onClick={() => previousPage()}
           />
-          <Text m='0' alignSelf='center'>
-            {pageIndex + 1} - {pageOptions.length}{' '}
-          </Text>
+          <Text mx='1.5' variant='emphasis' color='darkblue.100' alignSelf='center'>{pageIndex + 1}&nbsp;&nbsp;/</Text>
+          <Text variant='paragraph' color='gray.300' alignSelf='center'>{pageOptions.length}</Text>
           <IconButton
             aria-label='next'
             _focus={{ boxShadow: '' }}
             _hover={{ backgroundColor: '' }}
             _active={{ backgroundColor: '' }}
-            color='gray.800'
-            bg='white'
+            color='darkblue.100'
+            bg='transparent'
             fontSize='30px'
             icon={<ChevronRightIcon />}
             disabled={!canNextPage}
             onClick={() => nextPage()}
           />
         </Flex>
+        <Text variant='text-field' color='transparent'>Show 10 results of {totalItemCount}</Text>
       </Flex>
     </>
   )

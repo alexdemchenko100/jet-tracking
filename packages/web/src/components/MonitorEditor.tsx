@@ -642,9 +642,9 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
                 </Box>
               </Section>
 
-              <Modal isOpen={isModalOpen} onClose={onClose}>
+              <Modal isOpen={isModalOpen} onClose={onClose} isCentered>
                 <ModalOverlay />
-                <ModalContent>
+                <ModalContent borderRadius={16} boxShadow='0px 4px 16px rgba(38, 50, 56, 0.1)'>
                   <ModalHeader pb={2}><Text color='black' variant="header">{id ? 'Update' : 'Add'} Monitor</Text></ModalHeader>
                   <ModalCloseButton />
                   <ModalBody>

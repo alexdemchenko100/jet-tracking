@@ -61,7 +61,7 @@ const Text: React.FC<Props> = (props) => {
     >
       {children}
       {showUnderline && (
-        <Box w={8} position='absolute' bottom='-1.5' left='0' h={1} bg='green.200' borderRadius={4}></Box>
+        <Box w={8} position='absolute' top='1.4em' left='0' h={1} bg='green.200' borderRadius={4}></Box>
       )}
     </Box>
   )
