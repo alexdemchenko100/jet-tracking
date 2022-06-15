@@ -22,7 +22,6 @@ import StatusUpOrDown from '../components/StatusUpOrDown'
 interface StatusProps {
   mon?: Monitor
   stats?: MonitorStats
-  horizontalMode?: boolean
 }
 
 interface IFormInputs {
@@ -38,7 +37,7 @@ const uptime24 = (m: MonitorStats) => {
   }
 }
 
-function RunChart({ stats, horizontalMode }: { stats?: MonitorStats, horizontalMode?: boolean }) {
+function RunChart({ stats }: { stats?: MonitorStats }) {
   const navigate = useNavigate()
   if (!stats || !stats.lastResults) {
     return <></>
@@ -48,47 +47,30 @@ function RunChart({ stats, horizontalMode }: { stats?: MonitorStats, horizontalM
   const p95 = stats.day.p95
 
   return (
-    <Flex gap='2' alignItems={horizontalMode ? 'center' : 'baseline'} maxW={'430px'} height={horizontalMode ? '6' : 'auto'}>
+    <Flex gap='2' alignItems='baseline' maxW={'430px'} height='auto'>
       {stats.lastResults.map((r) => (
         <Tooltip label={'Time - ' + r.totalTime + 'ms'} key={r.id}>
-          {horizontalMode ? (
-            <Box
-              key={r.id}
-              h='1.5'
-              w={r.totalTime > p50 ? (r.totalTime > p95 ? '7' : '6') : '5'}
-              bgColor={r.err ? 'red.200' : 'green.200'}
-              borderRadius='4'
-              _hover={{
-                h: '2',
-              }}
-              onClick={(e) => {
-                e.stopPropagation()
-                navigate('/console/apiruns/' + r.id)
-              }}
-            />
-          ) : (
-            <Box
-              key={r.id}
-              w='1.5'
-              h={r.totalTime > p50 ? (r.totalTime > p95 ? '7' : '6') : '5'}
-              bgColor={r.err ? 'red.200' : 'green.200'}
-              borderRadius='4'
-              _hover={{
-                w: '2',
-              }}
-              onClick={(e) => {
-                e.stopPropagation()
-                navigate('/console/apiruns/' + r.id)
-              }}
-            />
-          )}
+          <Box
+            key={r.id}
+            w='1.5'
+            h={r.totalTime > p50 ? (r.totalTime > p95 ? '7' : '6') : '5'}
+            bgColor={r.err ? 'red.200' : 'green.200'}
+            borderRadius='4'
+            _hover={{
+              w: '2',
+            }}
+            onClick={(e) => {
+              e.stopPropagation()
+              navigate('/console/apiruns/' + r.id)
+            }}
+          />
         </Tooltip>
       ))}
     </Flex>
   )
 }
 
-function MonitorStatusCard({ mon, stats, horizontalMode }: StatusProps) {
+function MonitorStatusCard({ mon, stats }: StatusProps) {
   const navigate = useNavigate()
 
   return (
@@ -119,8 +101,8 @@ function MonitorStatusCard({ mon, stats, horizontalMode }: StatusProps) {
       </Flex>
       <Text variant='text-field' color='gray.300' textOverflow='ellipsis' overflow='hidden' whiteSpace='nowrap'>{mon?.url}</Text>
       <Box mt={4} w={8} h={1} bg='gray.200' borderRadius='2'></Box>
-      <Box my={4}>
-        <RunChart stats={stats} horizontalMode={horizontalMode} />
+      <Box my={5}>
+        <RunChart stats={stats} />
       </Box>
       <Flex>
         <Flex flexDirection={'column'} mr={10}>
