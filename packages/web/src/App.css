@@ -78,3 +78,7 @@ span.chakra-checkbox__control svg {
 span.chakra-checkbox__label {
   line-height: 20px;
 }
+
+.captialize-first-letter::first-letter {
+  text-transform: uppercase;
+}

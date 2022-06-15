@@ -1,15 +1,12 @@
 import { Monitor, MonitorStats } from '@httpmon/db'
 import axios from 'axios'
 import { useQuery } from 'react-query'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Box,
   Button,
-  Grid,
   Flex,
   Icon,
-  Stat,
-  StatGroup,
   Tooltip,
   Select,
 } from '@chakra-ui/react'
@@ -23,7 +20,7 @@ import PrimaryButton from '../components/PrimaryButton'
 import StatusUpOrDown from '../components/StatusUpOrDown'
 
 interface StatusProps {
-  mon: Monitor
+  mon?: Monitor
   stats?: MonitorStats
   horizontalMode?: boolean
 }
@@ -51,18 +48,18 @@ function RunChart({ stats, horizontalMode }: { stats?: MonitorStats, horizontalM
   const p95 = stats.day.p95
 
   return (
-    <Flex gap='1' alignItems={horizontalMode ? 'center' : 'baseline'} maxW={'430px'} height={horizontalMode ? '6' : 'auto'}>
+    <Flex gap='2' alignItems={horizontalMode ? 'center' : 'baseline'} maxW={'430px'} height={horizontalMode ? '6' : 'auto'}>
       {stats.lastResults.map((r) => (
         <Tooltip label={'Time - ' + r.totalTime + 'ms'} key={r.id}>
           {horizontalMode ? (
             <Box
               key={r.id}
-              h='1'
-              w={r.totalTime > p50 ? (r.totalTime > p95 ? '6' : '5') : '4'}
+              h='1.5'
+              w={r.totalTime > p50 ? (r.totalTime > p95 ? '7' : '6') : '5'}
               bgColor={r.err ? 'red.200' : 'green.200'}
               borderRadius='4'
               _hover={{
-                h: '1.5',
+                h: '2',
               }}
               onClick={(e) => {
                 e.stopPropagation()
@@ -72,12 +69,12 @@ function RunChart({ stats, horizontalMode }: { stats?: MonitorStats, horizontalM
           ) : (
             <Box
               key={r.id}
-              w='1'
-              h={r.totalTime > p50 ? (r.totalTime > p95 ? '6' : '5') : '4'}
+              w='1.5'
+              h={r.totalTime > p50 ? (r.totalTime > p95 ? '7' : '6') : '5'}
               bgColor={r.err ? 'red.200' : 'green.200'}
               borderRadius='4'
               _hover={{
-                w: '1.5',
+                w: '2',
               }}
               onClick={(e) => {
                 e.stopPropagation()
@@ -97,9 +94,9 @@ function MonitorStatusCard({ mon, stats, horizontalMode }: StatusProps) {
   return (
     <Flex
       flexDirection='column'
-      flex='1'
-      minW={'480px'}
-      maxW={'650px'}
+      width={{ sm: '100%', xl: 'calc(50% - 12px)' }}
+      minW={'475px'}
+      maxW={'750px'}
       borderRadius='8'
       border='1px'
       borderColor='gray.200'
@@ -111,17 +108,18 @@ function MonitorStatusCard({ mon, stats, horizontalMode }: StatusProps) {
       justifyContent='begin'
       
     >
-      <Flex justify='space-between' alignItems='center'>
-        <Flex alignItems='center' cursor='pointer' onClick={() => navigate(`/console/monitors/${mon.id}`)}>
-          <Text variant='header' color='black'>{mon.name}</Text>
+      <Flex justify='space-between' alignItems='center' mb={2}>
+        <Flex alignItems='center' cursor='pointer' onClick={() => navigate(`/console/monitors/${mon?.id}`)}>
+          <Text variant='header' color='black'>{mon?.name}</Text>
           <StatusUpOrDown stats={stats} />
         </Flex>
-        <Button borderRadius='4' bg='lightgray.100' p='0' onClick={() => navigate(`/console/monitors/${mon.id}/edit`)}>
+        <Button borderRadius='4' bg='lightgray.100' p='0' onClick={() => navigate(`/console/monitors/${mon?.id}/edit`)}>
           <Icon color='gray.300' as={FiEdit} cursor='pointer' />
         </Button>
       </Flex>
-      <Text variant='text-field' color='gray.300'>{mon.url}</Text>
-      <Box my={3}>
+      <Text variant='text-field' color='gray.300' textOverflow='ellipsis' overflow='hidden' whiteSpace='nowrap'>{mon?.url}</Text>
+      <Box mt={4} w={8} h={1} bg='gray.200' borderRadius='2'></Box>
+      <Box my={4}>
         <RunChart stats={stats} horizontalMode={horizontalMode} />
       </Box>
       <Flex>
@@ -151,6 +149,7 @@ function MonitorStatusCard({ mon, stats, horizontalMode }: StatusProps) {
 
 export function MainPage() {
   const navigate = useNavigate()
+  const [filterOption, setFilterOption] = useState<string|undefined>(undefined);
   const { register, watch } = useForm<IFormInputs>();
   watch()
 
@@ -159,8 +158,10 @@ export function MainPage() {
   }, [])
 
   useEffect(() => {
-    const subscription = watch((value, { name, type }) => {
-      console.log(value, name, type)
+    const subscription = watch((value, { name }) => {
+      if (name === 'filter') {
+        setFilterOption(value.filter)
+      }
     })
     return () => subscription.unsubscribe()
   }, [watch])
@@ -213,6 +214,11 @@ export function MainPage() {
     return <NewMonitorHero />
   }
 
+  const filteredStats = filterOption && stats ? stats.filter(item => {
+      const status = Boolean(item.lastResults[0].err) ? 'down' : 'up'
+      return status === filterOption
+    }) : stats
+
   return (
     <Flex direction='column'>
       <Section>
@@ -226,11 +232,11 @@ export function MainPage() {
           ></PrimaryButton>
         </Flex>
       </Section>
-      <Section py={4} minHeight='500px'>
+      <Section py={4} pb={8} minHeight='500px'>
         <Flex mb='6' alignItems={'center'} justify='end'>
           <Text variant='paragraph' color='darkgray.100'>View</Text>
           <Select ml='2' borderRadius={8} width='140px' color='gray.300' borderColor='gray.200' {...register(`filter`)}>
-            <option value='all'>All</option>
+            <option value=''>All</option>
             <option value='up'>Up</option>
             <option value='down'>Down</option>
           </Select>
@@ -240,12 +246,11 @@ export function MainPage() {
           </Select>
         </Flex>
         <Flex gap='6' flexWrap={'wrap'}>
-          {monitors?.map((mon, index) => (
+          {monitors && filteredStats?.map((stats) => (
             <MonitorStatusCard
-              mon={mon}
-              stats={stats?.find((s) => s.monitorId == mon.id)}
-              horizontalMode={index % 2 === 0}
-              key={mon.id}
+              mon={monitors.find((m) => m.id === stats.monitorId)}
+              stats={stats}
+              key={stats.monitorId}
             />
           ))}
         </Flex>

@@ -27,7 +27,7 @@ import { NavLink, Outlet, To, useNavigate } from 'react-router-dom'
 import { signOut, useAuth } from './services/FirebaseAuth'
 import Text from './components/Text'
 
-const SIDEBAR_WIDTH = '60'
+const SIDEBAR_WIDTH = '240px'
 
 interface Props extends FlexProps {
   icon?: IconType
@@ -131,7 +131,7 @@ export default function Console() {
         w='full'
         px='6'
         py='3'
-        position='sticky'
+        position='fixed'
         top='0'
         zIndex={1300}
         bg={'white'}
@@ -192,8 +192,8 @@ export default function Console() {
             <SidebarContent w='full' borderRight='none' />
           </DrawerContent>
         </Drawer>
-        <Box ml={{ base: 0, md: SIDEBAR_WIDTH }} flex='1' transition='.3s ease'>
-          <Box as='main' p='2' overflow={'auto'}>
+        <Box ml={{ base: 0, md: SIDEBAR_WIDTH }} pt='14' width={{ base: '100%', md: `calc(100% - ${SIDEBAR_WIDTH})` }} transition='.3s ease'>
+          <Box as='main' p='2'>
             {/* Add content here, remove div below  */}
             <Outlet />
           </Box>

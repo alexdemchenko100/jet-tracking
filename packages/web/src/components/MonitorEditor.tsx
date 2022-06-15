@@ -26,7 +26,6 @@ import {
   MenuItem,
   MenuButton,
   MenuList,
-  useDisclosure,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -647,7 +646,7 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
                 </Box>
               </Section>
 
-              <Section py='4'>
+              <Section py='4' mb='0'>
                 <Text variant='title' color='black'>Notifications</Text>
                 <Box pt='5' pb='2'>
                   <MonitorNotifications />

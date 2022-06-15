@@ -1,4 +1,3 @@
-import { ChevronDownIcon } from '@chakra-ui/icons'
 import {
   AlertDialog,
   AlertDialogBody,
@@ -9,27 +8,19 @@ import {
   AlertDialogOverlay,
   Box,
   Button,
-  Divider,
   Flex,
-  Grid,
-  Heading,
   Icon,
   IconButton,
   Menu,
   MenuButton,
-  MenuGroup,
   MenuItem,
-  MenuItemOption,
   MenuList,
   Stat,
-  StatLabel,
-  StatNumber,
-  Tag,
-  useBreakpointValue,
   useDisclosure,
+  useMediaQuery,
 } from '@chakra-ui/react'
-import { Monitor, MonitorPeriodStats, MonitorStats } from '@httpmon/db'
-import axios, { AxiosError } from 'axios'
+import { Monitor, MonitorPeriodStats, MonitorStats, MonitorTable } from '@httpmon/db'
+import axios from 'axios'
 import { useMutation, useQuery } from 'react-query'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import MonitorResultTable from './MonitorResultTable'
@@ -45,7 +36,6 @@ import { Store } from '../services/Store'
 import Text from './Text'
 import Section from './Section'
 import PrimaryButton from './PrimaryButton'
-import StatusUpOrDown from './StatusUpOrDown'
 
 interface DeleteProps {
   id: string
@@ -125,6 +115,12 @@ interface MonitorStatsProps {
   title: string
 }
 
+interface MonitorInfoProps {
+  id: string,
+  runNow: () => void,
+  mon?: MonitorTable | null,
+}
+
 function round(v: number) {
   return v.toFixed(v % 1 && 1)
 }
@@ -176,6 +172,76 @@ function MonitorStatsView({ stats, title }: MonitorStatsProps) {
   )
 }
 
+function MonitorInfo(props: MonitorInfoProps) {
+  const navigate = useNavigate()
+  const { id, mon, runNow } = props
+
+  const freqFormat = useMemo(() => formatFrequency(mon?.frequency ?? 0), [mon])
+  const locations = mon && mon.locations ? mon.locations : []
+
+  return (
+    <Section py={4}>
+      <Flex mb={2} alignItems='center'>
+        <Flex as={Link} alignItems='center' to="/console/monitors">
+          <Text variant='details' color='darkblue.100'>Monitors</Text>
+          <Icon name='location' fontSize={'sm'} mx='1' as={FiChevronRight} />
+        </Flex>
+        <Text variant='details' color='gray.300'>Details</Text>
+      </Flex>
+      <Flex alignItems='center' justify={'space-between'}>
+        <Text variant='header' color='black' showUnderline>{mon?.name}</Text>
+        <Flex gap='4' alignItems={'center'}>
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              aria-label='Options'
+              width={6}
+              minW={6}
+              h={6}
+              bg='lightgray.100'
+              icon={<FiMoreHorizontal />}
+            />
+            <MenuList color='gray.800' zIndex='3'>
+              <DoubleCheckDelete id={id} />
+            </MenuList>
+          </Menu>
+          <PrimaryButton
+            label='Run Now'
+            variant='emphasis'
+            color={'white'}
+            onClick={runNow}
+          ></PrimaryButton>
+          <Button borderRadius='4' bg='lightgray.100' p='0' onClick={() => navigate(`/console/monitors/${id}/edit`)}>
+            <Icon color='gray.300' as={FiEdit} cursor='pointer' />
+          </Button>
+        </Flex>
+      </Flex>
+      <Flex alignItems={'center'} wrap='wrap' gap={2} mt={5}>
+        <Flex alignItems={'center'} maxW='100%' overflow='hidden'>
+          <Icon fontSize='md' color='black' as={FiGlobe} cursor='pointer' mr='1' />
+          <Text variant='title' color='black' textOverflow='ellipsis' whiteSpace='nowrap' overflow='hidden'>{mon?.url}</Text>
+        </Flex>
+        <Flex alignItems={'center'} py={1} px={4} bg='lightgray.100' borderRadius={16}>
+          <Icon fontSize='sm' color='darkgray.100' mr='1' as={FiClock} cursor='pointer' />
+          <Text variant='details' color='darkgray.100'>{freqFormat}</Text>
+        </Flex>
+        <Box w='1px' h='5' bg='gray.300' mx={2}></Box>
+        {locations.length > 0 && (
+          <Flex alignItems='center'>
+            <Icon name='location' mr='2' color='black' as={FiMapPin} />
+            {locations.map((loc, index) => (
+              <Text variant='title' color='black' mr={2} key={index}>
+                {getMonitorLocationName(loc)}
+                {(index !== locations.length - 1) ? ',' : ''}
+              </Text>
+            ))}
+          </Flex>
+        )}
+      </Flex>
+    </Section>
+  )
+}
+
 export function MonitorView() {
   const navigate = useNavigate()
   const { id } = useParams()
@@ -193,7 +259,7 @@ export function MonitorView() {
     setMonitorResultId(id)
   }
 
-  const vertical = useBreakpointValue({ base: true, xl: false })
+  const [vertical] = useMediaQuery('(max-width: 1278px)')
 
   const {
     isLoading,
@@ -225,76 +291,18 @@ export function MonitorView() {
     document.title = 'Monitor View | ProAutoma'
   }, [])
 
-  const freqFormat = useMemo(() => formatFrequency(mon?.frequency ?? 0), [mon])
-  const locations = mon && mon.locations ? mon.locations : []
+  const runNow = () => {
+    setMonitorOnDemandId(mon?.id ?? '')
+    setRefreshOnDemand(refreshOnDemand + 1)
+    setMonitorResultId(undefined)
+  }
 
   return (
     <>
-      <Section py={4}>
-        <Flex mb={2} alignItems='center'>
-          <Flex as={Link} alignItems='center' to="/console/monitors">
-            <Text variant='details' color='darkblue.100'>Monitors</Text>
-            <Icon name='location' fontSize={'sm'} mx='1' as={FiChevronRight} />
-          </Flex>
-          <Text variant='details' color='gray.300'>Details</Text>
-        </Flex>
-        <Flex alignItems='center' justify={'space-between'}>
-          <Text variant='header' color='black' showUnderline>{mon?.name}</Text>
-          <Flex gap='4' alignItems={'center'}>
-            <Menu>
-              <MenuButton
-                as={IconButton}
-                aria-label='Options'
-                width={6}
-                minW={6}
-                h={6}
-                bg='lightgray.100'
-                icon={<FiMoreHorizontal />}
-              />
-              <MenuList color='gray.800' zIndex='3'>
-                <DoubleCheckDelete id={id} />
-              </MenuList>
-            </Menu>
-            <PrimaryButton
-              label='Run Now'
-              variant='emphasis'
-              color={'white'}
-              onClick={() => {
-                setMonitorOnDemandId(mon?.id ?? '')
-                setRefreshOnDemand(refreshOnDemand + 1)
-                setMonitorResultId(undefined)
-              }}
-            ></PrimaryButton>
-            <Button borderRadius='4' bg='lightgray.100' p='0' onClick={() => navigate(`/console/monitors/${id}/edit`)}>
-              <Icon color='gray.300' as={FiEdit} cursor='pointer' />
-            </Button>
-          </Flex>
-        </Flex>
-        <Flex alignItems={'center'} mt={5}>
-          <Flex alignItems={'center'}>
-            <Icon fontSize='md' color='black' as={FiGlobe} cursor='pointer' mr='1' />
-            <Text variant='title' color='black'>{mon?.url}</Text>
-          </Flex>
-          <Flex alignItems={'center'} ml={2} py={1} px={4} bg='lightgray.100' borderRadius={16}>
-            <Icon fontSize='sm' color='darkgray.100' mr='1' as={FiClock} cursor='pointer' />
-            <Text variant='details' color='darkgray.100'>{freqFormat}</Text>
-          </Flex>
-          <Box w='1px' h='6' bg='gray.300' mx={4}></Box>
-          {locations.length > 0 && (
-            <Flex alignItems='center'>
-              <Icon name='location' mr='2' color='black' as={FiMapPin} />
-              {locations.map((loc, index) => (
-                <Text variant='title' color='black' mr={2}>
-                  {getMonitorLocationName(loc)}
-                  {(index !== locations.length - 1) ? ',' : ''}
-                </Text>
-              ))}
-            </Flex>
-          )}
-        </Flex>
-      </Section>
+      {!vertical && <MonitorInfo id={id} runNow={runNow} mon={mon} />}
       <SplitPane orientation={vertical ? 'vertical' : 'horizontal'}>
-        <Box>
+        <Box overflow='auto'>
+          {vertical && <MonitorInfo id={id} runNow={runNow} mon={mon} />}
           <Section py={4}>
             <Text variant='title' color='black'>Analytics</Text>
             {mon && (
@@ -307,7 +315,7 @@ export function MonitorView() {
               </>
             )}
           </Section>
-          <Section py={4}>
+          <Section py={4} mb={0}>
             <MonitorResultTable onShowMonitorResult={onShowMonitorResult} />
           </Section>
         </Box>

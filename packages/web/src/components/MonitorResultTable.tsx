@@ -63,7 +63,7 @@ const columns: Column<MonitorResult>[] = [
     Header: 'When',
     accessor: (row, _index) => {
       return (
-        <Text variant='paragraph' color='gray.300' textTransform={'capitalize'}>
+        <Text variant='paragraph' color='gray.300' className='captialize-first-letter' display='inline-block' whiteSpace='nowrap'>
           {dayjs(row.createdAt as string).fromNow()}&nbsp;&nbsp;{dayjs(row.createdAt as string).format('M/DD/YY h:mm A')}
         </Text>
       )

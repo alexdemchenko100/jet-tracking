@@ -2,7 +2,6 @@ import {
   Badge,
   Box,
   Button,
-  Center,
   Flex,
   FlexProps,
   Grid,
@@ -21,6 +20,7 @@ import {
   Thead,
   Tooltip,
   Tr,
+  useMediaQuery,
 } from '@chakra-ui/react'
 import { MonitorResult, MonitorTuples } from '@httpmon/db'
 import { FiClock, FiX } from 'react-icons/fi'
@@ -176,10 +176,11 @@ interface APIResultProps {
 }
 export function APIResult({ result, onClose }: APIResultProps) {
   const isSuccess = result.err == '' && hasFailedAssertions(result) === false
+  const [vertical] = useMediaQuery('(max-width: 1278px)')
 
   return (
-    <Section py={4} h='100%' position={'sticky'} top={'65px'}>
-      <Grid gap='1em'>
+    <Section py={4} mb={0} position={'sticky'} top={vertical ? '0' : '16'} pr={2}>
+      <Grid gap='1em' pr={2} maxH='100%' overflow={'auto'}>
         {onClose && (
           <Flex alignItems='end'>
             <Button ml='auto' onClick={onClose} bg='lightgray.100'>
@@ -187,12 +188,26 @@ export function APIResult({ result, onClose }: APIResultProps) {
             </Button>
           </Flex>
         )}
-        <Flex alignItems='center' justify='space-between'>
-          <Flex alignItems='center'>
+        <Flex alignItems='center' justify='space-between' flexWrap='wrap' gap={2}>
+          <Flex alignItems='center' gap={2} flexWrap='wrap'>
             <Badge borderRadius='2xl' py='1' px='4' colorScheme={isSuccess ? 'green' : 'red'} fontSize='sm' lineHeight='1.25' fontWeight='bold'>
               {result.code} {result.codeStatus}
             </Badge>
-            <Tag ml='2' borderRadius='2xl' py='1' px='4' bg='lightgray.100' colorScheme='gray' fontSize='sm' lineHeight='1.25' fontWeight='bold'>
+            <Tag
+              maxW='96'
+              textOverflow='ellipsis'
+              display='inline-block'
+              overflow='hidden'
+              borderRadius='2xl'
+              py='1'
+              px='4'
+              bg='lightgray.100'
+              colorScheme='gray'
+              fontSize='sm'
+              lineHeight='1.25'
+              fontWeight='bold'
+              whiteSpace='nowrap'
+            >
               {result.url || 'unknown'}
             </Tag>
           </Flex>

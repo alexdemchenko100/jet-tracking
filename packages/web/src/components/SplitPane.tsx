@@ -144,8 +144,8 @@ const SplitPane = ({ orientation, children, ...props }: SplitPaneProps) => {
   const containerStyle = {
     width: '100%',
     // height: '100%',
-    minHeight: 'calc(100vh - 5em)',
-    overflow: 'auto',
+    height: isHorizontal ? 'auto' : 'calc(100vh - 4.5em)',
+    // overflow: 'auto',
     display: 'grid',
   }
 
@@ -163,8 +163,7 @@ const SplitPane = ({ orientation, children, ...props }: SplitPaneProps) => {
 
   const pane2Style = {
     // backgroundColor: 'lime',
-    // overflow: 'auto',
-    marginBottom: 8
+    overflow: isHorizontal ? 'inherit' : 'auto',
   }
 
   // TODO: find handle component by using the type of the children
