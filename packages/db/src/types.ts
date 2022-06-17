@@ -305,3 +305,48 @@ export const EnvFluentSchema = S.object()
 //   value: string
 //   meta: string
 // }
+
+export type SlackNotificationChannel = {
+  webhookUrl: string
+}
+
+export const SlackNotificationSchema = S.object()
+  .prop('webhookUrl', S.string().required())
+
+export type EmailNotificationChannel = {
+  email: string // email string. Comma can be used for multi emails. Like this: 'email@test.com, email2@test.com'
+  cc?: string // email string
+  recipientName?: string // recipient's name
+}
+
+export const EmailNotificationSchema = S.object()
+  .prop('email', S.string().required())
+  .prop('cc', S.anyOf([S.string(), S.null()]))
+  .prop('recipientName', S.anyOf([S.string(), S.null()]))
+
+export type MSTeamsNotificationChannel = {
+  webhookUrl: string
+}
+
+export const MSTeamsNotificationSchema = S.object()
+  .prop('webhookUrl', S.string().required())
+
+export type Notification = {
+  id?: string
+  accountId: string
+  name: string  // notification name
+  failCount: number // send notification after the number of failures
+  failTimeMS?: number // send notification after the number of minutes
+  isDefaultEnabled: boolean
+  applyOnExistingMonitors: boolean
+  channel: SlackNotificationChannel | EmailNotificationChannel | MSTeamsNotificationChannel
+}
+
+export const NotificationSchema = S.object()
+  .prop('name', S.string().required())
+  .prop('id', S.string())
+  .prop('failCount', S.integer().minimum(1).maximum(10).default(1))
+  .prop('failTimeMS', S.anyOf([S.integer().enum(Object.values([5,10,15,20,30,60])), S.null()]))
+  .prop('isDefaultEnabled', S.boolean().default(false))
+  .prop('applyOnExistingMonitors', S.boolean().default(false))
+  .prop('channel', S.anyOf([SlackNotificationSchema, EmailNotificationSchema, MSTeamsNotificationSchema]))

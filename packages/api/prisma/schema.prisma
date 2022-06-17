@@ -14,6 +14,7 @@ model Account {
   Monitor       Monitor[]
   MonitorResult MonitorResult[]
   MonEnv        MonEnv[]
+  notifications Notification[]
 }
 
 model UserAccount {
@@ -112,4 +113,19 @@ model MonitorResult {
   account   Account @relation(fields: [accountId], references: [id])
   monitorId String // relation scalar field  (used in the `@relation` attribute above)
   accountId String
+}
+
+model Notification {
+  id                      String    @id @default(cuid())
+  createdAt               DateTime  @default(now())
+  name                    String
+  failCount               Int       @default(1)
+  failTimeMS              Int?
+  isDefaultEnabled        Boolean   @default(false)
+  applyOnExistingMonitors Boolean   @default(false)
+  channel                 Json      @default("{}")
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId               String
+
+  @@unique([name, accountId])
 }

@@ -61,7 +61,7 @@ server.register(router, {
 server.setErrorHandler((error, _req, reply) => {
   // The expected errors will be handled here, but unexpected ones should eventually result in a crash.
   server.log.error(error)
-  reply.code(409).send({ error: 'top level error' })
+  reply.code(409).send({ error: error })
 })
 
 if (process.env.NODE_ENV !== 'production') {
