@@ -1,13 +1,13 @@
 import { Divider, Flex, FormLabel, Heading, Input, Button, Box } from '@chakra-ui/react'
 import { useAuth } from '../services/FirebaseAuth'
-import { Notification } from '@httpmon/db'
+import { NotificationChannel } from '@httpmon/db'
 import axios from 'axios'
 import { useQuery } from 'react-query'
 
 export function Settings() {
   const { userInfo } = useAuth()
 
-  const { data: notifications } = useQuery<Notification[], Error>(
+  const { data: notifications } = useQuery<NotificationChannel[], Error>(
     ['notifications'],
     () => getNotifications(),
     {}
@@ -31,17 +31,11 @@ export function Settings() {
         failTimeMS: 20, // possible value: null, 5, 10, 15, 20, 30, 60
         isDefaultEnabled: true,
         applyOnExistingMonitors: true,
-        // channel: { // Email channel
-        //   email: 'test@email.com, test2@email.com',
-        //   cc: 'cc.test@email.com',
-        //   recipientName: 'John Doe',
-        // },
-        channel: { // Slack channel
-          webhookUrl: 'https://hooks.slack.com/services/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'
+        channel: { // Email channel
+          email: 'test@email.com, test2@email.com',
+          cc: 'cc.test@email.com',
+          recipientName: 'John Doe',
         },
-        // channel: { // Microsoft Teams channel
-        //   webhookUrl: 'https://hooks.microsoft-teams.com/services/T03LER2T32M/B03KZ97ECHK/M8BuslbsVThKu8BGQKzkJ2PD'
-        // },
       }
     }).then(res => {
       console.log('new notification:', res.data)

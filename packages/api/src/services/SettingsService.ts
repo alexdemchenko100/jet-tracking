@@ -1,6 +1,6 @@
 import { currentUserInfo } from './../Context'
 
-import { db, Notification } from '@httpmon/db'
+import { db, NotificationChannel } from '@httpmon/db'
 import { nanoid } from 'nanoid'
 
 export class SettingsService {
@@ -15,16 +15,16 @@ export class SettingsService {
 
   public async listNotifications() {
     const notifications = await db
-      .selectFrom('Notification')
+      .selectFrom('NotificationChannel')
       .selectAll()
       .where('accountId', '=', currentUserInfo().accountId)
       .execute()
     return notifications
   }
 
-  public async saveNotifcation(data: Notification) {
+  public async saveNotifcation(data: NotificationChannel) {
     const notification = await db
-      .insertInto('Notification')
+      .insertInto('NotificationChannel')
       .values({
         id: nanoid(),
         name: data.name,

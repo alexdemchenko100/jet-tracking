@@ -14,7 +14,7 @@ model Account {
   Monitor       Monitor[]
   MonitorResult MonitorResult[]
   MonEnv        MonEnv[]
-  notifications Notification[]
+  notifications NotificationChannel[]
 }
 
 model UserAccount {
@@ -115,7 +115,7 @@ model MonitorResult {
   accountId String
 }
 
-model Notification {
+model NotificationChannel {
   id                      String    @id @default(cuid())
   createdAt               DateTime  @default(now())
   name                    String

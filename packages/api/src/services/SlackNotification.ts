@@ -1,9 +1,9 @@
-import { Monitor, MonitorResult, NotificationChannel } from '@httpmon/db'
+import { Monitor, MonitorResult, MontiorNotifyChannel } from '@httpmon/db'
 import got from 'got'
 import { formatAssertionResults } from './Assertions'
 
 export function sendSlackNotification(
-  channel: NotificationChannel,
+  channel: MontiorNotifyChannel,
   monitor: Monitor,
   result: MonitorResult
 ) {

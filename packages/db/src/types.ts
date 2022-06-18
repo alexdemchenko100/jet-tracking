@@ -227,7 +227,7 @@ export type MonitorAuth = {
   bearer?: MonitorBearerAuth
 }
 
-export type NotificationChannel = {
+export type MontiorNotifyChannel = {
   type: string // email, slack, etc
   target: string // email address or slack channel etc
   info: string // email subject, slack channel, etc
@@ -237,7 +237,7 @@ export type MonitorNotifications = {
   failCount: number
   failTimeMS?: number
   onRecovery?: boolean
-  channels?: NotificationChannel[]
+  channels?: MontiorNotifyChannel[]
 }
 
 export type MonitorAssertionResult = MonitorAssertion & {
@@ -331,7 +331,7 @@ export type MSTeamsNotificationChannel = {
 export const MSTeamsNotificationSchema = S.object()
   .prop('webhookUrl', S.string().required())
 
-export type Notification = {
+export type NotificationChannel = {
   id?: string
   accountId: string
   name: string  // notification name
