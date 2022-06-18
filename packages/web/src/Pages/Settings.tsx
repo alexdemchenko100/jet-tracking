@@ -42,6 +42,40 @@ export function Settings() {
     })
   }
 
+  const updateNotification = () => {
+    if (notifications && notifications.length > 0) {
+      axios({
+        method: 'PUT',
+        url: `/settings/notifications/${notifications[0].id}`,
+        data: {
+          name: 'Update first notification - ' + new Date().toISOString(),
+          failCount: 1, // possible value: 1 - 10
+          failTimeMS: 60, // possible value: null, 5, 10, 15, 20, 30, 60
+          isDefaultEnabled: false,
+          applyOnExistingMonitors: false,
+          channel: { // Email channel
+            email: 'test@email.com, test2@email.com',
+            cc: 'cc.test@email.com',
+            recipientName: 'John Doe',
+          },
+        }
+      }).then(res => {
+        console.log('update notification successfully: ', res.data)
+      })
+    }
+  }
+
+  const deleteNotification = () => {
+    if (notifications && notifications.length > 0) {
+      axios({
+        method: 'DELETE',
+        url: `/settings/notifications/${notifications[0].id}`,
+      }).then(res => {
+        console.log('delete notification successfully')
+      })
+    }
+  }
+
   return (
     <Flex direction='column' gap='4' m={2}>
       <Heading size='md'>Settings</Heading>
@@ -55,7 +89,11 @@ export function Settings() {
         </form>
       </Flex>
       <Box my={5}>
-        <Button bg={'darkblue.100'} colorScheme='white' onClick={addNotification}>Add dummy notifcation</Button>
+        <Flex gap={3}>
+          <Button bg={'darkblue.100'} colorScheme='white' onClick={addNotification}>Add dummy notifcation</Button>
+          <Button colorScheme='green' onClick={updateNotification}>Update notifcation</Button>
+          <Button colorScheme='red' onClick={deleteNotification}>Delete notifcation</Button>
+        </Flex>
         <Box my={5}>
           {notifications && notifications.map(notification => (
             <Flex my={4} gap={4} key={notification.id}>

@@ -41,4 +41,24 @@ export class SettingsService {
     return notification
   }
 
+  public async updateNotifcation(id: string, data: NotificationChannel) {
+    const notification = await db
+      .updateTable('NotificationChannel')
+      .set({ ...data })
+      .where('id', '=', id)
+      .where('accountId', '=', currentUserInfo().accountId)
+      .returningAll()
+      .executeTakeFirst()
+
+    return notification
+  }
+
+  public async deleteNotification(id: string) {
+    const resp = await db
+      .deleteFrom('NotificationChannel')
+      .where('id', '=', id)
+      .where('accountId', '=', currentUserInfo().accountId)
+      .executeTakeFirst()
+    return resp.numDeletedRows
+  }
 }

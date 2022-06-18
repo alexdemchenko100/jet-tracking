@@ -3,6 +3,7 @@ import { SettingsService } from '../services/SettingsService'
 import { FastifyInstance } from 'fastify'
 import S from 'fluent-json-schema'
 import { NotificationSchema, NotificationChannel } from '@httpmon/db'
+import { Params, ParamsSchema } from '../types'
 
 export default async function SettingsRouter(app: FastifyInstance) {
   const settingsService = SettingsService.getInstance()
@@ -43,4 +44,41 @@ export default async function SettingsRouter(app: FastifyInstance) {
     }
   )
 
+  // PUT /notifications/:id
+  app.put<{ Body: NotificationChannel; Params: Params }>(
+    '/notifications/:id',
+    {
+      schema: {
+        params: ParamsSchema,
+        body: NotificationSchema,
+        response: {
+          200: NotificationSchema,
+        },
+      },
+    },
+    async function (req, reply) {
+      const data = req.body
+      const { id } = req.params
+
+      const resp = await settingsService.updateNotifcation(id, data)
+      req.log.info(`Updating notification: ${JSON.stringify(resp)}`)
+      reply.send(resp)
+    }
+  )
+
+  // DELETE /notifications/:id 
+  app.delete<{ Params: Params }>(
+    '/notifications/:id',
+    {
+      schema: {
+        params: ParamsSchema,
+        body: S.number(),
+      },
+    },
+    async function ({ params: { id }, log }, reply) {
+      const resp = await settingsService.deleteNotification(id)
+      log.info(resp, `Deleted notification id: ${id}`)
+      reply.send(resp)
+    }
+  )
 }
