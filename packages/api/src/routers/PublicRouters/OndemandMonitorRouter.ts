@@ -1,11 +1,11 @@
-import { execMonitor } from '../services/MonitorExecutor'
+import { execMonitor } from '../../services/MonitorExecutor'
 import { FastifyInstance } from 'fastify'
 import {
   Monitor,
   MonitorFluentSchema,
   MonitorResultFluentSchema,
 } from '@httpmon/db'
-import { processAssertions } from '../services/Assertions'
+import { processAssertions } from '../../services/Assertions'
 
 export default async function OndemandMonitorRouter(app: FastifyInstance) {
   app.post<{ Body: Monitor }>(

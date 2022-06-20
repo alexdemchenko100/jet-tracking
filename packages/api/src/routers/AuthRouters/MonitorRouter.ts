@@ -1,5 +1,5 @@
-import { ResultQueryString } from './../services/MonitorService'
-import { MonitorService } from '../services/MonitorService'
+import { ResultQueryString } from '../../services/MonitorService'
+import { MonitorService } from '../../services/MonitorService'
 import { FastifyInstance } from 'fastify'
 import S from 'fluent-json-schema'
 import {
@@ -11,8 +11,11 @@ import {
   MonitorStatSummarySchema,
   MonitorTuples,
 } from '@httpmon/db'
+import { onRequestAuthHook } from '../RouterHooks'
 
 export default async function MonitorRouter(app: FastifyInstance) {
+  app.addHook('onRequest', onRequestAuthHook)
+
   const monitorSvc = MonitorService.getInstance()
 
   app.put<{ Body: Monitor }>(

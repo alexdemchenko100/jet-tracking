@@ -5,7 +5,7 @@ import { PubSub } from '@google-cloud/pubsub'
 import { JwksClient } from 'jwks-rsa'
 import jwt from 'jsonwebtoken'
 import S from 'fluent-json-schema'
-import { logger, state } from '../Context'
+import { logger, state } from '../../Context'
 
 const PubsubMessageSchema = S.object()
   .prop('subscription', S.string())

@@ -1,6 +1,6 @@
 import fastify from 'fastify'
 import fastifyCors from 'fastify-cors'
-import router from './router.js'
+import MainRouter from './routers/MainRouter.js'
 import * as dotenv from 'dotenv'
 import path from 'path'
 import { schedule } from './services/DevScheduler.js'
@@ -54,7 +54,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Middleware: Router
-server.register(router, {
+server.register(MainRouter, {
   prefix: '/api',
 })
 

@@ -1,11 +1,13 @@
-
-import { SettingsService } from '../services/SettingsService'
+import { SettingsService } from '../../services/SettingsService'
 import { FastifyInstance } from 'fastify'
 import S from 'fluent-json-schema'
 import { NotificationSchema, NotificationChannel } from '@httpmon/db'
-import { Params, ParamsSchema } from '../types'
+import { Params, ParamsSchema } from '../../types'
+import { onRequestAuthHook } from '../RouterHooks'
 
 export default async function SettingsRouter(app: FastifyInstance) {
+  app.addHook('onRequest', onRequestAuthHook)
+
   const settingsService = SettingsService.getInstance()
 
   // GET /notifications
@@ -66,7 +68,7 @@ export default async function SettingsRouter(app: FastifyInstance) {
     }
   )
 
-  // DELETE /notifications/:id 
+  // DELETE /notifications/:id
   app.delete<{ Params: Params }>(
     '/notifications/:id',
     {
