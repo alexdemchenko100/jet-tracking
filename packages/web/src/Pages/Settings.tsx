@@ -49,14 +49,38 @@ export function Settings() {
     return () => subscription.unsubscribe()
   }, [watch])
 
-  useEffect(() => {
-    setValue('settings', { profile: userInfo, security: {} }, { shouldTouch: true })
+  const resetForm = () => {
+    setValue('settings', {
+      profile: userInfo,
+      security: {
+        password: null,
+        is_2fa_enabled: false,
+        single_sign_on: false,
+      },
+      new_notification: {
+        name: null,
+        channel: {
+          type: null,
+          webhookUrl: null,
+          email: null,
+          cc: null,
+          recipientName: null,
+        },
+        failCount: null,
+        failTimeMS: null,
+        default_enabled: null,
+        apply_on_existing_monitors: null,
+      },
+    }, { shouldTouch: true })
     setFormChanged(false)
+  }
+
+  useEffect(() => {
+    resetForm()
   }, [userInfo])
 
   const cancelChanges = () => {
-    setValue('settings', { profile: userInfo, security: { password: null, is_2fa_enabled: false, single_sign_on: false, } }, { shouldTouch: true })
-    setFormChanged(false)
+    resetForm()
   }
 
   const saveChanges = () => {

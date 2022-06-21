@@ -33,6 +33,6 @@ export async function onRequestAuthHook(
     accountId = await createNewAccount(user.uid, user.email ?? '')
   }
 
-  request.requestContext.set('user', { user: user.email, accountId })
+  request.requestContext.set('user', { user: user.email ?? '', accountId })
   request.log.info(requestContext.get('user'), 'user authorized')
 }

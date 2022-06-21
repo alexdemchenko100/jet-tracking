@@ -15,6 +15,9 @@ import logoTitleDark from './assets/logo_title_dark.svg'
 import location from './assets/location.svg'
 import email from './assets/email.svg'
 import googleSigninButton from './assets/btn_google_signin_dark_normal_web.png'
+import BlueEmailIcon from './assets/email-blue.svg'
+import SlackIcon from './assets/slack-icon.png'
+import MSTeamsIcon from './assets/ms-teams-icon.png'
 
 export {
   grarGrid,
@@ -34,4 +37,7 @@ export {
   location,
   logoTitleDark,
   googleSigninButton,
+  BlueEmailIcon,
+  SlackIcon,
+  MSTeamsIcon,
 }

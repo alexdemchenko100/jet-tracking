@@ -308,12 +308,15 @@ export const EnvFluentSchema = S.object()
 
 export type SlackNotificationChannel = {
   webhookUrl: string
+  type: 'slack'
 }
 
 export const SlackNotificationSchema = S.object()
   .prop('webhookUrl', S.string().required())
+  .prop('type', S.string().enum(['slack']).required())
 
 export type EmailNotificationChannel = {
+  type: 'email'
   email: string // email string. Comma can be used for multi emails. Like this: 'email@test.com, email2@test.com'
   cc?: string // email string
   recipientName?: string // recipient's name
@@ -323,13 +326,16 @@ export const EmailNotificationSchema = S.object()
   .prop('email', S.string().required())
   .prop('cc', S.anyOf([S.string(), S.null()]))
   .prop('recipientName', S.anyOf([S.string(), S.null()]))
+  .prop('type', S.string().enum(['email']).required())
 
 export type MSTeamsNotificationChannel = {
   webhookUrl: string
+  type: 'ms-teams'
 }
 
 export const MSTeamsNotificationSchema = S.object()
   .prop('webhookUrl', S.string().required())
+  .prop('type', S.string().enum(['ms-teams']).required())
 
 export type NotificationChannel = {
   id?: string

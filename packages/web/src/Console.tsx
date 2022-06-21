@@ -62,7 +62,7 @@ export default function Console() {
         <NavItem icon={FiGrid} to='/console/dashboards'>
           <Text variant='text-field' color='inherit'>Dashboards</Text>
         </NavItem>
-        <NavItem icon={FiSettings} to='/console/settings'>
+        <NavItem icon={FiSettings} to='/console/settings/profile'>
           <Text variant='text-field' color='inherit'>Settings</Text>
         </NavItem>
       </Flex>
