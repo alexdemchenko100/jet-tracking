@@ -95,11 +95,12 @@ export function isLoggedIn(): boolean {
 
 export function setUser(user: User | null) {
   if (user) {
-    const { uid, email, displayName, photoURL } = user
+    const { uid, email, displayName, photoURL, phoneNumber } = user
     Store.UserState.userInfo.uid = uid
     Store.UserState.userInfo.email = email || undefined
     Store.UserState.userInfo.displayName = displayName || undefined
     Store.UserState.userInfo.photoURL = photoURL || undefined
+    Store.UserState.userInfo.phoneNumber = phoneNumber
     Store.user = user
   }
 

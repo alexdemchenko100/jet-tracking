@@ -1,5 +1,4 @@
 import { ChakraProvider } from '@chakra-ui/react'
-import { Home } from './Home'
 import './App.css'
 import 'focus-visible/dist/focus-visible'
 
@@ -25,6 +24,7 @@ import { Environments } from './Pages/Environments'
 import NotFound from './Pages/NotFound'
 import { EnvEditor } from './Pages/EnvEditor'
 import { theme } from './services/ChakraTheme'
+import { SettingsProfile, SettingsNotifications, SettingsSecurity } from './components'
 
 const history = createBrowserHistory()
 Store.history = history //save for later
@@ -129,12 +129,33 @@ function App() {
             />
             <Route
               path='/console/settings'
-              element={
-                <ProtectedRoute isAllowed={isLoggedIn}>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
+              element={<Settings />}
+            >
+              <Route
+                path='/console/settings/profile'
+                element={
+                  <ProtectedRoute isAllowed={isLoggedIn}>
+                    <SettingsProfile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path='/console/settings/security'
+                element={
+                  <ProtectedRoute isAllowed={isLoggedIn}>
+                    <SettingsSecurity />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path='/console/settings/notifications'
+                element={
+                  <ProtectedRoute isAllowed={isLoggedIn}>
+                    <SettingsNotifications />
+                  </ProtectedRoute>
+                }
+              />
+            </Route>
             <Route
               path='/console/dashboards'
               element={

@@ -11,6 +11,7 @@ interface UserInfo {
   email?: string
   displayName?: string
   photoURL?: string
+  phoneNumber?: string | null
 }
 
 interface UserState {

@@ -10,23 +10,46 @@ interface Props extends ButtonProps {
   variant: TextVariants,
   color: string,
   onClick?: () => void,
+  isOutline?: boolean,
 }
 
 const PrimaryButton: React.FC<Props> = (props) => {
-  const { label, variant, color, onClick, ...rest } = props
+  const { label, variant, color, isOutline, onClick, ...rest } = props
   return (
-    <Button
-      onClick={onClick}
-      bg='darkblue.100'
-      borderRadius='24px'
-      padding={'10px 30px 11px'}
-      height='auto'
-      _hover={{ bg: 'linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), #17468F;' }}
-      _active={{ bg: 'linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), #17468F;' }}
-      {...rest}
-    >
-      <Text variant={variant} color={color}>{label}</Text>
-    </Button>
+    <>
+    {isOutline ? (
+        <Button
+          onClick={onClick}
+          bg='transparent'
+          borderWidth='2px'
+          borderStyle='solid'
+          borderColor='darkblue.100'
+          borderRadius='24px'
+          colorScheme={'whiteAlpha'}
+          padding={'10px 24px 11px'}
+          height='auto'
+          _hover={{ bg: 'linear-gradient(0deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05)), #ffffff;' }}
+          _active={{ bg: 'linear-gradient(0deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), #ffffff;' }}
+          {...rest}
+        >
+          <Text variant={variant} color={color}>{label}</Text>
+        </Button>
+      ) : (
+        <Button
+          onClick={onClick}
+          bg='darkblue.100'
+          borderRadius='24px'
+          padding={'10px 30px 11px'}
+          height='auto'
+          _hover={{ bg: 'linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), #17468F;' }}
+          _active={{ bg: 'linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), #17468F;' }}
+          {...rest}
+        >
+          <Text variant={variant} color={color}>{label}</Text>
+        </Button>
+      )
+    }
+    </>
   )
 }
 
