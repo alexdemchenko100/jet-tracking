@@ -18,7 +18,7 @@ import { useAuth } from './services/FirebaseAuth'
 import { Store } from './services/Store'
 import MainPage from './Pages/MainPage'
 import { APIResultById } from './components/APIResultById'
-import { Settings } from './Pages/Settings'
+import { SettingsPage } from './Pages/Settings'
 import { Dashboards } from './Pages/Dashboards'
 import { Environments } from './Pages/Environments'
 import NotFound from './Pages/NotFound'
@@ -129,7 +129,7 @@ function App() {
             />
             <Route
               path='/console/settings'
-              element={<Settings />}
+              element={<SettingsPage />}
             >
               <Route
                 path='/console/settings/profile'

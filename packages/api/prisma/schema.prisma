@@ -15,6 +15,7 @@ model Account {
   MonitorResult MonitorResult[]
   MonEnv        MonEnv[]
   notifications NotificationChannel[]
+  settings      Settings[]
 }
 
 model UserAccount {
@@ -119,8 +120,6 @@ model NotificationChannel {
   id                      String    @id @default(cuid())
   createdAt               DateTime  @default(now())
   name                    String
-  failCount               Int       @default(1)
-  failTimeMS              Int?
   isDefaultEnabled        Boolean   @default(false)
   applyOnExistingMonitors Boolean   @default(false)
   channel                 Json      @default("{}")
@@ -128,4 +127,14 @@ model NotificationChannel {
   accountId               String
 
   @@unique([name, accountId])
+}
+
+model Settings {
+  id                      String    @id @default(cuid())
+  createdAt               DateTime  @default(now())
+  alert                   Json      @default("{}")
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId               String
+
+  @@unique([accountId])
 }

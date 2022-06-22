@@ -45,6 +45,18 @@ export const createNewAccount = async (userId: string, email: string) => {
       throw new Error('not able to add to user account')
     }
     newAccountId = userAccount.accountId
+
+    // Add settings for new user account
+    await trx
+      .insertInto('Settings')
+      .values({
+        id: nanoid(),
+        accountId: account.id,
+        alert: {},
+      })
+      .returningAll()
+      .executeTakeFirst()
+
     logger.info(
       `created new account for user ${userId} ${email} account id ${newAccountId}`
     )

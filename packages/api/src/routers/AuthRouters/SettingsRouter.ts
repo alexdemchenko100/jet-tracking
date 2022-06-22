@@ -1,7 +1,7 @@
 import { SettingsService } from '../../services/SettingsService'
 import { FastifyInstance } from 'fastify'
 import S from 'fluent-json-schema'
-import { NotificationSchema, NotificationChannel } from '@httpmon/db'
+import { NotificationSchema, NotificationChannel, SettingsSchema, Settings } from '@httpmon/db'
 import { Params, ParamsSchema } from '../../types'
 import { onRequestAuthHook } from '../RouterHooks'
 
@@ -9,6 +9,43 @@ export default async function SettingsRouter(app: FastifyInstance) {
   app.addHook('onRequest', onRequestAuthHook)
 
   const settingsService = SettingsService.getInstance()
+
+  // GET /
+  app.get(
+    '/',
+    {
+      schema: {
+        response: {
+          200: SettingsSchema,
+        },
+      },
+    },
+    async function (req, reply) {
+      const resp = await settingsService.getSettings()
+      req.log.info(`Get settings: ${JSON.stringify(resp)}`)
+      reply.send(resp)
+    }
+  )
+
+  // PUT /
+  app.put<{ Body: Settings; Params: Params }>(
+    '/',
+    {
+      schema: {
+        params: ParamsSchema,
+        body: SettingsSchema,
+        response: {
+          200: SettingsSchema,
+        },
+      },
+    },
+    async function (req, reply) {
+      const data = req.body
+      const resp = await settingsService.updateSettings(data)
+      req.log.info(`Updating settings: ${JSON.stringify(resp)}`)
+      reply.send(resp)
+    }
+  )
 
   // GET /notifications
   app.get(

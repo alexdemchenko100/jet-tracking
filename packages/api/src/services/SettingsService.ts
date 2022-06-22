@@ -1,6 +1,6 @@
 import { currentUserInfo } from './../Context'
 
-import { db, NotificationChannel } from '@httpmon/db'
+import { Settings, db, NotificationChannel } from '@httpmon/db'
 import { nanoid } from 'nanoid'
 
 export class SettingsService {
@@ -28,8 +28,6 @@ export class SettingsService {
       .values({
         id: nanoid(),
         name: data.name,
-        failCount: data.failCount,
-        failTimeMS: data.failTimeMS,
         isDefaultEnabled: data.isDefaultEnabled,
         applyOnExistingMonitors: data.applyOnExistingMonitors,
         channel: data.channel,
@@ -61,4 +59,39 @@ export class SettingsService {
       .executeTakeFirst()
     return resp.numDeletedRows
   }
+
+  public async getSettings() {
+    const settings = await db
+      .selectFrom('Settings')
+      .selectAll()
+      .where('accountId', '=', currentUserInfo().accountId)
+      .executeTakeFirst()
+    return settings
+  }
+
+  public async saveNewSettings(accountId: string) {
+    const settings = await db
+      .insertInto('Settings')
+      .values({
+        id: nanoid(),
+        alert: {},
+        accountId,
+      })
+      .returningAll()
+      .executeTakeFirst()
+
+    return settings
+  }
+
+  public async updateSettings(data: Settings) {
+    const settings = await db
+      .updateTable('Settings')
+      .set({ ...data })
+      .where('accountId', '=', currentUserInfo().accountId)
+      .returningAll()
+      .executeTakeFirst()
+
+    return settings
+  }
+
 }

@@ -341,8 +341,6 @@ export type NotificationChannel = {
   id?: string
   accountId: string
   name: string  // notification name
-  failCount: number // send notification after the number of failures
-  failTimeMS?: number // send notification after the number of minutes
   isDefaultEnabled: boolean
   applyOnExistingMonitors: boolean
   channel: SlackNotificationChannel | EmailNotificationChannel | MSTeamsNotificationChannel
@@ -351,8 +349,25 @@ export type NotificationChannel = {
 export const NotificationSchema = S.object()
   .prop('name', S.string().required())
   .prop('id', S.string())
-  .prop('failCount', S.integer().minimum(1).maximum(10).default(1))
-  .prop('failTimeMS', S.anyOf([S.integer().enum(Object.values([5,10,15,20,30,60])), S.null()]))
   .prop('isDefaultEnabled', S.boolean().default(false))
   .prop('applyOnExistingMonitors', S.boolean().default(false))
   .prop('channel', S.anyOf([SlackNotificationSchema, EmailNotificationSchema, MSTeamsNotificationSchema]))
+
+export type AlertSettings = {
+  failCount?: number // send notification after the number of failures
+  failTimeMS?: number // send notification after the number of minutes
+}
+
+export const AlertSettingsSchema = S.object()
+  .prop('failCount', S.anyOf([S.integer().minimum(1).maximum(10), S.null()]))
+  .prop('failTimeMS', S.anyOf([S.integer().enum(Object.values([5,10,15,20,30,60])), S.null()]))
+
+export type Settings = {
+  id?: string
+  alert: AlertSettings
+  accountId: string
+}
+  
+export const SettingsSchema = S.object()
+  .prop('id', S.string())
+  .prop('alert', AlertSettingsSchema)

@@ -7,6 +7,7 @@ import {
   MonitorTable,
   UserAccount,
   NotificationChannel,
+  Settings,
 } from './types'
 export * from './types.js'
 
@@ -17,6 +18,7 @@ interface Database {
   Account: Account
   MonEnv: MonEnv
   NotificationChannel: NotificationChannel
+  Settings: Settings
 }
 
 import * as dotenv from 'dotenv'
