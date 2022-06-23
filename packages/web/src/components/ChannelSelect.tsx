@@ -15,10 +15,11 @@ import { BlueEmailIcon, MSTeamsIcon, SlackIcon } from '../Assets'
 
 interface ChannelSelectProps {
   channel?: string
+  hasError: boolean
   onSelect: (_: string) => void
 }
 
-const ChannelSelect: React.FC<ChannelSelectProps> = ({ channel, onSelect }) => {
+const ChannelSelect: React.FC<ChannelSelectProps> = ({ channel, onSelect, hasError }) => {
   let label = '';
   switch (channel) {
     case 'slack':
@@ -43,7 +44,7 @@ const ChannelSelect: React.FC<ChannelSelectProps> = ({ channel, onSelect }) => {
         rightIcon={<FiChevronDown />}
         border='1px'
         borderStyle='solid'
-        borderColor='gray.200'
+        borderColor={hasError ? 'red' : 'gray.200'}
         borderRadius={8}
         textAlign='left'
         _hover={{ bg: 'transparent' }}

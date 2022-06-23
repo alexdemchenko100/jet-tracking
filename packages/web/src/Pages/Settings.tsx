@@ -9,8 +9,13 @@ import { useQuery } from 'react-query'
 import { useAuth } from '../services/FirebaseAuth'
 import { Section, Text, PrimaryButton, NavItem } from '../components'
 import { UserInfo } from '../types/common'
+import { SettingFormValidation } from '../types/common'
 
 const SIDEBAR_WIDTH = '200px'
+
+interface SettingsForm {
+  [x: string]: any
+}
 
 const SettingsSidebar = (props: any) => (
   <Box
@@ -41,20 +46,93 @@ export function SettingsPage() {
   const { userInfo } = useAuth()
   const methods = useForm()
   const [formChanged, setFormChanged] = useState<boolean>(false)
-  const { setValue, watch, getValues } = methods
+  const [initialForm, setInitialForm] = useState<SettingsForm|undefined>()
+  const [hasErrors, setHasErrors] = useState<boolean>(false)
+  const { setValue, watch, getValues, handleSubmit } = methods
   const toast = useToast()
+  const [errors, setErrors] = useState<SettingFormValidation>({
+    new_notification: {},
+    edit_notification: {},
+  })
 
   watch()
 
   useEffect(() => {
     const subscription = watch((value, { name }) => {
-      console.log('form value: ', value)
-      if (name !== 'settings.edit_notification') {
-        setFormChanged(true)
+      if (name && initialForm) {
+        if (name !== 'settings.notifications' && name !== 'settings.edit_notification') {
+          setFormChanged(JSON.stringify(value.settings) !== JSON.stringify(initialForm))
+        } else if (name === 'settings.edit_notification') {
+          resetForm(userInfo, userSettings, notifications, value.settings.edit_notification)
+        } else if (name === 'settings.notifications') {
+          resetForm(userInfo, userSettings, value.settings.notifications)
+        }
       }
+      let hasErrors = false
+      let newNotificationError = {
+        name: false,
+        channel: {
+          type: false,
+          email: false,
+          webhookUrl: false
+        }
+      }
+      if (value.settings.new_notification.name
+        || value.settings.new_notification.channel.type
+        || value.settings.new_notification.applyOnExistingMonitors
+        || !value.settings.new_notification.isDefaultEnabled
+      ) {
+        if (!value.settings.new_notification.name) {
+          newNotificationError.name = true
+          hasErrors = true
+        }
+        if (!value.settings.new_notification.channel.type) {
+          newNotificationError.channel.type = true
+          hasErrors = true
+        } else {
+          if (value.settings.new_notification.channel.type === 'email' && !value.settings.new_notification.channel.email) {
+            newNotificationError.channel.email = true
+            hasErrors = true
+          }
+          if (value.settings.new_notification.channel.type !== 'email' && !value.settings.new_notification.channel.webhookUrl) {
+            newNotificationError.channel.webhookUrl = true
+            hasErrors = true
+          }
+        }
+      }
+      // valdiate EditNotification form
+      let editNotificationError = {
+        name: false,
+        channel: {
+          type: false,
+          email: false,
+          webhookUrl: false
+        }
+      }
+      if (value.settings.edit_notification.id) {
+        if (!value.settings.edit_notification.name) {
+          editNotificationError.name = true
+          hasErrors = true
+        }
+        if (!value.settings.edit_notification.channel.type) {
+          editNotificationError.channel.type = true
+          hasErrors = true
+        } else {
+          if (value.settings.edit_notification.channel.type === 'email' && !value.settings.edit_notification.channel.email) {
+            editNotificationError.channel.email = true
+            hasErrors = true
+          }
+          if (value.settings.edit_notification.channel.type !== 'email' && !value.settings.edit_notification.channel.webhookUrl) {
+            editNotificationError.channel.webhookUrl = true
+            hasErrors = true
+          }
+        }
+      }
+      setErrors({ ...errors, edit_notification: editNotificationError, new_notification: newNotificationError })
+      setHasErrors(hasErrors)
     })
     return () => subscription.unsubscribe()
-  }, [watch])
+  }, [watch, initialForm])
 
   // Fetch settings for current user
   const { data: userSettings } = useQuery(['settings'], async () => {
@@ -74,42 +152,59 @@ export function SettingsPage() {
     return resp.data
   })
 
-  const resetForm = (profile: UserInfo, settings: Settings, notificationList: NotificationChannel[]) => {
-    setValue('settings', {
+  const resetForm = (profile: UserInfo, settings: Settings, notificationList: NotificationChannel[], editNotification?: NotificationChannel) => {
+    const formData = {
       profile: profile,
       security: {
-        password: null,
+        password: '',
         is_2fa_enabled: false,
         single_sign_on: false,
       },
       new_notification: {
-        name: null,
+        name: '',
         channel: {},
-        isDefaultEnabled: false,
+        isDefaultEnabled: true,
         applyOnExistingMonitors: false,
       },
-      edit_notification: {
-        name: null,
+      edit_notification: editNotification ? editNotification : {
+        name: '',
         channel: {},
         isDefaultEnabled: false,
         applyOnExistingMonitors: false,
       },
       notifications: notificationList,
-      alert: settings ? settings.alert : {},
-    }, { shouldTouch: true })
+      alert: {
+        failCount: settings.alert.failCount,
+        failTimeMS: settings.alert.failTimeMS,
+      },
+    }
+    setInitialForm(formData)
+    setValue('settings', formData, { shouldTouch: true })
     setFormChanged(false)
   }
 
   // Set data when loading finished
   useEffect(() => {
-    resetForm(userInfo, userSettings, notifications)
+    if (userSettings && notifications) {
+      resetForm(userInfo, userSettings, notifications)
+    }
   }, [userSettings, notifications])
 
   const cancelChanges = () => {
     resetForm(userInfo, userSettings, notifications)
   }
 
-  const saveChanges = async () => {
+  const onSubmit = async () => {
+    if (hasErrors) {
+      toast({
+        position: 'top',
+        description: 'Please fill all required fields',
+        status: 'error',
+        duration: 1500,
+        isClosable: false,
+      })
+      return false
+    }
     const settings = getValues('settings')
     // Save new notification
     if (settings.new_notification.name && settings.new_notification.channel.type) {
@@ -143,34 +238,36 @@ export function SettingsPage() {
 
   return (
     <FormProvider {...methods}>
-      <Section>
-        <Flex alignItems='center' justify={'space-between'}>
-          <Text variant='header' color='black'>Settings</Text>
-          <Flex gap={2}>
-            <PrimaryButton
-              label='Cancel'
-              isOutline
-              disabled={!formChanged}
-              variant='emphasis'
-              color={'darkblue.100'}
-              onClick={cancelChanges}
-            ></PrimaryButton>
-            <PrimaryButton
-              label='Save'
-              disabled={!formChanged}
-              variant='emphasis'
-              color={'white'}
-              onClick={saveChanges}
-            ></PrimaryButton>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Section>
+          <Flex alignItems='center' justify={'space-between'}>
+            <Text variant='header' color='black'>Settings</Text>
+            <Flex gap={2}>
+              <PrimaryButton
+                label='Cancel'
+                isOutline
+                disabled={!formChanged}
+                variant='emphasis'
+                color={'darkblue.100'}
+                onClick={cancelChanges}
+              ></PrimaryButton>
+              <PrimaryButton
+                label='Save'
+                disabled={!formChanged}
+                variant='emphasis'
+                color={'white'}
+                type="submit"
+              ></PrimaryButton>
+            </Flex>
+          </Flex>
+        </Section>
+        <Flex>
+          <SettingsSidebar />
+          <Flex flex={1} ml={2} height='fit-content'>
+            <Outlet context={{ errors }} />
           </Flex>
         </Flex>
-      </Section>
-      <Flex>
-        <SettingsSidebar />
-        <Flex flex={1} ml={2} height='fit-content'>
-          <Outlet />
-        </Flex>
-      </Flex>
+      </form>
     </FormProvider>
   )
 }

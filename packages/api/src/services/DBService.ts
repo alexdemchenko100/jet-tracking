@@ -52,7 +52,7 @@ export const createNewAccount = async (userId: string, email: string) => {
       .values({
         id: nanoid(),
         accountId: account.id,
-        alert: {},
+        alert: { failCount: 1 },
       })
       .returningAll()
       .executeTakeFirst()

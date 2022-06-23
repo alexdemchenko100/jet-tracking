@@ -6,3 +6,15 @@ export interface UserInfo {
   photoURL?: string
   phoneNumber?: string | null
 }
+export interface NotificationFormErrors {
+  name?: boolean
+  channel?: {
+    type?: boolean
+    email?: boolean
+    webhookUrl?: boolean
+  }
+}
+export interface SettingFormValidation {
+  new_notification: NotificationFormErrors
+  edit_notification: NotificationFormErrors
+}

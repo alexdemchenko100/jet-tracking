@@ -12,16 +12,24 @@ import {
   Radio,
   Stack,
   Button,
+  useToast,
 } from '@chakra-ui/react'
-import { FiBell, FiEdit } from 'react-icons/fi'
-import { useFormContext, } from 'react-hook-form'
+import { FiBell, FiEdit, FiTrash2 } from 'react-icons/fi'
+import { useFormContext } from 'react-hook-form'
+import { useOutletContext } from 'react-router-dom'
+import axios from 'axios'
 import { NotificationChannel } from '@httpmon/db'
 import { Section, Text, ChannelSelect } from '../components'
+import { SettingFormValidation, NotificationFormErrors } from '../types/common'
 
-function NewNotification() {
+interface Props {
+  errors: NotificationFormErrors
+}
+
+function NewNotification({ errors }: Props) {
   const { register, setValue, watch, getValues } = useFormContext()
 
-  const channel = watch('settings.new_notification.channel.type')
+  const newNotification = watch('settings.new_notification')
 
   const selectChannel = (value: string) => {
     setValue('settings.new_notification.channel', { type: value })
@@ -35,29 +43,36 @@ function NewNotification() {
           <Text variant='details' mb={1} color='black'>Name</Text>
           <Input
             borderRadius={8}
-            borderColor='gray.200'
+            borderColor={errors.name ? 'red' : 'gray.200'}
             type='text'
             width='80'
             {...register('settings.new_notification.name' as const)}
           />
+          {errors.name && <Text variant='details' color='red'>* Name Required</Text>}
         </Flex>
         <Flex direction='column'>
           <Text variant='details' mb={1} color='black'>Type</Text>
-          <ChannelSelect channel={channel} onSelect={selectChannel} />
+          <ChannelSelect
+            channel={newNotification.channel.type}
+            onSelect={selectChannel}
+            hasError={errors.channel?.type || false}
+          />
+          {errors.channel?.type && <Text variant='details' color='red'>* Channel Required</Text>}
         </Flex>
       </Flex>
-      {channel === 'email' && (
+      {newNotification.channel.type === 'email' && (
         <Flex gap='4' flexWrap='wrap' mb={6}>
           <Flex direction='column'>
             <Text variant='details' mb={1} color='black'>Email *</Text>
             <Input
               borderRadius={8}
-              borderColor='gray.200'
+              borderColor={errors.channel?.email ? 'red' : 'gray.200'}
               type='text'
               width='80'
               placeholder='Email1, email2, email3, ...'
               {...register('settings.new_notification.channel.email' as const)}
             />
+            {errors.channel?.email && <Text variant='details' color='red'>* Email Required</Text>}
           </Flex>
           <Flex direction='column'>
             <Text variant='details' mb={1} color='black'>CC</Text>
@@ -82,17 +97,18 @@ function NewNotification() {
           </Flex>
         </Flex>
       )}
-      {(channel === 'slack' || channel === 'ms-teams') && (
+      {(newNotification.channel.type === 'slack' || newNotification.channel.type === 'ms-teams') && (
         <Flex mb={6}>
           <Flex direction='column'>
             <Text variant='details' mb={1} color='black'>Webhook URL</Text>
             <Input
               borderRadius={8}
-              borderColor='gray.200'
+              borderColor={errors.channel?.webhookUrl ? 'red' : 'gray.200'}
               type='text'
               width='96'
               {...register('settings.new_notification.channel.webhookUrl' as const)}
             />
+            {errors.channel?.webhookUrl && <Text variant='details' color='red'>* Webhook URL Required</Text>}
           </Flex>
         </Flex>
       )}
@@ -128,10 +144,10 @@ function NewNotification() {
   )
 }
 
-function EditNotification() {
+function EditNotification({ errors }: Props) {
   const { register, setValue, watch, getValues } = useFormContext()
 
-  const channel = watch('settings.edit_notification.channel.type')
+  const editNotification = watch('settings.edit_notification')
 
   const selectChannel = (value: string) => {
     setValue('settings.edit_notification.channel', { type: value })
@@ -146,29 +162,36 @@ function EditNotification() {
             <Text variant='details' mb={1} color='black'>Name</Text>
             <Input
               borderRadius={8}
-              borderColor='gray.200'
+              borderColor={errors.name ? 'red' : 'gray.200'}
               type='text'
               width='80'
               {...register('settings.edit_notification.name' as const)}
             />
+            {errors.name && <Text variant='details' color='red'>* Name Required</Text>}
           </Flex>
           <Flex direction='column'>
             <Text variant='details' mb={1} color='black'>Type</Text>
-            <ChannelSelect channel={channel} onSelect={selectChannel} />
+            <ChannelSelect
+              channel={editNotification.channel.type}
+              onSelect={selectChannel}
+              hasError={errors.channel?.type || false}
+            />
+            {errors.channel?.type && <Text variant='details' color='red'>* Channel Required</Text>}
           </Flex>
         </Flex>
-        {channel === 'email' && (
+        {editNotification.channel.type === 'email' && (
           <Flex gap='4' flexWrap='wrap' mb={6}>
             <Flex direction='column'>
               <Text variant='details' mb={1} color='black'>Email *</Text>
               <Input
                 borderRadius={8}
-                borderColor='gray.200'
+                borderColor={errors.channel?.email ? 'red' : 'gray.200'}
                 type='text'
                 width='80'
                 placeholder='Email1, email2, email3, ...'
                 {...register('settings.edit_notification.channel.email' as const)}
               />
+              {errors.channel?.email && <Text variant='details' color='red'>* Email Required</Text>}
             </Flex>
             <Flex direction='column'>
               <Text variant='details' mb={1} color='black'>CC</Text>
@@ -193,17 +216,18 @@ function EditNotification() {
             </Flex>
           </Flex>
         )}
-        {(channel === 'slack' || channel === 'ms-teams') && (
+        {(editNotification.channel.type === 'slack' || editNotification.channel.type === 'ms-teams') && (
           <Flex mb={6}>
             <Flex direction='column'>
               <Text variant='details' mb={1} color='black'>Webhook URL</Text>
               <Input
                 borderRadius={8}
-                borderColor='gray.200'
+                borderColor={errors.channel?.webhookUrl ? 'red' : 'gray.200'}
                 type='text'
                 width='96'
                 {...register('settings.edit_notification.channel.webhookUrl' as const)}
               />
+              {errors.channel?.webhookUrl && <Text variant='details' color='red'>* Webhook URL Required</Text>}
             </Flex>
           </Flex>
         )}
@@ -241,9 +265,13 @@ function EditNotification() {
 }
 
 export default function SettingsNotifications() {
-  const { register, setValue, getValues } = useFormContext()
+  const { errors }: { errors: SettingFormValidation} = useOutletContext();
+  const { setValue, getValues } = useFormContext()
   const [alertSetting, setAlertSetting] = useState<string|undefined>()
-  const [selectedNotification, setSelectedNotification] = useState<string|undefined>()
+  const toast = useToast()
+
+  const notifications = getValues('settings.notifications')
+  const editNotification = getValues('settings.edit_notification')
 
   useEffect(() => {
     const alertSettings = getValues('settings.alert')
@@ -257,17 +285,30 @@ export default function SettingsNotifications() {
   const alertSettingChanged = (value: string) => {
     setAlertSetting(value)
     setValue('settings.alert', {
-      failCount: null,
-      failTimeMS: null,
+      failCount: value === 'failCount' ? 1 : undefined,
+      failTimeMS: value === 'failTimeMS' ? 5 : undefined,
     })
   }
 
   const onSelectNotification = (notification: NotificationChannel) => {
-    setSelectedNotification(notification.id)
     setValue('settings.edit_notification', notification)
   }
 
-  const notifications = getValues('settings.notifications')
+  const deleteNotification = (id: string | undefined) => {
+    if (id) {
+      axios.delete(`/settings/notifications/${id}`)
+        .then(() => {
+          const newNotifications = notifications.filter((notification: NotificationChannel) => notification.id !== id)
+          setValue('settings.notifications', newNotifications)
+          toast({
+            position: 'top',
+            description: 'Notification has been removed successfully.',
+            status: 'info',
+            duration: 2000,
+          })
+        })
+    }
+  }
 
   return (
     <Box width='100%'>
@@ -277,32 +318,34 @@ export default function SettingsNotifications() {
           <Stack direction='column' gap={2}>
             <Flex alignItems='center'>
               <Radio value='failCount'></Radio>
-              <Text variant='text-field' whiteSpace='nowrap' mx={3} color='gray.300'>Notify after</Text>
+              <Text variant='text-field' whiteSpace='nowrap' mx={3} color='gray.300'>Notify when a monitor fails for</Text>
               <Select
                 width={20}
                 disabled={alertSetting !== 'failCount'}
                 borderRadius={8}
                 color='gray.300'
                 borderColor='gray.200'
-                {...register('settings.alert.failCount')}
+                value={getValues('settings.alert.failCount') || 1}
+                onChange={(e) => setValue('settings.alert.failCount', parseInt(e.target.value))}
               >
                 {Array(10).fill('').map((_, index) => (
                   <option key={index} value={index + 1}>{index + 1}</option>
                 ))}
               </Select>
-              <Text variant='text-field' whiteSpace='nowrap' ml={3} color='gray.300'>number of failures</Text>
+              <Text variant='text-field' whiteSpace='nowrap' ml={3} color='gray.300'>time(s)</Text>
             </Flex>
             
             <Flex alignItems='center'>
               <Radio value='failTimeMS'></Radio>
-              <Text variant='text-field' whiteSpace='nowrap' mx={3} color='gray.300'>Notify after taking on</Text>
+              <Text variant='text-field' whiteSpace='nowrap' mx={3} color='gray.300'>Notify when a monitor fails for</Text>
               <Select
                 width={20}
                 disabled={alertSetting !== 'failTimeMS'}
                 borderRadius={8}
                 color='gray.300'
                 borderColor='gray.200'
-                {...register('settings.alert.failTimeMS')}
+                value={getValues('settings.alert.failTimeMS') || 5}
+                onChange={(e) => setValue('settings.alert.failTimeMS', parseInt(e.target.value))}
               >
                 <option value='5'>5</option>
                 <option value='10'>10</option>
@@ -319,7 +362,7 @@ export default function SettingsNotifications() {
       <Section pt={4} pb={6} minH={60}>
         <Text variant='title' color='black'>Notifications</Text>
         <Flex flexWrap={'wrap'} gap={4} mt={7}>
-          {notifications?.map((notification: NotificationChannel, index: number) => (
+          {notifications?.map((notification: NotificationChannel) => (
             <Flex
               key={notification.id}
               gap={2}
@@ -335,7 +378,7 @@ export default function SettingsNotifications() {
             >
               <Flex alignItems='center' flex='1' gap={2} flexWrap='wrap'>
                 <Flex alignItems='center'>
-                  <Icon as={FiBell} mr={2} />
+                  <Icon as={FiBell} w={6} h={6} mr={2} />
                   <Text
                     variant='text-field'
                     className='captialize-first-letter'
@@ -360,12 +403,22 @@ export default function SettingsNotifications() {
               >
                 <Icon color='gray.300' fontSize={'xs'} as={FiEdit} cursor='pointer' />
               </Button>
+              <Button
+                w={6}
+                h={6}
+                minW={6}
+                borderRadius='4'
+                bg='lightgray.100'
+                p='0'
+                onClick={() => deleteNotification(notification.id)}
+              >
+                <Icon color='gray.300' fontSize={'xs'} as={FiTrash2} cursor='pointer' />
+              </Button>
             </Flex>
           ))}
         </Flex>
       </Section>
-      <NewNotification />
-      {selectedNotification && <EditNotification />}
+      {editNotification.id ? <EditNotification errors={errors.edit_notification} /> : <NewNotification errors={errors.new_notification} />}
     </Box>
   )
 }
