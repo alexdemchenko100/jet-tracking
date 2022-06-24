@@ -1,0 +1,19 @@
+{
+  "name": "@httpmon/sandbox",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "skoganti-iws",
+  "license": "ISC",
+  "dependencies": {
+    "@httpmon/db": "workspace:^0.0.1",
+    "axios": "^0.25.0",
+    "request": "^2.88.2",
+    "vm2": "^3.9.9"
+  }
+}

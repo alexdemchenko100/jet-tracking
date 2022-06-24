@@ -195,6 +195,7 @@ export const MonitorFluentSchema = S.object()
   .prop('auth', MonitorAuthFluentSchema)
   .prop('body', S.string())
   .prop('bodyType', S.string())
+  .prop('preScript', S.string())
   .prop('headers', MonitorTupleFluentSchema)
   .prop('queryParams', MonitorTupleFluentSchema)
   .prop('locations', S.array().items(S.string().enum(CloudRegions)))
@@ -244,6 +245,16 @@ export type MonitorAssertionResult = MonitorAssertion & {
   fail?: string
 }
 
+export type MonitorRequest = {
+  method: string
+  url: string
+  body?: string
+  bodyType?: string
+  auth?: MonitorAuth
+  headers: Record<string, string>
+  queryParams: Record<string, string>
+}
+
 export type MonitorTable = {
   id?: string
   createdAt?: string | Date
@@ -256,6 +267,7 @@ export type MonitorTable = {
   body?: string
   bodyType?: string
   auth?: MonitorAuth
+  preScript: string
   headers?: MonitorTuples
   locations?: string[]
   queryParams?: MonitorTuples
@@ -343,7 +355,10 @@ export type NotificationChannel = {
   name: string  // notification name
   isDefaultEnabled: boolean
   applyOnExistingMonitors: boolean
-  channel: SlackNotificationChannel | EmailNotificationChannel | MSTeamsNotificationChannel
+  channel:
+    | SlackNotificationChannel
+    | EmailNotificationChannel
+    | MSTeamsNotificationChannel
 }
 
 export const NotificationSchema = S.object()

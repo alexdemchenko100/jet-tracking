@@ -112,18 +112,12 @@ function processTemplates(mon: Monitor) {
 
   if (mon.headers && typeof mon.headers != 'string') {
     let hdrs = m.headers as MonitorTuples
-    m.headers = hdrs.map(([name, value]) => [
-      name,
-      Handlebars.compile(value)(env),
-    ])
+    m.headers = hdrs.map(([name, value]) => [name, Handlebars.compile(value)(env)])
   }
 
   if (mon.queryParams && typeof mon.queryParams != 'string') {
     let qp = m.queryParams as MonitorTuples
-    m.queryParams = qp.map(([name, value]) => [
-      name,
-      Handlebars.compile(value)(env),
-    ])
+    m.queryParams = qp.map(([name, value]) => [name, Handlebars.compile(value)(env)])
   }
 
   if (m.body) {
@@ -183,14 +177,9 @@ export async function execMonitor(monitor: Monitor) {
       ...prepareBasicAuth(mon),
 
       // responseType: 'text',
-      searchParams: mon.queryParams
-        ? headersToMap(mon.queryParams as MonitorTuples)
-        : undefined,
+      searchParams: mon.queryParams ? headersToMap(mon.queryParams as MonitorTuples) : undefined,
       https: {
-        checkServerIdentity: (
-          _hostname: string,
-          certificate: DetailedPeerCertificate
-        ) => {
+        checkServerIdentity: (_hostname: string, certificate: DetailedPeerCertificate) => {
           if (certificate && certificate.subject) {
             certCommonName = certificate.subject.CN
             const expiry = new Date(certificate.valid_to).valueOf()
@@ -202,10 +191,7 @@ export async function execMonitor(monitor: Monitor) {
     })
 
     const result: MonitorResult = {
-      url:
-        resp.redirectUrls.length > 0
-          ? resp.redirectUrls[resp.redirectUrls.length - 1]
-          : mon.url,
+      url: resp.redirectUrls.length > 0 ? resp.redirectUrls[resp.redirectUrls.length - 1] : mon.url,
       ...responseToMonitorResult(resp),
       monitorId: mon.id ?? 'ondemand',
       accountId: mon.accountId,

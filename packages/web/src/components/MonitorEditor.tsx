@@ -57,6 +57,7 @@ import Section from '../components/Section'
 import PrimaryButton from '../components/PrimaryButton'
 import Text from '../components/Text'
 import MonitorTab from '../components/MonitorTab'
+import { MonitorPreScriptEditor } from './MonitorPreScriptEditor'
 
 function SliderThumbWithTooltip() {
   const { control } = useFormContext()
@@ -81,26 +82,22 @@ function SliderThumbWithTooltip() {
             onMouseLeave={() => setShowTooltip(false)}
           >
             {FrequencyScales.map((scale, index) => {
-              let ml;
+              let ml
               switch (index) {
                 case 0:
-                  ml = '-1.5';
-                  break;
-                case (FrequencyScales.length - 1):
-                  ml = '-5';
-                  break;
+                  ml = '-1.5'
+                  break
+                case FrequencyScales.length - 1:
+                  ml = '-5'
+                  break
                 default:
                   ml = '-3'
               }
               return (
-                <SliderMark
-                  key={scale.label}
-                  value={scale.scaleIndex}
-                  mt='2'
-                  ml={ml}
-                  fontSize='sm'
-                >
-                  <Text color='gray.300' variant='text-field'>{scale.label}</Text>
+                <SliderMark key={scale.label} value={scale.scaleIndex} mt='2' ml={ml} fontSize='sm'>
+                  <Text color='gray.300' variant='text-field'>
+                    {scale.label}
+                  </Text>
                 </SliderMark>
               )
             })}
@@ -108,7 +105,14 @@ function SliderThumbWithTooltip() {
             <SliderTrack bg={'gray.200'} h={2} borderRadius={8}>
               <SliderFilledTrack bg={'darkblue.100'} h={2} borderRadius={8} />
             </SliderTrack>
-            <SliderThumb h={4} w={4} bg={'darkblue.100'} border='1px' borderColor={'white'} borderStyle='solid' />
+            <SliderThumb
+              h={4}
+              w={4}
+              bg={'darkblue.100'}
+              border='1px'
+              borderColor={'white'}
+              borderStyle='solid'
+            />
           </Slider>
         )
       }}
@@ -148,18 +152,31 @@ function TupleEditor({ name }: TupleProps) {
       <Box>
         {tuples.map((field, index) => (
           <Flex key={field.id} mb='3'>
-            <Input borderRadius={8} color='gray.300' borderColor='gray.200' type='text' {...register(`${name}.${index}.0` as const)} placeholder='Name' />
             <Input
               borderRadius={8}
               color='gray.300'
-              borderColor='gray.200' 
+              borderColor='gray.200'
+              type='text'
+              {...register(`${name}.${index}.0` as const)}
+              placeholder='Name'
+            />
+            <Input
+              borderRadius={8}
+              color='gray.300'
+              borderColor='gray.200'
               type='text'
               ml='2'
               {...register(`${name}.${index}.1` as const)}
               placeholder='Value'
             />
 
-            <Button ml='2' borderRadius='4' bg='lightgray.100' color='' onClick={() => remove(index)}>
+            <Button
+              ml='2'
+              borderRadius='4'
+              bg='lightgray.100'
+              color=''
+              onClick={() => remove(index)}
+            >
               <Icon color='gray.300' as={FiTrash2} cursor='pointer' />
             </Button>
           </Flex>
@@ -167,8 +184,20 @@ function TupleEditor({ name }: TupleProps) {
       </Box>
       <Button px={0} variant='unstyled' onClick={() => append([['', '']])}>
         <Flex align='center'>
-          <Icon bg='lightgray.100' p='4px' width={6} height={6} mr='2' borderRadius='4' color='darkblue.100' as={FiPlus} cursor='pointer' />
-          <Text variant='text-field' color='darkblue.100'>{nameToLabel(name)}</Text>
+          <Icon
+            bg='lightgray.100'
+            p='4px'
+            width={6}
+            height={6}
+            mr='2'
+            borderRadius='4'
+            color='darkblue.100'
+            as={FiPlus}
+            cursor='pointer'
+          />
+          <Text variant='text-field' color='darkblue.100'>
+            {nameToLabel(name)}
+          </Text>
         </Flex>
       </Button>
     </>
@@ -212,9 +241,22 @@ function Locations() {
                 name={`showLocations.${index}.set`}
                 render={({ field }) => {
                   return (
-                    <MenuItem px={5} _focus={{ bg: 'lightgray.100' }} _active={{ bg: 'lightgray.100' }} closeOnSelect={false}>
-                      <Checkbox colorScheme='cyan' borderRadius={4} width={'100%'} isChecked={field.value} onChange={field.onChange}>
-                        <Text variant='text-field' color='darkgray.300'>{(locEntry as any)['name']}</Text>
+                    <MenuItem
+                      px={5}
+                      _focus={{ bg: 'lightgray.100' }}
+                      _active={{ bg: 'lightgray.100' }}
+                      closeOnSelect={false}
+                    >
+                      <Checkbox
+                        colorScheme='cyan'
+                        borderRadius={4}
+                        width={'100%'}
+                        isChecked={field.value}
+                        onChange={field.onChange}
+                      >
+                        <Text variant='text-field' color='darkgray.300'>
+                          {(locEntry as any)['name']}
+                        </Text>
                       </Checkbox>
                     </MenuItem>
                   )
@@ -263,7 +305,12 @@ function Assertions() {
       <Grid gap='3'>
         {assertions.map((field, index) => (
           <Flex key={field.id} gap='2'>
-            <Select borderRadius={8} color='gray.300' borderColor='gray.200' {...register(`assertions.${index}.type`)}>
+            <Select
+              borderRadius={8}
+              color='gray.300'
+              borderColor='gray.200'
+              {...register(`assertions.${index}.type`)}
+            >
               <option value='code'>Code</option>
               <option value='totalTime'>Total Time</option>
               <option value='certExpiryDays'>Days to Cert Expiry</option>
@@ -283,7 +330,13 @@ function Assertions() {
               />
             )}
 
-            <Select borderRadius={8} color='gray.300' borderColor='gray.200' defaultValue='=' {...register(`assertions.${index}.op`)}>
+            <Select
+              borderRadius={8}
+              color='gray.300'
+              borderColor='gray.200'
+              defaultValue='='
+              {...register(`assertions.${index}.op`)}
+            >
               {isStringField(assertValues[index]) && (
                 <>
                   <option value='contains'>Contains</option>
@@ -312,8 +365,20 @@ function Assertions() {
       </Grid>
       <Button mt={3} px={0} variant='unstyled' onClick={() => append([{ type: '', value: '' }])}>
         <Flex align='center'>
-          <Icon bg='lightgray.100' p='4px' width={6} height={6} mr='2' borderRadius='4' color='darkblue.100' as={FiPlus} cursor='pointer' />
-          <Text variant='text-field' color='darkblue.100'>Add new</Text>
+          <Icon
+            bg='lightgray.100'
+            p='4px'
+            width={6}
+            height={6}
+            mr='2'
+            borderRadius='4'
+            color='darkblue.100'
+            as={FiPlus}
+            cursor='pointer'
+          />
+          <Text variant='text-field' color='darkblue.100'>
+            Add new
+          </Text>
         </Flex>
       </Button>
     </>
@@ -322,19 +387,21 @@ function Assertions() {
 
 interface EditProps {
   handleOndemandMonitor: (mon: Monitor) => void
-  isModalOpen: boolean,
-  onClose: () => void,
+  isModalOpen: boolean
+  onClose: () => void
 }
 
 interface OptionProps {
-  children: React.ReactNode,
-  value: string,
+  children: React.ReactNode
+  value: string
 }
 
-function SelectOption (props: OptionProps) {
+function SelectOption(props: OptionProps) {
   const { children, ...rest } = props
   return (
-    <option style={{ background: 'transparent' }} {...rest}>{children}</option>
+    <option style={{ background: 'transparent' }} {...rest}>
+      {children}
+    </option>
   )
 }
 
@@ -371,6 +438,7 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
       notifications: { failCount: 0 },
       bodyType: '',
       body: '',
+      preScript: '',
       method: queryMethod || 'GET',
       url: queryUrl || '',
     },
@@ -582,7 +650,7 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
                     <MonitorTab>
                       Body
                       {hasValidBody() && <sup color='green'>1</sup>}
-                    </MonitorTab> 
+                    </MonitorTab>
                     <MonitorTab>
                       Headers
                       {numValues('headers') > 0 && (
@@ -593,6 +661,7 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
                       Auth
                       {hasValidAuth() && <sup color='green'>1</sup>}
                     </MonitorTab>
+                    <MonitorTab>Setup Script</MonitorTab>
                     <MonitorTab>
                       Query Params
                       {numValues('queryParams') > 0 && (
@@ -616,6 +685,9 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
                       <MonitorAuthEditor />
                     </TabPanel>
                     <TabPanel px='0' pt='6' pb='0'>
+                      <MonitorPreScriptEditor />
+                    </TabPanel>
+                    <TabPanel px='0' pt='6' pb='0'>
                       <TupleEditor name='queryParams' />
                     </TabPanel>
                     <TabPanel px='0' pt='6' pb='0'>
@@ -626,28 +698,36 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
               </Section>
 
               <Section py='4'>
-                <Text variant='title' color='black'>Choose Test criteria</Text>
+                <Text variant='title' color='black'>
+                  Choose Test criteria
+                </Text>
                 <Box pt='6' pb='0'>
                   <Assertions />
                 </Box>
               </Section>
 
               <Section py='4'>
-                <Text variant='title' color='black'>How Often To Run?</Text>
+                <Text variant='title' color='black'>
+                  How Often To Run?
+                </Text>
                 <Box pt='6' pb='16' mx={1}>
                   <SliderThumbWithTooltip />
                 </Box>
               </Section>
 
               <Section py='4'>
-                <Text variant='title' color='black'>Choose Locations To Run From</Text>
+                <Text variant='title' color='black'>
+                  Choose Locations To Run From
+                </Text>
                 <Box pt='5' pb='2'>
                   <Locations />
                 </Box>
               </Section>
 
               <Section py='4' mb='0'>
-                <Text variant='title' color='black'>Notifications</Text>
+                <Text variant='title' color='black'>
+                  Notifications
+                </Text>
                 <Box pt='5' pb='2'>
                   <MonitorNotifications />
                 </Box>
@@ -656,7 +736,11 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
               <Modal isOpen={isModalOpen} onClose={onClose} isCentered>
                 <ModalOverlay />
                 <ModalContent borderRadius={16} boxShadow='0px 4px 16px rgba(38, 50, 56, 0.1)'>
-                  <ModalHeader pb={2}><Text color='black' variant="header">{id ? 'Update' : 'Add'} Monitor</Text></ModalHeader>
+                  <ModalHeader pb={2}>
+                    <Text color='black' variant='header'>
+                      {id ? 'Update' : 'Add'} Monitor
+                    </Text>
+                  </ModalHeader>
                   <ModalCloseButton />
                   <ModalBody>
                     <FormControl id='name' w='200'>
@@ -676,7 +760,7 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
 
                   <ModalFooter>
                     <Button
-                      variant="outline"
+                      variant='outline'
                       borderRadius={24}
                       border='2px'
                       px='22px'
@@ -694,8 +778,7 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
                       variant='emphasis'
                       color='white'
                       onClick={handleSubmit(handleCreation)}
-                    >
-                    </PrimaryButton>
+                    ></PrimaryButton>
                   </ModalFooter>
                 </ModalContent>
               </Modal>

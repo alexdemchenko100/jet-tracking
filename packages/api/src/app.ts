@@ -7,6 +7,7 @@ import { schedule } from './services/DevScheduler.js'
 import fastifyStatic from 'fastify-static'
 import { initializeRequestContext, getCloudRegion } from './Context.js'
 import { db } from '@httpmon/db'
+import { setupEmitterHandlers } from './services/MonitorPreScript.js'
 
 //find and load the .env from root folder of the project
 dotenv.config({ path: path.resolve(process.cwd(), '../..', '.env') })
@@ -78,5 +79,7 @@ process.on('SIGTERM', async function () {
   await db.destroy()
   process.exit(0)
 })
+
+setupEmitterHandlers()
 
 export default server

@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Account {
-  id            String          @id
+  id            String                @id
   name          String
   users         UserAccount[]
   Monitor       Monitor[]
@@ -68,6 +68,7 @@ model Monitor {
   bodyType        String?         @default("")
   body            String?
   auth            Json            @default("{}")
+  preScript       String          @default("")
   headers         Json            @default("[]")
   queryParams     Json            @default("[]")
   cookies         String?
@@ -117,8 +118,8 @@ model MonitorResult {
 }
 
 model NotificationChannel {
-  id                      String    @id @default(cuid())
-  createdAt               DateTime  @default(now())
+  id                      String   @id @default(cuid())
+  createdAt               DateTime @default(now())
   name                    String
   isDefaultEnabled        Boolean   @default(false)
   applyOnExistingMonitors Boolean   @default(false)

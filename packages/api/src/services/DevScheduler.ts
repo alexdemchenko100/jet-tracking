@@ -1,14 +1,14 @@
-import { db } from '@httpmon/db'
+import { db, Monitor } from '@httpmon/db'
 import { sql } from 'kysely'
-
+import { logger } from '../Context'
+import { emitter } from './emitter'
 import { execMonitorAndProcessResponse } from './MonitorExecutor'
 
 async function selectReadyMonitors() {
   const now = new Date(Date.now())
   // let's get to the closest 10 second using floor.
   // This helps when doing modulo math to figure out if a monitor is a hit to schedule
-  const seconds =
-    Math.floor((now.getMinutes() * 60 + now.getSeconds()) / 10) * 10
+  const seconds = Math.floor((now.getMinutes() * 60 + now.getSeconds()) / 10) * 10
 
   const resp = await db
     .selectFrom('Monitor')
@@ -28,6 +28,11 @@ export async function schedule() {
   for (let i = 0; i < monitors.length; i++) {
     const mon = monitors[i]
 
-    await execMonitorAndProcessResponse(mon)
+    if (mon.preScript && mon.preScript.length > 0) {
+      logger.info('emitting execPreScript')
+      emitter.emit('execPreScript', mon)
+    } else {
+      await execMonitorAndProcessResponse(mon)
+    }
   }
 }
