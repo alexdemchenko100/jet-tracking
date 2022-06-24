@@ -169,18 +169,13 @@ export const MonitorAuthFluentSchema = S.object()
   .prop('bearer', S.object().prop('token', S.string()).required())
 
 export const MonitorNotificationSchema = S.object()
-  .prop('failCount', S.integer().default(0))
-  .prop('failTimeMS', S.integer().default(0))
-  .prop('onRecovery', S.boolean())
+  .prop('useGlobal', S.boolean().default(true))
+  .prop('failCount', S.anyOf([S.integer().minimum(1).maximum(10), S.null()]))
+  .prop('failTimeMS', S.anyOf([S.integer().enum(Object.values([5,10,15,20,30,60])), S.null()]))
   .prop(
     'channels',
     S.array().items(
-      S.object()
-        .prop('type', S.string())
-        .required()
-        .prop('target', S.string())
-        .required()
-        .prop('info', S.string())
+      S.string()
     )
   )
 
@@ -235,10 +230,10 @@ export type MontiorNotifyChannel = {
 }
 
 export type MonitorNotifications = {
-  failCount: number
+  useGlobal: boolean
+  failCount?: number
   failTimeMS?: number
-  onRecovery?: boolean
-  channels?: MontiorNotifyChannel[]
+  channels: string[]
 }
 
 export type MonitorAssertionResult = MonitorAssertion & {

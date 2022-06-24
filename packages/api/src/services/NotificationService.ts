@@ -69,11 +69,11 @@ export async function handleMonitorResultErorr(event: SynthEvent) {
   if (bNotify) {
     logger.info(`sending notification for monitor: ${event.monitorId}`)
 
-    monitor.notifications.channels?.forEach((channel) => {
-      if (channel.type == 'Slack' && result) {
-        logger.info(`sending notification to channel ${channel}`)
-        sendSlackNotification(channel, monitor, result)
-      }
-    })
+    // monitor.notifications.channels?.forEach((channel) => {
+      // if (channel.type == 'Slack' && result) {
+      //   logger.info(`sending notification to channel ${channel}`)
+      //   sendSlackNotification(channel, monitor, result)
+      // }
+    // })
   }
 }

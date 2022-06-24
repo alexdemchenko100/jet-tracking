@@ -435,7 +435,7 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
       frequencyScale: Store.UIState.editor.frequencyScale,
       showLocations: Store.UIState.editor.monitorLocations,
       auth: {},
-      notifications: { failCount: 0 },
+      notifications: { useGlobal: true, channels: [] },
       bodyType: '',
       body: '',
       preScript: '',
