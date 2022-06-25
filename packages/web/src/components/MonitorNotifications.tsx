@@ -56,12 +56,13 @@ export function MonitorNotifications() {
   }
 
   const onChangeGlobalSetting = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValue('notifications.useGlobal',  event.target.checked)
-    setValue('notifications.failCount',  undefined)
-    setValue('notifications.failTimeMS',  undefined)
+    setValue('notifications',  {
+      useGlobal: event.target.checked,
+      failCount: event.target.checked ? undefined : 1,
+      failTimeMS: undefined,
+      channels: notificationChannels?.filter(channel => channel.isDefaultEnabled).map(channel => channel.id),
+    })
   }
-
-  console.log('---- notifications', notifications)
 
   return (
     <>
@@ -75,8 +76,9 @@ export function MonitorNotifications() {
           <RadioGroup mt={6} value={alertSetting} onChange={alertSettingChanged}>
             <Stack direction='column' gap={2}>
               <Flex alignItems='center'>
-                <Radio value='failCount'></Radio>
-                <Text variant='text-field' whiteSpace='nowrap' mx={3} color='gray.300'>Notify when a monitor fails for</Text>
+                <Radio value='failCount'>
+                  <Text variant='text-field' whiteSpace='nowrap' mx={3} color='gray.300'>Notify when a monitor fails for</Text>
+                </Radio>
                 <Select
                   width={20}
                   disabled={alertSetting !== 'failCount'}
@@ -94,8 +96,9 @@ export function MonitorNotifications() {
               </Flex>
               
               <Flex alignItems='center'>
-                <Radio value='failTimeMS'></Radio>
-                <Text variant='text-field' whiteSpace='nowrap' mx={3} color='gray.300'>Notify when a monitor fails for</Text>
+                <Radio value='failTimeMS'>
+                  <Text variant='text-field' whiteSpace='nowrap' mx={3} color='gray.300'>Notify when a monitor fails for</Text>
+                </Radio>
                 <Select
                   width={20}
                   disabled={alertSetting !== 'failTimeMS'}
@@ -118,32 +121,34 @@ export function MonitorNotifications() {
           </RadioGroup>
         )}
       </Flex>
-      <Flex direction='column' mt={6} gap={6}>
-        <Text variant='text-field' color='darkgray.300'>Channels</Text>
-        {notificationChannels?.map((notificationChannel, index) => (
-          <Flex
-            ml={6}
-            borderWidth='1px'
-            borderColor={'gray.200'}
-            borderStyle='solid'
-            borderRadius={8}
-            px={3}
-            py={2}
-            alignItems='center'
-            justifyContent='space-between'
-            maxW={'600px'}
-            key={index}
-          >
-            <Text variant='text-field' textOverflow='ellipsis' overflow='hidden' whiteSpace='nowrap' color='gray.300'>
-              {notificationChannel.name}
-            </Text>
-            <Switch
-              isChecked={notifications.channels.includes(notificationChannel.id)}
-              onChange={(event) => onChangeNotificationChannel(event, index)}
-            />
-          </Flex>
-        ))}
-      </Flex>
+      {!notifications.useGlobal && (
+        <Flex direction='column' mt={6} gap={6}>
+          <Text variant='text-field' color='darkgray.300'>Channels</Text>
+          {notificationChannels?.map((notificationChannel, index) => (
+            <Flex
+              ml={6}
+              borderWidth='1px'
+              borderColor={'gray.200'}
+              borderStyle='solid'
+              borderRadius={8}
+              px={3}
+              py={2}
+              alignItems='center'
+              justifyContent='space-between'
+              maxW={'600px'}
+              key={index}
+            >
+              <Text variant='text-field' textOverflow='ellipsis' overflow='hidden' whiteSpace='nowrap' color='gray.300'>
+                {notificationChannel.name}
+              </Text>
+              <Switch
+                isChecked={notifications.channels.includes(notificationChannel.id)}
+                onChange={(event) => onChangeNotificationChannel(event, index)}
+              />
+            </Flex>
+          ))}
+        </Flex>
+      )}
     </>
   )
 }
