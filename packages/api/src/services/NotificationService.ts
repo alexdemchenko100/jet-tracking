@@ -23,9 +23,35 @@ export async function handleMonitorResultErorr(event: SynthEvent) {
   let bNotify = false
   let result: MonitorResult | null = null
 
+  let failCount = 0,failTimeMS = 0
+  let channels: string[] = []
+
+  // check if monitor uses global settings
+  if (monitor.notifications.useGlobal && event.accountId) {
+    const globalNotificationSettings = await db
+      .selectFrom('Settings')
+      .selectAll()
+      .where('accountId', '=', event.accountId)
+      .executeTakeFirst()
+    const defaultEnabledChannels = await db
+      .selectFrom('NotificationChannel')
+      .select(['id'])
+      .where('accountId', '=', event.accountId)
+      .where('isDefaultEnabled', '=', true)
+      .execute()
+    if (globalNotificationSettings) {
+      failCount = globalNotificationSettings.alert.failCount || 0
+      failTimeMS = globalNotificationSettings.alert.failTimeMS || 0
+      channels = defaultEnabledChannels.map(channel => channel.id ?? '')
+    }
+  } else {
+    failCount = monitor.notifications.failCount ?? 0
+    failTimeMS = monitor.notifications.failTimeMS ?? 0
+    channels = monitor.notifications.channels || []
+  }
+
   try {
     //handle case where monitor has failed more than the threshold
-    const failCount = monitor.notifications.failCount ?? 0
     logger.info(`monitor ${event.monitorId} failCount ${failCount}`)
 
     if (failCount > 0 && event.monitorId) {
@@ -45,7 +71,7 @@ export async function handleMonitorResultErorr(event: SynthEvent) {
       }
     }
 
-    const failTimeMS = monitor.notifications.failTimeMS ?? 0
+    failTimeMS = failTimeMS * 60 * 1000 // get microseconds from minutes
     if (failTimeMS > 0) {
       const failDate = new Date(Date.now() - failTimeMS)
       const results = await db
@@ -67,13 +93,19 @@ export async function handleMonitorResultErorr(event: SynthEvent) {
   }
 
   if (bNotify) {
-    logger.info(`sending notification for monitor: ${event.monitorId}`)
+    logger.info(`sending notification for monitor: ${channels}`)
 
-    // monitor.notifications.channels?.forEach((channel) => {
-      // if (channel.type == 'Slack' && result) {
-      //   logger.info(`sending notification to channel ${channel}`)
-      //   sendSlackNotification(channel, monitor, result)
-      // }
-    // })
+    channels.forEach(async (channel) => {
+      const notificationChannel = await db
+        .selectFrom('NotificationChannel')
+        .selectAll()
+        .where('id', '=', channel)
+        .executeTakeFirst()
+      
+      if (notificationChannel && notificationChannel.channel.type === 'slack' && result) {
+        logger.info(`sending notification to channel ${channel}`)
+        sendSlackNotification(notificationChannel.channel, monitor, result)
+      }
+    })
   }
 }
