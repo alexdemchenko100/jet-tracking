@@ -1,76 +1,75 @@
-import { MonitorRequest } from '@httpmon/db'
-import { NodeVM } from 'vm2'
+import { MonitorRequest, MonitorAuth } from '@httpmon/db'
+import { spawn } from 'child_process'
+import { join } from 'path'
 
-export async function executePreScript(
+type SandBox = {
+  ctx: {
+    request: {
+      method: string
+      url: string
+      auth: MonitorAuth | undefined
+      headers: Record<string, string>
+      queryParams: Record<string, string>
+      body: string | undefined
+    }
+    env: Record<string, string>
+  }
+}
+
+export function handlePreScriptExecution(
   monitor: MonitorRequest,
   env: Record<string, string>,
   script: string
 ) {
-  const { method, url, auth, headers, queryParams, body } = monitor
-  const sandbox = {
-    ctx: {
-      request: { method, url, auth, headers, queryParams, body },
-      env,
-    },
-  }
+  return new Promise<SandBox>((resolve, reject) => {
+    const { method, url, auth, headers, queryParams, body } = monitor
+    const sandbox = {
+      ctx: {
+        request: { method, url, auth, headers, queryParams, body },
+        env,
+      },
+    }
 
-  const vm2 = new NodeVM({
-    timeout: 2000,
-    console: 'inherit',
-    eval: false,
-    wasm: false,
-    require: {
-      external: ['request', 'axios'],
-      builtin: [
-        'util',
-        'path',
-        'fs',
-        'uuid',
-        'crypto',
-        'url',
-        'buffer',
-        'assert',
-        'tls',
-        'zlib',
+    let scriptOutput = ''
+    let sandboxOutJson = ''
+    let err = ''
+    var workerProcess = spawn(
+      'node',
+      [
+        join(__dirname, 'sandboxProcessMain.js'),
+        script,
+        JSON.stringify(sandbox),
       ],
-      root: './',
-    },
-    sandbox,
-    env,
-  })
-
-  try {
-    //enable high level await with async function
-    const asyncScriptWrapperFunction = vm2.run(
-      `module.exports = async () => { ${script} }`,
-      'vm'
+      {
+        stdio: [0, 1, 2, 'ipc'],
+      }
     )
-    await asyncScriptWrapperFunction()
-  } catch (e) {
-    console.log('run error' + e)
-    //throw e
-  }
 
-  return sandbox.ctx
+    let timeout = setTimeout(() => {
+      workerProcess.kill('SIGINT')
+    }, 10000)
+
+    workerProcess.on('message', function (data) {
+      console.log('message: ' + data)
+      data = data.toString()
+      sandboxOutJson += data
+    })
+
+    workerProcess.on('close', async function (code) {
+      clearTimeout(timeout)
+      console.log('==Result==')
+      console.log(scriptOutput)
+
+      try {
+        let ctx = JSON.parse(sandboxOutJson)
+        if (code == 0 && ctx && !ctx.err) {
+          resolve(ctx)
+        } else {
+          reject({ err: ctx?.err || 'EScriptError' })
+        }
+      } catch (e) {
+        reject({ err: 'EScriptError' })
+      }
+    })
+  })
 }
-
-// let monitor = { url: 'https://httpbin.org/get', headers: { 'x-a': 'dude' } }
-// let env = { TOKEN: '1234' }
-
-// let resp = await executePreScript(
-//   monitor,
-//   env,
-//   `
-//   const axios = require('axios')
-//   let r = await axios.get(request.url)
-//   request.headers['Auth'] = process.env['TOKEN']
-//   request.headers['Foo'] = 'Bar'
-//   request.headers['r'] = r.data
-
-//   process.env['dd'] = 234
-//   process.env.x = 'randomXXX'
-//   console.log('resp-int', JSON.stringify(request, null, 2))
-// `
-// )
-
-// console.log('resp', JSON.stringify(resp, null, 2))

@@ -1,9 +1,10 @@
 import { emitter } from './emitter'
 import { Monitor, MonitorRequest, MonitorTuples } from '@httpmon/db'
 
-import { executePreScript } from '@httpmon/sandbox'
-import { execMonitorAndProcessResponse } from './MonitorExecutor'
+import { handlePreScriptExecution } from '@httpmon/sandbox'
+import { execMonitorAndProcessResponse, makeMonitorResultError } from './MonitorExecutor'
 import { logger } from '../Context'
+import { saveMonitorResult } from './DBService'
 
 function headersToMap(headers: MonitorTuples = []) {
   let hmap: { [key: string]: string } = {}
@@ -41,17 +42,27 @@ export async function execPreScript(mon: Monitor) {
   const request = monitorToRequest(mon)
   const env = headersToMap(mon.env)
 
-  const resp = await executePreScript(request, env, mon.preScript)
+  try {
+    const resp = await handlePreScriptExecution(request, env, mon.preScript)
 
-  logger.info(JSON.stringify(resp, null, 2), 'execPreScript')
+    logger.info(JSON.stringify(resp, null, 2), 'execPreScript')
 
-  let newmon = {
-    ...mon,
-    headers: headersToTuples(resp.request.headers),
-    env: headersToTuples(resp.env),
+    let newmon = {
+      ...mon,
+      headers: headersToTuples(resp.ctx.request.headers),
+      env: headersToTuples(resp.ctx.env),
+    }
+
+    emitter.emit('execAfterPreScript', newmon)
+  } catch (e) {
+    //handle script error
+    console.log('pre error: ', JSON.stringify(e))
+
+    //createdAt caused type issue for db
+    const result = makeMonitorResultError(mon, e.err ?? e.toString())
+    result.codeStatus = result.err
+    const monitorResult = await saveMonitorResult(result)
   }
-
-  emitter.emit('execAfterPreScript', newmon)
 }
 
 export async function setupEmitterHandlers() {

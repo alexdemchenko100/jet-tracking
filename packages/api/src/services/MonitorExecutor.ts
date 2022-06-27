@@ -51,6 +51,18 @@ function emptyResponse() {
     location: getCloudRegion(),
   }
 }
+export function makeMonitorResultError(monitor: Monitor, err: string) {
+  let result: MonitorResult = {
+    ...responseToMonitorResult(),
+    url: monitor.url,
+    monitorId: monitor.id ?? '',
+    accountId: monitor.accountId,
+    err: err,
+  }
+
+  return result
+}
+
 function responseToMonitorResult(resp?: Response<string>) {
   return {
     ...emptyResponse(),

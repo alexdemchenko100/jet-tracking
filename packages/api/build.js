@@ -37,6 +37,10 @@ esbuild
             from: ['node_modules/vm2/lib/setup-node-sandbox.js'],
             to: ['dist/setup-node-sandbox.js'],
           },
+          {
+            from: ['node_modules/@httpmon/sandbox/sandboxProcessMain.js'],
+            to: ['dist/sandboxProcessMain.js'],
+          },
         ],
       }),
     ],
