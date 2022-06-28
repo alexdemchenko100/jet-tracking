@@ -175,7 +175,7 @@ export function SettingsPage() {
       notifications: notificationList,
       alert: {
         failCount: settings.alert.failCount,
-        failTimeMS: settings.alert.failTimeMS,
+        failTimeMinutes: settings.alert.failTimeMinutes,
       },
     }
     setInitialForm(formData)

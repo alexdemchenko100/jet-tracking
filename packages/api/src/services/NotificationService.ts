@@ -2,7 +2,7 @@ import { db, MonitorResult } from '@httpmon/db'
 import { send } from 'process'
 import { logger } from 'src/Context'
 import { SynthEvent } from './EventService'
-import { sendSlackNotification } from './SlackNotification'
+import { sendSlackNotification, sendMSTeamsNotification } from './SlackNotification'
 
 export async function handleMonitorResultErorr(event: SynthEvent) {
   //from event id, get monitor result from db
@@ -23,7 +23,7 @@ export async function handleMonitorResultErorr(event: SynthEvent) {
   let bNotify = false
   let result: MonitorResult | null = null
 
-  let failCount = 0,failTimeMS = 0
+  let failCount = 0,failTimeMinutes = 0
   let channels: string[] = []
 
   // check if monitor uses global settings
@@ -41,12 +41,12 @@ export async function handleMonitorResultErorr(event: SynthEvent) {
       .execute()
     if (globalNotificationSettings) {
       failCount = globalNotificationSettings.alert.failCount || 0
-      failTimeMS = globalNotificationSettings.alert.failTimeMS || 0
+      failTimeMinutes = globalNotificationSettings.alert.failTimeMinutes || 0
       channels = defaultEnabledChannels.map(channel => channel.id ?? '')
     }
   } else {
     failCount = monitor.notifications.failCount ?? 0
-    failTimeMS = monitor.notifications.failTimeMS ?? 0
+    failTimeMinutes = monitor.notifications.failTimeMinutes ?? 0
     channels = monitor.notifications.channels || []
   }
 
@@ -71,7 +71,7 @@ export async function handleMonitorResultErorr(event: SynthEvent) {
       }
     }
 
-    failTimeMS = failTimeMS * 60 * 1000 // get microseconds from minutes
+    const failTimeMS = failTimeMinutes * 60000 // get microseconds from minutes
     if (failTimeMS > 0) {
       const failDate = new Date(Date.now() - failTimeMS)
       const results = await db
@@ -105,6 +105,11 @@ export async function handleMonitorResultErorr(event: SynthEvent) {
       if (notificationChannel && notificationChannel.channel.type === 'slack' && result) {
         logger.info(`sending notification to channel ${channel}`)
         sendSlackNotification(notificationChannel.channel, monitor, result)
+      }
+
+      if (notificationChannel && notificationChannel.channel.type === 'ms-teams' && result) {
+        logger.info(`sending notification to MSteams channel ${channel}`)
+        sendMSTeamsNotification(notificationChannel.channel, monitor, result)
       }
     })
   }

@@ -277,8 +277,8 @@ export default function SettingsNotifications() {
     const alertSettings = getValues('settings.alert')
     if (alertSettings.failCount) {
       setAlertSetting('failCount')
-    } else if (alertSettings.failTimeMS) {
-      setAlertSetting('failTimeMS')
+    } else if (alertSettings.failTimeMinutes) {
+      setAlertSetting('failTimeMinutes')
     }
   }, [])
 
@@ -286,7 +286,7 @@ export default function SettingsNotifications() {
     setAlertSetting(value)
     setValue('settings.alert', {
       failCount: value === 'failCount' ? 1 : undefined,
-      failTimeMS: value === 'failTimeMS' ? 5 : undefined,
+      failTimeMinutes: value === 'failTimeMinutes' ? 5 : undefined,
     })
   }
 
@@ -336,16 +336,16 @@ export default function SettingsNotifications() {
             </Flex>
             
             <Flex alignItems='center'>
-              <Radio value='failTimeMS'></Radio>
+              <Radio value='failTimeMinutes'></Radio>
               <Text variant='text-field' whiteSpace='nowrap' mx={3} color='gray.300'>Notify when a monitor fails for</Text>
               <Select
                 width={20}
-                disabled={alertSetting !== 'failTimeMS'}
+                disabled={alertSetting !== 'failTimeMinutes'}
                 borderRadius={8}
                 color='gray.300'
                 borderColor='gray.200'
-                value={getValues('settings.alert.failTimeMS') || 5}
-                onChange={(e) => setValue('settings.alert.failTimeMS', parseInt(e.target.value))}
+                value={getValues('settings.alert.failTimeMinutes') || 5}
+                onChange={(e) => setValue('settings.alert.failTimeMinutes', parseInt(e.target.value))}
               >
                 <option value='5'>5</option>
                 <option value='10'>10</option>

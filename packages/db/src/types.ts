@@ -170,8 +170,8 @@ export const MonitorAuthFluentSchema = S.object()
 
 export const MonitorNotificationSchema = S.object()
   .prop('useGlobal', S.boolean().default(true))
-  .prop('failCount', S.anyOf([S.integer().minimum(1).maximum(10), S.null()]))
-  .prop('failTimeMS', S.anyOf([S.integer().enum(Object.values([5,10,15,20,30,60])), S.null()]))
+  .prop('failCount', S.integer().minimum(0).maximum(10))
+  .prop('failTimeMinutes', S.integer().enum(Object.values([0,5,10,15,20,30,60])))
   .prop(
     'channels',
     S.array().items(
@@ -232,7 +232,7 @@ export type MontiorNotifyChannel = {
 export type MonitorNotifications = {
   useGlobal: boolean
   failCount?: number
-  failTimeMS?: number
+  failTimeMinutes?: number
   channels: string[]
 }
 
@@ -364,13 +364,13 @@ export const NotificationSchema = S.object()
   .prop('channel', S.anyOf([SlackNotificationSchema, EmailNotificationSchema, MSTeamsNotificationSchema]))
 
 export type AlertSettings = {
-  failCount?: number // send notification after the number of failures
-  failTimeMS?: number // send notification after the number of minutes
+  failCount: number // send notification after the number of failures
+  failTimeMinutes: number // send notification after the number of minutes
 }
 
 export const AlertSettingsSchema = S.object()
-  .prop('failCount', S.anyOf([S.integer().minimum(1).maximum(10), S.null()]))
-  .prop('failTimeMS', S.anyOf([S.integer().enum(Object.values([5,10,15,20,30,60])), S.null()]))
+  .prop('failCount', S.integer().minimum(0).maximum(10))
+  .prop('failTimeMinutes', S.integer().enum(Object.values([0,5,10,15,20,30,60])))
 
 export type Settings = {
   id?: string

@@ -22,14 +22,14 @@ export function MonitorNotifications() {
   const notifications = watch('notifications')
 
   useEffect(() => {
-    setAlertSetting((!notifications.useGlobal && notifications.failTimeMS) ? 'failTimeMS' : 'failCount')
+    setAlertSetting((!notifications.useGlobal && notifications.failTimeMinutes) ? 'failTimeMinutes' : 'failCount')
   }, [notifications])
 
 
   const alertSettingChanged = (value: string) => {
     setAlertSetting(value)
     setValue('notifications.failCount',  value === 'failCount' ? 1 : undefined)
-    setValue('notifications.failTimeMS',  value === 'failTimeMS' ? 5 : undefined)
+    setValue('notifications.failTimeMinutes',  value === 'failTimeMinutes' ? 5 : undefined)
   }
 
   const { data: notificationChannels } = useQuery<NotificationChannel[]>(['notificaitons'], async () => {
@@ -59,7 +59,7 @@ export function MonitorNotifications() {
     setValue('notifications',  {
       useGlobal: event.target.checked,
       failCount: event.target.checked ? undefined : 1,
-      failTimeMS: undefined,
+      failTimeMinutes: undefined,
       channels: notificationChannels?.filter(channel => channel.isDefaultEnabled).map(channel => channel.id),
     })
   }
@@ -96,17 +96,17 @@ export function MonitorNotifications() {
               </Flex>
               
               <Flex alignItems='center'>
-                <Radio value='failTimeMS'>
+                <Radio value='failTimeMinutes'>
                   <Text variant='text-field' whiteSpace='nowrap' mx={3} color='gray.300'>Notify when a monitor fails for</Text>
                 </Radio>
                 <Select
                   width={20}
-                  disabled={alertSetting !== 'failTimeMS'}
+                  disabled={alertSetting !== 'failTimeMinutes'}
                   borderRadius={8}
                   color='gray.300'
                   borderColor='gray.200'
-                  value={getValues('notifications.failTimeMS') || 5}
-                  onChange={(e) => setValue('notifications.failTimeMS', parseInt(e.target.value))}
+                  value={getValues('notifications.failTimeMinutes') || 5}
+                  onChange={(e) => setValue('notifications.failTimeMinutes', parseInt(e.target.value))}
                 >
                   <option value='5'>5</option>
                   <option value='10'>10</option>

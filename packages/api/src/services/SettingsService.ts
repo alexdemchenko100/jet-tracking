@@ -74,7 +74,7 @@ export class SettingsService {
       .insertInto('Settings')
       .values({
         id: nanoid(),
-        alert: {},
+        alert: { failCount: 1, failTimeMinutes: 0 },
         accountId,
       })
       .returningAll()
