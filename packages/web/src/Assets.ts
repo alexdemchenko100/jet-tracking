@@ -18,6 +18,7 @@ import googleSigninButton from './assets/btn_google_signin_dark_normal_web.png'
 import BlueEmailIcon from './assets/email-blue.svg'
 import SlackIcon from './assets/slack-icon.png'
 import MSTeamsIcon from './assets/ms-teams-icon.png'
+import logoTitleWhite from './assets/logo_title_white.svg'
 
 export {
   grarGrid,
@@ -40,4 +41,5 @@ export {
   BlueEmailIcon,
   SlackIcon,
   MSTeamsIcon,
+  logoTitleWhite,
 }

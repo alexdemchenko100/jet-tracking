@@ -5,7 +5,7 @@ import Text from './Text'
 import Section from './Section'
 import RafikiSvg from '../assets/rafiki.svg'
 
-export function NewMonitorHero() {
+export default function NewMonitorHero() {
   const navigate = useNavigate()
 
   return (

@@ -1,7 +1,7 @@
 import { Monitor, MonitorStats } from '@httpmon/db'
 import axios from 'axios'
 import { useQuery } from 'react-query'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Box,
   Button,
@@ -9,15 +9,28 @@ import {
   Icon,
   Tooltip,
   Select,
+  Grid,
 } from '@chakra-ui/react'
 import { useForm } from "react-hook-form";
 import { useNavigate } from 'react-router-dom'
-import { NewMonitorHero } from '../components/NewMonitorHero'
-import { FiEdit } from 'react-icons/fi'
-import Section from '../components/Section'
-import Text from '../components/Text'
-import PrimaryButton from '../components/PrimaryButton'
-import StatusUpOrDown from '../components/StatusUpOrDown'
+import { FiEdit, FiTrendingUp, FiTrendingDown, FiPause, FiGrid, FiList } from 'react-icons/fi'
+import { CgChevronLeft, CgChevronRight } from 'react-icons/cg'
+import {
+  Pagination,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationPageGroup,
+  PaginationContainer,
+  PaginationPage,
+  usePagination,
+} from "@ajna/pagination";
+import {
+  Text,
+  Section,
+  PrimaryButton,
+  StatusUpOrDown,
+  NewMonitorHero,
+} from '../components'
 
 interface StatusProps {
   mon?: Monitor
@@ -27,6 +40,12 @@ interface StatusProps {
 interface IFormInputs {
   filter: string
   sortBy: string
+}
+
+interface StatsSummary {
+  up?: number
+  down?: number
+  paused?: number
 }
 
 const uptime24 = (m: MonitorStats) => {
@@ -49,7 +68,7 @@ function RunChart({ stats }: { stats?: MonitorStats }) {
   return (
     <Flex gap='2' alignItems='baseline' maxW={'430px'} height='auto'>
       {stats.lastResults.map((r) => (
-        <Tooltip label={'Time - ' + r.totalTime + 'ms'} key={r.id}>
+        <Tooltip borderRadius='4' bg='darkgray.100' py={0.5} px={1.5} fontSize='sm' fontWeight='600' label={'Time - ' + r.totalTime + 'ms'} key={r.id}>
           <Box
             key={r.id}
             w='1.5'
@@ -76,9 +95,7 @@ function MonitorStatusCard({ mon, stats }: StatusProps) {
   return (
     <Flex
       flexDirection='column'
-      width={{ sm: '100%', xl: 'calc(50% - 12px)' }}
-      minW={'475px'}
-      maxW={'750px'}
+      width='100%'
       borderRadius='8'
       border='1px'
       borderColor='gray.200'
@@ -92,7 +109,7 @@ function MonitorStatusCard({ mon, stats }: StatusProps) {
     >
       <Flex justify='space-between' alignItems='center' mb={2}>
         <Flex alignItems='center' cursor='pointer' onClick={() => navigate(`/console/monitors/${mon?.id}`)}>
-          <Text variant='header' color='black'>{mon?.name}</Text>
+          <Text variant='header' color='black' _hover={{ color: 'darkblue.100' }} transition='color 0.2s ease'>{mon?.name}</Text>
           <StatusUpOrDown stats={stats} />
         </Flex>
         <Button borderRadius='4' bg='lightgray.100' p='0' onClick={() => navigate(`/console/monitors/${mon?.id}/edit`)}>
@@ -129,10 +146,69 @@ function MonitorStatusCard({ mon, stats }: StatusProps) {
   )
 }
 
+interface StatBoxProps {
+  status: string
+  value: number
+}
+
+const StatBox = ({ status, value }: StatBoxProps) => {
+  let bgColor
+  switch (status) {
+    case 'up':
+      bgColor = 'green.200'
+      break
+    case 'down':
+      bgColor = 'red.200'
+      break
+    case 'paused':
+      bgColor = 'gold.200'
+      break
+    default:
+  }
+  return (
+    <Flex
+      px={{ sm: 2, lg: 4 }}
+      py={2}
+      flex={1}
+      borderRadius={8}
+      borderWidth={1}
+      borderColor='gray.200'
+      borderStyle='solid'
+    >
+      <Flex width={10} mr={{ sm: 2, lg: 4 }} height={10} alignItems='center' justifyContent='center' borderRadius={8} bg={bgColor}>
+        {status === 'up' && <Icon color='white' as={FiTrendingUp} />}
+        {status === 'down' && <Icon color='white' as={FiTrendingDown} />}
+        {status === 'paused' && <Icon color='white' fill='white' as={FiPause} />}
+      </Flex>
+      <Flex direction={'column'}>
+        <Text variant='text-field' color='gray.300' mb={1}>Total {status}</Text>
+        <Text variant='emphasis' color='black'>{value}</Text>
+      </Flex>
+    </Flex>
+  )
+}
+
 export function MainPage() {
   const navigate = useNavigate()
   const [filterOption, setFilterOption] = useState<string|undefined>(undefined);
   const { register, watch } = useForm<IFormInputs>();
+  const [isGridView, setIsGridView] = useState<boolean>(true)
+  const [statsSummary, setStatsSummary] = useState<StatsSummary>({})
+  const {
+    pages,
+    pagesCount,
+    pageSize,
+    setPageSize,
+    currentPage,
+    setCurrentPage,
+  } = usePagination({
+    total: 40,
+    initialState: {
+      pageSize: 16,
+      currentPage: 1,
+    },
+  })
+
   watch()
 
   useEffect(() => {
@@ -175,6 +251,17 @@ export function MainPage() {
 
     if (resp.status == 200) {
       const results = resp.data as MonitorStats[]
+      let downMonitors = 0, upMonitors = 0, pausedMonitors = 0
+      results.forEach(item => {
+        if (item.status === 'paused') {
+          pausedMonitors++
+        } else if (Boolean(item.lastResults[0].err)) {
+          downMonitors++
+        } else {
+          upMonitors++
+        }
+      })
+      setStatsSummary({ up: upMonitors, down: downMonitors, paused: pausedMonitors })
       return results
     }
     throw Error('Failed to get odemand results')
@@ -196,10 +283,13 @@ export function MainPage() {
     return <NewMonitorHero />
   }
 
-  const filteredStats = filterOption && stats ? stats.filter(item => {
-      const status = Boolean(item.lastResults[0].err) ? 'down' : 'up'
-      return status === filterOption
-    }) : stats
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setPageSize(parseInt(event.target.value));
+  };
 
   return (
     <Flex direction='column'>
@@ -214,27 +304,132 @@ export function MainPage() {
           ></PrimaryButton>
         </Flex>
       </Section>
-      <Section py={4} pb={8} minHeight='500px'>
-        <Flex mb='6' alignItems={'center'} justify='end'>
+      <Section py={4}>
+        <Flex mb='6' gap={2} alignItems={'center'} justify='end'>
           <Text variant='paragraph' color='darkgray.100'>View</Text>
-          <Select ml='2' borderRadius={8} width='140px' color='gray.300' borderColor='gray.200' {...register(`filter`)}>
+          <Button
+            bg='transparent'
+            border='1px solid'
+            borderColor='gray.200'
+            borderRadius={8}
+            p={1}
+            onClick={() => setIsGridView(true)}
+          >
+            <Icon color={isGridView ? 'darkblue.100' : 'darkgray.100'} fontSize={'lg'} as={FiGrid} cursor='pointer' />
+          </Button>
+          <Button
+            bg='transparent'
+            border='1px solid'
+            borderColor='gray.200'
+            borderRadius={8}
+            p={1}
+            onClick={() => setIsGridView(false)}
+          >
+            <Icon color={!isGridView ? 'darkblue.100' : 'darkgray.100'} fontSize={'lg'} as={FiList} cursor='pointer' />
+          </Button>
+          <Select borderRadius={8} width='140px' color='gray.300' borderColor='gray.200' {...register(`filter`)}>
             <option value=''>All</option>
             <option value='up'>Up</option>
             <option value='down'>Down</option>
           </Select>
-          <Select ml='2' borderRadius={8} width='140px' color='gray.300' borderColor='gray.200' {...register(`sortBy`)}>
+          <Select borderRadius={8} width='140px' color='gray.300' borderColor='gray.200' {...register(`sortBy`)}>
             <option value='latest'>Latest</option>
             <option value='oldest'>Oldest</option>
           </Select>
         </Flex>
-        <Flex gap='6' flexWrap={'wrap'}>
-          {monitors && filteredStats?.map((stats) => (
-            <MonitorStatusCard
-              mon={monitors.find((m) => m.id === stats.monitorId)}
-              stats={stats}
-              key={stats.monitorId}
-            />
-          ))}
+        <Flex gap={{ sm: 2, lg: 4 }}>
+          <StatBox status='up' value={statsSummary.up || 0} />
+          <StatBox status='down' value={statsSummary.down || 0} />
+          <StatBox status='paused' value={statsSummary.paused || 0} />
+        </Flex>
+      </Section>
+      <Section p={0} mb='0' display='flex' minH='calc(100vh - 300px)' flexDirection='column'>
+        {/* Grid View */}
+        <Box p={4} pb={8} flex='1'>
+          <Grid gap='6' templateColumns={{ sm: '1fr', xl: '1fr 1fr' }}>
+            {monitors && stats?.map((stats) => (
+              <MonitorStatusCard
+                mon={monitors.find((m) => m.id === stats.monitorId)}
+                stats={stats}
+                key={stats.monitorId}
+              />
+            ))}
+          </Grid>
+        </Box>
+        {/* Footer */}
+        <Flex alignItems='center' px={4} py={1} justifyContent='space-between' boxShadow='0px -4px 8px rgba(0, 0, 0, 0.05)'>
+          <Text flex={1} variant='text-field' color='darkgray.100'>Show 16 monitors of 40</Text>
+          <Box maxW={96}>
+            <Pagination
+              currentPage={currentPage}
+              pagesCount={pagesCount}
+              onPageChange={handlePageChange}
+            >
+              <PaginationContainer
+                align="center"
+                justify="space-between"
+                gap={2}
+                w="full"
+              >
+                <PaginationPrevious
+                  isDisabled={currentPage === 1}
+                  bg='transparent'
+                  p={0}
+                  w={4}
+                  minW={4}
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                >
+                  <Icon as={CgChevronLeft} color='darkblue.100'></Icon>
+                </PaginationPrevious>
+                <PaginationPageGroup
+                  isInline
+                  align="center"
+                >
+                  {pages.map((page: number) => (
+                    <PaginationPage
+                      key={`pagination_page_${page}`}
+                      _current={{
+                        color: "darkblue.100",
+                      }}
+                      color="darkgray.100"
+                      bg='transparent'
+                      fontSize="sm"
+                      page={page}
+                      onClick={() => setCurrentPage(page)}
+                    />
+                  ))}
+                </PaginationPageGroup>
+                <PaginationNext
+                  bg='transparent'
+                  p={0}
+                  pr={0.5}
+                  w={4}
+                  minW={4}
+                  isDisabled={currentPage === pagesCount}
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                >
+                  <Icon as={CgChevronRight}  color='darkblue.100'></Icon>
+                </PaginationNext>
+              </PaginationContainer>
+            </Pagination>
+          </Box>
+          <Flex alignItems={'center'} flex={1} justifyContent='flex-end'>
+            <Text mr={2} variant='details' color='darkgray.100'>Monitors per page</Text>
+            <Select
+              w={16}
+              fontWeight='600'
+              borderRadius='8'
+              borderColor='darkgray.100'
+              size='xs'
+              defaultValue={pageSize}
+              onChange={handlePageSizeChange}
+            >
+              <option value={10}>10</option>
+              <option value={16}>16</option>
+              <option value={20}>20</option>
+              <option value={30}>30</option>
+            </Select>
+          </Flex>
         </Flex>
       </Section>
     </Flex>

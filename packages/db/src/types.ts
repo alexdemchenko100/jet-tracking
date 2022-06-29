@@ -73,6 +73,7 @@ export const StatsQueryStringSchema = S.object()
 
 export const MonitorStatSummarySchema = S.object()
   .prop('monitorId', S.string())
+  .prop('status', S.string())
   .prop('week', MonitorResultStatsSchema)
   .prop('day', MonitorResultStatsSchema)
   .prop(
@@ -96,6 +97,7 @@ export type MonitorPeriodStats = {
 
 export type MonitorStats = {
   monitorId: string
+  status: string
   week: MonitorPeriodStats
   day: MonitorPeriodStats
   lastResults: [

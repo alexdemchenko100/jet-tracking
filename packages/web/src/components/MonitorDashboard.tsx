@@ -33,7 +33,7 @@ import { useTable, useSortBy, usePagination, Column } from 'react-table'
 import { useNavigate } from 'react-router-dom'
 import { MdEdit } from 'react-icons/md'
 import { frequencyMSToLabel } from '../services/FrequencyScale'
-import { NewMonitorHero } from './NewMonitorHero'
+import NewMonitorHero from './NewMonitorHero'
 
 export function MonitorDashboard() {
   const navigate = useNavigate()

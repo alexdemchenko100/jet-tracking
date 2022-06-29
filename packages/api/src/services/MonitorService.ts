@@ -306,9 +306,12 @@ export class MonitorService {
       .orderBy('createdAt', 'desc')
       .limit(24)
       .execute()
+  
+    const monitor = await this.find(monitorId)
 
     let res = {
       monitorId: monitorId,
+      status: monitor?.status,
       week: weekResults,
       day: dayResults,
       lastResults: lastResults.filter((res) => {

@@ -29,7 +29,7 @@ const PrimaryButton: React.FC<Props> = (props) => {
           padding={'10px 24px 11px'}
           height='auto'
           _hover={{ bg: 'linear-gradient(0deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05)), #ffffff;' }}
-          _active={{ bg: 'linear-gradient(0deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), #ffffff;' }}
+          _active={{ bg: 'linear-gradient(0deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.08)), #ffffff;' }}
           {...rest}
         >
           <Text variant={variant} color={color}>{label}</Text>
@@ -41,8 +41,8 @@ const PrimaryButton: React.FC<Props> = (props) => {
           borderRadius='24px'
           padding={'10px 30px 11px'}
           height='auto'
-          _hover={{ bg: 'linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), #17468F;' }}
-          _active={{ bg: 'linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), #17468F;' }}
+          _hover={{ bg: 'linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), #16D8B5;' }}
+          _active={{ bg: 'linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), #16D8B5;' }}
           {...rest}
         >
           <Text variant={variant} color={color}>{label}</Text>
