@@ -17,6 +17,13 @@ import {
   Td,
   Th,
   Tbody,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
 } from '@chakra-ui/react'
 import { useForm } from "react-hook-form";
 import { useNavigate } from 'react-router-dom'
@@ -59,6 +66,12 @@ interface StatsSummary {
 interface StatBoxProps {
   status: string
   value: number
+}
+
+interface MonitorListProps {
+  mon?: Monitor
+  stats?: MonitorStats
+  onDelete: (mon: string) => void
 }
 
 const uptime24 = (m: MonitorStats) => {
@@ -197,7 +210,7 @@ const StatBox = ({ status, value }: StatBoxProps) => {
   )
 }
 
-const MonitorListItem = ({ mon, stats }: StatusProps) => {
+const MonitorListItem = ({ mon, stats, onDelete }: MonitorListProps) => {
   const navigate = useNavigate()
 
   if (!mon || !stats) return <></>
@@ -251,6 +264,7 @@ const MonitorListItem = ({ mon, stats }: StatusProps) => {
             h={7}
             p={0}
             minW={7}
+            onClick={() => onDelete(mon?.id || '')}
           >
             <Icon color='gray.300' fontSize='sm' as={FiTrash2} cursor='pointer' />
           </Button>
@@ -287,6 +301,8 @@ export function MainPage() {
   const [sortOption, setSortOption] = useState<string>('')
   const [sortDir, setSortDir] = useState<string>('asc')
   const [sortedMonitors, setSortedMonitors] = useState<Monitor[]>([])
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [selectedMonitor, setSelectedMonitor] = useState<string|undefined>()
   const {
     pages,
     pagesCount,
@@ -330,7 +346,7 @@ export function MainPage() {
     throw Error('Failed to get odemand results')
   }
 
-  const { isLoading, data: monitors } = useQuery<Monitor[], Error>(
+  const { data: monitors } = useQuery<Monitor[], Error>(
     ['monitors-list'],
     () => getMonitors(),
     {}
@@ -423,6 +439,24 @@ export function MainPage() {
       setSortedMonitors(data)
     }
     setSortOption(field)
+  }
+
+  const onModalClose = () => {
+    setIsModalOpen(false)
+    setSelectedMonitor(undefined)
+  }
+
+  const openDeleteModal = (mon: string) => {
+    setIsModalOpen(true)
+    setSelectedMonitor(mon)
+  }
+
+  const deleteMonitor = async () => {
+    await axios({
+      method: 'DELETE',
+      url: `/monitors/${selectedMonitor}`,
+    })
+    onModalClose()
   }
 
   return (
@@ -537,6 +571,7 @@ export function MainPage() {
                       mon={monitor}
                       stats={stats.find((stat) => monitor.id === stat.monitorId)}
                       key={monitor.id}
+                      onDelete={openDeleteModal}
                     />
                   ))}
                 </Tbody>
@@ -620,6 +655,42 @@ export function MainPage() {
           </Flex>
         </Flex>
       </Section>
+      {/* Delete Monitor Modal */}
+      <Modal isOpen={isModalOpen} onClose={onModalClose} isCentered>
+        <ModalOverlay />
+        <ModalContent borderRadius={16} boxShadow='0px 4px 16px rgba(38, 50, 56, 0.1)'>
+          <ModalHeader pb={2}>
+            <Text color='black' variant='header'>
+              Delete Monitor
+            </Text>
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text variant='text-field' color='gray.300'>Are you really sure to delete this monitor?</Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              variant='outline'
+              borderRadius={24}
+              border='2px'
+              px='22px'
+              color='darkblue.100'
+              borderColor='darkblue.100'
+              _hover={{ bg: 'transparent' }}
+              mr={3}
+              onClick={onModalClose}
+            >
+              Cancel
+            </Button>
+            <PrimaryButton
+              label='Delete'
+              variant='emphasis'
+              color='white'
+              onClick={deleteMonitor}
+            ></PrimaryButton>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Flex>
   )
 }
