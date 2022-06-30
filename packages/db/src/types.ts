@@ -274,6 +274,9 @@ export type MonitorTable = {
   assertions?: MonitorAssertion[]
   env?: MonitorTuples
   notifications?: MonitorNotifications
+  day50?: number
+  dayAvg?: number
+  uptime?: number
 }
 
 export type Monitor = MonitorTable

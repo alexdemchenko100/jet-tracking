@@ -10,10 +10,17 @@ import {
   Tooltip,
   Select,
   Grid,
+  TableContainer,
+  Table,
+  Thead,
+  Tr,
+  Td,
+  Th,
+  Tbody,
 } from '@chakra-ui/react'
 import { useForm } from "react-hook-form";
 import { useNavigate } from 'react-router-dom'
-import { FiEdit, FiTrendingUp, FiTrendingDown, FiPause, FiGrid, FiList } from 'react-icons/fi'
+import { FiEdit, FiTrendingUp, FiTrendingDown, FiPause, FiGrid, FiList, FiTrash2, FiChevronUp, FiChevronDown } from 'react-icons/fi'
 import { CgChevronLeft, CgChevronRight } from 'react-icons/cg'
 import {
   Pagination,
@@ -31,6 +38,7 @@ import {
   StatusUpOrDown,
   NewMonitorHero,
 } from '../components'
+import { monitor } from 'src/Assets'
 
 interface StatusProps {
   mon?: Monitor
@@ -48,6 +56,11 @@ interface StatsSummary {
   paused?: number
 }
 
+interface StatBoxProps {
+  status: string
+  value: number
+}
+
 const uptime24 = (m: MonitorStats) => {
   if (m.day?.numItems > 0) {
     return Math.round(((m.day.numItems - m.day.numErrors) / m.day.numItems) * 100 * 100) / 100
@@ -56,7 +69,7 @@ const uptime24 = (m: MonitorStats) => {
   }
 }
 
-function RunChart({ stats }: { stats?: MonitorStats }) {
+function RunChart({ stats, narrowMode }: { stats?: MonitorStats, narrowMode?: boolean }) {
   const navigate = useNavigate()
   if (!stats || !stats.lastResults) {
     return <></>
@@ -64,19 +77,20 @@ function RunChart({ stats }: { stats?: MonitorStats }) {
 
   const p50 = stats.day.p50
   const p95 = stats.day.p95
+  const times = narrowMode ? 0.8 : 1
 
   return (
-    <Flex gap='2' alignItems='baseline' maxW={'430px'} height='auto'>
+    <Flex gap={narrowMode ? '1' : '2'} alignItems='baseline' maxW={'430px'} height='auto'>
       {stats.lastResults.map((r) => (
         <Tooltip borderRadius='4' bg='darkgray.100' py={0.5} px={1.5} fontSize='sm' fontWeight='600' label={'Time - ' + r.totalTime + 'ms'} key={r.id}>
           <Box
             key={r.id}
             w='1.5'
-            h={r.totalTime > p50 ? (r.totalTime > p95 ? '7' : '6') : '5'}
-            bgColor={r.err ? 'red.200' : 'green.200'}
+            h={`${r.totalTime > p50 ? (r.totalTime > p95 ? 28 * times : 24 * times) : 20 * times}px`}
+            bgColor={stats.status === 'paused' ? 'gold.200' : r.err ? 'red.200' : 'green.200'}
             borderRadius='4'
             _hover={{
-              w: '2',
+              w: narrowMode ? '1.5' : '2',
             }}
             onClick={(e) => {
               e.stopPropagation()
@@ -124,7 +138,7 @@ function MonitorStatusCard({ mon, stats }: StatusProps) {
       <Flex>
         <Flex flexDirection={'column'} mr={10}>
           <Text variant='emphasis' color='black' mb={2}>UPTIME</Text>
-          <Text variant='emphasis' color='gray.300'>{stats ? uptime24(stats) + '%' : ''}</Text>
+          <Text variant='emphasis' color='gray.300'>{mon?.uptime + '%'}</Text>
         </Flex>
 
         <Flex flexDirection={'column'} mr={10}>
@@ -144,11 +158,6 @@ function MonitorStatusCard({ mon, stats }: StatusProps) {
       </Flex>
     </Flex>
   )
-}
-
-interface StatBoxProps {
-  status: string
-  value: number
 }
 
 const StatBox = ({ status, value }: StatBoxProps) => {
@@ -188,12 +197,96 @@ const StatBox = ({ status, value }: StatBoxProps) => {
   )
 }
 
+const MonitorListItem = ({ mon, stats }: StatusProps) => {
+  const navigate = useNavigate()
+
+  if (!mon || !stats) return <></>
+
+  return (
+    <Tr bg={stats.status === 'paused' ? 'rgba(219, 219, 219, 0.3)' : ''}>
+      <Td px={4} py={2}>
+        <Text
+          cursor='pointer'
+          variant='text-field'
+          color='darkblue.100'
+          onClick={() => navigate(`/console/monitors/${mon.id}`)}
+        >
+          {mon.name}
+        </Text>
+      </Td>
+      <Td px={4} py={2}>
+        <Flex alignItems='center' gap={2}>
+          {mon.status === 'paused' && (
+            <>
+              <Icon color='gold.200' fill='gold.200' as={FiPause} />
+              <Text variant='text-field' color='gray.300'>Pause</Text>
+            </>
+          )}
+          {mon.status === 'up' && (
+            <>
+              <Icon color='darkblue.100' as={FiTrendingUp} />
+              <Text variant='text-field' color='gray.300'>Up</Text>
+            </>
+          )}
+          {mon.status === 'down' && (
+            <>
+              <Icon color='red.200' as={FiTrendingDown} />
+              <Text variant='text-field' color='gray.300'>Down</Text>
+            </>
+          )}
+        </Flex>
+      </Td>
+      <Td px={4} py={2}><RunChart stats={stats} narrowMode /></Td>
+      <Td px={4} py={2}><Text variant='text-field' color='gray.300'>{mon.uptime + '%'}</Text></Td>
+      <Td px={4} py={2}><Text variant='text-field' color='gray.300'>{mon.dayAvg?.toFixed(2)}</Text></Td>
+      <Td px={4} py={2}><Text variant='text-field' color='gray.300'>{mon.day50?.toFixed(2)}</Text></Td>
+      <Td px={4} py={2}><Text variant='text-field' color='gray.300'>{stats?.day.p95.toFixed(2)}</Text></Td>
+      <Td textAlign='center' px={4} py={2}>
+        <Flex gap={2} alignItems='center' justifyContent='center'>
+          <Button
+            borderRadius='4'
+            bg='lightgray.100'
+            color=''
+            w={7}
+            h={7}
+            p={0}
+            minW={7}
+          >
+            <Icon color='gray.300' fontSize='sm' as={FiTrash2} cursor='pointer' />
+          </Button>
+          <Button
+            borderRadius='4'
+            bg='lightgray.100'
+            w={7}
+            h={7}
+            p={0}
+            minW={7}
+            onClick={() => navigate(`/console/monitors/${mon?.id}/edit`)}
+          >
+            <Icon color='gray.300' fontSize='sm' as={FiEdit} cursor='pointer' />
+          </Button>
+        </Flex>
+      </Td>
+    </Tr>
+  )
+}
+
+const SortIcons = () => (
+  <Flex flexDirection='column' cursor='pointer' >
+    <Icon as={FiChevronUp} fontSize='sm' color='darkblue.100'></Icon>
+    <Icon as={FiChevronDown} fontSize='sm' color='darkblue.100'></Icon>
+  </Flex>
+)
+
 export function MainPage() {
   const navigate = useNavigate()
   const [filterOption, setFilterOption] = useState<string|undefined>(undefined);
   const { register, watch } = useForm<IFormInputs>();
   const [isGridView, setIsGridView] = useState<boolean>(true)
   const [statsSummary, setStatsSummary] = useState<StatsSummary>({})
+  const [sortOption, setSortOption] = useState<string>('')
+  const [sortDir, setSortDir] = useState<string>('asc')
+  const [sortedMonitors, setSortedMonitors] = useState<Monitor[]>([])
   const {
     pages,
     pagesCount,
@@ -257,7 +350,9 @@ export function MainPage() {
           pausedMonitors++
         } else if (Boolean(item.lastResults[0].err)) {
           downMonitors++
+          item.status = 'down'
         } else {
+          item.status = 'up'
           upMonitors++
         }
       })
@@ -271,13 +366,20 @@ export function MainPage() {
     getMonitorStats()
   )
 
-  const uptime24 = (m: MonitorStats) => {
-    if (m.day?.numItems > 0) {
-      return ((m.day.numItems - m.day.numErrors) / m.day.numItems) * 100
-    } else {
-      return 0
+  useEffect(() => {
+    if (monitors && stats) {
+      monitors.forEach(monitor => {
+        const statsData = stats.find((stat) => monitor.id === stat.monitorId)
+        if (statsData) {
+          monitor.status = statsData.status
+          monitor.uptime = uptime24(statsData)
+          monitor.day50 = statsData.day.p50
+          monitor.dayAvg = statsData.day.avg
+        }
+      })
+      setSortedMonitors(monitors)
     }
-  }
+  }, [monitors, stats])
 
   if (monitors && monitors.length == 0) {
     return <NewMonitorHero />
@@ -290,6 +392,38 @@ export function MainPage() {
   const handlePageSizeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setPageSize(parseInt(event.target.value));
   };
+
+  const sortBy = (field: string) => {
+    const data = monitors?.slice() || []
+
+    switch (field) {
+      case 'name':
+        data.sort((a: Monitor, b: Monitor) => a.name > b.name ? 1 : -1)
+        break;
+      case 'status':
+        data.sort((a: Monitor, b: Monitor) => a.status > b.status ? 1 : -1)
+        break;
+      case 'uptime':
+        data.sort((a: Monitor, b: Monitor) => (a.uptime && b.uptime && a.uptime > b.uptime) ? 1 : -1)
+        break;
+      case 'day50':
+        data.sort((a: Monitor, b: Monitor) => (a.day50 && b.day50 && a.day50 > b.day50) ? 1 : -1)
+        break;
+      case 'dayAvg':
+        data.sort((a: Monitor, b: Monitor) => (a.dayAvg && b.dayAvg && a.dayAvg > b.dayAvg) ? 1 : -1)
+        break;
+      default:
+    }
+    if (sortOption === field) {
+      const dir = sortDir === 'asc' ? 'desc' : 'asc'
+      setSortedMonitors(dir === 'asc' ? data : data.reverse())
+      setSortDir(dir)
+    } else {
+      setSortDir('asc')
+      setSortedMonitors(data)
+    }
+    setSortOption(field)
+  }
 
   return (
     <Flex direction='column'>
@@ -344,18 +478,72 @@ export function MainPage() {
         </Flex>
       </Section>
       <Section p={0} mb='0' display='flex' minH='calc(100vh - 300px)' flexDirection='column'>
-        {/* Grid View */}
-        <Box p={4} pb={8} flex='1'>
-          <Grid gap='6' templateColumns={{ sm: '1fr', xl: '1fr 1fr' }}>
-            {monitors && stats?.map((stats) => (
-              <MonitorStatusCard
-                mon={monitors.find((m) => m.id === stats.monitorId)}
-                stats={stats}
-                key={stats.monitorId}
-              />
-            ))}
-          </Grid>
-        </Box>
+        {isGridView ? (
+          <Box p={4} pb={8} flex='1'>
+            <Grid gap='6' templateColumns={{ sm: '1fr', xl: '1fr 1fr' }}>
+              {stats && sortedMonitors.map((monitor) => (
+                <MonitorStatusCard
+                  mon={monitor}
+                  stats={stats.find((stat) => monitor.id === stat.monitorId)}
+                  key={monitor.id}
+                />
+              ))}
+            </Grid>
+          </Box>
+        ) : (
+          <Box p={4} pb={8} flex='1'>
+            <TableContainer>
+              <Table>
+                <Thead>
+                  <Tr bg='rgba(22, 216, 181, 0.1)'>
+                    <Th px={4} py={3}>
+                      <Flex alignItems='center' gap={1} onClick={() => sortBy('name')}>
+                        <Text variant='emphasis' color='black'>Name</Text>
+                        <SortIcons />
+                      </Flex>
+                    </Th>
+                    <Th px={4} py={3}>
+                      <Flex alignItems='center' gap={1} onClick={() => sortBy('status')}>
+                        <Text variant='emphasis' color='black'>Status</Text>
+                        <SortIcons />
+                      </Flex>
+                    </Th>
+                    <Th px={4} py={3}><Text variant='emphasis' color='black'>Data</Text></Th>
+                    <Th px={4} py={3}>
+                      <Flex alignItems='center' gap={1} onClick={() => sortBy('uptime')}>
+                        <Text variant='emphasis' color='black'>Uptime</Text>
+                        <SortIcons />
+                      </Flex>
+                    </Th>
+                    <Th px={4} py={3}>
+                      <Flex alignItems='center' gap={1} onClick={() => sortBy('dayAvg')}>
+                        <Text variant='emphasis' color='black'>2HR AVG</Text>
+                        <SortIcons />
+                      </Flex>
+                    </Th>
+                    <Th px={4} py={3}>
+                      <Flex alignItems='center' gap={1} onClick={() => sortBy('day50')}>
+                        <Text variant='emphasis' color='black'>24HR MEDIAN</Text>
+                        <SortIcons />
+                      </Flex>
+                    </Th>
+                    <Th px={4} py={3}><Text variant='emphasis' color='black'>24HR P95</Text></Th>
+                    <Th px={4} py={3} textAlign='center'><Text variant='emphasis' color='black'>ACTIONS</Text></Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {stats && sortedMonitors.map((monitor) => (
+                    <MonitorListItem
+                      mon={monitor}
+                      stats={stats.find((stat) => monitor.id === stat.monitorId)}
+                      key={monitor.id}
+                    />
+                  ))}
+                </Tbody>
+              </Table>
+            </TableContainer>
+          </Box>
+        )}
         {/* Footer */}
         <Flex alignItems='center' px={4} py={1} justifyContent='space-between' boxShadow='0px -4px 8px rgba(0, 0, 0, 0.05)'>
           <Text flex={1} variant='text-field' color='darkgray.100'>Show 16 monitors of 40</Text>
@@ -437,3 +625,7 @@ export function MainPage() {
 }
 
 export default MainPage
+function arr(arr: any) {
+  throw new Error('Function not implemented.')
+}
+
