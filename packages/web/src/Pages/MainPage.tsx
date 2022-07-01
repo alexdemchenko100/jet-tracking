@@ -45,7 +45,7 @@ import {
   StatusUpOrDown,
   NewMonitorHero,
 } from '../components'
-import { monitor } from 'src/Assets'
+import { Store } from '../services/Store'
 
 interface StatusProps {
   mon?: Monitor
@@ -296,11 +296,11 @@ export function MainPage() {
   const navigate = useNavigate()
   const [filterOption, setFilterOption] = useState<string|undefined>(undefined);
   const { register, watch } = useForm<IFormInputs>();
-  const [isGridView, setIsGridView] = useState<boolean>(true)
+  const [isGridView, setIsGridView] = useState<boolean>(Store.UIState.monitors.isGridView)
   const [statsSummary, setStatsSummary] = useState<StatsSummary>({})
   const [sortOption, setSortOption] = useState<string>('')
   const [sortDir, setSortDir] = useState<string>('asc')
-  const [monitors, setMonitors] = useState<Monitor[]>([])
+  const [monitors, setMonitors] = useState<Monitor[]|undefined>()
   const [sortedMonitors, setSortedMonitors] = useState<Monitor[]>([])
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [totalCount, setTotalCount] = useState<number>(0)
@@ -491,7 +491,7 @@ export function MainPage() {
             borderColor='gray.200'
             borderRadius={8}
             p={1}
-            onClick={() => setIsGridView(true)}
+            onClick={() => { Store.UIState.monitors.isGridView=true; setIsGridView(true) }}
           >
             <Icon color={isGridView ? 'darkblue.100' : 'darkgray.100'} fontSize={'lg'} as={FiGrid} cursor='pointer' />
           </Button>
@@ -501,7 +501,7 @@ export function MainPage() {
             borderColor='gray.200'
             borderRadius={8}
             p={1}
-            onClick={() => setIsGridView(false)}
+            onClick={() => { Store.UIState.monitors.isGridView=false; setIsGridView(false) }}
           >
             <Icon color={!isGridView ? 'darkblue.100' : 'darkgray.100'} fontSize={'lg'} as={FiList} cursor='pointer' />
           </Button>
