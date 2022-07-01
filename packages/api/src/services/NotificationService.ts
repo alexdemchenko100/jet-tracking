@@ -1,11 +1,12 @@
 import { db, MonitorResult } from '@httpmon/db'
-import { send } from 'process'
 import { logger } from 'src/Context'
 import { SynthEvent } from './EventService'
 import { sendSlackNotification, sendMSTeamsNotification } from './SlackNotification'
 
 export async function handleMonitorResultErorr(event: SynthEvent) {
   //from event id, get monitor result from db
+
+  logger.error(event, 'Handler ERROR')
 
   //now, get the monitor from db
   const monitor = await db
@@ -23,7 +24,8 @@ export async function handleMonitorResultErorr(event: SynthEvent) {
   let bNotify = false
   let result: MonitorResult | null = null
 
-  let failCount = 0,failTimeMinutes = 0
+  let failCount = 0,
+    failTimeMinutes = 0
   let channels: string[] = []
 
   // check if monitor uses global settings
@@ -42,7 +44,7 @@ export async function handleMonitorResultErorr(event: SynthEvent) {
     if (globalNotificationSettings) {
       failCount = globalNotificationSettings.alert.failCount || 0
       failTimeMinutes = globalNotificationSettings.alert.failTimeMinutes || 0
-      channels = defaultEnabledChannels.map(channel => channel.id ?? '')
+      channels = defaultEnabledChannels.map((channel) => channel.id ?? '')
     }
   } else {
     failCount = monitor.notifications.failCount ?? 0
@@ -52,7 +54,7 @@ export async function handleMonitorResultErorr(event: SynthEvent) {
 
   try {
     //handle case where monitor has failed more than the threshold
-    logger.info(`monitor ${event.monitorId} failCount ${failCount}`)
+    logger.info(`monitor ${event.monitorId} failCount ${failCount} MS ${failTimeMinutes}`)
 
     if (failCount > 0 && event.monitorId) {
       const results = await db
@@ -72,20 +74,21 @@ export async function handleMonitorResultErorr(event: SynthEvent) {
     }
 
     const failTimeMS = failTimeMinutes * 60000 // get microseconds from minutes
-    if (failTimeMS > 0) {
+    if (failTimeMS > 0 && event.monitorId) {
       const failDate = new Date(Date.now() - failTimeMS)
-      const results = await db
+      logger.error(failDate.toISOString(), '40')
+      const result = await db
         .selectFrom('MonitorResult')
         .selectAll()
         .orderBy('createdAt', 'desc')
         .where('createdAt', '<', failDate)
-        .execute()
+        .where('monitorId', '=', event.monitorId)
+        .where('err', '!=', '')
+        .executeTakeFirst()
 
-      //if result count is same as failCount and all results are failed, send notification
-      if (results.length == 1 && results[0].totalTime > failTimeMS) {
+      if (result) {
         //send notification
         bNotify = true
-        result = results[0]
       }
     }
   } catch (e) {
@@ -101,7 +104,7 @@ export async function handleMonitorResultErorr(event: SynthEvent) {
         .selectAll()
         .where('id', '=', channel)
         .executeTakeFirst()
-      
+
       if (notificationChannel && notificationChannel.channel.type === 'slack' && result) {
         logger.info(`sending notification to channel ${channel}`)
         sendSlackNotification(notificationChannel.channel, monitor, result)
@@ -113,4 +116,6 @@ export async function handleMonitorResultErorr(event: SynthEvent) {
       }
     })
   }
+
+  logger.error('DONE handling error')
 }

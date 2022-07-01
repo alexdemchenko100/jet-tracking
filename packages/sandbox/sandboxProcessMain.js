@@ -1,25 +1,13 @@
-// const {NodeVM} = require("vm2")
-// let parsed = JSON.parse(process.argv[3])
-// const vm = new NodeVM({
-//   sandbox: {parsed},
-//   require: {
-//     external: {
-//       modules: ["discord.js"]
-//     }
-//   }
-// });
-// vm.run(parsed.runner, "vm.js");
-
 const { NodeVM } = require('vm2')
-
-console.log('arg', JSON.stringify(process.argv))
 
 //construct this from argv
 const script = process.argv[2]
 const sandbox = JSON.parse(process.argv[3])
 
+console.log('sb process started')
+
 const vm2 = new NodeVM({
-  timeout: 2000,
+  timeout: 10000,
   console: 'inherit',
   eval: false,
   wasm: false,
@@ -57,8 +45,7 @@ try {
 }
 
 process.send(JSON.stringify(sandbox.ctx))
+
+console.log('Sandbox Done')
+
 console.log('sb', JSON.stringify(sandbox.ctx))
-
-
-//send this back on stdout?
-// return sandbox.ctx

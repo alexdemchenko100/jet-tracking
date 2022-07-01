@@ -6,6 +6,7 @@ import NotificationRouter from './CloudHookRouters/NotificationRouter.js'
 import OndemandMonitorRouter from './PublicRouters/OndemandMonitorRouter.js'
 import EnvRouter from './AuthRouters/EnvRouter.js'
 import SettingsRouter from './AuthRouters/SettingsRouter.js'
+import MonitorSetupExecRouter from './CloudHookRouters/MonitorSetupExecRouter.js'
 
 export default async function MainRouter(fastify: FastifyInstance) {
   //Public API router
@@ -19,6 +20,7 @@ export default async function MainRouter(fastify: FastifyInstance) {
   //cloud hooks for backend processing
   fastify.register(SchedulerRouter, { prefix: '/services/scheduler' })
   fastify.register(MonitorExecutorRouter, { prefix: '/services/monitor' })
+  fastify.register(MonitorSetupExecRouter, { prefix: '/services/monitor-setup-exec' })
   fastify.register(NotificationRouter, { prefix: '/services/notification' })
 
   fastify.setNotFoundHandler((_req, reply) => {

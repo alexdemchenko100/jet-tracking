@@ -63,7 +63,7 @@ export function handlePreScriptExecution(
       try {
         let ctx = JSON.parse(sandboxOutJson)
         if (code == 0 && ctx && !ctx.err) {
-          resolve(ctx)
+          resolve({ ctx })
         } else {
           reject({ err: ctx?.err || 'EScriptError' })
         }

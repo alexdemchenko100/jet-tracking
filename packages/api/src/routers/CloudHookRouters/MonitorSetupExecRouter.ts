@@ -2,9 +2,12 @@ import { FastifyInstance } from 'fastify'
 import jwt from 'jsonwebtoken'
 import { JwksClient } from 'jwks-rsa'
 import S from 'fluent-json-schema'
+import { Monitor, MonitorFluentSchema } from '@httpmon/db'
 import Ajv from 'ajv'
-import { SynthEvent, SynthEventSchema } from 'src/services/EventService'
-import { handleMonitorResultErorr } from 'src/services/NotificationService'
+import { execMonitorAndProcessResponse } from 'src/services/MonitorExecutor'
+import { execPreRequestScript, setupMonitorForExec } from 'src/services/PreRequestScript'
+import { logger, state } from '../../Context'
+import { PubSub } from '@google-cloud/pubsub'
 
 const PubsubMessageSchema = S.object()
   .prop('subscription', S.string())
@@ -19,9 +22,7 @@ const PubsubMessageSchema = S.object()
       .prop('publishTime', S.string())
   )
 
-const validateSynthEvent = new Ajv({ allErrors: true }).compile<SynthEvent>(
-  SynthEventSchema.valueOf()
-)
+const validateMonitor = new Ajv({ allErrors: true }).compile<Monitor>(MonitorFluentSchema.valueOf())
 type PubsubMessage = {
   subscription: string
   message: {
@@ -35,7 +36,29 @@ var client = new JwksClient({
   jwksUri: 'https://www.googleapis.com/oauth2/v3/certs',
 })
 
-export default async function NotificationRouter(app: FastifyInstance) {
+let pubsub: PubSub | null = null
+
+async function publishMonitorMessage(mon: Monitor) {
+  const projectId = state.projectId
+  if (!pubsub) {
+    pubsub = new PubSub({ projectId })
+  }
+
+  if (!pubsub) throw new Error('Pubsub is not initialized')
+
+  if (!mon.locations || mon.locations.length < 1) return
+
+  mon.locations.forEach(async (locationName) => {
+    const TOPIC_NAME = `${projectId}-monitor-exec-${locationName}`
+    try {
+      await pubsub?.topic(TOPIC_NAME).publishMessage({ json: mon })
+    } catch (error) {
+      logger.error(`Received error while publishing to ${TOPIC_NAME} - ${error.message}`)
+    }
+  })
+}
+
+export default async function MonitorSetupExecRouter(app: FastifyInstance) {
   app.post<{ Body: PubsubMessage }>(
     '/',
     {
@@ -69,23 +92,23 @@ export default async function NotificationRouter(app: FastifyInstance) {
 
       const msg = req.body
 
-      const buf = Buffer.from(msg.message.data, 'base64')
-      const event = JSON.parse(buf.toString())
+      const monitorBuf = Buffer.from(msg.message.data, 'base64')
+      const monitorObj = JSON.parse(monitorBuf.toString())
 
-      if (!validateSynthEvent(event)) {
-        app.log.error(
-          validateSynthEvent.errors,
-          'Monitor exec failed due to schema validation errors'
-        )
+      if (!validateMonitor(monitorObj)) {
+        app.log.error(validateMonitor.errors, 'Monitor exec failed due to schema validation errors')
         reply.code(200).send()
         return
       }
 
-      app.log.info(event, 'Notification handling for event')
+      const monitor = monitorObj as Monitor
 
-      //business logic
-      await handleMonitorResultErorr(event)
+      app.log.info(`Setup monitor event: ${monitor.name}`)
 
+      const newmon = await setupMonitorForExec(monitor)
+      if (newmon) {
+        publishMonitorMessage(newmon)
+      }
       reply.code(200).send()
     }
   )

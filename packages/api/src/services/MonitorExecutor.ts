@@ -168,12 +168,14 @@ export async function execMonitor(monitor: Monitor) {
   let certCommonName = ''
   let certExpiryDays = 0
 
-  var startTime = performance.now()
-  const mon = processTemplates(monitor)
-  var endTime = performance.now()
-  logger.info(`Call ${monitor.url} took ${endTime - startTime} milliseconds`)
+  let mon = { ...monitor }
 
   try {
+    var startTime = performance.now()
+    mon = processTemplates(monitor)
+    var endTime = performance.now()
+    logger.info(`Call ${monitor.url} took ${endTime - startTime} milliseconds`)
+
     const resp = await customGot(mon.url, {
       method: mon.method as Method,
       body: Boolean(mon.body) && Boolean(mon.bodyType) ? mon.body : undefined,
@@ -230,6 +232,8 @@ export async function execMonitor(monitor: Monitor) {
         ...responseToMonitorResult(),
         err: e?.message ?? e.toString(),
         monitorId: mon.id ?? 'ondemand',
+        accountId: mon.accountId,
+        url: mon.url,
       } as MonitorResult
     }
   }

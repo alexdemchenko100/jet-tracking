@@ -57,9 +57,7 @@ export const createNewAccount = async (userId: string, email: string) => {
       .returningAll()
       .executeTakeFirst()
 
-    logger.info(
-      `created new account for user ${userId} ${email} account id ${newAccountId}`
-    )
+    logger.info(`created new account for user ${userId} ${email} account id ${newAccountId}`)
   })
 
   return newAccountId
@@ -74,9 +72,7 @@ function objectToJSON(object: any) {
   throw Error('Cannot convert to JSON')
 }
 
-export async function saveMonitorResult(
-  result: Insertable<MonitorResultTable>
-) {
+export async function saveMonitorResult(result: Insertable<MonitorResultTable>) {
   //Handle all JSON conversions here.. headers, cookies, variables etc
   let resultForSaving = {
     ...result,

@@ -1,8 +1,7 @@
-import { emitter } from './emitter'
 import { Monitor, MonitorRequest, MonitorTuples } from '@httpmon/db'
 
 import { handlePreScriptExecution } from '@httpmon/sandbox'
-import { execMonitorAndProcessResponse, makeMonitorResultError } from './MonitorExecutor'
+import { makeMonitorResultError } from './MonitorExecutor'
 import { logger } from '../Context'
 import { saveMonitorResult } from './DBService'
 
@@ -38,22 +37,23 @@ function monitorToRequest(mon: Monitor) {
   return req
 }
 
-export async function execPreScript(mon: Monitor) {
+export async function execPreRequestScript(mon: Monitor) {
   const request = monitorToRequest(mon)
   const env = headersToMap(mon.env)
+
+  //logger.info(request, 'execPreScript-Start')
 
   try {
     const resp = await handlePreScriptExecution(request, env, mon.preScript)
 
-    logger.info(JSON.stringify(resp, null, 2), 'execPreScript')
+    logger.info(resp, 'execPreScript-Resp')
 
     let newmon = {
       ...mon,
       headers: headersToTuples(resp.ctx.request.headers),
       env: headersToTuples(resp.ctx.env),
     }
-
-    emitter.emit('execAfterPreScript', newmon)
+    return newmon
   } catch (e) {
     //handle script error
     console.log('pre error: ', JSON.stringify(e))
@@ -63,17 +63,15 @@ export async function execPreScript(mon: Monitor) {
     result.codeStatus = result.err
     const monitorResult = await saveMonitorResult(result)
   }
+  return null
 }
 
-export async function setupEmitterHandlers() {
-  logger.info('* setting emitter *')
-  emitter.on('execPreScript', async (mon: Monitor) => {
-    logger.info('execPreScript')
-    await execPreScript(mon)
-  })
+export async function setupMonitorForExec(mon: Monitor) {
+  //Todo: Compute final Env
 
-  emitter.on('execAfterPreScript', async (mon: Monitor) => {
-    logger.info('execAfterPreScript')
-    await execMonitorAndProcessResponse(mon)
-  })
+  if (mon.preScript && mon.preScript.length > 0) {
+    return execPreRequestScript(mon)
+  }
+
+  return null
 }

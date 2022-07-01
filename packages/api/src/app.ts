@@ -3,11 +3,10 @@ import fastifyCors from 'fastify-cors'
 import MainRouter from './routers/MainRouter.js'
 import * as dotenv from 'dotenv'
 import path from 'path'
-import { schedule } from './services/DevScheduler.js'
+import { schedule, setupEmitterHandlers } from './services/DevScheduler.js'
 import fastifyStatic from 'fastify-static'
 import { initializeRequestContext, getCloudRegion } from './Context.js'
 import { db } from '@httpmon/db'
-import { setupEmitterHandlers } from './services/MonitorPreScript.js'
 
 //find and load the .env from root folder of the project
 dotenv.config({ path: path.resolve(process.cwd(), '../..', '.env') })
@@ -61,7 +60,7 @@ server.register(MainRouter, {
 
 server.setErrorHandler((error, _req, reply) => {
   // The expected errors will be handled here, but unexpected ones should eventually result in a crash.
-  server.log.error(error)
+  server.log.error(error, 'TOP Error Handler')
   reply.code(409).send({ error: error })
 })
 
