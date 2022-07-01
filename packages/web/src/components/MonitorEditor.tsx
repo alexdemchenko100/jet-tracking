@@ -22,10 +22,6 @@ import {
   useToast,
   InputGroup,
   InputLeftElement,
-  Menu,
-  MenuItem,
-  MenuButton,
-  MenuList,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -38,7 +34,7 @@ import { Monitor, MonitorAssertion, MonitorTuples } from '@httpmon/db'
 import React, { useEffect, useRef } from 'react'
 import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from 'react-hook-form'
 
-import { FiPlus, FiTrash2, FiSearch, FiChevronDown } from 'react-icons/fi'
+import { FiPlus, FiTrash2, FiSearch } from 'react-icons/fi'
 import { useMutation, useQuery } from 'react-query'
 import axios from 'axios'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -215,58 +211,32 @@ function Locations() {
   })
 
   return (
-    <Menu>
-      <MenuButton
-        as={Button}
-        bg='transparent'
-        width='440px'
-        rightIcon={<FiChevronDown />}
-        border='1px'
-        borderStyle='solid'
-        borderColor='gray.200'
-        borderRadius={8}
-        textAlign='left'
-        _hover={{ bg: 'transparent' }}
-        _active={{ bg: 'transparent' }}
-      >
-        Locations
-      </MenuButton>
-      <MenuList width='440px' boxShadow='0px 4px 16px rgba(0, 0, 0, 0.1)' borderRadius={8}>
-        <CheckboxGroup>
-          <Stack direction='column'>
-            {showLocations.map((locEntry, index) => (
-              <Controller
-                key={locEntry.id}
-                control={control}
-                name={`showLocations.${index}.set`}
-                render={({ field }) => {
-                  return (
-                    <MenuItem
-                      px={5}
-                      _focus={{ bg: 'lightgray.100' }}
-                      _active={{ bg: 'lightgray.100' }}
-                      closeOnSelect={false}
-                    >
-                      <Checkbox
-                        colorScheme='cyan'
-                        borderRadius={4}
-                        width={'100%'}
-                        isChecked={field.value}
-                        onChange={field.onChange}
-                      >
-                        <Text variant='text-field' color='darkgray.300'>
-                          {(locEntry as any)['name']}
-                        </Text>
-                      </Checkbox>
-                    </MenuItem>
-                  )
-                }}
-              />
-            ))}
-          </Stack>
-        </CheckboxGroup>
-      </MenuList>
-    </Menu>
+    <CheckboxGroup>
+      <Stack direction='row'>
+        {showLocations.map((locEntry, index) => (
+          <Controller
+            key={locEntry.id}
+            control={control}
+            name={`showLocations.${index}.set`}
+            render={({ field }) => {
+              return (
+                <Checkbox
+                  colorScheme='cyan'
+                  borderRadius={4}
+                  width={'100%'}
+                  isChecked={field.value}
+                  onChange={field.onChange}
+                >
+                  <Text variant='text-field' color='gray.300'>
+                    {(locEntry as any)['name']}
+                  </Text>
+                </Checkbox>
+              )
+            }}
+          />
+        ))}
+      </Stack>
+    </CheckboxGroup>
   )
 }
 
@@ -597,8 +567,8 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
                   >
                     <FormControl id='method' maxW='32'>
                       <Select
-                        bg='gray.300'
-                        color='white'
+                        bg='rgba(16, 178, 215, 0.1)'
+                        color='lightblue.200'
                         border='0'
                         borderRadius='3xl'
                         fontWeight='bold'
@@ -744,17 +714,16 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
                   <ModalCloseButton />
                   <ModalBody>
                     <FormControl id='name' w='200'>
-                      <Flex alignItems='baseline'>
-                        <Input
-                          borderRadius={8}
-                          color='gray.300'
-                          borderColor='gray.200'
-                          type='name'
-                          autoComplete='name'
-                          {...register('name')}
-                          placeholder='Add name'
-                        />
-                      </Flex>
+                      <Text variant='details' color='black'>Name</Text>
+                      <Input
+                        borderRadius={8}
+                        color='gray.300'
+                        borderColor='gray.200'
+                        type='name'
+                        autoComplete='name'
+                        {...register('name')}
+                        placeholder='Add name'
+                      />
                     </FormControl>
                   </ModalBody>
 

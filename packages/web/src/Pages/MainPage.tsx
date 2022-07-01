@@ -300,8 +300,10 @@ export function MainPage() {
   const [statsSummary, setStatsSummary] = useState<StatsSummary>({})
   const [sortOption, setSortOption] = useState<string>('')
   const [sortDir, setSortDir] = useState<string>('asc')
+  const [monitors, setMonitors] = useState<Monitor[]>([])
   const [sortedMonitors, setSortedMonitors] = useState<Monitor[]>([])
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [totalCount, setTotalCount] = useState<number>(0)
   const [selectedMonitor, setSelectedMonitor] = useState<string|undefined>()
   const {
     pages,
@@ -311,7 +313,7 @@ export function MainPage() {
     currentPage,
     setCurrentPage,
   } = usePagination({
-    total: 40,
+    total: totalCount,
     initialState: {
       pageSize: 16,
       currentPage: 1,
@@ -333,20 +335,25 @@ export function MainPage() {
     return () => subscription.unsubscribe()
   }, [watch])
 
-  async function getMonitors() {
+  async function getMonitors(page: number = 1, limit: number = 16) {
     let resp = await axios({
       method: 'GET',
       url: '/monitors',
+      params: {
+        offset: (page - 1) * limit,
+        limit: limit,
+      }
     })
 
     if (resp.status == 200) {
-      const results = resp.data as Monitor[]
-      return results
+      const results = resp.data.items as Monitor[]
+      setTotalCount(resp.data.total)
+      setMonitors(results)
     }
     throw Error('Failed to get odemand results')
   }
 
-  const { data: monitors } = useQuery<Monitor[], Error>(
+  useQuery(
     ['monitors-list'],
     () => getMonitors(),
     {}
@@ -403,10 +410,13 @@ export function MainPage() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+    getMonitors(page, pageSize);
   };
 
   const handlePageSizeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setPageSize(parseInt(event.target.value));
+    const value = parseInt(event.target.value)
+    setPageSize(value);
+    getMonitors(currentPage, value);
   };
 
   const sortBy = (field: string) => {
@@ -581,7 +591,7 @@ export function MainPage() {
         )}
         {/* Footer */}
         <Flex alignItems='center' px={4} py={1} justifyContent='space-between' boxShadow='0px -4px 8px rgba(0, 0, 0, 0.05)'>
-          <Text flex={1} variant='text-field' color='darkgray.100'>Show 16 monitors of 40</Text>
+          <Text flex={1} variant='text-field' color='darkgray.100'>Show {totalCount > pageSize ? pageSize : totalCount} monitors of {totalCount}</Text>
           <Box maxW={96}>
             <Pagination
               currentPage={currentPage}

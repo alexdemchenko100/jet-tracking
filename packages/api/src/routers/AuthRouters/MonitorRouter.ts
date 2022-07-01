@@ -1,4 +1,4 @@
-import { ResultQueryString } from '../../services/MonitorService'
+import { ResultQueryString, PaginateQueryString } from '../../services/MonitorService'
 import { MonitorService } from '../../services/MonitorService'
 import { FastifyInstance } from 'fastify'
 import S from 'fluent-json-schema'
@@ -9,6 +9,8 @@ import {
   MonitorResultFluentSchemaArray,
   MonitorResultQueryResponseSchema,
   MonitorStatSummarySchema,
+  PaginateQueryStringSchema,
+  MonitorsQueryResponseSchema,
   MonitorTuples,
 } from '@httpmon/db'
 import { onRequestAuthHook } from '../RouterHooks'
@@ -38,15 +40,16 @@ export default async function MonitorRouter(app: FastifyInstance) {
     }
   )
 
-  app.get(
+  app.get<{ Querystring: PaginateQueryString }>(
     '/',
     {
       schema: {
-        response: {},
+        querystring: PaginateQueryStringSchema,
+        response: { 200: MonitorsQueryResponseSchema },
       },
     },
-    async function (_, reply) {
-      const resp = await monitorSvc.list()
+    async function ({ query: { limit, offset } }, reply) {
+      const resp = await monitorSvc.list(offset, limit)
       reply.send(resp)
     }
   )

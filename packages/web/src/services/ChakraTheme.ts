@@ -43,8 +43,8 @@ export const theme = extendTheme({
       200: "#10B2D7",
     },
     cyan: {
-      400: '#16166A',
-      500: '#17468F',
+      400: '#16D8B5',
+      500: '#16D8B5',
     },
     green: {
       200: '#6FCF97'

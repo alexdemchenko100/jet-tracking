@@ -13,22 +13,25 @@ interface Props extends BoxProps {
 
 const Text: React.FC<Props> = (props) => {
   const { variant, color, showUnderline, children, ...rest } = props
-  let fontSize, lineHeight, fontWeight;
+  let fontSize, lineHeight, fontWeight, underlineTop;
   switch (variant) {
     case 'header':
       fontSize = 'xl'
       lineHeight='39px'
       fontWeight='extrabold'
+      underlineTop='1.3em'
       break;
     case 'title':
       fontSize = 'lg'
       lineHeight='22px'
       fontWeight='bold'
+      underlineTop='1.8em'
       break;
     case 'text-field':
       fontSize = 'md'
       lineHeight='19px'
       fontWeight='semibold'
+      underlineTop='1.8em'
       break;
     case 'paragraph':
       fontSize = 'md'
@@ -65,7 +68,7 @@ const Text: React.FC<Props> = (props) => {
     >
       {children}
       {showUnderline && (
-        <Box w={8} position='absolute' top='1.4em' left='0' h={1} bg='green.200' borderRadius={4}></Box>
+        <Box w={8} position='absolute' top={underlineTop} left='0' h={1} bg='darkblue.100' borderRadius={4}></Box>
       )}
     </Box>
   )

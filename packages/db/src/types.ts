@@ -71,6 +71,10 @@ export const StatsQueryStringSchema = S.object()
   .prop('endDate', S.string())
   .prop('location', S.string())
 
+export const PaginateQueryStringSchema = S.object()
+  .prop('limit', S.number())
+  .prop('offset', S.number())
+
 export const MonitorStatSummarySchema = S.object()
   .prop('monitorId', S.string())
   .prop('status', S.string())
@@ -202,6 +206,10 @@ export const MonitorFluentSchema = S.object()
   .prop('env', MonitorTupleFluentSchema)
   .prop('assertions', MonitorAssertionsFluentSchema)
   .prop('notifications', MonitorNotificationSchema)
+
+export const MonitorsQueryResponseSchema = S.object()
+  .prop('items', S.array().items(MonitorFluentSchema))
+  .prop('total', S.number())
 
 export type MonitorAssertion = {
   type: 'code' | 'totalTime' | 'certExpiryDays' | 'header' | 'body' | 'jsonBody'

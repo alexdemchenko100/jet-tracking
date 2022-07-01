@@ -25,6 +25,11 @@ export interface StatsQueryString {
   locations: string
 }
 
+export interface PaginateQueryString {
+  limit: number
+  offset: number
+}
+
 /**
  *
  * Super hacky function to go around type safety
@@ -107,13 +112,24 @@ export class MonitorService {
     return monResp
   }
 
-  public async list() {
+  public async list(offset: number, limit: number) {
+    const { count } = db.fn
+    const total = await db
+      .selectFrom('Monitor')
+      .select(count<number>('id').as('count'))
+      .where('accountId', '=', currentUserInfo().accountId)
+      .execute()
     const monList = await db
       .selectFrom('Monitor')
       .selectAll()
       .where('accountId', '=', currentUserInfo().accountId)
+      .offset(offset)
+      .limit(limit)
       .execute()
-    return monList
+    return {
+      total: total[0].count,
+      items: monList,
+    }
   }
 
   public async findResult(id: string) {
@@ -328,7 +344,11 @@ export class MonitorService {
   }
 
   public async getAllMonitorStatSummaries() {
-    const monitors = await this.list()
+    const monitors =  await db
+      .selectFrom('Monitor')
+      .selectAll()
+      .where('accountId', '=', currentUserInfo().accountId)
+      .execute()
 
     const results = await Promise.all(
       monitors.map(async (monitor) => {

@@ -34,7 +34,7 @@ const AuthTab: React.FC<TabProps> = ({children}) => {
       py='2'
       px='4'
       mr='4'
-      _selected={{ bg: 'lightblue.100', color: 'white' }}
+      _selected={{ bg: 'lightblue.200', color: 'white' }}
     >
       {children}
     </Tab>
