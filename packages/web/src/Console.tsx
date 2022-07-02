@@ -56,7 +56,7 @@ export default function Console() {
           <Text variant='text-field' color='inherit'>Monitors</Text>
         </NavItem>
 
-        <NavItem icon={FiPackage} to='/console/environments'>
+        <NavItem icon={FiPackage} to='/console/envs'>
           <Text variant='text-field' color='inherit'>Environments</Text>
         </NavItem>
         <NavItem icon={FiGrid} to='/console/dashboards'>

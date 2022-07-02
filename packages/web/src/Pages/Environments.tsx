@@ -1,86 +1,40 @@
-import {
-  Box,
-  Button,
-  Flex,
-  FormControl,
-  FormLabel,
-  Heading,
-  Icon,
-  Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalOverlay,
-  Text,
-  useDisclosure,
-} from '@chakra-ui/react'
-import { MonEnv, MonitorTuples } from '@httpmon/db'
+import { Flex, Box } from '@chakra-ui/react'
+import { Outlet, useNavigate } from 'react-router-dom'
+import { useQuery } from 'react-query'
 import axios from 'axios'
-import { useFieldArray, useForm } from 'react-hook-form'
-import { FiTrash2, FiPlus } from 'react-icons/fi'
-import { useMutation, useQuery } from 'react-query'
-import { useNavigate } from 'react-router-dom'
-import { Store } from '../services/Store'
+import { MonEnv } from '@httpmon/db'
 
-function numEnv(monEnv: MonEnv) {
-  return monEnv.env ? monEnv.env.length : 0
-}
-function EnvCard({ monEnv }: { monEnv: MonEnv }) {
-  const navigate = useNavigate()
+import { Section, Text, PrimaryButton, EnvNavItem } from '../components'
+
+const SIDEBAR_WIDTH = '200px'
+
+const Sidebar = ({ envs }: { envs: MonEnv[] }) => {
+
   return (
-    <Flex
-      flexDirection='column'
-      gap='4'
-      borderRadius='xl'
-      bgColor='blue.100'
-      boxShadow='md'
-      p='8'
-      w='20em'
-      justifyContent='begin'
-      cursor='pointer'
-      onClick={() => navigate(`/console/env/${monEnv.id}`)}
+    <Box
+      as='nav'
+      p='4'
+      bg='white'
+      borderRadius={4}
+      w={SIDEBAR_WIDTH}
+      minH={'calc(100vh - 140px)'}
     >
-      <Flex gap='2' direction='column'>
-        <Heading size='md'>Env: {monEnv.name}</Heading>
-        <Text>{numEnv(monEnv)} entries</Text>
+      <Text variant='emphasis' color='black'>All environments</Text>
+      <Flex direction='column' as='nav' py={4} fontSize='sm' color='darkgray.100' aria-label='Main Navigation'>
+        {envs?.map(item => (
+          <EnvNavItem key={item.id} to={`/console/envs/${item.id}`}>
+            <Text variant='text-field' display={'block'} color='inherit' overflow='hidden' textOverflow='ellipsis' whiteSpace='nowrap'>
+              {item.name}
+            </Text>
+          </EnvNavItem>
+        ))}
       </Flex>
-    </Flex>
+    </Box>
   )
 }
 
 export function Environments() {
-  const { isOpen, onOpen, onClose } = useDisclosure()
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<MonEnv>({
-    defaultValues: {
-      env: [] as MonitorTuples,
-    },
-  })
-
-  const {
-    mutateAsync: createEnv,
-    isLoading: isCreating,
-    error: createError,
-  } = useMutation<MonEnv, Error, MonEnv>(async (data: MonEnv) => {
-    const resp = await axios({
-      method: 'PUT',
-      url: '/environments',
-      data: { ...data },
-    })
-    return resp.data as MonEnv
-  })
-
-  async function handleEnvCreate(data: MonEnv) {
-    console.log('data: ', data)
-    const resp = await createEnv({ ...data })
-    onClose()
-  }
+  const navigate = useNavigate()
 
   const { data: envs } = useQuery<MonEnv[]>(['monenv'], async () => {
     const resp = await axios({
@@ -92,44 +46,26 @@ export function Environments() {
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <form onSubmit={handleSubmit(handleEnvCreate)}>
-            <ModalCloseButton />
-            <ModalBody>
-              <Heading fontSize='2xl' mb='10'>
-                New Environment
-              </Heading>
-              <FormControl id='envName'>
-                <FormLabel>Name</FormLabel>
-                <Input id='name' {...register('name')} />
-              </FormControl>
-            </ModalBody>
-
-            <ModalFooter>
-              <Button colorScheme='blue' mr='3' type='submit'>
-                Create
-              </Button>
-            </ModalFooter>
-          </form>
-        </ModalContent>
-      </Modal>
-      <Flex justify='space-between' m={2}>
-        <Heading size='lg' mb='8'>
-          Environments
-        </Heading>
-
-        <Button size='md' mr='2' mb='2' colorScheme='blue' onClick={onOpen}>
-          New Environment
-        </Button>
-      </Flex>
-
-      <Flex direction='column' gap='3'>
-        {envs &&
-          envs.map((item) => {
-            return <EnvCard key={item.name} monEnv={item}></EnvCard>
-          })}
+      <Section>
+        <Flex alignItems='center' justify={'space-between'}>
+          <Text variant='header' color='black'>Environments</Text>
+          <Flex gap={2}>
+            <PrimaryButton
+              label='Add environment'
+              isOutline
+              variant='emphasis'
+              color={'darkblue.100'}
+              py={2}
+              onClick={() => navigate('/console/envs/new')}
+            ></PrimaryButton>
+          </Flex>
+        </Flex>
+      </Section>
+      <Flex>
+        <Sidebar envs={envs || []} />
+        <Flex flex={1} ml={2} height='fit-content'>
+          <Outlet />
+        </Flex>
       </Flex>
     </>
   )
