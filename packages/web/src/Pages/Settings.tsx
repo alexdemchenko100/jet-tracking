@@ -51,8 +51,8 @@ export function SettingsPage() {
   const { setValue, watch, getValues, handleSubmit } = methods
   const toast = useToast()
   const [errors, setErrors] = useState<SettingFormValidation>({
-    new_notification: {},
-    edit_notification: {},
+    new_notification: { hasErrors: true },
+    edit_notification: { hasErrors: false },
   })
 
   watch()
@@ -60,16 +60,21 @@ export function SettingsPage() {
   useEffect(() => {
     const subscription = watch((value, { name }) => {
       if (name && initialForm) {
-        if (name !== 'settings.notifications' && name !== 'settings.edit_notification') {
+        if (!name.includes('settings.notifications')
+          && !name.includes('settings.edit_notification')
+          && !name.includes('settings.new_notification')
+        ) {
           setFormChanged(JSON.stringify(value.settings) !== JSON.stringify(initialForm))
-        } else if (name === 'settings.edit_notification') {
-          resetForm(userInfo, userSettings, notifications, value.settings.edit_notification)
-        } else if (name === 'settings.notifications') {
+        } else if (name.includes('settings.edit_notification')) {
+          resetForm(userInfo, userSettings, value.settings.notifications, value.settings.edit_notification)
+        } else if (name.includes('settings.notifications')) {
           resetForm(userInfo, userSettings, value.settings.notifications)
+        } else if (name.includes('settings.new_notification')) {
+          resetForm(userInfo, userSettings, value.settings.notifications, value.settings.edit_notification, value.settings.new_notification)
         }
       }
-      let hasErrors = false
       let newNotificationError = {
+        hasErrors: false,
         name: false,
         channel: {
           type: false,
@@ -84,24 +89,28 @@ export function SettingsPage() {
       ) {
         if (!value.settings.new_notification.name) {
           newNotificationError.name = true
-          hasErrors = true
+          newNotificationError.hasErrors = true
         }
         if (!value.settings.new_notification.channel.type) {
           newNotificationError.channel.type = true
-          hasErrors = true
+          newNotificationError.hasErrors = true
         } else {
           if (value.settings.new_notification.channel.type === 'email' && !value.settings.new_notification.channel.email) {
             newNotificationError.channel.email = true
-            hasErrors = true
+            newNotificationError.hasErrors = true
           }
           if (value.settings.new_notification.channel.type !== 'email' && !value.settings.new_notification.channel.webhookUrl) {
             newNotificationError.channel.webhookUrl = true
-            hasErrors = true
+            newNotificationError.hasErrors = true
           }
         }
       }
+      if (!value.settings.new_notification.name && !value.settings.new_notification.channel.type) {
+        newNotificationError.hasErrors = true
+      }
       // valdiate EditNotification form
       let editNotificationError = {
+        hasErrors: false,
         name: false,
         channel: {
           type: false,
@@ -112,24 +121,23 @@ export function SettingsPage() {
       if (value.settings.edit_notification.id) {
         if (!value.settings.edit_notification.name) {
           editNotificationError.name = true
-          hasErrors = true
+          editNotificationError.hasErrors = true
         }
         if (!value.settings.edit_notification.channel.type) {
           editNotificationError.channel.type = true
-          hasErrors = true
+          editNotificationError.hasErrors = true
         } else {
           if (value.settings.edit_notification.channel.type === 'email' && !value.settings.edit_notification.channel.email) {
             editNotificationError.channel.email = true
-            hasErrors = true
+            editNotificationError.hasErrors = true
           }
           if (value.settings.edit_notification.channel.type !== 'email' && !value.settings.edit_notification.channel.webhookUrl) {
             editNotificationError.channel.webhookUrl = true
-            hasErrors = true
+            editNotificationError.hasErrors = true
           }
         }
       }
-      setErrors({ ...errors, edit_notification: editNotificationError, new_notification: newNotificationError })
-      setHasErrors(hasErrors)
+      setErrors({ edit_notification: editNotificationError, new_notification: newNotificationError })
     })
     return () => subscription.unsubscribe()
   }, [watch, initialForm])
@@ -152,7 +160,13 @@ export function SettingsPage() {
     return resp.data
   })
 
-  const resetForm = (profile: UserInfo, settings: Settings, notificationList: NotificationChannel[], editNotification?: NotificationChannel) => {
+  const resetForm = (
+    profile: UserInfo,
+    settings: Settings,
+    notificationList: NotificationChannel[],
+    editNotification?: NotificationChannel,
+    newNotification?: NotificationChannel,
+  ) => {
     const formData = {
       profile: profile,
       security: {
@@ -160,7 +174,7 @@ export function SettingsPage() {
         is_2fa_enabled: false,
         single_sign_on: false,
       },
-      new_notification: {
+      new_notification: newNotification ? newNotification : {
         name: '',
         channel: {},
         isDefaultEnabled: true,
@@ -191,6 +205,7 @@ export function SettingsPage() {
   }, [userSettings, notifications])
 
   const cancelChanges = () => {
+    const notifications = getValues('settings.notifications')
     resetForm(userInfo, userSettings, notifications)
   }
 
@@ -206,17 +221,6 @@ export function SettingsPage() {
       return false
     }
     const settings = getValues('settings')
-    // Save new notification
-    if (settings.new_notification.name && settings.new_notification.channel.type) {
-      await axios.post('/settings/notifications', {
-        ...settings.new_notification,
-      })
-    }
-    if (settings.edit_notification.id) {
-      await axios.put(`/settings/notifications/${settings.edit_notification.id}`, {
-        ...settings.edit_notification,
-      })
-    }
     // Save alert settings
     const userSettings = await axios.put('/settings', {
         alert: settings.alert,
@@ -238,7 +242,7 @@ export function SettingsPage() {
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} autoComplete='nope'>
         <Section>
           <Flex alignItems='center' justify={'space-between'}>
             <Text variant='header' color='black'>Settings</Text>

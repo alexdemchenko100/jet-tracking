@@ -7,6 +7,7 @@ export interface UserInfo {
   phoneNumber?: string | null
 }
 export interface NotificationFormErrors {
+  hasErrors?: boolean
   name?: boolean
   channel?: {
     type?: boolean

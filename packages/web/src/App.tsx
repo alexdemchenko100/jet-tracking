@@ -132,6 +132,14 @@ function App() {
               element={<SettingsPage />}
             >
               <Route
+                path='/console/settings'
+                element={
+                  <ProtectedRoute isAllowed={isLoggedIn}>
+                    <Navigate to='/console/settings/profile' replace />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path='/console/settings/profile'
                 element={
                   <ProtectedRoute isAllowed={isLoggedIn}>

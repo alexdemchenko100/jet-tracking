@@ -19,6 +19,7 @@ import BlueEmailIcon from './assets/email-blue.svg'
 import SlackIcon from './assets/slack-icon.png'
 import MSTeamsIcon from './assets/ms-teams-icon.png'
 import logoTitleWhite from './assets/logo_title_white.svg'
+import googleIcon from './assets/google.png'
 
 export {
   grarGrid,
@@ -42,4 +43,5 @@ export {
   SlackIcon,
   MSTeamsIcon,
   logoTitleWhite,
+  googleIcon,
 }

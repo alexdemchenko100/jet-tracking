@@ -22,24 +22,6 @@ export default function SettingsSecurity() {
 
   return (
     <Box width='100%'>
-      <Section pt={4} pb={6}>
-        <Text variant='title' color='black'>Authentication</Text>
-        <Box mt={8} pb={4} borderBottomColor='lightgray.100' borderBottomWidth='1px' borderStyle='solid'>
-          <InputField>
-            <Text variant='details' color='black' mb={1}>Password</Text>
-            <Input placeholder='Password' type='password' {...register(`settings.security.password` as const)} />
-            <Text variant='details' mt={2} color='darkblue.100' cursor='pointer'>Change password</Text>
-          </InputField>
-        </Box>
-        <Box mt={6}>
-          <FormControl display='flex' alignItems='center'>
-            <Switch id='2fa' size="sm" mr={2} {...register(`settings.security.is_2fa_enabled` as const)} />
-            <FormLabel htmlFor='2fa' m={0}>
-              <Text variant='text-field' color='black'>Two-Factor Authentication</Text>
-            </FormLabel>
-          </FormControl>
-        </Box>
-      </Section>
       <Section pt={4} pb={20}>
         <Text variant='title' color='black'>Settings</Text>
         <Box mt={6}>

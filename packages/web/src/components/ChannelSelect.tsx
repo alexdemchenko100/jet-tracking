@@ -40,7 +40,7 @@ const ChannelSelect: React.FC<ChannelSelectProps> = ({ channel, onSelect, hasErr
       <MenuButton
         as={Button}
         bg='transparent'
-        width={80}
+        width='100%'
         rightIcon={<FiChevronDown />}
         border='1px'
         borderStyle='solid'
