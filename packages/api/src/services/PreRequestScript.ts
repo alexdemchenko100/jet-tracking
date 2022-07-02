@@ -73,5 +73,5 @@ export async function setupMonitorForExec(mon: Monitor) {
     return execPreRequestScript(mon)
   }
 
-  return null
+  return mon
 }

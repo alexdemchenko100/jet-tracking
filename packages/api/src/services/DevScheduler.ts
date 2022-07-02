@@ -39,7 +39,7 @@ export async function setupEmitterHandlers() {
   logger.info('* setting emitter *')
 
   emitter.on('execPreScript', async (mon: Monitor) => {
-    logger.info('execPreScript')
+    logger.info(`${mon.name} - ${mon.url}`, 'execPreScript')
     const newmon = await setupMonitorForExec(mon)
     if (newmon) emitter.emit('execAfterPreScript', newmon)
   })
