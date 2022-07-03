@@ -8,14 +8,15 @@ datasource db {
 }
 
 model Account {
-  id            String                @id
-  name          String                @unique
-  users         UserAccount[]
-  Monitor       Monitor[]
-  MonitorResult MonitorResult[]
-  MonEnv        MonEnv[]
-  notifications NotificationChannel[]
-  settings      Settings[]
+  id                String                @id
+  name              String                @unique
+  users             UserAccount[]
+  Monitor           Monitor[]
+  MonitorResult     MonitorResult[]
+  MonEnv            MonEnv[]
+  notifications     NotificationChannel[]
+  settings          Settings[]
+  NotificationState NotificationState[]
 }
 
 model UserAccount {
@@ -68,6 +69,7 @@ model Monitor {
   account         Account         @relation(fields: [accountId], references: [id])
   accountId       String
 
+  NotificationState NotificationState[]
   @@unique([name, accountId])
 }
 
@@ -96,10 +98,11 @@ model MonitorResult {
   certCommonName String
   assertResults  Json     @default("[]")
 
-  monitor   Monitor @relation(fields: [monitorId], references: [id], onDelete: Cascade)
-  account   Account @relation(fields: [accountId], references: [id])
-  monitorId String // relation scalar field  (used in the `@relation` attribute above)
-  accountId String
+  monitor           Monitor             @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  account           Account             @relation(fields: [accountId], references: [id])
+  monitorId         String // relation scalar field  (used in the `@relation` attribute above)
+  accountId         String
+  NotificationState NotificationState[]
 }
 
 model NotificationChannel {
@@ -113,6 +116,19 @@ model NotificationChannel {
   accountId               String
 
   @@unique([name, accountId])
+}
+
+model NotificationState {
+  id        String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt DateTime       @default(now())
+  account   Account        @relation(fields: [accountId], references: [id])
+  accountId String
+  monitor   Monitor        @relation(fields: [monitorId], references: [id])
+  monitorId String
+  state     String         @default("")
+  message   String         @default("")
+  Result    MonitorResult? @relation(fields: [resultId], references: [id])
+  resultId  String?        @db.Uuid
 }
 
 model Settings {

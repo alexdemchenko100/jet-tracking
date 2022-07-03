@@ -4,6 +4,7 @@ import { handlePreScriptExecution } from '@httpmon/sandbox'
 import { makeMonitorResultError } from './MonitorExecutor'
 import { logger } from '../Context'
 import { saveMonitorResult } from './DBService'
+import { MonitorResultEvent, publishEvent } from './EventService'
 
 function headersToMap(headers: MonitorTuples = []) {
   let hmap: { [key: string]: string } = {}
@@ -61,7 +62,21 @@ export async function execPreRequestScript(mon: Monitor) {
     //createdAt caused type issue for db
     const result = makeMonitorResultError(mon, e.err ?? e.toString())
     result.codeStatus = result.err
+
     const monitorResult = await saveMonitorResult(result)
+
+    if (!mon.notifications || !mon.id || !monitorResult?.id) return
+
+    publishEvent({
+      type: 'monitor-result',
+      data: {
+        monitorId: mon.id,
+        resultId: monitorResult.id,
+        accountId: mon.accountId,
+        notifications: mon.notifications,
+        err: result.err,
+      },
+    })
   }
   return null
 }

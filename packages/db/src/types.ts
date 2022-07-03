@@ -177,13 +177,11 @@ export const MonitorAuthFluentSchema = S.object()
 export const MonitorNotificationSchema = S.object()
   .prop('useGlobal', S.boolean().default(true))
   .prop('failCount', S.integer().minimum(0).maximum(10))
-  .prop('failTimeMinutes', S.integer().enum(Object.values([0,5,10,15,20,30,60])))
   .prop(
-    'channels',
-    S.array().items(
-      S.string()
-    )
+    'failTimeMinutes',
+    S.integer().enum(Object.values([0, 5, 10, 15, 20, 30, 60]))
   )
+  .prop('channels', S.array().items(S.string()))
 
 export const MonitorFluentSchema = S.object()
   .prop('id', S.string())
@@ -360,7 +358,7 @@ export const MSTeamsNotificationSchema = S.object()
 export type NotificationChannel = {
   id?: string
   accountId: string
-  name: string  // notification name
+  name: string // notification name
   isDefaultEnabled: boolean
   applyOnExistingMonitors: boolean
   channel:
@@ -374,7 +372,14 @@ export const NotificationSchema = S.object()
   .prop('id', S.string())
   .prop('isDefaultEnabled', S.boolean().default(false))
   .prop('applyOnExistingMonitors', S.boolean().default(false))
-  .prop('channel', S.anyOf([SlackNotificationSchema, EmailNotificationSchema, MSTeamsNotificationSchema]))
+  .prop(
+    'channel',
+    S.anyOf([
+      SlackNotificationSchema,
+      EmailNotificationSchema,
+      MSTeamsNotificationSchema,
+    ])
+  )
 
 export type AlertSettings = {
   failCount: number // send notification after the number of failures
@@ -383,14 +388,35 @@ export type AlertSettings = {
 
 export const AlertSettingsSchema = S.object()
   .prop('failCount', S.integer().minimum(0).maximum(10))
-  .prop('failTimeMinutes', S.integer().enum(Object.values([0,5,10,15,20,30,60])))
+  .prop(
+    'failTimeMinutes',
+    S.integer().enum(Object.values([0, 5, 10, 15, 20, 30, 60]))
+  )
 
 export type Settings = {
   id?: string
   alert: AlertSettings
   accountId: string
 }
-  
+
 export const SettingsSchema = S.object()
   .prop('id', S.string())
   .prop('alert', AlertSettingsSchema)
+
+export type NotificationState = {
+  id?: string
+  createdAt?: String | Date
+  accountId: string
+  monitorId: string
+  resultId: string
+  state: string // notification state
+  message?: string
+}
+
+export const NotificationStateSchema = S.object()
+  .prop('createdAt', S.string())
+  .prop('accountId', S.string())
+  .prop('monitorId', S.string())
+  .prop('resultId', S.string())
+  .prop('state', S.string())
+  .prop('message', S.string())

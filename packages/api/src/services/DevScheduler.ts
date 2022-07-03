@@ -4,7 +4,7 @@ import { logger } from '../Context'
 import { emitter } from './emitter'
 import { execMonitorAndProcessResponse } from './MonitorExecutor'
 import { setupMonitorForExec } from './PreRequestScript'
-import { handleMonitorResultErorr } from './NotificationService'
+import { handleMonitorResult } from './NotificationService'
 import { SynthEvent } from './EventService'
 
 async function selectReadyMonitors() {
@@ -49,7 +49,7 @@ export async function setupEmitterHandlers() {
     await execMonitorAndProcessResponse(mon)
   })
 
-  emitter.on('monitor-result-error', async (event: SynthEvent) => {
-    await handleMonitorResultErorr(event)
+  emitter.on('monitor-result', async (event: SynthEvent) => {
+    await handleMonitorResult(event)
   })
 }

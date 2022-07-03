@@ -1,54 +1,83 @@
-import { Monitor, MonitorResult, SlackNotificationChannel, MSTeamsNotificationChannel } from '@httpmon/db'
+import {
+  Monitor,
+  MonitorResult,
+  SlackNotificationChannel,
+  MSTeamsNotificationChannel,
+} from '@httpmon/db'
 import got from 'got'
 import { formatAssertionResults } from './Assertions'
 
 export function sendSlackNotification(
+  type: string,
   channel: SlackNotificationChannel,
   monitor: Monitor,
   result: MonitorResult
 ) {
+  let message = ''
+  if (type == 'Alert') {
+    message = `Monitor *${monitor.name}* failed\n
+    Url: ${monitor.url}
+    Location: ${result.location}
+    Error: ${result.err}
+    ${formatAssertionResults(result)}
+    Result: ${result.id}`
+  } else if (type == 'Recover') {
+    //its receovery
+    message = `Monitor *${monitor.name}* recovered and its Up now\n
+    Url: ${monitor.url}
+    Location: ${result.location}
+    Result: ${result.id}`
+  }
+
   got.post(channel.webhookUrl, {
     json: {
-      text: `Monitor *${monitor.name}* failed\n
-      Url: ${monitor.url}
-      Location: ${result.location}
-      Error: ${result.err}
-      ${formatAssertionResults(result)}
-      Result: ${result.id}`,
+      text: message,
     },
   })
 }
 
 export function sendMSTeamsNotification(
+  type: string,
   channel: MSTeamsNotificationChannel,
   monitor: Monitor,
   result: MonitorResult
 ) {
+  let message = ''
+  if (type == 'Alert') {
+    message = `Monitor *${monitor.name}* failed\n
+    Url: ${monitor.url}
+    Location: ${result.location}
+    Error: ${result.err}
+    ${formatAssertionResults(result)}
+    Result: ${result.id}`
+  } else if (type == 'Recover') {
+    //its receovery
+    message = `Monitor *${monitor.name}* recovered and its Up now\n
+    Url: ${monitor.url}
+    Location: ${result.location}
+    Result: ${result.id}`
+  }
+
   got.post(channel.webhookUrl, {
     json: {
-      type: "message",
-      attachments:  [
+      type: 'message',
+      attachments: [
         {
-          contentType: "application/vnd.microsoft.card.adaptive",
+          contentType: 'application/vnd.microsoft.card.adaptive',
           contentUrl: null,
           content: {
-            $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
-            type: "AdaptiveCard",
-            version: "1.2",
+            $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',
+            type: 'AdaptiveCard',
+            version: '1.2',
             body: [
               {
-                type: "TextBlock",
-                text: `Monitor *${monitor.name}* failed\n
-                  Url: ${monitor.url}
-                  Location: ${result.location}
-                  Error: ${result.err}
-                  ${formatAssertionResults(result)}
-                  Result: ${result.id}`,
-              }
-            ]
-          }
-        }
-      ]
-    }
+                type: 'TextBlock',
+                text: message,
+              },
+            ],
+          },
+        },
+      ],
+    },
   })
 }

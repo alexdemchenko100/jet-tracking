@@ -4,7 +4,7 @@ import { JwksClient } from 'jwks-rsa'
 import S from 'fluent-json-schema'
 import Ajv from 'ajv'
 import { SynthEvent, SynthEventSchema } from 'src/services/EventService'
-import { handleMonitorResultErorr } from 'src/services/NotificationService'
+import { handleMonitorResult } from 'src/services/NotificationService'
 
 const PubsubMessageSchema = S.object()
   .prop('subscription', S.string())
@@ -84,7 +84,7 @@ export default async function NotificationRouter(app: FastifyInstance) {
       app.log.info(event, 'Notification handling for event')
 
       //business logic
-      await handleMonitorResultErorr(event)
+      await handleMonitorResult(event)
 
       reply.code(200).send()
     }

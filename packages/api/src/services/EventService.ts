@@ -2,23 +2,25 @@ import { PubSub } from '@google-cloud/pubsub'
 import { logger, state } from '../Context'
 import S from 'fluent-json-schema'
 import emitter from './emitter'
+import { MonitorNotifications } from '@httpmon/db'
 
 export interface SynthEvent {
   type: string
-  id?: string
-  monitorId?: string
-  accountId?: string
-  name?: string
-  message?: string
+  data: MonitorResultEvent
+}
+
+export interface MonitorResultEvent {
+  accountId: string
+  monitorId: string
+  resultId: string
+  err: string
+  notifications: MonitorNotifications
 }
 
 export const SynthEventSchema = S.object()
   .prop('type', S.string())
   .required()
-  .prop('id', S.string())
-  .prop('accountId', S.string())
-  .prop('name', S.string())
-  .prop('message', S.string())
+  .prop('data', S.object())
 
 let pubsub: PubSub | null = null
 
@@ -42,9 +44,7 @@ export async function publishEvent(event: SynthEvent) {
       .publishMessage({ attributes: { type: event.type }, json: event })
     logger.info(event, `Published event ${event.type} to ${projectId}-events`)
   } catch (error) {
-    logger.error(
-      `Received error while publishing to ${projectId}-events - ${error.message}`
-    )
+    logger.error(`Received error while publishing to ${projectId}-events - ${error.message}`)
   }
 }
 
