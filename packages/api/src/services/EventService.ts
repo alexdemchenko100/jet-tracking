@@ -2,14 +2,9 @@ import { PubSub } from '@google-cloud/pubsub'
 import { logger, state } from '../Context'
 import S from 'fluent-json-schema'
 import emitter from './emitter'
-import { MonitorNotifications } from '@httpmon/db'
-
-export interface SynthEvent {
-  type: string
-  data: MonitorResultEvent
-}
-
+import { MonitorNotifications, MonitorNotificationSchema } from '@httpmon/db'
 export interface MonitorResultEvent {
+  type: string
   accountId: string
   monitorId: string
   resultId: string
@@ -17,14 +12,18 @@ export interface MonitorResultEvent {
   notifications: MonitorNotifications
 }
 
-export const SynthEventSchema = S.object()
+export const MonitorResultEventSchema = S.object()
   .prop('type', S.string())
   .required()
-  .prop('data', S.object())
+  .prop('accountId', S.string())
+  .prop('monitorId', S.string())
+  .prop('resultId', S.string())
+  .prop('err', S.string())
+  .prop('notifications', MonitorNotificationSchema)
 
 let pubsub: PubSub | null = null
 
-export async function publishEvent(event: SynthEvent) {
+export async function publishPostRequestEvent(event: MonitorResultEvent) {
   if (state.projectId === '' || process.env.NODE_ENV !== 'production') {
     publishLocally(event)
     return
@@ -40,7 +39,7 @@ export async function publishEvent(event: SynthEvent) {
   //publish  to cloud pubsub
   try {
     await pubsub
-      .topic(`${projectId}-events`)
+      .topic(`${projectId}-postrequest`)
       .publishMessage({ attributes: { type: event.type }, json: event })
     logger.info(event, `Published event ${event.type} to ${projectId}-events`)
   } catch (error) {
@@ -48,7 +47,7 @@ export async function publishEvent(event: SynthEvent) {
   }
 }
 
-function publishLocally(event: SynthEvent) {
+function publishLocally(event: MonitorResultEvent) {
   logger.info(event, 'Publishing locally')
   emitter.emit(event.type, event)
 }

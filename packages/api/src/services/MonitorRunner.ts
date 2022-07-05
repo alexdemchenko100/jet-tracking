@@ -9,7 +9,7 @@ import got, { Method, RequestError, Response } from 'got'
 import { Timings } from '@szmarczak/http-timer/dist/source'
 import { getCloudRegion, logger } from '../Context'
 import { processAssertions } from './Assertions'
-import { MonitorResultEvent, publishEvent } from './EventService'
+import { MonitorResultEvent, publishPostRequestEvent } from './EventService'
 import { saveMonitorResult } from './DBService'
 
 const customGot = got.extend({
@@ -239,7 +239,7 @@ export async function execMonitor(monitor: Monitor) {
   }
 }
 
-export async function execMonitorAndProcessResponse(monitor: Monitor) {
+export async function runMonitor(monitor: Monitor) {
   const result = await execMonitor(monitor)
   if (result.err == '') {
     const asserionResults = processAssertions(monitor, result)
@@ -260,6 +260,7 @@ export async function execMonitorAndProcessResponse(monitor: Monitor) {
   if (!monitor.notifications || !monitor.id || !monitorResult?.id) return
 
   let resultEvent: MonitorResultEvent = {
+    type: 'monitor-postrequest',
     monitorId: monitor.id,
     resultId: monitorResult.id,
     accountId: monitor.accountId,
@@ -267,8 +268,5 @@ export async function execMonitorAndProcessResponse(monitor: Monitor) {
     err: result.err,
   }
 
-  publishEvent({
-    type: 'monitor-result',
-    data: resultEvent,
-  })
+  publishPostRequestEvent(resultEvent)
 }

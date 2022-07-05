@@ -1,10 +1,10 @@
 import { Monitor, MonitorRequest, MonitorTuples } from '@httpmon/db'
 
 import { handlePreScriptExecution } from '@httpmon/sandbox'
-import { makeMonitorResultError } from './MonitorExecutor'
+import { makeMonitorResultError } from './MonitorRunner'
 import { logger } from '../Context'
 import { saveMonitorResult } from './DBService'
-import { MonitorResultEvent, publishEvent } from './EventService'
+import { publishPostRequestEvent } from './EventService'
 
 function headersToMap(headers: MonitorTuples = []) {
   let hmap: { [key: string]: string } = {}
@@ -67,21 +67,19 @@ export async function execPreRequestScript(mon: Monitor) {
 
     if (!mon.notifications || !mon.id || !monitorResult?.id) return
 
-    publishEvent({
-      type: 'monitor-result',
-      data: {
-        monitorId: mon.id,
-        resultId: monitorResult.id,
-        accountId: mon.accountId,
-        notifications: mon.notifications,
-        err: result.err,
-      },
+    publishPostRequestEvent({
+      type: 'monitor-postrequest',
+      monitorId: mon.id,
+      resultId: monitorResult.id,
+      accountId: mon.accountId,
+      notifications: mon.notifications,
+      err: result.err,
     })
   }
   return null
 }
 
-export async function setupMonitorForExec(mon: Monitor) {
+export async function handlePreRequest(mon: Monitor) {
   //Todo: Compute final Env
 
   if (mon.preScript && mon.preScript.length > 0) {

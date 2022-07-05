@@ -1,13 +1,11 @@
-import { db, Monitor, MonitorNotifications, MonitorResult } from '@httpmon/db'
-import { nanoid } from 'nanoid'
+import { db, MonitorResult } from '@httpmon/db'
 import { logger } from 'src/Context'
-import { MonitorResultEvent, SynthEvent } from './EventService'
+import { MonitorResultEvent } from './EventService'
 import { sendSlackNotification, sendMSTeamsNotification } from './SlackNotification'
 
-export async function handleMonitorResult(synthEvent: SynthEvent) {
+export async function handlePostRequest(event: MonitorResultEvent) {
   //from event id, get monitor result from db
 
-  let event = synthEvent.data as MonitorResultEvent
   // logger.error(event, 'IN Notification Service')
 
   let failCount = event.notifications.failCount ?? 0

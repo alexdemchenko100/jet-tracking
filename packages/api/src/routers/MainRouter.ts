@@ -1,12 +1,12 @@
 import { FastifyInstance } from 'fastify'
 import MonitorRouter from './AuthRouters/MonitorRouter.js'
-import MonitorExecutorRouter from './CloudHookRouters/MonitorExecutorRouter.js'
+import MonitorRunRouter from './CloudHookRouters/MonitorRunRouter.js'
 import SchedulerRouter from './CloudHookRouters/SchedulerRouter.js'
-import NotificationRouter from './CloudHookRouters/NotificationRouter.js'
+import MonitorPostRequestRouter from './CloudHookRouters/MonitorPostRequestRouter.js'
 import OndemandMonitorRouter from './PublicRouters/OndemandMonitorRouter.js'
 import EnvRouter from './AuthRouters/EnvRouter.js'
 import SettingsRouter from './AuthRouters/SettingsRouter.js'
-import MonitorSetupExecRouter from './CloudHookRouters/MonitorSetupExecRouter.js'
+import MonitorPreRequestRouter from './CloudHookRouters/MonitorPreRequestRouter.js'
 
 export default async function MainRouter(fastify: FastifyInstance) {
   //Public API router
@@ -19,9 +19,9 @@ export default async function MainRouter(fastify: FastifyInstance) {
 
   //cloud hooks for backend processing
   fastify.register(SchedulerRouter, { prefix: '/services/scheduler' })
-  fastify.register(MonitorExecutorRouter, { prefix: '/services/monitor' })
-  fastify.register(MonitorSetupExecRouter, { prefix: '/services/monitor-setup-exec' })
-  fastify.register(NotificationRouter, { prefix: '/services/notification' })
+  fastify.register(MonitorPreRequestRouter, { prefix: '/services/monitor-prerequest' })
+  fastify.register(MonitorRunRouter, { prefix: '/services/monitor-run' })
+  fastify.register(MonitorPostRequestRouter, { prefix: '/services/monitor-postrequest' })
 
   fastify.setNotFoundHandler((_req, reply) => {
     // The expected errors will be handled here, but unexpected ones should eventually result in a crash.

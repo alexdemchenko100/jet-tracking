@@ -1,7 +1,7 @@
 import { currentUserInfo } from './../Context'
 import emitter from './emitter.js'
 
-import { db, Monitor, MonitorResult, MonitorTuples } from '@httpmon/db'
+import { db, Monitor, MonitorTuples } from '@httpmon/db'
 import { nanoid } from 'nanoid'
 import pino from 'pino'
 import dayjs from 'dayjs'

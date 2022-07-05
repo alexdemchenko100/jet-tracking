@@ -2,10 +2,10 @@ import { db, Monitor } from '@httpmon/db'
 import { sql } from 'kysely'
 import { logger } from '../Context'
 import { emitter } from './emitter'
-import { execMonitorAndProcessResponse } from './MonitorExecutor'
-import { setupMonitorForExec } from './PreRequestScript'
-import { handleMonitorResult } from './NotificationService'
-import { SynthEvent } from './EventService'
+import { runMonitor } from './MonitorRunner'
+import { handlePreRequest } from './PreRequestService'
+import { handlePostRequest } from './PostRequestService'
+import { MonitorResultEvent } from './EventService'
 
 async function selectReadyMonitors() {
   const now = new Date(Date.now())
@@ -31,25 +31,25 @@ export async function schedule() {
   for (let i = 0; i < monitors.length; i++) {
     const mon = monitors[i]
 
-    emitter.emit('execPreScript', mon)
+    emitter.emit('monitor-prerequest', mon)
   }
 }
 
 export async function setupEmitterHandlers() {
   logger.info('* setting emitter *')
 
-  emitter.on('execPreScript', async (mon: Monitor) => {
-    logger.info(`${mon.name} - ${mon.url}`, 'execPreScript')
-    const newmon = await setupMonitorForExec(mon)
-    if (newmon) emitter.emit('execAfterPreScript', newmon)
+  emitter.on('monitor-prerequest', async (mon: Monitor) => {
+    logger.info(`${mon.name} - ${mon.url}`, 'monitor-prerequest')
+    const newmon = await handlePreRequest(mon)
+    if (newmon) emitter.emit('monitor-run', newmon)
   })
 
-  emitter.on('execAfterPreScript', async (mon: Monitor) => {
-    logger.info('execAfterPreScript')
-    await execMonitorAndProcessResponse(mon)
+  emitter.on('monitor-run', async (mon: Monitor) => {
+    logger.info('monitor')
+    await runMonitor(mon)
   })
 
-  emitter.on('monitor-result', async (event: SynthEvent) => {
-    await handleMonitorResult(event)
+  emitter.on('monitor-postrequest', async (event: MonitorResultEvent) => {
+    await handlePostRequest(event)
   })
 }

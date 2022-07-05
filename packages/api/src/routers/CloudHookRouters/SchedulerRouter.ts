@@ -37,7 +37,7 @@ let pubsub: PubSub | null = null
 
 //TOPIC name would be prohectId-monitor-locationName ex: httpmon-test-monitor-us-east1
 
-async function publishMonitorSetupMessage(mon: Monitor) {
+async function publishMonitorPreRequestMessage(mon: Monitor) {
   const projectId = state.projectId
   if (!pubsub) {
     pubsub = new PubSub({ projectId })
@@ -45,7 +45,7 @@ async function publishMonitorSetupMessage(mon: Monitor) {
 
   if (!pubsub) throw new Error('Pubsub is not initialized')
 
-  const TOPIC_NAME = `${projectId}-monitor-setup-exec`
+  const TOPIC_NAME = `${projectId}-monitor-prerequest`
   try {
     await pubsub?.topic(TOPIC_NAME).publishMessage({ json: mon })
   } catch (error) {
@@ -105,7 +105,7 @@ export default async function SchedulerRouter(app: FastifyInstance) {
 
       try {
         monitors.forEach((mon) => {
-          publishMonitorSetupMessage(mon)
+          publishMonitorPreRequestMessage(mon)
         })
       } catch (e: any) {
         app.log.error(`monitor exec failed: ${e.toString()}`)
