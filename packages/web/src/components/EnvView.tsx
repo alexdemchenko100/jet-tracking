@@ -46,18 +46,17 @@ export default function EnvView() {
     axios({
       method: 'DELETE',
       url: `/environments/${id}`,
-    })
-      .then(() => {
-        toast({
-          position: 'top',
-          description: 'The env has been removed successfully.',
-          status: 'success',
-          duration: 2000,
-        })
-        onModalClose()
-        setIsModalOpen(false)
-        navigate('/console/envs')
+    }).then(() => {
+      toast({
+        position: 'top',
+        description: 'The env has been removed successfully.',
+        status: 'success',
+        duration: 2000,
       })
+      onModalClose()
+      setIsModalOpen(false)
+      navigate('/console/envs')
+    })
   }
 
   if (isLoading) {
@@ -68,7 +67,9 @@ export default function EnvView() {
     <Section py={4} w='100%' minH='80'>
       <Flex justify='start' gap={4} direction='column'>
         <Flex alignItems='center' justifyContent='space-between'>
-          <Text variant='title' color='black'>{monEnv?.name}</Text>
+          <Text variant='title' color='black'>
+            {monEnv?.name}
+          </Text>
           <Flex gap={2}>
             <Button
               w={7}
@@ -94,19 +95,23 @@ export default function EnvView() {
             </Button>
           </Flex>
         </Flex>
-      <Divider />
-      <Box mt='2'>
-        {monEnv?.env.map((item, index) => (
-          <Flex key={index} alignItems='flex-end' mb='4' gap={4}>
-            <Box w={96}>
-              <Text variant='details' color='black'>Token</Text>
-              <Input type='text' defaultValue={item[0]} color='gray.300' />
-            </Box>
-            <Box w={96}>
-              <Text variant='details' color='black'>Key</Text>
-              <Input type='text' defaultValue={item[1]} color='gray.300' />
-            </Box>
-          </Flex>
+        <Divider />
+        <Box mt='2'>
+          {monEnv?.env.map((item, index) => (
+            <Flex key={index} alignItems='flex-end' mb='4' gap={4}>
+              <Box w={96}>
+                <Text variant='details' color='black'>
+                  Token
+                </Text>
+                <Input type='text' defaultValue={item[0]} color='gray.300' />
+              </Box>
+              <Box w={96}>
+                <Text variant='details' color='black'>
+                  Key
+                </Text>
+                <Input type='text' defaultValue={item[1]} color='gray.300' />
+              </Box>
+            </Flex>
           ))}
         </Box>
       </Flex>
@@ -120,7 +125,9 @@ export default function EnvView() {
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Text variant='text-field' color='gray.300'>Are you really sure to delete this env?</Text>
+            <Text variant='text-field' color='gray.300'>
+              Are you really sure to delete this env?
+            </Text>
           </ModalBody>
           <ModalFooter>
             <Button

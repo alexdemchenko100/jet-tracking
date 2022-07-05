@@ -25,9 +25,19 @@ import {
   ModalBody,
   ModalFooter,
 } from '@chakra-ui/react'
-import { useForm } from "react-hook-form";
+import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import { FiEdit, FiTrendingUp, FiTrendingDown, FiPause, FiGrid, FiList, FiTrash2, FiChevronUp, FiChevronDown } from 'react-icons/fi'
+import {
+  FiEdit,
+  FiTrendingUp,
+  FiTrendingDown,
+  FiPause,
+  FiGrid,
+  FiList,
+  FiTrash2,
+  FiChevronUp,
+  FiChevronDown,
+} from 'react-icons/fi'
 import { CgChevronLeft, CgChevronRight } from 'react-icons/cg'
 import {
   Pagination,
@@ -37,14 +47,8 @@ import {
   PaginationContainer,
   PaginationPage,
   usePagination,
-} from "@ajna/pagination";
-import {
-  Text,
-  Section,
-  PrimaryButton,
-  StatusUpOrDown,
-  NewMonitorHero,
-} from '../components'
+} from '@ajna/pagination'
+import { Text, Section, PrimaryButton, StatusUpOrDown, NewMonitorHero } from '../components'
 import { Store } from '../services/Store'
 
 interface StatusProps {
@@ -82,7 +86,7 @@ const uptime24 = (m: MonitorStats) => {
   }
 }
 
-function RunChart({ stats, narrowMode }: { stats?: MonitorStats, narrowMode?: boolean }) {
+function RunChart({ stats, narrowMode }: { stats?: MonitorStats; narrowMode?: boolean }) {
   const navigate = useNavigate()
   if (!stats || !stats.lastResults) {
     return <></>
@@ -95,11 +99,22 @@ function RunChart({ stats, narrowMode }: { stats?: MonitorStats, narrowMode?: bo
   return (
     <Flex gap={narrowMode ? '1' : '2'} alignItems='baseline' maxW={'430px'} height='auto'>
       {stats.lastResults.map((r) => (
-        <Tooltip borderRadius='4' bg='darkgray.100' py={0.5} px={1.5} fontSize='sm' fontWeight='600' label={'Time - ' + r.totalTime + 'ms'} key={r.id}>
+        <Tooltip
+          borderRadius='4'
+          bg='darkgray.100'
+          py={0.5}
+          px={1.5}
+          fontSize='sm'
+          fontWeight='600'
+          label={'Time - ' + r.totalTime + 'ms'}
+          key={r.id}
+        >
           <Box
             key={r.id}
             w='1.5'
-            h={`${r.totalTime > p50 ? (r.totalTime > p95 ? 28 * times : 24 * times) : 20 * times}px`}
+            h={`${
+              r.totalTime > p50 ? (r.totalTime > p95 ? 28 * times : 24 * times) : 20 * times
+            }px`}
             bgColor={stats.status === 'paused' ? 'gold.200' : r.err ? 'red.200' : 'green.200'}
             borderRadius='4'
             _hover={{
@@ -132,41 +147,80 @@ function MonitorStatusCard({ mon, stats }: StatusProps) {
       p='6'
       pb='5'
       justifyContent='begin'
-      
     >
       <Flex justify='space-between' alignItems='center' mb={2}>
-        <Flex alignItems='center' cursor='pointer' onClick={() => navigate(`/console/monitors/${mon?.id}`)}>
-          <Text variant='header' color='black' _hover={{ color: 'darkblue.100' }} transition='color 0.2s ease'>{mon?.name}</Text>
+        <Flex
+          alignItems='center'
+          cursor='pointer'
+          onClick={() => navigate(`/console/monitors/${mon?.id}`)}
+        >
+          <Text
+            variant='header'
+            color='black'
+            _hover={{ color: 'darkblue.100' }}
+            transition='color 0.2s ease'
+          >
+            {mon?.name}
+          </Text>
           <StatusUpOrDown stats={stats} />
         </Flex>
-        <Button borderRadius='4' bg='lightgray.100' p='0' onClick={() => navigate(`/console/monitors/${mon?.id}/edit`)}>
+        <Button
+          borderRadius='4'
+          bg='lightgray.100'
+          p='0'
+          onClick={() => navigate(`/console/monitors/${mon?.id}/edit`)}
+        >
           <Icon color='gray.300' as={FiEdit} cursor='pointer' />
         </Button>
       </Flex>
-      <Text variant='text-field' color='gray.300' textOverflow='ellipsis' overflow='hidden' whiteSpace='nowrap'>{mon?.url}</Text>
+      <Text
+        variant='text-field'
+        color='gray.300'
+        textOverflow='ellipsis'
+        overflow='hidden'
+        whiteSpace='nowrap'
+      >
+        {mon?.url}
+      </Text>
       <Box mt={4} w={8} h={1} bg='gray.200' borderRadius='2'></Box>
       <Box my={5}>
         <RunChart stats={stats} />
       </Box>
       <Flex>
         <Flex flexDirection={'column'} mr={10}>
-          <Text variant='emphasis' color='black' mb={2}>UPTIME</Text>
-          <Text variant='emphasis' color='gray.300'>{mon?.uptime + '%'}</Text>
+          <Text variant='emphasis' color='black' mb={2}>
+            UPTIME
+          </Text>
+          <Text variant='emphasis' color='gray.300'>
+            {mon?.uptime + '%'}
+          </Text>
         </Flex>
 
         <Flex flexDirection={'column'} mr={10}>
-          <Text variant='emphasis' color='black' mb={2}>24Hr AVG</Text>
-          <Text variant='emphasis' color='gray.300'>{stats?.day.avg.toFixed(2)}</Text>
+          <Text variant='emphasis' color='black' mb={2}>
+            24Hr AVG
+          </Text>
+          <Text variant='emphasis' color='gray.300'>
+            {stats?.day.avg.toFixed(2)}
+          </Text>
         </Flex>
 
         <Flex flexDirection={'column'} mr={10}>
-          <Text variant='emphasis' color='black' mb={2}>24Hr MEDIAN</Text>
-          <Text variant='emphasis' color='gray.300'>{stats?.day.p50.toFixed(2)}</Text>
+          <Text variant='emphasis' color='black' mb={2}>
+            24Hr MEDIAN
+          </Text>
+          <Text variant='emphasis' color='gray.300'>
+            {stats?.day.p50.toFixed(2)}
+          </Text>
         </Flex>
 
         <Flex flexDirection={'column'}>
-          <Text variant='emphasis' color='black' mb={2}>24 Hr P95</Text>
-          <Text variant='emphasis' color='gray.300'>{stats?.day.p95.toFixed(2)}</Text>
+          <Text variant='emphasis' color='black' mb={2}>
+            24 Hr P95
+          </Text>
+          <Text variant='emphasis' color='gray.300'>
+            {stats?.day.p95.toFixed(2)}
+          </Text>
         </Flex>
       </Flex>
     </Flex>
@@ -197,14 +251,26 @@ const StatBox = ({ status, value }: StatBoxProps) => {
       borderColor='gray.200'
       borderStyle='solid'
     >
-      <Flex width={10} mr={{ sm: 2, lg: 4 }} height={10} alignItems='center' justifyContent='center' borderRadius={8} bg={bgColor}>
+      <Flex
+        width={10}
+        mr={{ sm: 2, lg: 4 }}
+        height={10}
+        alignItems='center'
+        justifyContent='center'
+        borderRadius={8}
+        bg={bgColor}
+      >
         {status === 'up' && <Icon color='white' as={FiTrendingUp} />}
         {status === 'down' && <Icon color='white' as={FiTrendingDown} />}
         {status === 'paused' && <Icon color='white' fill='white' as={FiPause} />}
       </Flex>
       <Flex direction={'column'}>
-        <Text variant='text-field' color='gray.300' mb={1}>Total {status}</Text>
-        <Text variant='emphasis' color='black'>{value}</Text>
+        <Text variant='text-field' color='gray.300' mb={1}>
+          Total {status}
+        </Text>
+        <Text variant='emphasis' color='black'>
+          {value}
+        </Text>
       </Flex>
     </Flex>
   )
@@ -232,28 +298,52 @@ const MonitorListItem = ({ mon, stats, onDelete }: MonitorListProps) => {
           {mon.status === 'paused' && (
             <>
               <Icon color='gold.200' fill='gold.200' as={FiPause} />
-              <Text variant='text-field' color='gray.300'>Pause</Text>
+              <Text variant='text-field' color='gray.300'>
+                Pause
+              </Text>
             </>
           )}
           {mon.status === 'up' && (
             <>
               <Icon color='darkblue.100' as={FiTrendingUp} />
-              <Text variant='text-field' color='gray.300'>Up</Text>
+              <Text variant='text-field' color='gray.300'>
+                Up
+              </Text>
             </>
           )}
           {mon.status === 'down' && (
             <>
               <Icon color='red.200' as={FiTrendingDown} />
-              <Text variant='text-field' color='gray.300'>Down</Text>
+              <Text variant='text-field' color='gray.300'>
+                Down
+              </Text>
             </>
           )}
         </Flex>
       </Td>
-      <Td px={4} py={2}><RunChart stats={stats} narrowMode /></Td>
-      <Td px={4} py={2}><Text variant='text-field' color='gray.300'>{mon.uptime + '%'}</Text></Td>
-      <Td px={4} py={2}><Text variant='text-field' color='gray.300'>{mon.dayAvg?.toFixed(2)}</Text></Td>
-      <Td px={4} py={2}><Text variant='text-field' color='gray.300'>{mon.day50?.toFixed(2)}</Text></Td>
-      <Td px={4} py={2}><Text variant='text-field' color='gray.300'>{stats?.day.p95.toFixed(2)}</Text></Td>
+      <Td px={4} py={2}>
+        <RunChart stats={stats} narrowMode />
+      </Td>
+      <Td px={4} py={2}>
+        <Text variant='text-field' color='gray.300'>
+          {mon.uptime + '%'}
+        </Text>
+      </Td>
+      <Td px={4} py={2}>
+        <Text variant='text-field' color='gray.300'>
+          {mon.dayAvg?.toFixed(2)}
+        </Text>
+      </Td>
+      <Td px={4} py={2}>
+        <Text variant='text-field' color='gray.300'>
+          {mon.day50?.toFixed(2)}
+        </Text>
+      </Td>
+      <Td px={4} py={2}>
+        <Text variant='text-field' color='gray.300'>
+          {stats?.day.p95.toFixed(2)}
+        </Text>
+      </Td>
       <Td textAlign='center' px={4} py={2}>
         <Flex gap={2} alignItems='center' justifyContent='center'>
           <Button
@@ -286,7 +376,7 @@ const MonitorListItem = ({ mon, stats, onDelete }: MonitorListProps) => {
 }
 
 const SortIcons = () => (
-  <Flex flexDirection='column' cursor='pointer' >
+  <Flex flexDirection='column' cursor='pointer'>
     <Icon as={FiChevronUp} fontSize='sm' color='darkblue.100'></Icon>
     <Icon as={FiChevronDown} fontSize='sm' color='darkblue.100'></Icon>
   </Flex>
@@ -294,25 +384,18 @@ const SortIcons = () => (
 
 export function MainPage() {
   const navigate = useNavigate()
-  const [filterOption, setFilterOption] = useState<string|undefined>(undefined);
-  const { register, watch } = useForm<IFormInputs>();
+  const [filterOption, setFilterOption] = useState<string | undefined>(undefined)
+  const { register, watch } = useForm<IFormInputs>()
   const [isGridView, setIsGridView] = useState<boolean>(Store.UIState.monitors.isGridView)
   const [statsSummary, setStatsSummary] = useState<StatsSummary>({})
   const [sortOption, setSortOption] = useState<string>('')
   const [sortDir, setSortDir] = useState<string>('asc')
-  const [monitors, setMonitors] = useState<Monitor[]|undefined>()
+  const [monitors, setMonitors] = useState<Monitor[] | undefined>()
   const [sortedMonitors, setSortedMonitors] = useState<Monitor[]>([])
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [totalCount, setTotalCount] = useState<number>(0)
-  const [selectedMonitor, setSelectedMonitor] = useState<string|undefined>()
-  const {
-    pages,
-    pagesCount,
-    pageSize,
-    setPageSize,
-    currentPage,
-    setCurrentPage,
-  } = usePagination({
+  const [selectedMonitor, setSelectedMonitor] = useState<string | undefined>()
+  const { pages, pagesCount, pageSize, setPageSize, currentPage, setCurrentPage } = usePagination({
     total: totalCount,
     initialState: {
       pageSize: 16,
@@ -342,7 +425,7 @@ export function MainPage() {
       params: {
         offset: (page - 1) * limit,
         limit: limit,
-      }
+      },
     })
 
     if (resp.status == 200) {
@@ -353,11 +436,7 @@ export function MainPage() {
     throw Error('Failed to get odemand results')
   }
 
-  useQuery(
-    ['monitors-list'],
-    () => getMonitors(),
-    {}
-  )
+  useQuery(['monitors-list'], () => getMonitors(), {})
 
   async function getMonitorStats() {
     let resp = await axios({
@@ -367,8 +446,10 @@ export function MainPage() {
 
     if (resp.status == 200) {
       const results = resp.data as MonitorStats[]
-      let downMonitors = 0, upMonitors = 0, pausedMonitors = 0
-      results.forEach(item => {
+      let downMonitors = 0,
+        upMonitors = 0,
+        pausedMonitors = 0
+      results.forEach((item) => {
         if (item.status === 'paused') {
           pausedMonitors++
         } else if (Boolean(item.lastResults[0].err)) {
@@ -391,7 +472,7 @@ export function MainPage() {
 
   useEffect(() => {
     if (monitors && stats) {
-      monitors.forEach(monitor => {
+      monitors.forEach((monitor) => {
         const statsData = stats.find((stat) => monitor.id === stat.monitorId)
         if (statsData) {
           monitor.status = statsData.status
@@ -409,35 +490,39 @@ export function MainPage() {
   }
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    getMonitors(page, pageSize);
-  };
+    setCurrentPage(page)
+    getMonitors(page, pageSize)
+  }
 
   const handlePageSizeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = parseInt(event.target.value)
-    setPageSize(value);
-    getMonitors(currentPage, value);
-  };
+    setPageSize(value)
+    getMonitors(currentPage, value)
+  }
 
   const sortBy = (field: string) => {
     const data = monitors?.slice() || []
 
     switch (field) {
       case 'name':
-        data.sort((a: Monitor, b: Monitor) => a.name > b.name ? 1 : -1)
-        break;
+        data.sort((a: Monitor, b: Monitor) => (a.name > b.name ? 1 : -1))
+        break
       case 'status':
-        data.sort((a: Monitor, b: Monitor) => a.status > b.status ? 1 : -1)
-        break;
+        data.sort((a: Monitor, b: Monitor) => (a.status > b.status ? 1 : -1))
+        break
       case 'uptime':
-        data.sort((a: Monitor, b: Monitor) => (a.uptime && b.uptime && a.uptime > b.uptime) ? 1 : -1)
-        break;
+        data.sort((a: Monitor, b: Monitor) =>
+          a.uptime && b.uptime && a.uptime > b.uptime ? 1 : -1
+        )
+        break
       case 'day50':
-        data.sort((a: Monitor, b: Monitor) => (a.day50 && b.day50 && a.day50 > b.day50) ? 1 : -1)
-        break;
+        data.sort((a: Monitor, b: Monitor) => (a.day50 && b.day50 && a.day50 > b.day50 ? 1 : -1))
+        break
       case 'dayAvg':
-        data.sort((a: Monitor, b: Monitor) => (a.dayAvg && b.dayAvg && a.dayAvg > b.dayAvg) ? 1 : -1)
-        break;
+        data.sort((a: Monitor, b: Monitor) =>
+          a.dayAvg && b.dayAvg && a.dayAvg > b.dayAvg ? 1 : -1
+        )
+        break
       default:
     }
     if (sortOption === field) {
@@ -473,7 +558,9 @@ export function MainPage() {
     <Flex direction='column'>
       <Section>
         <Flex alignItems='center' justify={'space-between'}>
-          <Text variant='header' color='black'>All monitors</Text>
+          <Text variant='header' color='black'>
+            All monitors
+          </Text>
           <PrimaryButton
             label='New monitor'
             variant='emphasis'
@@ -484,16 +571,26 @@ export function MainPage() {
       </Section>
       <Section py={4}>
         <Flex mb='6' gap={2} alignItems={'center'} justify='end'>
-          <Text variant='paragraph' color='darkgray.100'>View</Text>
+          <Text variant='paragraph' color='darkgray.100'>
+            View
+          </Text>
           <Button
             bg='transparent'
             border='1px solid'
             borderColor='gray.200'
             borderRadius={8}
             p={1}
-            onClick={() => { Store.UIState.monitors.isGridView=true; setIsGridView(true) }}
+            onClick={() => {
+              Store.UIState.monitors.isGridView = true
+              setIsGridView(true)
+            }}
           >
-            <Icon color={isGridView ? 'darkblue.100' : 'darkgray.100'} fontSize={'lg'} as={FiGrid} cursor='pointer' />
+            <Icon
+              color={isGridView ? 'darkblue.100' : 'darkgray.100'}
+              fontSize={'lg'}
+              as={FiGrid}
+              cursor='pointer'
+            />
           </Button>
           <Button
             bg='transparent'
@@ -501,16 +598,36 @@ export function MainPage() {
             borderColor='gray.200'
             borderRadius={8}
             p={1}
-            onClick={() => { Store.UIState.monitors.isGridView=false; setIsGridView(false) }}
+            onClick={() => {
+              Store.UIState.monitors.isGridView = false
+              setIsGridView(false)
+            }}
           >
-            <Icon color={!isGridView ? 'darkblue.100' : 'darkgray.100'} fontSize={'lg'} as={FiList} cursor='pointer' />
+            <Icon
+              color={!isGridView ? 'darkblue.100' : 'darkgray.100'}
+              fontSize={'lg'}
+              as={FiList}
+              cursor='pointer'
+            />
           </Button>
-          <Select borderRadius={8} width='140px' color='gray.300' borderColor='gray.200' {...register(`filter`)}>
+          <Select
+            borderRadius={8}
+            width='140px'
+            color='gray.300'
+            borderColor='gray.200'
+            {...register(`filter`)}
+          >
             <option value=''>All</option>
             <option value='up'>Up</option>
             <option value='down'>Down</option>
           </Select>
-          <Select borderRadius={8} width='140px' color='gray.300' borderColor='gray.200' {...register(`sortBy`)}>
+          <Select
+            borderRadius={8}
+            width='140px'
+            color='gray.300'
+            borderColor='gray.200'
+            {...register(`sortBy`)}
+          >
             <option value='latest'>Latest</option>
             <option value='oldest'>Oldest</option>
           </Select>
@@ -525,13 +642,14 @@ export function MainPage() {
         {isGridView ? (
           <Box p={4} pb={8} flex='1'>
             <Grid gap='6' templateColumns={{ sm: '1fr', xl: '1fr 1fr' }}>
-              {stats && sortedMonitors.map((monitor) => (
-                <MonitorStatusCard
-                  mon={monitor}
-                  stats={stats.find((stat) => monitor.id === stat.monitorId)}
-                  key={monitor.id}
-                />
-              ))}
+              {stats &&
+                sortedMonitors.map((monitor) => (
+                  <MonitorStatusCard
+                    mon={monitor}
+                    stats={stats.find((stat) => monitor.id === stat.monitorId)}
+                    key={monitor.id}
+                  />
+                ))}
             </Grid>
           </Box>
         ) : (
@@ -542,68 +660,94 @@ export function MainPage() {
                   <Tr bg='rgba(22, 216, 181, 0.1)'>
                     <Th px={4} py={3}>
                       <Flex alignItems='center' gap={1} onClick={() => sortBy('name')}>
-                        <Text variant='emphasis' color='black'>Name</Text>
+                        <Text variant='emphasis' color='black'>
+                          Name
+                        </Text>
                         <SortIcons />
                       </Flex>
                     </Th>
                     <Th px={4} py={3}>
                       <Flex alignItems='center' gap={1} onClick={() => sortBy('status')}>
-                        <Text variant='emphasis' color='black'>Status</Text>
+                        <Text variant='emphasis' color='black'>
+                          Status
+                        </Text>
                         <SortIcons />
                       </Flex>
                     </Th>
-                    <Th px={4} py={3}><Text variant='emphasis' color='black'>Data</Text></Th>
+                    <Th px={4} py={3}>
+                      <Text variant='emphasis' color='black'>
+                        Data
+                      </Text>
+                    </Th>
                     <Th px={4} py={3}>
                       <Flex alignItems='center' gap={1} onClick={() => sortBy('uptime')}>
-                        <Text variant='emphasis' color='black'>Uptime</Text>
+                        <Text variant='emphasis' color='black'>
+                          Uptime
+                        </Text>
                         <SortIcons />
                       </Flex>
                     </Th>
                     <Th px={4} py={3}>
                       <Flex alignItems='center' gap={1} onClick={() => sortBy('dayAvg')}>
-                        <Text variant='emphasis' color='black'>2HR AVG</Text>
+                        <Text variant='emphasis' color='black'>
+                          2HR AVG
+                        </Text>
                         <SortIcons />
                       </Flex>
                     </Th>
                     <Th px={4} py={3}>
                       <Flex alignItems='center' gap={1} onClick={() => sortBy('day50')}>
-                        <Text variant='emphasis' color='black'>24HR MEDIAN</Text>
+                        <Text variant='emphasis' color='black'>
+                          24HR MEDIAN
+                        </Text>
                         <SortIcons />
                       </Flex>
                     </Th>
-                    <Th px={4} py={3}><Text variant='emphasis' color='black'>24HR P95</Text></Th>
-                    <Th px={4} py={3} textAlign='center'><Text variant='emphasis' color='black'>ACTIONS</Text></Th>
+                    <Th px={4} py={3}>
+                      <Text variant='emphasis' color='black'>
+                        24HR P95
+                      </Text>
+                    </Th>
+                    <Th px={4} py={3} textAlign='center'>
+                      <Text variant='emphasis' color='black'>
+                        ACTIONS
+                      </Text>
+                    </Th>
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {stats && sortedMonitors.map((monitor) => (
-                    <MonitorListItem
-                      mon={monitor}
-                      stats={stats.find((stat) => monitor.id === stat.monitorId)}
-                      key={monitor.id}
-                      onDelete={openDeleteModal}
-                    />
-                  ))}
+                  {stats &&
+                    sortedMonitors.map((monitor) => (
+                      <MonitorListItem
+                        mon={monitor}
+                        stats={stats.find((stat) => monitor.id === stat.monitorId)}
+                        key={monitor.id}
+                        onDelete={openDeleteModal}
+                      />
+                    ))}
                 </Tbody>
               </Table>
             </TableContainer>
           </Box>
         )}
         {/* Footer */}
-        <Flex alignItems='center' px={4} py={1} justifyContent='space-between' boxShadow='0px -4px 8px rgba(0, 0, 0, 0.05)'>
-          <Text flex={1} variant='text-field' color='darkgray.100'>Show {totalCount > pageSize ? pageSize : totalCount} monitors of {totalCount}</Text>
+        <Flex
+          alignItems='center'
+          px={4}
+          py={1}
+          justifyContent='space-between'
+          boxShadow='0px -4px 8px rgba(0, 0, 0, 0.05)'
+        >
+          <Text flex={1} variant='text-field' color='darkgray.100'>
+            Show {totalCount > pageSize ? pageSize : totalCount} monitors of {totalCount}
+          </Text>
           <Box maxW={96}>
             <Pagination
               currentPage={currentPage}
               pagesCount={pagesCount}
               onPageChange={handlePageChange}
             >
-              <PaginationContainer
-                align="center"
-                justify="space-between"
-                gap={2}
-                w="full"
-              >
+              <PaginationContainer align='center' justify='space-between' gap={2} w='full'>
                 <PaginationPrevious
                   isDisabled={currentPage === 1}
                   bg='transparent'
@@ -614,19 +758,16 @@ export function MainPage() {
                 >
                   <Icon as={CgChevronLeft} color='darkblue.100'></Icon>
                 </PaginationPrevious>
-                <PaginationPageGroup
-                  isInline
-                  align="center"
-                >
+                <PaginationPageGroup isInline align='center'>
                   {pages.map((page: number) => (
                     <PaginationPage
                       key={`pagination_page_${page}`}
                       _current={{
-                        color: "darkblue.100",
+                        color: 'darkblue.100',
                       }}
-                      color="darkgray.100"
+                      color='darkgray.100'
                       bg='transparent'
-                      fontSize="sm"
+                      fontSize='sm'
                       page={page}
                       onClick={() => setCurrentPage(page)}
                     />
@@ -641,13 +782,15 @@ export function MainPage() {
                   isDisabled={currentPage === pagesCount}
                   onClick={() => setCurrentPage(currentPage + 1)}
                 >
-                  <Icon as={CgChevronRight}  color='darkblue.100'></Icon>
+                  <Icon as={CgChevronRight} color='darkblue.100'></Icon>
                 </PaginationNext>
               </PaginationContainer>
             </Pagination>
           </Box>
           <Flex alignItems={'center'} flex={1} justifyContent='flex-end'>
-            <Text mr={2} variant='details' color='darkgray.100'>Monitors per page</Text>
+            <Text mr={2} variant='details' color='darkgray.100'>
+              Monitors per page
+            </Text>
             <Select
               w={16}
               fontWeight='600'
@@ -676,7 +819,9 @@ export function MainPage() {
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Text variant='text-field' color='gray.300'>Are you really sure to delete this monitor?</Text>
+            <Text variant='text-field' color='gray.300'>
+              Are you really sure to delete this monitor?
+            </Text>
           </ModalBody>
           <ModalFooter>
             <Button
@@ -709,4 +854,3 @@ export default MainPage
 function arr(arr: any) {
   throw new Error('Function not implemented.')
 }
-

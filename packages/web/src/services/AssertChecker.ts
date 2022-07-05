@@ -1,9 +1,4 @@
-import {
-  MonitorResult,
-  Monitor,
-  MonitorAssertion,
-  MonitorAssertionResult,
-} from '@httpmon/db'
+import { MonitorResult, Monitor, MonitorAssertion, MonitorAssertionResult } from '@httpmon/db'
 
 import { JSONPath } from 'jsonpath-plus'
 
@@ -72,9 +67,7 @@ export function processAssertions(
         break
       case 'header':
         if (Array.isArray(monResult.headers) && assertion.name) {
-          const respHdrTuple = monResult.headers.find(
-            (hdr) => hdr[0] == assertion.name
-          )
+          const respHdrTuple = monResult.headers.find((hdr) => hdr[0] == assertion.name)
           if (respHdrTuple) {
             resp = checkAssertion(assertion, respHdrTuple[1])
           } else resp = 'header not found'

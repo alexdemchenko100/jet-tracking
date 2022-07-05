@@ -12,8 +12,10 @@ export default function NewMonitorHero() {
     <Section mb={0}>
       <Center h='calc(100vh - 5.5em)'>
         <VStack spacing='8'>
-          <img src={RafikiSvg} width='620px' alt="new monitor hero page" />
-          <Text variant='header' color='black'>Explore API and create a new monitor</Text>
+          <img src={RafikiSvg} width='620px' alt='new monitor hero page' />
+          <Text variant='header' color='black'>
+            Explore API and create a new monitor
+          </Text>
           <PrimaryButton
             label='New Monitor'
             variant='emphasis'

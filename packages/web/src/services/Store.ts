@@ -39,7 +39,7 @@ interface UIState {
       status: string
       locations: string[]
     }
-  },
+  }
   monitors: {
     isGridView: boolean
   }
@@ -57,7 +57,7 @@ const uiState: UIState = {
   },
   monitors: {
     isGridView: true,
-  }
+  },
 }
 const store: StoreState = {
   UserState: proxy(userState),

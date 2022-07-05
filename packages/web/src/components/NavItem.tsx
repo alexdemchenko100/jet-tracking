@@ -1,9 +1,4 @@
-import {
-  Flex,
-  FlexProps,
-  Icon,
-  useColorModeValue,
-} from '@chakra-ui/react'
+import { Flex, FlexProps, Icon, useColorModeValue } from '@chakra-ui/react'
 import React, { ReactNode } from 'react'
 import { IconType } from 'react-icons/lib'
 import { NavLink, To } from 'react-router-dom'
@@ -19,16 +14,20 @@ const NavItem: React.FC<Props> = (props) => {
   return (
     <NavLink
       to={to}
-      style={({ isActive }) => (isActive ? {
-        borderRadius: 28,
-        marginBottom: 16,
-        background: 'rgba(23, 70, 143, 0.15)',
-        color: '#17468F',
-      } : {
-        color: '#25292F',
-        borderRadius: 28,
-        marginBottom: 16,
-      })}
+      style={({ isActive }) =>
+        isActive
+          ? {
+              borderRadius: 28,
+              marginBottom: 16,
+              background: 'rgba(23, 70, 143, 0.15)',
+              color: '#17468F',
+            }
+          : {
+              color: '#25292F',
+              borderRadius: 28,
+              marginBottom: 16,
+            }
+      }
     >
       <Flex
         align='center'

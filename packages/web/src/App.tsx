@@ -24,7 +24,13 @@ import { Environments } from './Pages/Environments'
 import NotFound from './Pages/NotFound'
 import { EnvEditor } from './Pages/EnvEditor'
 import { theme } from './services/ChakraTheme'
-import { SettingsProfile, SettingsNotifications, SettingsSecurity, EnvView, EnvMain } from './components'
+import {
+  SettingsProfile,
+  SettingsNotifications,
+  SettingsSecurity,
+  EnvView,
+  EnvMain,
+} from './components'
 
 const history = createBrowserHistory()
 Store.history = history //save for later
@@ -111,10 +117,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path='/console/settings'
-              element={<SettingsPage />}
-            >
+            <Route path='/console/settings' element={<SettingsPage />}>
               <Route
                 path='/console/settings'
                 element={
@@ -164,24 +167,11 @@ function App() {
                 </ProtectedRoute>
               }
             >
-              <Route
-                path='/console/envs'
-                element={<EnvMain />}
-              />
-              <Route
-                path='/console/envs/:id'
-                element={<EnvView />}
-              />
-              <Route
-                path='/console/envs/:id/edit'
-                element={<EnvEditor />}
-              />
-              <Route
-                path='/console/envs/new'
-                element={<NewEnv />}
-              />
+              <Route path='/console/envs' element={<EnvMain />} />
+              <Route path='/console/envs/:id' element={<EnvView />} />
+              <Route path='/console/envs/:id/edit' element={<EnvEditor />} />
+              <Route path='/console/envs/new' element={<NewEnv />} />
             </Route>
-            
             //unprotected for ondemand clients
             <Route path='/console/monitors/ondemand' element={<MonitorEditPanel />} />
           </Route>

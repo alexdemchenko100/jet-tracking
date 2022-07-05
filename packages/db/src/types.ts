@@ -51,9 +51,7 @@ export const MonitorResultFluentSchema = S.object()
   .prop('headers', MonitorTupleFluentSchema)
   .prop('assertResults', S.array().items(MonitorAssertionResultFluentSchema))
 
-export const MonitorResultFluentSchemaArray = S.array().items(
-  MonitorResultFluentSchema
-)
+export const MonitorResultFluentSchemaArray = S.array().items(MonitorResultFluentSchema)
 
 export const MonitorResultQueryResponseSchema = S.object()
   .prop('items', MonitorResultFluentSchemaArray)
@@ -166,21 +164,14 @@ export const MonitorAuthFluentSchema = S.object()
   .prop('type', S.string().enum(['basic', 'bearer', 'none']))
   .prop(
     'basic',
-    S.object()
-      .prop('username', S.string())
-      .required()
-      .prop('password', S.string())
-      .required()
+    S.object().prop('username', S.string()).required().prop('password', S.string()).required()
   )
   .prop('bearer', S.object().prop('token', S.string()).required())
 
 export const MonitorNotificationSchema = S.object()
   .prop('useGlobal', S.boolean().default(true))
   .prop('failCount', S.integer().minimum(0).maximum(10))
-  .prop(
-    'failTimeMinutes',
-    S.integer().enum(Object.values([0, 5, 10, 15, 20, 30, 60]))
-  )
+  .prop('failTimeMinutes', S.integer().enum(Object.values([0, 5, 10, 15, 20, 30, 60])))
   .prop('channels', S.array().items(S.string()))
 
 export const MonitorFluentSchema = S.object()
@@ -361,10 +352,7 @@ export type NotificationChannel = {
   name: string // notification name
   isDefaultEnabled: boolean
   applyOnExistingMonitors: boolean
-  channel:
-    | SlackNotificationChannel
-    | EmailNotificationChannel
-    | MSTeamsNotificationChannel
+  channel: SlackNotificationChannel | EmailNotificationChannel | MSTeamsNotificationChannel
 }
 
 export const NotificationSchema = S.object()
@@ -374,11 +362,7 @@ export const NotificationSchema = S.object()
   .prop('applyOnExistingMonitors', S.boolean().default(false))
   .prop(
     'channel',
-    S.anyOf([
-      SlackNotificationSchema,
-      EmailNotificationSchema,
-      MSTeamsNotificationSchema,
-    ])
+    S.anyOf([SlackNotificationSchema, EmailNotificationSchema, MSTeamsNotificationSchema])
   )
 
 export type AlertSettings = {
@@ -388,10 +372,7 @@ export type AlertSettings = {
 
 export const AlertSettingsSchema = S.object()
   .prop('failCount', S.integer().minimum(0).maximum(10))
-  .prop(
-    'failTimeMinutes',
-    S.integer().enum(Object.values([0, 5, 10, 15, 20, 30, 60]))
-  )
+  .prop('failTimeMinutes', S.integer().enum(Object.values([0, 5, 10, 15, 20, 30, 60])))
 
 export type Settings = {
   id?: string
@@ -399,9 +380,7 @@ export type Settings = {
   accountId: string
 }
 
-export const SettingsSchema = S.object()
-  .prop('id', S.string())
-  .prop('alert', AlertSettingsSchema)
+export const SettingsSchema = S.object().prop('id', S.string()).prop('alert', AlertSettingsSchema)
 
 export type NotificationState = {
   id?: string

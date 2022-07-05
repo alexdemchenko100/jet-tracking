@@ -9,21 +9,29 @@ import { Section, Text, PrimaryButton, EnvNavItem } from '../components'
 const SIDEBAR_WIDTH = '200px'
 
 const Sidebar = ({ envs }: { envs: MonEnv[] }) => {
-
   return (
-    <Box
-      as='nav'
-      p='4'
-      bg='white'
-      borderRadius={4}
-      w={SIDEBAR_WIDTH}
-      minH={'calc(100vh - 140px)'}
-    >
-      <Text variant='emphasis' color='black'>All environments</Text>
-      <Flex direction='column' as='nav' py={4} fontSize='sm' color='darkgray.100' aria-label='Main Navigation'>
-        {envs?.map(item => (
+    <Box as='nav' p='4' bg='white' borderRadius={4} w={SIDEBAR_WIDTH} minH={'calc(100vh - 140px)'}>
+      <Text variant='emphasis' color='black'>
+        All environments
+      </Text>
+      <Flex
+        direction='column'
+        as='nav'
+        py={4}
+        fontSize='sm'
+        color='darkgray.100'
+        aria-label='Main Navigation'
+      >
+        {envs?.map((item) => (
           <EnvNavItem key={item.id} to={`/console/envs/${item.id}`}>
-            <Text variant='text-field' display={'block'} color='inherit' overflow='hidden' textOverflow='ellipsis' whiteSpace='nowrap'>
+            <Text
+              variant='text-field'
+              display={'block'}
+              color='inherit'
+              overflow='hidden'
+              textOverflow='ellipsis'
+              whiteSpace='nowrap'
+            >
               {item.name}
             </Text>
           </EnvNavItem>
@@ -48,7 +56,9 @@ export function Environments() {
     <>
       <Section>
         <Flex alignItems='center' justify={'space-between'}>
-          <Text variant='header' color='black'>Environments</Text>
+          <Text variant='header' color='black'>
+            Environments
+          </Text>
           <Flex gap={2}>
             <PrimaryButton
               label='Add environment'

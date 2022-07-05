@@ -1,8 +1,5 @@
 import { FastifyLoggerInstance } from 'fastify'
-import {
-  fastifyRequestContextPlugin,
-  requestContext,
-} from 'fastify-request-context'
+import { fastifyRequestContextPlugin, requestContext } from 'fastify-request-context'
 import * as gcpMetadata from 'gcp-metadata'
 
 import pino from 'pino'
@@ -73,9 +70,7 @@ async function initGCPMetadata() {
       state.region = gcpRegion.split('/').pop()
 
       const zone = await gcpMetadata.instance('zone')
-      logger.info(
-        `Project ID: ${state.projectId} Region: ${state.region} Zone: ${zone}`
-      )
+      logger.info(`Project ID: ${state.projectId} Region: ${state.region} Zone: ${zone}`)
     }
   } catch (error) {
     logger.error(error)

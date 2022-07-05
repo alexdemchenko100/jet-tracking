@@ -155,10 +155,7 @@ export default async function MonitorRouter(app: FastifyInstance) {
       },
     },
     async function (req, reply) {
-      const results = await monitorSvc.getMonitorResultsEx(
-        req.params.id,
-        req.query
-      )
+      const results = await monitorSvc.getMonitorResultsEx(req.params.id, req.query)
       if (results) {
         reply.send(results)
       } else {

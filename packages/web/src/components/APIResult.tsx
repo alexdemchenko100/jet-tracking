@@ -190,7 +190,15 @@ export function APIResult({ result, onClose }: APIResultProps) {
         )}
         <Flex alignItems='center' justify='space-between' flexWrap='wrap' gap={2}>
           <Flex alignItems='center' gap={2} flexWrap='wrap'>
-            <Badge borderRadius='2xl' py='1' px='4' colorScheme={isSuccess ? 'green' : 'red'} fontSize='sm' lineHeight='1.25' fontWeight='bold'>
+            <Badge
+              borderRadius='2xl'
+              py='1'
+              px='4'
+              colorScheme={isSuccess ? 'green' : 'red'}
+              fontSize='sm'
+              lineHeight='1.25'
+              fontWeight='bold'
+            >
               {result.code} {result.codeStatus}
             </Badge>
             <Tag
@@ -211,7 +219,16 @@ export function APIResult({ result, onClose }: APIResultProps) {
               {result.url || 'unknown'}
             </Tag>
           </Flex>
-          <Tag borderRadius='2xl' py='1' px='4' bg='lightgray.100' colorScheme='gray' fontSize='sm' lineHeight='1.25' fontWeight='bold'>
+          <Tag
+            borderRadius='2xl'
+            py='1'
+            px='4'
+            bg='lightgray.100'
+            colorScheme='gray'
+            fontSize='sm'
+            lineHeight='1.25'
+            fontWeight='bold'
+          >
             Response Time: {result.totalTime}ms
             <Icon ml='1' as={FiClock} />
           </Tag>

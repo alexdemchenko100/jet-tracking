@@ -1,12 +1,4 @@
-import {
-  Flex,
-  Button,
-  Icon,
-  Box,
-  Input,
-  Divider,
-  useToast,
-} from '@chakra-ui/react'
+import { Flex, Button, Icon, Box, Input, Divider, useToast } from '@chakra-ui/react'
 import { MonEnv, MonitorTuples } from '@httpmon/db'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -40,10 +32,10 @@ export default function NewEnv() {
   useEffect(() => {
     const subscription = watch((value) => {
       if (
-        (value.env && value.env[0] && value.env[0][0])
-        || (value.env && value.env[0] && value.env[0][1])
-        || (value.env && value.env.length > 1)
-        || value.name 
+        (value.env && value.env[0] && value.env[0][0]) ||
+        (value.env && value.env[0] && value.env[0][1]) ||
+        (value.env && value.env.length > 1) ||
+        value.name
       ) {
         setFormChanged(true)
       } else {
@@ -64,7 +56,7 @@ export default function NewEnv() {
     if (!name) {
       isValid = false
     }
-    env.forEach(item => {
+    env.forEach((item) => {
       if (!item[0] || !item[1]) {
         isValid = false
       }
@@ -119,19 +111,18 @@ export default function NewEnv() {
             {env.map((_, index) => (
               <Flex key={index} alignItems='flex-end' mb='2' gap={4}>
                 <Box w={96}>
-                  <Text variant='details' color='black'>Token</Text>
+                  <Text variant='details' color='black'>
+                    Token
+                  </Text>
                   <Input type='text' {...register(`env.${index}.0` as const)} placeholder='Token' />
                 </Box>
                 <Box w={96}>
-                  <Text variant='details' color='black'>Key</Text>
+                  <Text variant='details' color='black'>
+                    Key
+                  </Text>
                   <Input type='text' {...register(`env.${index}.1` as const)} placeholder='Key' />
                 </Box>
-                <Button
-                  borderRadius='4'
-                  bg='lightgray.100'
-                  px={3}
-                  onClick={() => remove(index)}
-                >
+                <Button borderRadius='4' bg='lightgray.100' px={3} onClick={() => remove(index)}>
                   <Icon color='gray.300' as={FiTrash2} cursor='pointer' />
                 </Button>
               </Flex>
@@ -151,7 +142,9 @@ export default function NewEnv() {
                   as={FiPlus}
                   cursor='pointer'
                 />
-                <Text variant='text-field' color='darkblue.100'>Add variable</Text>
+                <Text variant='text-field' color='darkblue.100'>
+                  Add variable
+                </Text>
               </Flex>
             </Button>
           </Flex>
@@ -169,7 +162,7 @@ export default function NewEnv() {
               label='Save'
               variant='emphasis'
               color={'white'}
-              type="submit"
+              type='submit'
             ></PrimaryButton>
           </Flex>
         </Flex>

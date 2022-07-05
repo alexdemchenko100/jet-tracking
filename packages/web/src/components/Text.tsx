@@ -1,62 +1,59 @@
-import {
-  Box,
-  BoxProps,
-} from '@chakra-ui/react'
+import { Box, BoxProps } from '@chakra-ui/react'
 import { TextVariants } from '../types/common'
 
 interface Props extends BoxProps {
-  variant: TextVariants,
-  color: string,
-  showUnderline?: boolean,
-  children: React.ReactNode,
+  variant: TextVariants
+  color: string
+  showUnderline?: boolean
+  children: React.ReactNode
 }
 
 const Text: React.FC<Props> = (props) => {
   const { variant, color, showUnderline, children, ...rest } = props
-  let fontSize, lineHeight, fontWeight, underlineTop;
+  let fontSize, lineHeight, fontWeight, underlineTop
   switch (variant) {
     case 'header':
       fontSize = 'xl'
-      lineHeight='39px'
-      fontWeight='extrabold'
-      underlineTop='1.3em'
-      break;
+      lineHeight = '39px'
+      fontWeight = 'extrabold'
+      underlineTop = '1.3em'
+      break
     case 'title':
       fontSize = 'lg'
-      lineHeight='22px'
-      fontWeight='bold'
-      underlineTop='1.8em'
-      break;
+      lineHeight = '22px'
+      fontWeight = 'bold'
+      underlineTop = '1.8em'
+      break
     case 'text-field':
       fontSize = 'md'
-      lineHeight='19px'
-      fontWeight='semibold'
-      underlineTop='1.8em'
-      break;
+      lineHeight = '19px'
+      fontWeight = 'semibold'
+      underlineTop = '1.8em'
+      break
     case 'paragraph':
       fontSize = 'md'
-      lineHeight='19px'
-      fontWeight='normal'
-      break;
+      lineHeight = '19px'
+      fontWeight = 'normal'
+      break
     case 'emphasis':
       fontSize = 'md'
-      lineHeight='19px'
-      fontWeight='bold'
-      break;
+      lineHeight = '19px'
+      fontWeight = 'bold'
+      break
     case 'details':
       fontSize = 'xs'
-      lineHeight='15px'
-      fontWeight='bold'
-      break;
+      lineHeight = '15px'
+      fontWeight = 'bold'
+      break
     case 'small':
       fontSize = '10px'
-      lineHeight='12px'
-      fontWeight='semibold'
+      lineHeight = '12px'
+      fontWeight = 'semibold'
     default:
   }
 
   return (
-    <Box 
+    <Box
       as='span'
       position='relative'
       color={color}
@@ -68,7 +65,15 @@ const Text: React.FC<Props> = (props) => {
     >
       {children}
       {showUnderline && (
-        <Box w={8} position='absolute' top={underlineTop} left='0' h={1} bg='darkblue.100' borderRadius={4}></Box>
+        <Box
+          w={8}
+          position='absolute'
+          top={underlineTop}
+          left='0'
+          h={1}
+          bg='darkblue.100'
+          borderRadius={4}
+        ></Box>
       )}
     </Box>
   )

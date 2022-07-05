@@ -31,7 +31,14 @@ function bodyEditor() {
       name='body'
       render={({ field }) => {
         return (
-          <Box bg='white' border='1px' borderStyle='solid' borderColor='gray.200' borderRadius='lg' overflow='hidden'>
+          <Box
+            bg='white'
+            border='1px'
+            borderStyle='solid'
+            borderColor='gray.200'
+            borderRadius='lg'
+            overflow='hidden'
+          >
             <CodeMirror
               height='200px'
               extensions={[javascript({ jsx: true })]}
@@ -87,7 +94,9 @@ export function MonitorBodyEditor() {
 
             <TabPanels>
               {table.map(({ index, bodyType }) => (
-                <TabPanel pb='0' pt='6' px='0' key={index}>{bodyType === '' ? null : bodyEditor()}</TabPanel>
+                <TabPanel pb='0' pt='6' px='0' key={index}>
+                  {bodyType === '' ? null : bodyEditor()}
+                </TabPanel>
               ))}
             </TabPanels>
           </Tabs>

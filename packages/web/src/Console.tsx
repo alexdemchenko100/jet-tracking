@@ -18,7 +18,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { FaRegBell } from 'react-icons/fa'
-import { FiSettings, FiLayers, FiMenu,  FiPackage, FiGrid } from 'react-icons/fi'
+import { FiSettings, FiLayers, FiMenu, FiPackage, FiGrid } from 'react-icons/fi'
 import { logoTitle } from './Assets'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { signOut, useAuth } from './services/FirebaseAuth'
@@ -31,7 +31,6 @@ export default function Console() {
   const navigate = useNavigate()
 
   const { userInfo: user } = useAuth()
-
 
   const SidebarContent = (props: any) => (
     <Box
@@ -51,24 +50,39 @@ export default function Console() {
       w={SIDEBAR_WIDTH}
       {...props}
     >
-      <Flex direction='column' as='nav' py={4} fontSize='sm' color='gray.600' aria-label='Main Navigation'>
+      <Flex
+        direction='column'
+        as='nav'
+        py={4}
+        fontSize='sm'
+        color='gray.600'
+        aria-label='Main Navigation'
+      >
         <NavItem icon={FiLayers} to='/console/monitors'>
-          <Text variant='text-field' color='inherit'>Monitors</Text>
+          <Text variant='text-field' color='inherit'>
+            Monitors
+          </Text>
         </NavItem>
 
         <NavItem icon={FiPackage} to='/console/envs'>
-          <Text variant='text-field' color='inherit'>Environments</Text>
+          <Text variant='text-field' color='inherit'>
+            Environments
+          </Text>
         </NavItem>
         <NavItem icon={FiGrid} to='/console/dashboards'>
-          <Text variant='text-field' color='inherit'>Dashboards</Text>
+          <Text variant='text-field' color='inherit'>
+            Dashboards
+          </Text>
         </NavItem>
         <NavItem icon={FiSettings} to='/console/settings'>
-          <Text variant='text-field' color='inherit'>Settings</Text>
+          <Text variant='text-field' color='inherit'>
+            Settings
+          </Text>
         </NavItem>
       </Flex>
     </Box>
   )
-  
+
   return (
     <Box as='section' bg={useColorModeValue('lightgray.100', 'gray.700')} minH='100vh'>
       {/* Header */}
@@ -111,8 +125,12 @@ export default function Console() {
                   cursor='pointer'
                 />
                 <Flex ml={2} alignItems={'start'} justify='center' flexDir={'column'}>
-                  <Text variant='details' color='darkgray.100'>{user.displayName}</Text>
-                  <Text variant='small' color='gray.300'>{user.email}</Text>
+                  <Text variant='details' color='darkgray.100'>
+                    {user.displayName}
+                  </Text>
+                  <Text variant='small' color='gray.300'>
+                    {user.email}
+                  </Text>
                 </Flex>
               </Flex>
             </MenuButton>
@@ -140,7 +158,12 @@ export default function Console() {
             <SidebarContent w='full' borderRight='none' />
           </DrawerContent>
         </Drawer>
-        <Box ml={{ base: 0, md: SIDEBAR_WIDTH }} pt='14' width={{ base: '100%', md: `calc(100% - ${SIDEBAR_WIDTH})` }} transition='.3s ease'>
+        <Box
+          ml={{ base: 0, md: SIDEBAR_WIDTH }}
+          pt='14'
+          width={{ base: '100%', md: `calc(100% - ${SIDEBAR_WIDTH})` }}
+          transition='.3s ease'
+        >
           <Box as='main' p='2'>
             {/* Add content here, remove div below  */}
             <Outlet />

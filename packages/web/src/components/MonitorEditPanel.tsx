@@ -10,14 +10,16 @@ import Text from './Text'
 import PrimaryButton from './PrimaryButton'
 
 interface Props {
-  open: () => void,
+  open: () => void
 }
 
 function EditorHeader({ open }: Props) {
   return (
     <Section>
       <Flex alignItems='center' justify={'space-between'}>
-        <Text variant='header' color='black'>Monitors</Text>
+        <Text variant='header' color='black'>
+          Monitors
+        </Text>
         <PrimaryButton
           label='Save Now'
           variant='emphasis'
@@ -59,7 +61,11 @@ export function MonitorEditPanel() {
       <SplitPane orientation={vertical ? 'vertical' : 'horizontal'}>
         <Box>
           {vertical && <EditorHeader open={openModal} />}
-          <MonitorEditor handleOndemandMonitor={handleQuickRun} isModalOpen={modalOpen} onClose={() => setModalOpen(false)} />
+          <MonitorEditor
+            handleOndemandMonitor={handleQuickRun}
+            isModalOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+          />
         </Box>
         {drawer.isOpen && (
           <APIResultByDemand

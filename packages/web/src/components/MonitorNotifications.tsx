@@ -1,13 +1,4 @@
-import { 
-  Flex,
-  Select,
-  Switch,
-  RadioGroup,
-  Stack,
-  Radio,
-  Box,
-  Image,
-} from '@chakra-ui/react'
+import { Flex, Select, Switch, RadioGroup, Stack, Radio, Box, Image } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { NotificationChannel } from '@httpmon/db'
 import { useFormContext } from 'react-hook-form'
@@ -23,31 +14,38 @@ export function MonitorNotifications() {
   const notifications = watch('notifications')
 
   useEffect(() => {
-    setAlertSetting((!notifications.useGlobal && notifications.failTimeMinutes) ? 'failTimeMinutes' : 'failCount')
+    setAlertSetting(
+      !notifications.useGlobal && notifications.failTimeMinutes ? 'failTimeMinutes' : 'failCount'
+    )
   }, [notifications])
-
 
   const alertSettingChanged = (value: string) => {
     setAlertSetting(value)
-    setValue('notifications.failCount',  value === 'failCount' ? 1 : undefined)
-    setValue('notifications.failTimeMinutes',  value === 'failTimeMinutes' ? 5 : undefined)
+    setValue('notifications.failCount', value === 'failCount' ? 1 : undefined)
+    setValue('notifications.failTimeMinutes', value === 'failTimeMinutes' ? 5 : undefined)
   }
 
-  const { data: notificationChannels } = useQuery<NotificationChannel[]>(['notificaitons'], async () => {
-    const resp = await axios({
-      method: 'GET',
-      url: '/settings/notifications',
-    })
-    return resp.data
-  })
+  const { data: notificationChannels } = useQuery<NotificationChannel[]>(
+    ['notificaitons'],
+    async () => {
+      const resp = await axios({
+        method: 'GET',
+        url: '/settings/notifications',
+      })
+      return resp.data
+    }
+  )
 
-  const onChangeNotificationChannel = (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
+  const onChangeNotificationChannel = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
     const channels = getValues('notifications.channels') as string[]
     if (notificationChannels) {
       if (event.target.checked) {
         channels.push(notificationChannels[index].id ?? '')
       } else {
-        const idx = channels.findIndex(channel => channel === notificationChannels[index].id)
+        const idx = channels.findIndex((channel) => channel === notificationChannels[index].id)
         if (idx > -1) {
           channels.splice(idx, 1)
         }
@@ -57,11 +55,13 @@ export function MonitorNotifications() {
   }
 
   const onChangeGlobalSetting = (value: string) => {
-    setValue('notifications',  {
+    setValue('notifications', {
       useGlobal: value == '1',
       failCount: value == '1' ? undefined : 1,
       failTimeMinutes: undefined,
-      channels: notificationChannels?.filter(channel => channel.isDefaultEnabled).map(channel => channel.id),
+      channels: notificationChannels
+        ?.filter((channel) => channel.isDefaultEnabled)
+        .map((channel) => channel.id),
     })
   }
 
@@ -71,16 +71,25 @@ export function MonitorNotifications() {
         {/* <Checkbox colorScheme='cyan' borderRadius={4} isChecked={notifications.useGlobal} onChange={onChangeGlobalSetting}>
           <Text variant='text-field' color='gray.300'>Use Global Settings</Text>
         </Checkbox> */}
-        <RadioGroup mt={2} mb={4} value={notifications.useGlobal ? '1' : '0'} onChange={onChangeGlobalSetting}>
+        <RadioGroup
+          mt={2}
+          mb={4}
+          value={notifications.useGlobal ? '1' : '0'}
+          onChange={onChangeGlobalSetting}
+        >
           <Stack direction='column' gap={4}>
             <Flex alignItems='center'>
               <Radio value='1' colorScheme='cyan'>
-                <Text variant='paragraph' whiteSpace='nowrap' mx={3} color='darkgray.100'>Choose global notifications</Text>
+                <Text variant='paragraph' whiteSpace='nowrap' mx={3} color='darkgray.100'>
+                  Choose global notifications
+                </Text>
               </Radio>
             </Flex>
             <Flex alignItems='center'>
               <Radio value='0' colorScheme='cyan'>
-                <Text variant='paragraph' whiteSpace='nowrap' mx={3} color='darkgray.100'>Set the alert settings</Text>
+                <Text variant='paragraph' whiteSpace='nowrap' mx={3} color='darkgray.100'>
+                  Set the alert settings
+                </Text>
               </Radio>
             </Flex>
           </Stack>
@@ -92,7 +101,9 @@ export function MonitorNotifications() {
             <Stack direction='column' gap={2}>
               <Flex alignItems='center'>
                 <Radio value='failCount' colorScheme='cyan'>
-                  <Text variant='paragraph' whiteSpace='nowrap' mx={3} color='darkgray.100'>Notify when a monitor fails for</Text>
+                  <Text variant='paragraph' whiteSpace='nowrap' mx={3} color='darkgray.100'>
+                    Notify when a monitor fails for
+                  </Text>
                 </Radio>
                 <Select
                   width={20}
@@ -103,16 +114,24 @@ export function MonitorNotifications() {
                   value={getValues('notifications.failCount') || 1}
                   onChange={(e) => setValue('notifications.failCount', parseInt(e.target.value))}
                 >
-                  {Array(10).fill('').map((_, index) => (
-                    <option key={index} value={index + 1}>{index + 1}</option>
-                  ))}
+                  {Array(10)
+                    .fill('')
+                    .map((_, index) => (
+                      <option key={index} value={index + 1}>
+                        {index + 1}
+                      </option>
+                    ))}
                 </Select>
-                <Text variant='paragraph' whiteSpace='nowrap' ml={3} color='darkgray.100'>time(s)</Text>
+                <Text variant='paragraph' whiteSpace='nowrap' ml={3} color='darkgray.100'>
+                  time(s)
+                </Text>
               </Flex>
-              
+
               <Flex alignItems='center'>
                 <Radio value='failTimeMinutes' colorScheme='cyan'>
-                  <Text variant='paragraph' whiteSpace='nowrap' mx={3} color='darkgray.100'>Notify when a monitor fails for</Text>
+                  <Text variant='paragraph' whiteSpace='nowrap' mx={3} color='darkgray.100'>
+                    Notify when a monitor fails for
+                  </Text>
                 </Radio>
                 <Select
                   width={20}
@@ -121,7 +140,9 @@ export function MonitorNotifications() {
                   color='gray.300'
                   borderColor='gray.200'
                   value={getValues('notifications.failTimeMinutes') || 5}
-                  onChange={(e) => setValue('notifications.failTimeMinutes', parseInt(e.target.value))}
+                  onChange={(e) =>
+                    setValue('notifications.failTimeMinutes', parseInt(e.target.value))
+                  }
                 >
                   <option value='5'>5</option>
                   <option value='10'>10</option>
@@ -130,7 +151,9 @@ export function MonitorNotifications() {
                   <option value='30'>30</option>
                   <option value='60'>60</option>
                 </Select>
-                <Text variant='paragraph' whiteSpace='nowrap' ml={3} color='darkgray.100'>minutes</Text>
+                <Text variant='paragraph' whiteSpace='nowrap' ml={3} color='darkgray.100'>
+                  minutes
+                </Text>
               </Flex>
             </Stack>
           </RadioGroup>
@@ -138,7 +161,9 @@ export function MonitorNotifications() {
       </Flex>
       {!notifications.useGlobal && (
         <Flex direction='column' mt={4} gap={6} borderTop={'1px solid'} borderColor='gray.200'>
-          <Text variant='text-field' mt={6} color='darkgray.300'>Notifications added</Text>
+          <Text variant='text-field' mt={6} color='darkgray.300'>
+            Notifications added
+          </Text>
           {notificationChannels?.map((notificationChannel, index) => (
             <Flex
               borderWidth='1px'
@@ -155,19 +180,41 @@ export function MonitorNotifications() {
             >
               <Flex alignItems='center' gap={2}>
                 {notificationChannel.channel.type === 'slack' && (
-                  <Box border='1px solid' borderColor='gray.200' w={8} h={8} bg='white' borderRadius='18' p={1.5}>
+                  <Box
+                    border='1px solid'
+                    borderColor='gray.200'
+                    w={8}
+                    h={8}
+                    bg='white'
+                    borderRadius='18'
+                    p={1.5}
+                  >
                     <Image src={SlackIcon} objectFit='contain'></Image>
                   </Box>
                 )}
                 {notificationChannel.channel.type === 'ms-teams' && (
-                  <Box border='1px solid' borderColor='gray.200' w={8} h={8} bg='white' borderRadius='18' p={1.5}>
+                  <Box
+                    border='1px solid'
+                    borderColor='gray.200'
+                    w={8}
+                    h={8}
+                    bg='white'
+                    borderRadius='18'
+                    p={1.5}
+                  >
                     <Image src={MSTeamsIcon} objectFit='contain'></Image>
                   </Box>
                 )}
                 {notificationChannel.channel.type === 'email' && (
                   <Image src={BlueEmailIcon} w={8} h={8} objectFit='contain'></Image>
                 )}
-                <Text variant='text-field' textOverflow='ellipsis' overflow='hidden' whiteSpace='nowrap' color='gray.300'>
+                <Text
+                  variant='text-field'
+                  textOverflow='ellipsis'
+                  overflow='hidden'
+                  whiteSpace='nowrap'
+                  color='gray.300'
+                >
                   {notificationChannel.name}
                 </Text>
               </Flex>

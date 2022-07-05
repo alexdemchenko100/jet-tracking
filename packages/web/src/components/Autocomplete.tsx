@@ -1,13 +1,5 @@
 import React, { useState, useRef, forwardRef } from 'react'
-import {
-  Badge,
-  Box,
-  Flex,
-  Input,
-  InputProps,
-  List,
-  ListItem,
-} from '@chakra-ui/react'
+import { Badge, Box, Flex, Input, InputProps, List, ListItem } from '@chakra-ui/react'
 import { matchSorter } from 'match-sorter'
 import { CheckCircleIcon, CloseIcon, SmallAddIcon } from '@chakra-ui/icons'
 import mergeRefs from 'react-merge-refs'
@@ -39,27 +31,21 @@ export interface AutocompleteProps extends InputProps {
 }
 
 const defaultRenderCheckIcon = (option: Option) => {
-  return <CheckCircleIcon color="green.500" data-label={option.label} mr={2} />
+  return <CheckCircleIcon color='green.500' data-label={option.label} mr={2} />
 }
 
 const defaultCreateIcon = () => (
   <>
-    <SmallAddIcon color="green.500" mr={2} />
+    <SmallAddIcon color='green.500' mr={2} />
     Create option
   </>
 )
 
 const defaultRenderBadge = (option: Option) => {
   return (
-    <Badge
-      borderRadius="full"
-      px="2"
-      colorScheme="teal"
-      mx={1}
-      cursor="pointer"
-    >
+    <Badge borderRadius='full' px='2' colorScheme='teal' mx={1} cursor='pointer'>
       {option.label}
-      <CloseIcon ml={1} w={2} h={2} mb="4px" />
+      <CloseIcon ml={1} w={2} h={2} mb='4px' />
     </Badge>
   )
 }
@@ -89,9 +75,7 @@ export const Autocomplete = forwardRef<HTMLInputElement, AutocompleteProps>(
     const filterOptions = (inputValue: string) => {
       if (inputValue) {
         setDisplayOptions(true)
-        setPartialResult(
-          matchSorter(optionsCopy, inputValue, { keys: ['label', 'value'] })
-        )
+        setPartialResult(matchSorter(optionsCopy, inputValue, { keys: ['label', 'value'] }))
         setInputValue(inputValue)
       } else {
         setDisplayOptions(false)
@@ -100,21 +84,14 @@ export const Autocomplete = forwardRef<HTMLInputElement, AutocompleteProps>(
 
     const selectOption = (option: Option) => {
       if (result.includes(option)) {
-        setResult([
-          ...result.filter(
-            (existingOption) => existingOption.value !== option.value
-          ),
-        ])
+        setResult([...result.filter((existingOption) => existingOption.value !== option.value)])
       } else {
         setResult([option, ...result])
       }
     }
 
     const isOptionSelected = (option: Option) => {
-      return (
-        result.filter((selectedOption) => selectedOption.value === option.value)
-          .length > 0
-      )
+      return result.filter((selectedOption) => selectedOption.value === option.value).length > 0
     }
 
     const createOption = () => {
@@ -148,15 +125,11 @@ export const Autocomplete = forwardRef<HTMLInputElement, AutocompleteProps>(
     }
 
     return (
-      <Box data-testid="simple-autocomplete">
+      <Box data-testid='simple-autocomplete'>
         {result.length > 0 && (
           <Box my={2}>
             {result.map((option) => (
-              <Box
-                d="inline-block"
-                onClick={() => selectOption(option)}
-                key={option.value}
-              >
+              <Box d='inline-block' onClick={() => selectOption(option)} key={option.value}>
                 {renderBadge(option)}
               </Box>
             ))}
@@ -169,10 +142,10 @@ export const Autocomplete = forwardRef<HTMLInputElement, AutocompleteProps>(
         />
         {displayOptions && (
           <List
-            borderWidth="1px"
-            borderColor="gray.200"
-            borderRadius="md"
-            boxShadow="6px 5px 8px rgba(0,50,30,0.02)"
+            borderWidth='1px'
+            borderColor='gray.200'
+            borderRadius='md'
+            boxShadow='6px 5px 8px rgba(0,50,30,0.02)'
             // mt={2}
             position={'absolute'}
             bg={'Menu'}
@@ -185,10 +158,10 @@ export const Autocomplete = forwardRef<HTMLInputElement, AutocompleteProps>(
                   _hover={{ bg: bgHoverColor || 'gray.100' }}
                   my={1}
                   p={2}
-                  cursor="pointer"
+                  cursor='pointer'
                   onClick={() => selectOptionFromList(option)}
                 >
-                  <Flex align="center">
+                  <Flex align='center'>
                     {checkIcon(option)}
                     {option.label}
                   </Flex>
@@ -200,16 +173,16 @@ export const Autocomplete = forwardRef<HTMLInputElement, AutocompleteProps>(
                 _hover={{ bg: bgHoverColor || 'gray.100' }}
                 my={1}
                 p={2}
-                cursor="pointer"
-                data-testid="create-option"
+                cursor='pointer'
+                data-testid='create-option'
                 onClick={() => createOption()}
               >
-                <Flex align="center">{renderCreateIcon()}</Flex>
+                <Flex align='center'>{renderCreateIcon()}</Flex>
               </ListItem>
             )}
             {!partialResult?.length && !allowCreation && (
-              <ListItem my={1} p={2} data-testid="not-found">
-                <Flex align="center">{notFoundText}</Flex>
+              <ListItem my={1} p={2} data-testid='not-found'>
+                <Flex align='center'>{notFoundText}</Flex>
               </ListItem>
             )}
           </List>

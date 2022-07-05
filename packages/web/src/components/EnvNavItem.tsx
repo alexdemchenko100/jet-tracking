@@ -1,7 +1,4 @@
-import {
-  Flex,
-  FlexProps,
-} from '@chakra-ui/react'
+import { Flex, FlexProps } from '@chakra-ui/react'
 import React, { ReactNode } from 'react'
 import { IconType } from 'react-icons/lib'
 import { NavLink, To } from 'react-router-dom'
@@ -17,13 +14,17 @@ const EnvNavItem: React.FC<Props> = (props) => {
   return (
     <NavLink
       to={to}
-      style={({ isActive }) => (isActive ? {
-        marginBottom: 16,
-        color: '#17468F',
-      } : {
-        color: '#25292F',
-        marginBottom: 16,
-      })}
+      style={({ isActive }) =>
+        isActive
+          ? {
+              marginBottom: 16,
+              color: '#17468F',
+            }
+          : {
+              color: '#25292F',
+              marginBottom: 16,
+            }
+      }
     >
       <Flex
         align='center'

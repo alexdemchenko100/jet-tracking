@@ -3,10 +3,7 @@ import { requestContext } from 'fastify-request-context'
 import { firebaseAuth } from '../Firebase'
 import { createNewAccount, getAccountIdByUser } from '../services/DBService'
 
-export async function onRequestAuthHook(
-  request: FastifyRequest,
-  reply: FastifyReply
-) {
+export async function onRequestAuthHook(request: FastifyRequest, reply: FastifyReply) {
   const authHeader = request.headers.authorization ?? ''
   let user = null
 

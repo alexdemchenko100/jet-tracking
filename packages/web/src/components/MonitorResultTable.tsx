@@ -4,17 +4,7 @@ import { useQuery } from 'react-query'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 
-import {
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Box,
-  IconButton,
-  Flex,
-} from '@chakra-ui/react'
+import { Table, Thead, Tbody, Tr, Th, Td, Box, IconButton, Flex } from '@chakra-ui/react'
 import {
   TriangleDownIcon,
   TriangleUpIcon,
@@ -47,12 +37,16 @@ const columns: Column<MonitorResult>[] = [
           {row.err ? (
             <Flex alignItems={'center'}>
               <Box w={2} h={2} borderRadius={8} bg={'red.200'} mr={2}></Box>
-              <Text variant='paragraph' color='gray.300'>Alert</Text>
+              <Text variant='paragraph' color='gray.300'>
+                Alert
+              </Text>
             </Flex>
           ) : (
             <Flex alignItems={'center'}>
               <Box w={2} h={2} borderRadius={8} bg={'green.200'} mr={2}></Box>
-              <Text variant='paragraph' color='gray.300'>Ok</Text>
+              <Text variant='paragraph' color='gray.300'>
+                Ok
+              </Text>
             </Flex>
           )}
         </>
@@ -63,8 +57,15 @@ const columns: Column<MonitorResult>[] = [
     Header: 'When',
     accessor: (row, _index) => {
       return (
-        <Text variant='paragraph' color='gray.300' className='captialize-first-letter' display='inline-block' whiteSpace='nowrap'>
-          {dayjs(row.createdAt as string).fromNow()}&nbsp;&nbsp;{dayjs(row.createdAt as string).format('M/DD/YY h:mm A')}
+        <Text
+          variant='paragraph'
+          color='gray.300'
+          className='captialize-first-letter'
+          display='inline-block'
+          whiteSpace='nowrap'
+        >
+          {dayjs(row.createdAt as string).fromNow()}&nbsp;&nbsp;
+          {dayjs(row.createdAt as string).format('M/DD/YY h:mm A')}
         </Text>
       )
     },
@@ -80,7 +81,11 @@ const columns: Column<MonitorResult>[] = [
   {
     Header: 'Location',
     accessor: (row, _index) => {
-      return <Text variant='paragraph' color='gray.300' textTransform={'capitalize'}>{getMonitorLocationName(row.location)}</Text>
+      return (
+        <Text variant='paragraph' color='gray.300' textTransform={'capitalize'}>
+          {getMonitorLocationName(row.location)}
+        </Text>
+      )
     },
   },
   {
@@ -275,14 +280,14 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
               chakraStyles={{
                 dropdownIndicator: (provided) => ({
                   ...provided,
-                  bg: "transparent",
+                  bg: 'transparent',
                   px: 2,
-                  cursor: "inherit"
+                  cursor: 'inherit',
                 }),
                 indicatorSeparator: (provided) => ({
                   ...provided,
-                  display: "none"
-                })
+                  display: 'none',
+                }),
               }}
             />
           </Box>
@@ -297,14 +302,14 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
               chakraStyles={{
                 dropdownIndicator: (provided) => ({
                   ...provided,
-                  bg: "transparent",
+                  bg: 'transparent',
                   px: 2,
-                  cursor: "inherit"
+                  cursor: 'inherit',
                 }),
                 indicatorSeparator: (provided) => ({
                   ...provided,
-                  display: "none"
-                })
+                  display: 'none',
+                }),
               }}
             />
           </Box>
@@ -329,14 +334,14 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
               chakraStyles={{
                 dropdownIndicator: (provided) => ({
                   ...provided,
-                  bg: "transparent",
+                  bg: 'transparent',
                   px: 2,
-                  cursor: "inherit"
+                  cursor: 'inherit',
                 }),
                 indicatorSeparator: (provided) => ({
                   ...provided,
-                  display: "none"
-                })
+                  display: 'none',
+                }),
               }}
             />
           </Box>
@@ -345,13 +350,7 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
 
       <Box mt={6} overflowX={'auto'}>
         <Table {...getTableProps()} size='sm' variant='simple'>
-          <Thead
-            p='0'
-            position='sticky'
-            zIndex='1'
-            top='0px'
-            style={{ overflow: 'scroll' }}
-          >
+          <Thead p='0' position='sticky' zIndex='1' top='0px' style={{ overflow: 'scroll' }}>
             {headerGroups.map((headerGroup) => (
               <Tr p='0' {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map((column) => (
@@ -362,7 +361,9 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
                     {...column.getHeaderProps(column.getSortByToggleProps())}
                   >
                     <Flex alignItems={'center'}>
-                      <Text mr={2} variant='emphasis' color='black'>{column.render('Header')}</Text>
+                      <Text mr={2} variant='emphasis' color='black'>
+                        {column.render('Header')}
+                      </Text>
                       {column.isSorted ? (
                         column.isSortedDesc ? (
                           <TriangleDownIcon />
@@ -419,8 +420,16 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
           </Tbody>
         </Table>
       </Box>
-      <Flex borderBottom='1px solid' p='1' borderColor='lightgray.100' alignItems='center' justifyContent='space-between'>
-        <Text variant='text-field' color='gray.300'>Show 10 results of {totalItemCount}</Text>
+      <Flex
+        borderBottom='1px solid'
+        p='1'
+        borderColor='lightgray.100'
+        alignItems='center'
+        justifyContent='space-between'
+      >
+        <Text variant='text-field' color='gray.300'>
+          Show 10 results of {totalItemCount}
+        </Text>
         <Flex alignItems='center'>
           <IconButton
             aria-label='prev'
@@ -434,8 +443,12 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
             disabled={!canPreviousPage}
             onClick={() => previousPage()}
           />
-          <Text mx='1.5' variant='emphasis' color='darkblue.100' alignSelf='center'>{pageIndex + 1}&nbsp;&nbsp;/</Text>
-          <Text variant='paragraph' color='gray.300' alignSelf='center'>{pageOptions.length}</Text>
+          <Text mx='1.5' variant='emphasis' color='darkblue.100' alignSelf='center'>
+            {pageIndex + 1}&nbsp;&nbsp;/
+          </Text>
+          <Text variant='paragraph' color='gray.300' alignSelf='center'>
+            {pageOptions.length}
+          </Text>
           <IconButton
             aria-label='next'
             _focus={{ boxShadow: '' }}
@@ -449,7 +462,9 @@ export function MonitorResultTable({ onShowMonitorResult }: MonitorResultTablePr
             onClick={() => nextPage()}
           />
         </Flex>
-        <Text variant='text-field' color='transparent'>Show 10 results of {totalItemCount}</Text>
+        <Text variant='text-field' color='transparent'>
+          Show 10 results of {totalItemCount}
+        </Text>
       </Flex>
     </>
   )

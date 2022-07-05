@@ -1,13 +1,4 @@
-import {
-  Box,
-  Flex,
-  Button,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  Image,
-} from '@chakra-ui/react'
+import { Box, Flex, Button, Menu, MenuButton, MenuItem, MenuList, Image } from '@chakra-ui/react'
 import { FiChevronDown } from 'react-icons/fi'
 
 import { Text } from '../components'
@@ -20,21 +11,21 @@ interface ChannelSelectProps {
 }
 
 const ChannelSelect: React.FC<ChannelSelectProps> = ({ channel, onSelect, hasError }) => {
-  let label = '';
+  let label = ''
   switch (channel) {
     case 'slack':
       label = 'Slack'
-      break;
+      break
     case 'email':
       label = 'Email'
-      break;
+      break
     case 'ms-teams':
       label = 'Microsoft Teams'
-      break;
+      break
     default:
       label = ''
   }
-  
+
   return (
     <Menu>
       <MenuButton
@@ -50,13 +41,17 @@ const ChannelSelect: React.FC<ChannelSelectProps> = ({ channel, onSelect, hasErr
         _hover={{ bg: 'transparent' }}
         _active={{ bg: 'transparent' }}
       >
-        <Text variant='paragraph' color='gray.300' textTransform='capitalize'>{label}</Text>
+        <Text variant='paragraph' color='gray.300' textTransform='capitalize'>
+          {label}
+        </Text>
       </MenuButton>
       <MenuList width={80} px={2} py={3}>
         <MenuItem onClick={() => onSelect('email')}>
           <Flex width='100%' gap={2.5} alignItems='center'>
             <Image src={BlueEmailIcon} w={9} h={9} objectFit='contain'></Image>
-            <Text variant='text-field' color='darkgray.100'>Email</Text>
+            <Text variant='text-field' color='darkgray.100'>
+              Email
+            </Text>
           </Flex>
         </MenuItem>
         <MenuItem onClick={() => onSelect('slack')}>
@@ -64,7 +59,9 @@ const ChannelSelect: React.FC<ChannelSelectProps> = ({ channel, onSelect, hasErr
             <Box w={9} h={9} bg='white' borderRadius='18' p={1.5}>
               <Image src={SlackIcon} objectFit='contain'></Image>
             </Box>
-            <Text variant='text-field' color='darkgray.100'>Slack</Text>
+            <Text variant='text-field' color='darkgray.100'>
+              Slack
+            </Text>
           </Flex>
         </MenuItem>
         <MenuItem onClick={() => onSelect('ms-teams')}>
@@ -72,7 +69,9 @@ const ChannelSelect: React.FC<ChannelSelectProps> = ({ channel, onSelect, hasErr
             <Box w={9} h={9} bg='white' borderRadius='18' p={1.5}>
               <Image src={MSTeamsIcon} objectFit='contain'></Image>
             </Box>
-            <Text variant='text-field' color='darkgray.100'>Microsoft Teams</Text>
+            <Text variant='text-field' color='darkgray.100'>
+              Microsoft Teams
+            </Text>
           </Flex>
         </MenuItem>
       </MenuList>

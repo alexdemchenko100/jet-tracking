@@ -1,7 +1,4 @@
-import {
-  Tab,
-  TabProps,
-} from '@chakra-ui/react'
+import { Tab, TabProps } from '@chakra-ui/react'
 
 const MonitorTab: React.FC<TabProps> = (props) => {
   const { children, ...rest } = props

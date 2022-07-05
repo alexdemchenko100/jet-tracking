@@ -2,7 +2,7 @@ import { Flex, Box, useToast } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 import { FiUser, FiShield, FiBell } from 'react-icons/fi'
-import { useForm, FormProvider } from "react-hook-form"
+import { useForm, FormProvider } from 'react-hook-form'
 import axios from 'axios'
 import { NotificationChannel, Settings } from '@httpmon/db'
 import { useQuery } from 'react-query'
@@ -27,16 +27,29 @@ const SettingsSidebar = (props: any) => (
     minH={'calc(100vh - 140px)'}
     {...props}
   >
-    <Flex direction='column' as='nav' py={4} fontSize='sm' color='gray.600' aria-label='Main Navigation'>
+    <Flex
+      direction='column'
+      as='nav'
+      py={4}
+      fontSize='sm'
+      color='gray.600'
+      aria-label='Main Navigation'
+    >
       <NavItem icon={FiUser} to='/console/settings/profile'>
-        <Text variant='text-field' color='inherit'>Profile</Text>
+        <Text variant='text-field' color='inherit'>
+          Profile
+        </Text>
       </NavItem>
 
       <NavItem icon={FiShield} to='/console/settings/security'>
-        <Text variant='text-field' color='inherit'>Security</Text>
+        <Text variant='text-field' color='inherit'>
+          Security
+        </Text>
       </NavItem>
       <NavItem icon={FiBell} to='/console/settings/notifications'>
-        <Text variant='text-field' color='inherit'>Notifications</Text>
+        <Text variant='text-field' color='inherit'>
+          Notifications
+        </Text>
       </NavItem>
     </Flex>
   </Box>
@@ -46,7 +59,7 @@ export function SettingsPage() {
   const { userInfo } = useAuth()
   const methods = useForm()
   const [formChanged, setFormChanged] = useState<boolean>(false)
-  const [initialForm, setInitialForm] = useState<SettingsForm|undefined>()
+  const [initialForm, setInitialForm] = useState<SettingsForm | undefined>()
   const [hasErrors, setHasErrors] = useState<boolean>(false)
   const { setValue, watch, getValues, handleSubmit } = methods
   const toast = useToast()
@@ -60,17 +73,29 @@ export function SettingsPage() {
   useEffect(() => {
     const subscription = watch((value, { name }) => {
       if (name && initialForm) {
-        if (!name.includes('settings.notifications')
-          && !name.includes('settings.edit_notification')
-          && !name.includes('settings.new_notification')
+        if (
+          !name.includes('settings.notifications') &&
+          !name.includes('settings.edit_notification') &&
+          !name.includes('settings.new_notification')
         ) {
           setFormChanged(JSON.stringify(value.settings) !== JSON.stringify(initialForm))
         } else if (name.includes('settings.edit_notification')) {
-          resetForm(userInfo, userSettings, value.settings.notifications, value.settings.edit_notification)
+          resetForm(
+            userInfo,
+            userSettings,
+            value.settings.notifications,
+            value.settings.edit_notification
+          )
         } else if (name.includes('settings.notifications')) {
           resetForm(userInfo, userSettings, value.settings.notifications)
         } else if (name.includes('settings.new_notification')) {
-          resetForm(userInfo, userSettings, value.settings.notifications, value.settings.edit_notification, value.settings.new_notification)
+          resetForm(
+            userInfo,
+            userSettings,
+            value.settings.notifications,
+            value.settings.edit_notification,
+            value.settings.new_notification
+          )
         }
       }
       let newNotificationError = {
@@ -79,13 +104,14 @@ export function SettingsPage() {
         channel: {
           type: false,
           email: false,
-          webhookUrl: false
-        }
+          webhookUrl: false,
+        },
       }
-      if (value.settings.new_notification.name
-        || value.settings.new_notification.channel.type
-        || value.settings.new_notification.applyOnExistingMonitors
-        || !value.settings.new_notification.isDefaultEnabled
+      if (
+        value.settings.new_notification.name ||
+        value.settings.new_notification.channel.type ||
+        value.settings.new_notification.applyOnExistingMonitors ||
+        !value.settings.new_notification.isDefaultEnabled
       ) {
         if (!value.settings.new_notification.name) {
           newNotificationError.name = true
@@ -95,11 +121,17 @@ export function SettingsPage() {
           newNotificationError.channel.type = true
           newNotificationError.hasErrors = true
         } else {
-          if (value.settings.new_notification.channel.type === 'email' && !value.settings.new_notification.channel.email) {
+          if (
+            value.settings.new_notification.channel.type === 'email' &&
+            !value.settings.new_notification.channel.email
+          ) {
             newNotificationError.channel.email = true
             newNotificationError.hasErrors = true
           }
-          if (value.settings.new_notification.channel.type !== 'email' && !value.settings.new_notification.channel.webhookUrl) {
+          if (
+            value.settings.new_notification.channel.type !== 'email' &&
+            !value.settings.new_notification.channel.webhookUrl
+          ) {
             newNotificationError.channel.webhookUrl = true
             newNotificationError.hasErrors = true
           }
@@ -115,8 +147,8 @@ export function SettingsPage() {
         channel: {
           type: false,
           email: false,
-          webhookUrl: false
-        }
+          webhookUrl: false,
+        },
       }
       if (value.settings.edit_notification.id) {
         if (!value.settings.edit_notification.name) {
@@ -127,17 +159,26 @@ export function SettingsPage() {
           editNotificationError.channel.type = true
           editNotificationError.hasErrors = true
         } else {
-          if (value.settings.edit_notification.channel.type === 'email' && !value.settings.edit_notification.channel.email) {
+          if (
+            value.settings.edit_notification.channel.type === 'email' &&
+            !value.settings.edit_notification.channel.email
+          ) {
             editNotificationError.channel.email = true
             editNotificationError.hasErrors = true
           }
-          if (value.settings.edit_notification.channel.type !== 'email' && !value.settings.edit_notification.channel.webhookUrl) {
+          if (
+            value.settings.edit_notification.channel.type !== 'email' &&
+            !value.settings.edit_notification.channel.webhookUrl
+          ) {
             editNotificationError.channel.webhookUrl = true
             editNotificationError.hasErrors = true
           }
         }
       }
-      setErrors({ edit_notification: editNotificationError, new_notification: newNotificationError })
+      setErrors({
+        edit_notification: editNotificationError,
+        new_notification: newNotificationError,
+      })
     })
     return () => subscription.unsubscribe()
   }, [watch, initialForm])
@@ -165,7 +206,7 @@ export function SettingsPage() {
     settings: Settings,
     notificationList: NotificationChannel[],
     editNotification?: NotificationChannel,
-    newNotification?: NotificationChannel,
+    newNotification?: NotificationChannel
   ) => {
     const formData = {
       profile: profile,
@@ -174,18 +215,22 @@ export function SettingsPage() {
         is_2fa_enabled: false,
         single_sign_on: false,
       },
-      new_notification: newNotification ? newNotification : {
-        name: '',
-        channel: {},
-        isDefaultEnabled: true,
-        applyOnExistingMonitors: false,
-      },
-      edit_notification: editNotification ? editNotification : {
-        name: '',
-        channel: {},
-        isDefaultEnabled: false,
-        applyOnExistingMonitors: false,
-      },
+      new_notification: newNotification
+        ? newNotification
+        : {
+            name: '',
+            channel: {},
+            isDefaultEnabled: true,
+            applyOnExistingMonitors: false,
+          },
+      edit_notification: editNotification
+        ? editNotification
+        : {
+            name: '',
+            channel: {},
+            isDefaultEnabled: false,
+            applyOnExistingMonitors: false,
+          },
       notifications: notificationList,
       alert: {
         failCount: settings.alert.failCount,
@@ -222,13 +267,15 @@ export function SettingsPage() {
     }
     const settings = getValues('settings')
     // Save alert settings
-    const userSettings = await axios.put('/settings', {
+    const userSettings = await axios
+      .put('/settings', {
         alert: settings.alert,
-      }).then(resp => resp.data)
+      })
+      .then((resp) => resp.data)
     const notifications = await axios({
-        method: 'GET',
-        url: '/settings/notifications',
-      }).then((resp) => resp.data)
+      method: 'GET',
+      url: '/settings/notifications',
+    }).then((resp) => resp.data)
     resetForm(userInfo, userSettings, notifications)
     toast({
       position: 'top',
@@ -245,7 +292,9 @@ export function SettingsPage() {
       <form onSubmit={handleSubmit(onSubmit)} autoComplete='nope'>
         <Section>
           <Flex alignItems='center' justify={'space-between'}>
-            <Text variant='header' color='black'>Settings</Text>
+            <Text variant='header' color='black'>
+              Settings
+            </Text>
             <Flex gap={2}>
               <PrimaryButton
                 label='Cancel'
@@ -260,7 +309,7 @@ export function SettingsPage() {
                 disabled={!formChanged}
                 variant='emphasis'
                 color={'white'}
-                type="submit"
+                type='submit'
               ></PrimaryButton>
             </Flex>
           </Flex>

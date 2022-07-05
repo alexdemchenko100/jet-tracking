@@ -19,9 +19,7 @@ const PubsubMessageSchema = S.object()
       .prop('publishTime', S.string())
   )
 
-const validateMonitor = new Ajv({ allErrors: true }).compile<Monitor>(
-  MonitorFluentSchema.valueOf()
-)
+const validateMonitor = new Ajv({ allErrors: true }).compile<Monitor>(MonitorFluentSchema.valueOf())
 type PubsubMessage = {
   subscription: string
   message: {
@@ -73,10 +71,7 @@ export default async function MonitorExecutorRouter(app: FastifyInstance) {
       const monitorObj = JSON.parse(monitorBuf.toString())
 
       if (!validateMonitor(monitorObj)) {
-        app.log.error(
-          validateMonitor.errors,
-          'Monitor exec failed due to schema validation errors'
-        )
+        app.log.error(validateMonitor.errors, 'Monitor exec failed due to schema validation errors')
         reply.code(200).send()
         return
       }

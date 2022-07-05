@@ -55,9 +55,7 @@ function objectToJSON(object: any) {
   throw Error('Cannot convert to JSON')
 }
 
-export async function saveMonitorResult(
-  result: Insertable<MonitorResultTable>
-) {
+export async function saveMonitorResult(result: Insertable<MonitorResultTable>) {
   //Handle all JSON conversions here.. headers, cookies, variables etc
   let resultForSaving = {
     ...result,

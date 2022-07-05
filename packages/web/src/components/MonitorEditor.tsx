@@ -714,7 +714,9 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
                   <ModalCloseButton />
                   <ModalBody>
                     <FormControl id='name' w='200'>
-                      <Text variant='details' color='black'>Name</Text>
+                      <Text variant='details' color='black'>
+                        Name
+                      </Text>
                       <Input
                         borderRadius={8}
                         color='gray.300'

@@ -42,8 +42,7 @@ export interface PaginateQueryString {
 function monitorToDBMonitor(mon: Monitor): Monitor {
   let values: { [k: string]: any } = { ...mon }
   if (values.headers) values.headers = JSON.stringify(values.headers)
-  if (values.queryParams)
-    values.queryParams = JSON.stringify(values.queryParams)
+  if (values.queryParams) values.queryParams = JSON.stringify(values.queryParams)
   if (values.env) values.env = JSON.stringify(values.env)
   if (values.assertions) values.assertions = JSON.stringify(values.assertions)
 
@@ -180,9 +179,7 @@ export class MonitorService {
         'ttfb',
         'assertResults',
       ])
-      .if(Boolean(monitorId), (qb) =>
-        qb.where('monitorId', '=', monitorId as string)
-      )
+      .if(Boolean(monitorId), (qb) => qb.where('monitorId', '=', monitorId as string))
       .where('accountId', '=', currentUserInfo().accountId)
       .limit(100)
       .orderBy('MonitorResult.createdAt', 'desc')
@@ -191,10 +188,7 @@ export class MonitorService {
     return results
   }
 
-  public async getMonitorResultsEx(
-    monitorId: string,
-    query: ResultQueryString
-  ) {
+  public async getMonitorResultsEx(monitorId: string, query: ResultQueryString) {
     const locations = query.locations ? query.locations.split(',') : []
     const okStatus = query.status?.includes('ok') ?? false
     const errStatus = query.status?.includes('err') ?? false
@@ -206,9 +200,7 @@ export class MonitorService {
     //having a const column array causes type error which is weird
     let q = db
       .selectFrom('MonitorResult')
-      .if(Boolean(monitorId), (qb) =>
-        qb.where('monitorId', '=', monitorId as string)
-      )
+      .if(Boolean(monitorId), (qb) => qb.where('monitorId', '=', monitorId as string))
       .where('accountId', '=', currentUserInfo().accountId)
       .where('createdAt', '>=', new Date(query.startTime))
       .where('createdAt', '<', new Date(query.endTime))
@@ -254,15 +246,10 @@ export class MonitorService {
     logger.error(q.compile().sql, 'q')
 
     const { count } = db.fn
-    logger.error(
-      q.select(count<number>('createdAt').as('numItems')).compile().sql,
-      'sql'
-    )
+    logger.error(q.select(count<number>('createdAt').as('numItems')).compile().sql, 'sql')
 
     if (query.getTotals) {
-      let queryTotals = await q
-        .select(count<number>('createdAt').as('numItems'))
-        .execute()
+      let queryTotals = await q.select(count<number>('createdAt').as('numItems')).execute()
       return {
         items: await queryResults.execute(),
         totalItemCount: queryTotals[0].numItems,
@@ -284,21 +271,11 @@ export class MonitorService {
     //having a const column array causes type error which is weird
     const queryStats = db
       .selectFrom('MonitorResult')
-      .select(
-        sql<string>`PERCENTILE_CONT(0.5) WITHIN GROUP (order by "totalTime")`.as(
-          'p50'
-        )
-      )
-      .select(
-        sql<string>`PERCENTILE_CONT(0.95) WITHIN GROUP (order by "totalTime")`.as(
-          'p95'
-        )
-      )
+      .select(sql<string>`PERCENTILE_CONT(0.5) WITHIN GROUP (order by "totalTime")`.as('p50'))
+      .select(sql<string>`PERCENTILE_CONT(0.95) WITHIN GROUP (order by "totalTime")`.as('p95'))
       .select(avg<number>('totalTime').as('avg'))
       .select(count<number>('totalTime').as('numItems'))
-      .select(
-        sql<string>`sum(CASE WHEN err <> '' THEN 1 ELSE 0 END)`.as('numErrors')
-      )
+      .select(sql<string>`sum(CASE WHEN err <> '' THEN 1 ELSE 0 END)`.as('numErrors'))
       .where('monitorId', '=', monitorId)
       .where('accountId', '=', currentUserInfo().accountId)
 
@@ -308,9 +285,7 @@ export class MonitorService {
 
     let weekResults = await weekAgo.executeTakeFirst()
 
-    const dayAgo = queryStats
-      .where('createdAt', '>', dayAgoStartime)
-      .where('createdAt', '<=', now)
+    const dayAgo = queryStats.where('createdAt', '>', dayAgoStartime).where('createdAt', '<=', now)
 
     let dayResults = await dayAgo.executeTakeFirst()
 
@@ -322,7 +297,7 @@ export class MonitorService {
       .orderBy('createdAt', 'desc')
       .limit(24)
       .execute()
-  
+
     const monitor = await this.find(monitorId)
 
     let res = {
@@ -344,7 +319,7 @@ export class MonitorService {
   }
 
   public async getAllMonitorStatSummaries() {
-    const monitors =  await db
+    const monitors = await db
       .selectFrom('Monitor')
       .selectAll()
       .where('accountId', '=', currentUserInfo().accountId)
@@ -358,30 +333,17 @@ export class MonitorService {
     return results
   }
 
-  public async getMonitorStatsByPeriod(
-    monitorId: string,
-    query: StatsQueryString
-  ) {
+  public async getMonitorStatsByPeriod(monitorId: string, query: StatsQueryString) {
     const { avg, count } = db.fn
 
     //having a const column array causes type error which is weird
     const queryStats = db
       .selectFrom('MonitorResult')
-      .select(
-        sql<string>`PERCENTILE_CONT(0.5) WITHIN GROUP (order by "totalTime")`.as(
-          'p50'
-        )
-      )
-      .select(
-        sql<string>`PERCENTILE_CONT(0.95) WITHIN GROUP (order by "totalTime")`.as(
-          'p95'
-        )
-      )
+      .select(sql<string>`PERCENTILE_CONT(0.5) WITHIN GROUP (order by "totalTime")`.as('p50'))
+      .select(sql<string>`PERCENTILE_CONT(0.95) WITHIN GROUP (order by "totalTime")`.as('p95'))
       .select(avg<number>('totalTime').as('avg'))
       .select(count<number>('totalTime').as('numItems'))
-      .select(
-        sql<string>`sum(CASE WHEN err <> '' THEN 1 ELSE 0 END)`.as('numErrors')
-      )
+      .select(sql<string>`sum(CASE WHEN err <> '' THEN 1 ELSE 0 END)`.as('numErrors'))
       .where('monitorId', '=', monitorId)
       .where('accountId', '=', currentUserInfo().accountId)
       .where('createdAt', '>', query.startDate)

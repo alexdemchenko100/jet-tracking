@@ -31,7 +31,14 @@ import { APIResultById } from './APIResultById'
 import { APIResultByDemand } from './APIResultByDemand'
 import { formatFrequency } from '../services/FrequencyScale'
 import { getMonitorLocationName } from '../services/MonitorLocations'
-import { FiMapPin, FiChevronRight, FiEdit, FiMoreHorizontal, FiGlobe, FiClock } from 'react-icons/fi'
+import {
+  FiMapPin,
+  FiChevronRight,
+  FiEdit,
+  FiMoreHorizontal,
+  FiGlobe,
+  FiClock,
+} from 'react-icons/fi'
 import { Store } from '../services/Store'
 import Text from './Text'
 import Section from './Section'
@@ -77,14 +84,20 @@ function DoubleCheckDelete({ id }: DeleteProps) {
       >
         <AlertDialogOverlay />
         <AlertDialogContent borderRadius={16} boxShadow='0px 4px 16px rgba(38, 50, 56, 0.1)'>
-          <AlertDialogHeader><Text color='black' variant="header">Delete this monitor?</Text></AlertDialogHeader>
+          <AlertDialogHeader>
+            <Text color='black' variant='header'>
+              Delete this monitor?
+            </Text>
+          </AlertDialogHeader>
           <AlertDialogCloseButton />
           <AlertDialogBody>
-            <Text variant='paragraph' color='gray.300'>All related information will be lost, this action is permanent, and cannot be undone.</Text>
+            <Text variant='paragraph' color='gray.300'>
+              All related information will be lost, this action is permanent, and cannot be undone.
+            </Text>
           </AlertDialogBody>
           <AlertDialogFooter pb={6}>
             <Button
-              variant="outline"
+              variant='outline'
               borderRadius={24}
               border='2px'
               px='22px'
@@ -94,15 +107,16 @@ function DoubleCheckDelete({ id }: DeleteProps) {
               mr={3}
               onClick={onDelete}
             >
-              <Text color='darkblue.100' variant="emphasis">Delete</Text>
+              <Text color='darkblue.100' variant='emphasis'>
+                Delete
+              </Text>
             </Button>
             <PrimaryButton
               label='Cancel'
               variant='emphasis'
               color='white'
               onClick={onClose}
-            >
-            </PrimaryButton>
+            ></PrimaryButton>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -116,9 +130,9 @@ interface MonitorStatsProps {
 }
 
 interface MonitorInfoProps {
-  id: string,
-  runNow: () => void,
-  mon?: MonitorTable | null,
+  id: string
+  runNow: () => void
+  mon?: MonitorTable | null
 }
 
 function round(v: number) {
@@ -138,34 +152,75 @@ function uptime(stats: MonitorPeriodStats) {
 
 function MonitorStatsView({ stats, title }: MonitorStatsProps) {
   return (
-    <Box py='7' m={3} flex={1} px='6' border='1px' borderColor='gray.200' borderStyle='solid' borderRadius={8}>
+    <Box
+      py='7'
+      m={3}
+      flex={1}
+      px='6'
+      border='1px'
+      borderColor='gray.200'
+      borderStyle='solid'
+      borderRadius={8}
+    >
       <Flex>
-        <Text variant='title' color='black' showUnderline>{title}</Text>
+        <Text variant='title' color='black' showUnderline>
+          {title}
+        </Text>
       </Flex>
       <Flex alignItems='start' justifyContent='space-around' mt={10}>
         <Stat>
-          <Text variant='emphasis' color='black'>Total</Text><br/>
-          <Text variant='emphasis' color='gray.300'>{stats.numItems}</Text>
+          <Text variant='emphasis' color='black'>
+            Total
+          </Text>
+          <br />
+          <Text variant='emphasis' color='gray.300'>
+            {stats.numItems}
+          </Text>
         </Stat>
         <Stat>
-          <Text variant='emphasis' color='black'>Errors</Text><br/>
-          <Text variant='emphasis' color='gray.300'>{stats.numErrors}</Text>
+          <Text variant='emphasis' color='black'>
+            Errors
+          </Text>
+          <br />
+          <Text variant='emphasis' color='gray.300'>
+            {stats.numErrors}
+          </Text>
         </Stat>
         <Stat>
-          <Text variant='emphasis' color='black'>Uptime</Text><br/>
-          <Text variant='emphasis' color='gray.300'>{uptime(stats)}</Text>
+          <Text variant='emphasis' color='black'>
+            Uptime
+          </Text>
+          <br />
+          <Text variant='emphasis' color='gray.300'>
+            {uptime(stats)}
+          </Text>
         </Stat>
         <Stat>
-          <Text variant='emphasis' color='black'>Avg</Text><br/>
-          <Text variant='emphasis' color='gray.300'>{round(stats.avg)}ms</Text>
+          <Text variant='emphasis' color='black'>
+            Avg
+          </Text>
+          <br />
+          <Text variant='emphasis' color='gray.300'>
+            {round(stats.avg)}ms
+          </Text>
         </Stat>
         <Stat>
-          <Text variant='emphasis' color='black'>Median</Text><br/>
-          <Text variant='emphasis' color='gray.300'>{round(stats.p50)}ms</Text>
+          <Text variant='emphasis' color='black'>
+            Median
+          </Text>
+          <br />
+          <Text variant='emphasis' color='gray.300'>
+            {round(stats.p50)}ms
+          </Text>
         </Stat>
         <Stat>
-          <Text variant='emphasis' color='black'>P95</Text><br/>
-          <Text variant='emphasis' color='gray.300'>{round(stats.p95)}ms</Text>
+          <Text variant='emphasis' color='black'>
+            P95
+          </Text>
+          <br />
+          <Text variant='emphasis' color='gray.300'>
+            {round(stats.p95)}ms
+          </Text>
         </Stat>
       </Flex>
     </Box>
@@ -182,14 +237,20 @@ function MonitorInfo(props: MonitorInfoProps) {
   return (
     <Section py={4}>
       <Flex mb={2} alignItems='center'>
-        <Flex as={Link} alignItems='center' to="/console/monitors">
-          <Text variant='details' color='darkblue.100'>Monitors</Text>
+        <Flex as={Link} alignItems='center' to='/console/monitors'>
+          <Text variant='details' color='darkblue.100'>
+            Monitors
+          </Text>
           <Icon name='location' fontSize={'sm'} mx='1' as={FiChevronRight} />
         </Flex>
-        <Text variant='details' color='gray.300'>Details</Text>
+        <Text variant='details' color='gray.300'>
+          Details
+        </Text>
       </Flex>
       <Flex alignItems='center' justify={'space-between'}>
-        <Text variant='header' color='black' showUnderline>{mon?.name}</Text>
+        <Text variant='header' color='black' showUnderline>
+          {mon?.name}
+        </Text>
         <Flex gap='4' alignItems={'center'}>
           <Menu>
             <MenuButton
@@ -211,7 +272,12 @@ function MonitorInfo(props: MonitorInfoProps) {
             color={'white'}
             onClick={runNow}
           ></PrimaryButton>
-          <Button borderRadius='4' bg='lightgray.100' p='0' onClick={() => navigate(`/console/monitors/${id}/edit`)}>
+          <Button
+            borderRadius='4'
+            bg='lightgray.100'
+            p='0'
+            onClick={() => navigate(`/console/monitors/${id}/edit`)}
+          >
             <Icon color='gray.300' as={FiEdit} cursor='pointer' />
           </Button>
         </Flex>
@@ -219,11 +285,21 @@ function MonitorInfo(props: MonitorInfoProps) {
       <Flex alignItems={'center'} wrap='wrap' gap={2} mt={5}>
         <Flex alignItems={'center'} maxW='100%' overflow='hidden'>
           <Icon fontSize='md' color='black' as={FiGlobe} cursor='pointer' mr='1' />
-          <Text variant='title' color='black' textOverflow='ellipsis' whiteSpace='nowrap' overflow='hidden'>{mon?.url}</Text>
+          <Text
+            variant='title'
+            color='black'
+            textOverflow='ellipsis'
+            whiteSpace='nowrap'
+            overflow='hidden'
+          >
+            {mon?.url}
+          </Text>
         </Flex>
         <Flex alignItems={'center'} py={1} px={4} bg='lightgray.100' borderRadius={16}>
           <Icon fontSize='sm' color='darkgray.100' mr='1' as={FiClock} cursor='pointer' />
-          <Text variant='details' color='darkgray.100'>{freqFormat}</Text>
+          <Text variant='details' color='darkgray.100'>
+            {freqFormat}
+          </Text>
         </Flex>
         <Box w='1px' h='5' bg='gray.300' mx={2}></Box>
         {locations.length > 0 && (
@@ -232,7 +308,7 @@ function MonitorInfo(props: MonitorInfoProps) {
             {locations.map((loc, index) => (
               <Text variant='title' color='black' mr={2} key={index}>
                 {getMonitorLocationName(loc)}
-                {(index !== locations.length - 1) ? ',' : ''}
+                {index !== locations.length - 1 ? ',' : ''}
               </Text>
             ))}
           </Flex>
@@ -304,14 +380,20 @@ export function MonitorView() {
         <Box overflow='auto'>
           {vertical && <MonitorInfo id={id} runNow={runNow} mon={mon} />}
           <Section py={4}>
-            <Text variant='title' color='black'>Analytics</Text>
+            <Text variant='title' color='black'>
+              Analytics
+            </Text>
             {mon && (
               <>
                 <Flex mt={4} mx={-3} flexWrap='wrap'>
-                  {stats && stats.week && <MonitorStatsView stats={stats.week} title='Last 7 Days' />}
-                  {stats && stats.day && <MonitorStatsView stats={stats.day} title='Last 24 Hours' />}
+                  {stats && stats.week && (
+                    <MonitorStatsView stats={stats.week} title='Last 7 Days' />
+                  )}
+                  {stats && stats.day && (
+                    <MonitorStatsView stats={stats.day} title='Last 24 Hours' />
+                  )}
                 </Flex>
-                <MonitorTimeChart id={id} width='100%' height='200px'/>
+                <MonitorTimeChart id={id} width='100%' height='200px' />
               </>
             )}
           </Section>

@@ -1,10 +1,6 @@
 import { execMonitor } from '../../services/MonitorExecutor'
 import { FastifyInstance } from 'fastify'
-import {
-  Monitor,
-  MonitorFluentSchema,
-  MonitorResultFluentSchema,
-} from '@httpmon/db'
+import { Monitor, MonitorFluentSchema, MonitorResultFluentSchema } from '@httpmon/db'
 import { processAssertions } from '../../services/Assertions'
 
 export default async function OndemandMonitorRouter(app: FastifyInstance) {
@@ -25,10 +21,7 @@ export default async function OndemandMonitorRouter(app: FastifyInstance) {
       const result = await execMonitor(mon)
       const asserionResults = processAssertions(mon, result)
       result.assertResults = asserionResults
-      if (!result.err)
-        result.err = asserionResults.some((a) => a.fail)
-          ? 'assertions failed'
-          : ''
+      if (!result.err) result.err = asserionResults.some((a) => a.fail) ? 'assertions failed' : ''
 
       reply.code(200).send(result)
     }
