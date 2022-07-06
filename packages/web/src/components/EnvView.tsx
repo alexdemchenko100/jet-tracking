@@ -101,15 +101,15 @@ export default function EnvView() {
             <Flex key={`${monEnv.id}-${index}`} alignItems='flex-end' mb='4' gap={4}>
               <Box w={96}>
                 <Text variant='details' color='black'>
-                  Token
+                  Name
                 </Text>
-                <Input type='text' defaultValue={item[0]} color='gray.300' />
+                <Input type='text' key={item[0]} defaultValue={item[0]} color='gray.300' readOnly />
               </Box>
               <Box w={96}>
                 <Text variant='details' color='black'>
-                  Key
+                  Value
                 </Text>
-                <Input type='text' defaultValue={item[1]} color='gray.300' />
+                <Input type='text' key={item[1]} defaultValue={item[1]} color='gray.300' readOnly />
               </Box>
             </Flex>
           ))}

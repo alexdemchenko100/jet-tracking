@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { MonEnv } from '@httpmon/db'
 import axios from 'axios'
 import { useFieldArray, useForm } from 'react-hook-form'
-import { FiTrash2, FiPlus } from 'react-icons/fi'
+import { FiTrash2, FiPlus, FiEdit, FiSave } from 'react-icons/fi'
 import { useMutation, useQuery } from 'react-query'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Store } from '../services/Store'
@@ -12,6 +12,7 @@ import { Section, Text, PrimaryButton } from '../components'
 export function EnvEditor() {
   const { id } = useParams()
   const [formChanged, setFormChanged] = useState<boolean>(false)
+  const [editNameEnabled, setEditNameEnabled] = useState<boolean>(false)
 
   const toast = useToast()
   const navigate = useNavigate()
@@ -31,6 +32,7 @@ export function EnvEditor() {
     watch,
     handleSubmit,
     formState: { errors },
+    getValues,
     reset,
   } = useForm<MonEnv>()
 
@@ -122,13 +124,45 @@ export function EnvEditor() {
 
   if (!monEnv) return <p>Loading...</p>
 
+  const name = getValues('name')
+
   return (
     <Section py={4} w='100%'>
       <form onSubmit={handleSubmit(handleSaveEnv)}>
         <Flex justify='start' gap={4} direction='column'>
-          <Text variant='title' color='black'>
-            {monEnv.name}
-          </Text>
+          {!editNameEnabled ? (
+            <Flex alignItems='center' gap='4'>
+              <Text variant='title' color='black'>
+                {name}
+              </Text>
+              <Button
+                w={7}
+                h={7}
+                minW={6}
+                borderRadius='4'
+                bg='transparent'
+                p='0'
+                onClick={() => setEditNameEnabled(true)}
+              >
+                <Icon color='darkgray.100' as={FiEdit} cursor='pointer' />
+              </Button>
+            </Flex>
+          ) : (
+            <Flex alignItems='center' gap='4'>
+              <Input type='text' placeholder='Add name' {...register('name')} />
+              <Button
+                w={10}
+                h={10}
+                minW={6}
+                borderRadius='4'
+                bg='lightgray.100'
+                p='0'
+                onClick={() => setEditNameEnabled(false)}
+              >
+                <Icon color='darkgray.100' as={FiSave} cursor='pointer' />
+              </Button>
+            </Flex>
+          )}
           <Divider />
 
           <Box mt='2'>
@@ -136,15 +170,15 @@ export function EnvEditor() {
               <Flex key={field.id} alignItems='flex-end' mb='2' gap={4}>
                 <Box w={96}>
                   <Text variant='details' color='black'>
-                    Token
+                    Name
                   </Text>
-                  <Input type='text' {...register(`env.${index}.0` as const)} placeholder='Token' />
+                  <Input type='text' {...register(`env.${index}.0` as const)} placeholder='Name' />
                 </Box>
                 <Box w={96}>
                   <Text variant='details' color='black'>
-                    Key
+                    Value
                   </Text>
-                  <Input type='text' {...register(`env.${index}.1` as const)} placeholder='Key' />
+                  <Input type='text' {...register(`env.${index}.1` as const)} placeholder='Value' />
                 </Box>
                 <Button borderRadius='4' bg='lightgray.100' px={3} onClick={() => remove(index)}>
                   <Icon color='gray.300' as={FiTrash2} cursor='pointer' />

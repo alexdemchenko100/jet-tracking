@@ -86,7 +86,7 @@ export default async function EnvRouter(app: FastifyInstance) {
         return
       }
 
-      const resp = await envService.updateEnv(monEnv.id, monEnv.env)
+      const resp = await envService.updateEnv(monEnv.id, monEnv)
       log.info(`Updating monEnv: ${monEnv.id}`)
 
       reply.send(resp)

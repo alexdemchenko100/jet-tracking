@@ -1,6 +1,6 @@
 import { currentUserInfo } from './../Context'
 
-import { db, MonitorTuples } from '@httpmon/db'
+import { db, MonEnv, MonitorTuples } from '@httpmon/db'
 import { nanoid } from 'nanoid'
 import pino from 'pino'
 
@@ -50,10 +50,10 @@ export class EnvService {
     return vars
   }
 
-  public async updateEnv(envId: string, env: MonitorTuples) {
+  public async updateEnv(envId: string, env: MonEnv) {
     await db
       .updateTable('MonEnv')
-      .set({ env: JSON.stringify(env) as any })
+      .set({ name: env.name, env: JSON.stringify(env.env) as any })
       .where('id', '=', envId)
       .where('accountId', '=', currentUserInfo().accountId)
       .executeTakeFirst()

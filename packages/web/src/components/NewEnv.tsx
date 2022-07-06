@@ -112,15 +112,15 @@ export default function NewEnv() {
               <Flex key={index} alignItems='flex-end' mb='2' gap={4}>
                 <Box w={96}>
                   <Text variant='details' color='black'>
-                    Token
+                    Name
                   </Text>
-                  <Input type='text' {...register(`env.${index}.0` as const)} placeholder='Token' />
+                  <Input type='text' {...register(`env.${index}.0` as const)} placeholder='Name' />
                 </Box>
                 <Box w={96}>
                   <Text variant='details' color='black'>
-                    Key
+                    Value
                   </Text>
-                  <Input type='text' {...register(`env.${index}.1` as const)} placeholder='Key' />
+                  <Input type='text' {...register(`env.${index}.1` as const)} placeholder='Value' />
                 </Box>
                 <Button borderRadius='4' bg='lightgray.100' px={3} onClick={() => remove(index)}>
                   <Icon color='gray.300' as={FiTrash2} cursor='pointer' />
