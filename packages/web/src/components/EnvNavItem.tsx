@@ -17,12 +17,12 @@ const EnvNavItem: React.FC<Props> = (props) => {
       style={({ isActive }) =>
         isActive
           ? {
-              marginBottom: 16,
+              marginBottom: 4,
               color: '#17468F',
             }
           : {
               color: '#25292F',
-              marginBottom: 16,
+              marginBottom: 4,
             }
       }
     >

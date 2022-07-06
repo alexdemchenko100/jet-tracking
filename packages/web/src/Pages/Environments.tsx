@@ -1,10 +1,11 @@
 import { Flex, Box } from '@chakra-ui/react'
-import { Outlet, useNavigate } from 'react-router-dom'
+import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import axios from 'axios'
 import { MonEnv } from '@httpmon/db'
 
 import { Section, Text, PrimaryButton, EnvNavItem } from '../components'
+import { useEffect } from 'react'
 
 const SIDEBAR_WIDTH = '200px'
 
@@ -43,14 +44,21 @@ const Sidebar = ({ envs }: { envs: MonEnv[] }) => {
 
 export function Environments() {
   const navigate = useNavigate()
+  const location = useLocation()
 
-  const { data: envs } = useQuery<MonEnv[]>(['monenv'], async () => {
+  const { data: envs, refetch } = useQuery<MonEnv[]>(['monenv'], async () => {
     const resp = await axios({
       method: 'GET',
       url: `/environments`,
     })
     return resp.data as MonEnv[]
   })
+
+  useEffect(() => {
+    if (location.pathname === '/console/envs') {
+      refetch()
+    }
+  }, [location])
 
   return (
     <>
@@ -74,7 +82,7 @@ export function Environments() {
       <Flex>
         <Sidebar envs={envs || []} />
         <Flex flex={1} ml={2} height='fit-content'>
-          <Outlet />
+          <Outlet context={{ envs }} />
         </Flex>
       </Flex>
     </>

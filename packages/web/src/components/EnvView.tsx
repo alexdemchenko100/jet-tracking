@@ -98,7 +98,7 @@ export default function EnvView() {
         <Divider />
         <Box mt='2'>
           {monEnv?.env.map((item, index) => (
-            <Flex key={index} alignItems='flex-end' mb='4' gap={4}>
+            <Flex key={`${monEnv.id}-${index}`} alignItems='flex-end' mb='4' gap={4}>
               <Box w={96}>
                 <Text variant='details' color='black'>
                   Token
