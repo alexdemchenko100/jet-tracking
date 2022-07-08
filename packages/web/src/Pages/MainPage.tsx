@@ -434,13 +434,13 @@ export function MainPage() {
     return () => subscription.unsubscribe()
   }, [watch])
 
-  async function getMonitors(page: number = 1, limit: number = 16) {
+  async function getMonitors() {
     let resp = await axios({
       method: 'GET',
       url: '/monitors',
       params: {
-        offset: (page - 1) * limit,
-        limit: limit,
+        offset: (currentPage - 1) * pageSize,
+        limit: pageSize,
       },
     })
 
@@ -456,7 +456,7 @@ export function MainPage() {
     isLoading,
     data: monitors,
     error,
-  } = useQuery<Monitor[]>(['monitors-list', currentPage], () => getMonitors(), {})
+  } = useQuery<Monitor[]>(['monitors-list', currentPage, pageSize], () => getMonitors(), {})
 
   async function getMonitorStats() {
     let resp = await axios({
@@ -470,8 +470,9 @@ export function MainPage() {
     throw Error('Failed to get odemand results')
   }
 
-  const { data: stats } = useQuery<MonitorStats[], Error>(['monitors-stats', currentPage], () =>
-    getMonitorStats()
+  const { data: stats } = useQuery<MonitorStats[], Error>(
+    ['monitors-stats', currentPage, pageSize],
+    () => getMonitorStats()
   )
 
   useEffect(() => {
@@ -500,6 +501,7 @@ export function MainPage() {
   const handlePageSizeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = parseInt(event.target.value)
     setPageSize(value)
+    setCurrentPage(1)
   }
 
   const sortBy = (field: string) => {
@@ -804,7 +806,7 @@ export function MainPage() {
               defaultValue={pageSize}
               onChange={handlePageSizeChange}
             >
-              <option value={10}>10</option>
+              <option value={2}>2</option>
               <option value={16}>16</option>
               <option value={20}>20</option>
               <option value={30}>30</option>
