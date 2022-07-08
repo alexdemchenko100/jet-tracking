@@ -282,7 +282,7 @@ function Assertions() {
               {...register(`assertions.${index}.type`)}
             >
               <option value='code'>Code</option>
-              <option value='totalTime'>Total Time</option>
+              <option value='totalTime'>Total Time (ms)</option>
               <option value='certExpiryDays'>Days to Cert Expiry</option>
               <option value='header'>Header</option>
               <option value='body'>Body</option>

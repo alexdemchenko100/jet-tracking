@@ -69,7 +69,7 @@ interface StatsSummary {
 
 interface StatBoxProps {
   status: string
-  value: number
+  stats?: MonitorStats[]
 }
 
 interface MonitorListProps {
@@ -157,7 +157,7 @@ function MonitorStatusCard({ mon, stats }: StatusProps) {
           <Text
             variant='header'
             color='black'
-            _hover={{ color: 'darkblue.100' }}
+            _hover={{ color: 'darkblue.100', textDecoration: 'underline' }}
             transition='color 0.2s ease'
           >
             {mon?.name}
@@ -227,7 +227,25 @@ function MonitorStatusCard({ mon, stats }: StatusProps) {
   )
 }
 
-const StatBox = ({ status, value }: StatBoxProps) => {
+function getMonitorCountByStatus(status: string, stats?: MonitorStats[]) {
+  if (!stats) return 0
+
+  switch (status) {
+    case 'up':
+      return stats.filter((entry) => entry.status === 'up').length
+      break
+    case 'down':
+      return stats.filter((entry) => entry.status === 'down').length
+      break
+
+    case 'paused':
+      return stats.filter((entry) => entry.status === 'paused').length
+      break
+  }
+  return 0
+}
+
+const StatBox = ({ status, stats }: StatBoxProps) => {
   let bgColor
   switch (status) {
     case 'up':
@@ -265,11 +283,11 @@ const StatBox = ({ status, value }: StatBoxProps) => {
         {status === 'paused' && <Icon color='white' fill='white' as={FiPause} />}
       </Flex>
       <Flex direction={'column'}>
-        <Text variant='text-field' color='gray.300' mb={1}>
+        <Text variant='text-field' color='gray.300' mb={1} textTransform='capitalize'>
           Total {status}
         </Text>
         <Text variant='emphasis' color='black'>
-          {value}
+          {getMonitorCountByStatus(status, stats)}
         </Text>
       </Flex>
     </Flex>
@@ -299,7 +317,7 @@ const MonitorListItem = ({ mon, stats, onDelete }: MonitorListProps) => {
             <>
               <Icon color='gold.200' fill='gold.200' as={FiPause} />
               <Text variant='text-field' color='gray.300'>
-                Pause
+                Paused
               </Text>
             </>
           )}
@@ -387,10 +405,8 @@ export function MainPage() {
   const [filterOption, setFilterOption] = useState<string | undefined>(undefined)
   const { register, watch } = useForm<IFormInputs>()
   const [isGridView, setIsGridView] = useState<boolean>(Store.UIState.monitors.isGridView)
-  const [statsSummary, setStatsSummary] = useState<StatsSummary>({})
   const [sortOption, setSortOption] = useState<string>('')
   const [sortDir, setSortDir] = useState<string>('asc')
-  const [monitors, setMonitors] = useState<Monitor[] | undefined>()
   const [sortedMonitors, setSortedMonitors] = useState<Monitor[]>([])
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [totalCount, setTotalCount] = useState<number>(0)
@@ -431,12 +447,16 @@ export function MainPage() {
     if (resp.status == 200) {
       const results = resp.data.items as Monitor[]
       setTotalCount(resp.data.total)
-      setMonitors(results)
+      return results
     }
     throw Error('Failed to get odemand results')
   }
 
-  useQuery(['monitors-list'], () => getMonitors(), {})
+  const {
+    isLoading,
+    data: monitors,
+    error,
+  } = useQuery<Monitor[]>(['monitors-list', currentPage], () => getMonitors(), {})
 
   async function getMonitorStats() {
     let resp = await axios({
@@ -445,28 +465,12 @@ export function MainPage() {
     })
 
     if (resp.status == 200) {
-      const results = resp.data as MonitorStats[]
-      let downMonitors = 0,
-        upMonitors = 0,
-        pausedMonitors = 0
-      results.forEach((item) => {
-        if (item.status === 'paused') {
-          pausedMonitors++
-        } else if (Boolean(item.lastResults[0].err)) {
-          downMonitors++
-          item.status = 'down'
-        } else {
-          item.status = 'up'
-          upMonitors++
-        }
-      })
-      setStatsSummary({ up: upMonitors, down: downMonitors, paused: pausedMonitors })
-      return results
+      return resp.data as MonitorStats[]
     }
     throw Error('Failed to get odemand results')
   }
 
-  const { data: stats } = useQuery<MonitorStats[], Error>(['monitors-stats'], () =>
+  const { data: stats } = useQuery<MonitorStats[], Error>(['monitors-stats', currentPage], () =>
     getMonitorStats()
   )
 
@@ -491,13 +495,11 @@ export function MainPage() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
-    getMonitors(page, pageSize)
   }
 
   const handlePageSizeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = parseInt(event.target.value)
     setPageSize(value)
-    getMonitors(currentPage, value)
   }
 
   const sortBy = (field: string) => {
@@ -635,9 +637,9 @@ export function MainPage() {
           </Select>
         </Flex>
         <Flex gap={{ sm: 2, lg: 4 }}>
-          <StatBox status='up' value={statsSummary.up || 0} />
-          <StatBox status='down' value={statsSummary.down || 0} />
-          <StatBox status='paused' value={statsSummary.paused || 0} />
+          <StatBox status='up' stats={stats} />
+          <StatBox status='down' stats={stats} />
+          <StatBox status='paused' stats={stats} />
         </Flex>
       </Section>
       <Section p={0} mb='0' display='flex' minH='calc(100vh - 300px)' flexDirection='column'>

@@ -289,7 +289,7 @@ export class MonitorService {
 
     let dayResults = await dayAgo.executeTakeFirst()
 
-    const lastResults = await db
+    const lastResultsArray = await db
       .selectFrom('MonitorResult')
       .select(['id', 'err', 'location', 'totalTime'])
       .where('monitorId', '=', monitorId)
@@ -300,19 +300,30 @@ export class MonitorService {
 
     const monitor = await this.find(monitorId)
 
+    const lastResults = lastResultsArray.filter((res) => {
+      return {
+        id: res.id,
+        err: res.err,
+        totalTime: res.totalTime,
+        location: res.location,
+      }
+    })
+
+    let status = 'unknown'
+    if (monitor) {
+      if (monitor.status == 'paused') {
+        status = 'paused'
+      } else if (lastResults.length) {
+        status = lastResults[0].err ? 'down' : 'up'
+      }
+    }
+
     let res = {
       monitorId: monitorId,
-      status: monitor?.status,
+      status: status,
       week: weekResults,
       day: dayResults,
-      lastResults: lastResults.filter((res) => {
-        return {
-          id: res.id,
-          err: res.err,
-          totalTime: res.totalTime,
-          location: res.location,
-        }
-      }),
+      lastResults: lastResults,
     }
 
     return res
