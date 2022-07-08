@@ -399,3 +399,20 @@ export const NotificationStateSchema = S.object()
   .prop('resultId', S.string())
   .prop('state', S.string())
   .prop('message', S.string())
+
+export type NotificationEmail = {
+  id?: string
+  accountId?: string
+  email: string
+  createdAt?: string | Date
+  isVerified: boolean
+}
+
+export const NotificationEmailSchema = S.object()
+  .prop('id', S.string())
+  .prop('createdAt', S.string())
+  .prop('accountId', S.string())
+  .prop('email', S.string())
+  .prop('isVerified', S.boolean())
+
+export type NotificationEmailStatus = 'verified' | 'unverified' | 'expired'

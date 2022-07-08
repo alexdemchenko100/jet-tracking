@@ -1,6 +1,6 @@
 import { currentUserInfo } from './../Context'
 
-import { Settings, db, NotificationChannel } from '@httpmon/db'
+import { Settings, db, NotificationChannel, NotificationEmail } from '@httpmon/db'
 import { nanoid } from 'nanoid'
 
 export class SettingsService {
@@ -92,5 +92,69 @@ export class SettingsService {
       .executeTakeFirst()
 
     return settings
+  }
+
+  public async listNotificationEmails(status: string) {
+    let data = [] as NotificationEmail[]
+    const yesterday = new Date(new Date().getTime() - 86400000)
+    switch (status) {
+      case 'verified':
+        data = await db
+          .selectFrom('NotificationEmail')
+          .selectAll()
+          .where('accountId', '=', currentUserInfo().accountId)
+          .where('isVerified', '=', true)
+          .execute()
+        break
+      case 'unverified':
+        data = await db
+          .selectFrom('NotificationEmail')
+          .selectAll()
+          .where('accountId', '=', currentUserInfo().accountId)
+          .where('isVerified', '=', false)
+          .where('createdAt', '>=', yesterday)
+          .execute()
+        break
+      case 'expired':
+        data = await db
+          .selectFrom('NotificationEmail')
+          .selectAll()
+          .where('accountId', '=', currentUserInfo().accountId)
+          .where('isVerified', '=', false)
+          .where('createdAt', '<', yesterday)
+          .execute()
+        break
+      default:
+    }
+    return data
+  }
+
+  public async saveNotifcationEmail(data: NotificationEmail) {
+    const notification = await db
+      .insertInto('NotificationEmail')
+      .values({
+        id: nanoid(),
+        email: data.email,
+        isVerified: data.isVerified,
+        accountId: currentUserInfo().accountId,
+      })
+      .returningAll()
+      .executeTakeFirst()
+
+    return notification
+  }
+
+  public async deleteNotificationEmail(id: string) {
+    const resp = await db
+      .deleteFrom('NotificationEmail')
+      .where('id', '=', id)
+      .where('accountId', '=', currentUserInfo().accountId)
+      .executeTakeFirst()
+    await db
+      .deleteFrom('NotificationChannel')
+      .where('channel', '=', { type: 'email', email: id })
+      .where('accountId', '=', currentUserInfo().accountId)
+      .executeTakeFirst()
+    return resp.numDeletedRows
   }
 }

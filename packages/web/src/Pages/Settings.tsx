@@ -193,11 +193,12 @@ export function SettingsPage() {
   })
 
   // Fetch notifications list
-  const { data: notifications } = useQuery(['notificaitons'], async () => {
+  const { data: notifications } = useQuery(['notifications'], async () => {
     const resp = await axios({
       method: 'GET',
       url: '/settings/notifications',
     })
+    setValue('settings.notifications', resp.data)
     return resp.data
   })
 

@@ -17,6 +17,7 @@ model Account {
   notifications     NotificationChannel[]
   settings          Settings[]
   NotificationState NotificationState[]
+  NotificationEmail NotificationEmail[]
 }
 
 model UserAccount {
@@ -139,4 +140,15 @@ model Settings {
   accountId String
 
   @@unique([accountId])
+}
+
+model NotificationEmail {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  email      String
+  isVerified Boolean  @default(false)
+  account    Account  @relation(fields: [accountId], references: [id])
+  accountId  String
+
+  @@unique([email])
 }

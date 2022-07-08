@@ -1,8 +1,20 @@
 import { SettingsService } from '../../services/SettingsService'
 import { FastifyInstance } from 'fastify'
 import S from 'fluent-json-schema'
-import { NotificationSchema, NotificationChannel, SettingsSchema, Settings } from '@httpmon/db'
-import { Params, ParamsSchema } from '../../types'
+import {
+  NotificationSchema,
+  NotificationChannel,
+  SettingsSchema,
+  Settings,
+  NotificationEmail,
+  NotificationEmailSchema,
+} from '@httpmon/db'
+import {
+  Params,
+  ParamsSchema,
+  NotificationEmailsParams,
+  NotificationEmailsParamsSchema,
+} from '../../types'
 import { onRequestAuthHook } from '../RouterHooks'
 
 export default async function SettingsRouter(app: FastifyInstance) {
@@ -117,6 +129,57 @@ export default async function SettingsRouter(app: FastifyInstance) {
     async function ({ params: { id }, log }, reply) {
       const resp = await settingsService.deleteNotification(id)
       log.info(resp, `Deleted notification id: ${id}`)
+      reply.send(resp)
+    }
+  )
+
+  // GET /notifications/emails
+  app.get<{ Querystring: NotificationEmailsParams }>(
+    '/notifications/emails',
+    {
+      schema: {
+        querystring: NotificationEmailsParamsSchema,
+        response: {
+          200: S.array().items(NotificationEmailSchema),
+        },
+      },
+    },
+    async function ({ query: { status } }, reply) {
+      const resp = await settingsService.listNotificationEmails(status)
+      reply.send(resp)
+    }
+  )
+
+  // POST /notifications/emails
+  app.post<{ Body: NotificationEmail }>(
+    '/notifications/emails',
+    {
+      schema: {
+        body: NotificationEmailSchema,
+        response: {
+          201: NotificationEmailSchema,
+        },
+      },
+    },
+    async function (req, reply) {
+      const data = req.body
+
+      const resp = await settingsService.saveNotifcationEmail(data)
+      reply.send(resp)
+    }
+  )
+
+  // DELETE /notifications/emails/:id
+  app.delete<{ Params: Params }>(
+    '/notifications/emails/:id',
+    {
+      schema: {
+        params: ParamsSchema,
+        body: S.number(),
+      },
+    },
+    async function ({ params: { id } }, reply) {
+      const resp = await settingsService.deleteNotificationEmail(id)
       reply.send(resp)
     }
   )

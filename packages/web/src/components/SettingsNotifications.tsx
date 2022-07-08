@@ -27,16 +27,18 @@ import { FiEdit, FiTrash2, FiPlus } from 'react-icons/fi'
 import { useFormContext } from 'react-hook-form'
 import { useOutletContext } from 'react-router-dom'
 import axios from 'axios'
-import { NotificationChannel } from '@httpmon/db'
-import { Section, Text, ChannelSelect, PrimaryButton } from '../components'
+import { useQuery } from 'react-query'
+import { NotificationChannel, NotificationEmail } from '@httpmon/db'
+import { Section, Text, ChannelSelect, PrimaryButton, EmailContacts } from '../components'
 import { SettingFormValidation, NotificationFormErrors } from '../types/common'
 import { BlueEmailIcon, MSTeamsIcon, SlackIcon } from '../Assets'
 
 interface Props {
   errors: NotificationFormErrors
+  emails: NotificationEmail[]
 }
 
-function NewNotification({ errors }: Props) {
+function NewNotification({ errors, emails }: Props) {
   const { register, setValue, watch, getValues } = useFormContext()
 
   const newNotification = watch('settings.new_notification')
@@ -86,41 +88,25 @@ function NewNotification({ errors }: Props) {
             <Text variant='details' mb={1} color='black'>
               Email *
             </Text>
-            <Input
+            <Select
               borderRadius={8}
               borderColor={errors.channel?.email ? 'red' : 'gray.200'}
-              type='text'
-              placeholder='Email1, email2, email3, ...'
               {...register('settings.new_notification.channel.email' as const)}
-            />
+            >
+              <option selected disabled>
+                Please select an email
+              </option>
+              {emails.map((notificationEmail: NotificationEmail) => (
+                <option key={notificationEmail.id} value={notificationEmail.id}>
+                  {notificationEmail.email}
+                </option>
+              ))}
+            </Select>
             {errors.channel?.email && (
               <Text variant='details' color='red'>
                 * Email Required
               </Text>
             )}
-          </Flex>
-          <Flex direction='column' w='100%'>
-            <Text variant='details' mb={1} color='black'>
-              CC
-            </Text>
-            <Input
-              borderRadius={8}
-              borderColor='gray.200'
-              type='text'
-              placeholder='Email1, email2, email3, ...'
-              {...register('settings.new_notification.channel.cc' as const)}
-            />
-          </Flex>
-          <Flex direction='column' w='100%'>
-            <Text variant='details' mb={1} color='black'>
-              Recipient Name
-            </Text>
-            <Input
-              borderRadius={8}
-              borderColor='gray.200'
-              type='text'
-              {...register('settings.new_notification.channel.recipientName' as const)}
-            />
           </Flex>
         </Flex>
       )}
@@ -181,7 +167,7 @@ function NewNotification({ errors }: Props) {
   )
 }
 
-function EditNotification({ errors }: Props) {
+function EditNotification({ errors, emails }: Props) {
   const { register, setValue, watch, getValues } = useFormContext()
 
   const editNotification = watch('settings.edit_notification')
@@ -237,41 +223,23 @@ function EditNotification({ errors }: Props) {
             <Text variant='details' mb={1} color='black'>
               Email *
             </Text>
-            <Input
+            <Select
               borderRadius={8}
               borderColor={errors.channel?.email ? 'red' : 'gray.200'}
-              type='text'
-              placeholder='Email1, email2, email3, ...'
-              {...register('settings.edit_notification.channel.email' as const)}
-            />
+              {...register('settings.new_notification.channel.email' as const)}
+            >
+              <option disabled>Please select an email</option>
+              {emails.map((notificationEmail: NotificationEmail) => (
+                <option key={notificationEmail.id} value={notificationEmail.id}>
+                  {notificationEmail.email}
+                </option>
+              ))}
+            </Select>
             {errors.channel?.email && (
               <Text variant='details' color='red'>
                 * Email Required
               </Text>
             )}
-          </Flex>
-          <Flex direction='column' w='100%'>
-            <Text variant='details' mb={1} color='black'>
-              CC
-            </Text>
-            <Input
-              borderRadius={8}
-              borderColor='gray.200'
-              type='text'
-              placeholder='Email1, email2, email3, ...'
-              {...register('settings.edit_notification.channel.cc' as const)}
-            />
-          </Flex>
-          <Flex direction='column' w='100%'>
-            <Text variant='details' mb={1} color='black'>
-              Recipient Name
-            </Text>
-            <Input
-              borderRadius={8}
-              borderColor='gray.200'
-              type='text'
-              {...register('settings.edit_notification.channel.recipientName' as const)}
-            />
           </Flex>
         </Flex>
       )}
@@ -343,6 +311,17 @@ export default function SettingsNotifications() {
   const [isEdit, setIsEdit] = useState<boolean>(false)
 
   const notifications = getValues('settings.notifications')
+
+  const { data: notificationEmails } = useQuery(['verifiedNotificaitonEmails'], async () => {
+    const resp = await axios({
+      method: 'GET',
+      url: '/settings/notifications/emails',
+      params: {
+        status: 'verified',
+      },
+    })
+    return resp.data
+  })
 
   useEffect(() => {
     const alertSettings = getValues('settings.alert')
@@ -527,6 +506,9 @@ export default function SettingsNotifications() {
           </Stack>
         </RadioGroup>
       </Section>
+      {/* Email Contacts */}
+      <EmailContacts />
+      {/* Notifications */}
       <Section pt={4} pb={6} minH={60}>
         <Flex alignItems='center' justifyContent='space-between'>
           <Text variant='title' color='black'>
@@ -685,9 +667,12 @@ export default function SettingsNotifications() {
           <ModalCloseButton />
           <ModalBody>
             {isEdit ? (
-              <EditNotification errors={errors.edit_notification} />
+              <EditNotification
+                errors={errors.edit_notification}
+                emails={notificationEmails || []}
+              />
             ) : (
-              <NewNotification errors={errors.new_notification} />
+              <NewNotification errors={errors.new_notification} emails={notificationEmails || []} />
             )}
           </ModalBody>
           <ModalFooter mt={6}>
