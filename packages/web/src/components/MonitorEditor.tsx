@@ -534,6 +534,8 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
 
     if (monResp.id) {
       onClose() // close save modal
+      Store.queryClient?.invalidateQueries(['monitors-list'])
+      Store.queryClient?.invalidateQueries(['monitors-stats'])
       toast({
         position: 'top',
         title: 'Monitor ' + updating ? 'updated.' : 'created',

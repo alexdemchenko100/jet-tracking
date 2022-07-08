@@ -551,6 +551,8 @@ export function MainPage() {
       method: 'DELETE',
       url: `/monitors/${selectedMonitor}`,
     })
+    Store.queryClient?.invalidateQueries(['monitors-list'])
+    Store.queryClient?.invalidateQueries(['monitors-stats'])
     onModalClose()
   }
 

@@ -63,6 +63,7 @@ function DoubleCheckDelete({ id }: DeleteProps) {
     })
 
     Store.queryClient?.invalidateQueries(['monitors-list'])
+    Store.queryClient?.invalidateQueries(['monitors-stats'])
     return resp.data
   })
 
