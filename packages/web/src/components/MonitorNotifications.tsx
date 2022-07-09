@@ -81,14 +81,14 @@ export function MonitorNotifications() {
             <Flex alignItems='center'>
               <Radio value='1' colorScheme='cyan'>
                 <Text variant='paragraph' whiteSpace='nowrap' mx={3} color='darkgray.100'>
-                  Choose global notifications
+                  Use global notifications
                 </Text>
               </Radio>
             </Flex>
             <Flex alignItems='center'>
               <Radio value='0' colorScheme='cyan'>
                 <Text variant='paragraph' whiteSpace='nowrap' mx={3} color='darkgray.100'>
-                  Set the alert settings
+                  Set notification settings
                 </Text>
               </Radio>
             </Flex>
@@ -102,8 +102,7 @@ export function MonitorNotifications() {
               <Flex alignItems='center'>
                 <Radio value='failCount' colorScheme='cyan'>
                   <Text variant='paragraph' whiteSpace='nowrap' mx={3} color='darkgray.100'>
-                    Notify when a monitor fails for
-                  </Text>
+                    Notify when a monitor fails                   </Text>
                 </Radio>
                 <Select
                   width={20}
@@ -123,14 +122,14 @@ export function MonitorNotifications() {
                     ))}
                 </Select>
                 <Text variant='paragraph' whiteSpace='nowrap' ml={3} color='darkgray.100'>
-                  time(s)
+                  time(s) in a row
                 </Text>
               </Flex>
 
               <Flex alignItems='center'>
                 <Radio value='failTimeMinutes' colorScheme='cyan'>
                   <Text variant='paragraph' whiteSpace='nowrap' mx={3} color='darkgray.100'>
-                    Notify when a monitor fails for
+                    Notify when a monitor is failing for
                   </Text>
                 </Radio>
                 <Select

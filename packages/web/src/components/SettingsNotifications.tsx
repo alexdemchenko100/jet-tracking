@@ -457,7 +457,7 @@ export default function SettingsNotifications() {
               ></Radio>
               <Flex flexWrap='wrap' alignItems='center'>
                 <Text variant='paragraph' whiteSpace='nowrap' mx={3} color='darkgray.100'>
-                  Notify when a monitor fails for
+                  A monitor fails for
                 </Text>
                 <Select
                   width={16}
@@ -478,7 +478,7 @@ export default function SettingsNotifications() {
                     ))}
                 </Select>
                 <Text variant='paragraph' whiteSpace='nowrap' ml={3} color='darkgray.100'>
-                  time(s)
+                  time(s) in a row
                 </Text>
               </Flex>
             </Flex>
@@ -498,7 +498,7 @@ export default function SettingsNotifications() {
               ></Radio>
               <Flex flexWrap='wrap' alignItems='center'>
                 <Text variant='paragraph' whiteSpace='nowrap' mx={3} color='darkgray.100'>
-                  Notify when a monitor fails for
+                  A monitor is failing for
                 </Text>
                 <Select
                   width={16}
