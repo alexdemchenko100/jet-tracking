@@ -2,6 +2,7 @@ import { currentUserInfo } from './../Context'
 
 import { Settings, db, NotificationChannel, NotificationEmail } from '@httpmon/db'
 import { nanoid } from 'nanoid'
+import { sendVerificationEmail } from './SendgridService'
 
 export class SettingsService {
   static instance: SettingsService
@@ -129,18 +130,19 @@ export class SettingsService {
     return data
   }
 
-  public async saveNotifcationEmail(data: NotificationEmail) {
+  public async saveNotifcationEmail(data: NotificationEmail, token: string) {
     const notification = await db
       .insertInto('NotificationEmail')
       .values({
         id: nanoid(),
         email: data.email,
         isVerified: data.isVerified,
+        token: token,
         accountId: currentUserInfo().accountId,
       })
       .returningAll()
       .executeTakeFirst()
-
+    await sendVerificationEmail(data.email, token)
     return notification
   }
 
@@ -156,5 +158,38 @@ export class SettingsService {
       .where('accountId', '=', currentUserInfo().accountId)
       .executeTakeFirst()
     return resp.numDeletedRows
+  }
+
+  public async resendVerificationMail(email: string, token: string) {
+    await db
+      .updateTable('NotificationEmail')
+      .set({ token: token })
+      .where('email', '=', email)
+      .where('accountId', '=', currentUserInfo().accountId)
+      .returningAll()
+      .executeTakeFirst()
+    const resp = await sendVerificationEmail(email, token)
+    return resp
+  }
+
+  public async verifyEmail(email: string, token: string) {
+    const resp = await db
+      .selectFrom('NotificationEmail')
+      .select(['id', 'isVerified', 'token'])
+      .where('email', '=', email)
+      .executeTakeFirst()
+    if (resp?.isVerified) {
+      return 'already_verified'
+    }
+    if (resp?.id && token === resp?.token) {
+      await db
+        .updateTable('NotificationEmail')
+        .set({ isVerified: true, token: null })
+        .where('id', '=', resp?.id)
+        .returningAll()
+        .executeTakeFirst()
+      return 'success'
+    }
+    return 'failed'
   }
 }

@@ -325,9 +325,9 @@ export default function SettingsNotifications() {
 
   useEffect(() => {
     const alertSettings = getValues('settings.alert')
-    if (alertSettings.failCount) {
+    if (alertSettings?.failCount) {
       setAlertSetting('failCount')
-    } else if (alertSettings.failTimeMinutes) {
+    } else if (alertSettings?.failTimeMinutes) {
       setAlertSetting('failTimeMinutes')
     }
   }, [])

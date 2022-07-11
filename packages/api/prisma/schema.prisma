@@ -146,6 +146,7 @@ model NotificationEmail {
   id         String   @id @default(cuid())
   createdAt  DateTime @default(now())
   email      String
+  token      String?
   isVerified Boolean  @default(false)
   account    Account  @relation(fields: [accountId], references: [id])
   accountId  String

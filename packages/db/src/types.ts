@@ -326,15 +326,11 @@ export const SlackNotificationSchema = S.object()
 
 export type EmailNotificationChannel = {
   type: 'email'
-  email: string // email string. Comma can be used for multi emails. Like this: 'email@test.com, email2@test.com'
-  cc?: string // email string
-  recipientName?: string // recipient's name
+  email: string // email string
 }
 
 export const EmailNotificationSchema = S.object()
   .prop('email', S.string().required())
-  .prop('cc', S.anyOf([S.string(), S.null()]))
-  .prop('recipientName', S.anyOf([S.string(), S.null()]))
   .prop('type', S.string().enum(['email']).required())
 
 export type MSTeamsNotificationChannel = {
@@ -406,6 +402,7 @@ export type NotificationEmail = {
   email: string
   createdAt?: string | Date
   isVerified: boolean
+  token: string | null
 }
 
 export const NotificationEmailSchema = S.object()
@@ -414,5 +411,14 @@ export const NotificationEmailSchema = S.object()
   .prop('accountId', S.string())
   .prop('email', S.string())
   .prop('isVerified', S.boolean())
+  .prop('token', S.anyOf([S.string(), S.null()]))
 
 export type NotificationEmailStatus = 'verified' | 'unverified' | 'expired'
+
+export const EmailVerificationSchema = S.object()
+  .prop('email', S.string())
+  .prop('token', S.string())
+export type EmailVerification = {
+  email: string
+  token?: string
+}

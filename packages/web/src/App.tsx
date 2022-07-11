@@ -22,6 +22,7 @@ import { SettingsPage } from './Pages/Settings'
 import { Dashboards } from './Pages/Dashboards'
 import { Environments } from './Pages/Environments'
 import NotFound from './Pages/NotFound'
+import VerifyEmail from './Pages/VerifyEmail'
 import { EnvEditor } from './Pages/EnvEditor'
 import { theme } from './services/ChakraTheme'
 import {
@@ -179,6 +180,7 @@ function App() {
           <Route path='/console/signin' element={<SignIn />} />
           <Route path='/console/signup' element={<SignUp />} />
           <Route path='/console/forgot' element={<ForgotPassword />} />
+          <Route path='/console/emails/verify' element={<VerifyEmail />} />
           <Route path='*' element={<NotFound />} />
         </Routes>
       </ChakraProvider>

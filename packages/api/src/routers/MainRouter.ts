@@ -7,10 +7,11 @@ import OndemandMonitorRouter from './PublicRouters/OndemandMonitorRouter.js'
 import EnvRouter from './AuthRouters/EnvRouter.js'
 import SettingsRouter from './AuthRouters/SettingsRouter.js'
 import MonitorPreRequestRouter from './CloudHookRouters/MonitorPreRequestRouter.js'
-
+import SettingsPublicRouter from './PublicRouters/SettingsPublicRouter.js'
 export default async function MainRouter(fastify: FastifyInstance) {
   //Public API router
   fastify.register(OndemandMonitorRouter, { prefix: '/ondemand' })
+  fastify.register(SettingsPublicRouter, { prefix: '/settings' })
 
   //Authorized APIs
   fastify.register(MonitorRouter, { prefix: '/monitors' })

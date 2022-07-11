@@ -15,6 +15,7 @@ import { useFormContext } from 'react-hook-form'
 
 import { Section, Text } from '../components'
 import { googleIcon } from '../Assets'
+import { useAuth } from '../services/FirebaseAuth'
 
 const InputField = ({ children }: FlexProps) => (
   <Flex flexDirection={'column'} borderRadius='8' borderColor='gray.200' width='100%' maxW={96}>
@@ -23,11 +24,10 @@ const InputField = ({ children }: FlexProps) => (
 )
 
 export default function SettingsProfile() {
-  const { getValues, register } = useFormContext()
+  const { userInfo: user } = useAuth()
+  const { register } = useFormContext()
   const [profileImage, setProfileImage] = useState<string | undefined>()
   const inputRef = useRef<HTMLInputElement>(null)
-
-  const user = getValues('settings.profile')
 
   const onImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {

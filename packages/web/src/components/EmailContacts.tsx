@@ -75,7 +75,6 @@ const EmailContacts = () => {
       onModalClose()
       refetch()
       setSelectedEmail(undefined)
-      console.log('-----------queryClient', Store.queryClient)
       Store.queryClient?.invalidateQueries(['notifications'])
     })
   }
@@ -95,7 +94,17 @@ const EmailContacts = () => {
     reset()
   }
 
-  const resendVerifyLink = async (id?: string) => {}
+  const resendVerifyLink = async (email: string) => {
+    await axios.post('/settings/notifications/emails/send-verification-mail', {
+      email: email,
+    })
+    toast({
+      position: 'top',
+      description: 'Email verification link was sent again to the email. Please check your inbox.',
+      status: 'info',
+      duration: 2000,
+    })
+  }
 
   return (
     <Section pt={4} pb={6} minH={60}>
@@ -168,7 +177,7 @@ const EmailContacts = () => {
                   borderRadius='4'
                   bg='lightgray.100'
                   p='0'
-                  onClick={() => resendVerifyLink(notificationEmail.id)}
+                  onClick={() => resendVerifyLink(notificationEmail.email)}
                 >
                   <Icon color='darkgray.100' fontSize={'xs'} as={FiSend} cursor='pointer' />
                 </Button>

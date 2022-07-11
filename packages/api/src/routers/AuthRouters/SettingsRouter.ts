@@ -8,6 +8,8 @@ import {
   Settings,
   NotificationEmail,
   NotificationEmailSchema,
+  EmailVerification,
+  EmailVerificationSchema,
 } from '@httpmon/db'
 import {
   Params,
@@ -16,6 +18,7 @@ import {
   NotificationEmailsParamsSchema,
 } from '../../types'
 import { onRequestAuthHook } from '../RouterHooks'
+import { nanoid } from 'nanoid'
 
 export default async function SettingsRouter(app: FastifyInstance) {
   app.addHook('onRequest', onRequestAuthHook)
@@ -163,8 +166,9 @@ export default async function SettingsRouter(app: FastifyInstance) {
     },
     async function (req, reply) {
       const data = req.body
+      const token = nanoid(64)
 
-      const resp = await settingsService.saveNotifcationEmail(data)
+      const resp = await settingsService.saveNotifcationEmail(data, token)
       reply.send(resp)
     }
   )
@@ -180,6 +184,25 @@ export default async function SettingsRouter(app: FastifyInstance) {
     },
     async function ({ params: { id } }, reply) {
       const resp = await settingsService.deleteNotificationEmail(id)
+      reply.send(resp)
+    }
+  )
+
+  // POST /notifications/emails/send-verification-mail
+  app.post<{ Body: EmailVerification }>(
+    '/notifications/emails/send-verification-mail',
+    {
+      schema: {
+        body: EmailVerificationSchema,
+        response: {
+          200: S.boolean(),
+        },
+      },
+    },
+    async function (req, reply) {
+      const { email } = req.body
+      const token = nanoid(64)
+      const resp = await settingsService.resendVerificationMail(email, token)
       reply.send(resp)
     }
   )
