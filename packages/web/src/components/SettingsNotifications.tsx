@@ -93,9 +93,7 @@ function NewNotification({ errors, emails }: Props) {
               borderColor={errors.channel?.email ? 'red' : 'gray.200'}
               {...register('settings.new_notification.channel.email' as const)}
             >
-              <option selected disabled>
-                Please select an email
-              </option>
+              <option value=''>Please select an email</option>
               {emails.map((notificationEmail: NotificationEmail) => (
                 <option key={notificationEmail.id} value={notificationEmail.id}>
                   {notificationEmail.email}

@@ -72,6 +72,7 @@ export function SettingsPage() {
 
   useEffect(() => {
     const subscription = watch((value, { name }) => {
+      console.log('----- settings:', value.settings)
       if (name && initialForm) {
         if (
           !name.includes('settings.notifications') &&
@@ -198,7 +199,8 @@ export function SettingsPage() {
       method: 'GET',
       url: '/settings/notifications',
     })
-    setValue('settings.notifications', resp.data)
+    const { profile } = getValues('settings')
+    resetForm(profile, userSettings, resp.data)
     return resp.data
   })
 
