@@ -60,7 +60,6 @@ export function SettingsPage() {
   const methods = useForm()
   const [formChanged, setFormChanged] = useState<boolean>(false)
   const [initialForm, setInitialForm] = useState<SettingsForm | undefined>()
-  const [hasErrors, setHasErrors] = useState<boolean>(false)
   const { setValue, watch, getValues, handleSubmit } = methods
   const toast = useToast()
   const [errors, setErrors] = useState<SettingFormValidation>({
@@ -72,7 +71,6 @@ export function SettingsPage() {
 
   useEffect(() => {
     const subscription = watch((value, { name }) => {
-      console.log('----- settings:', value.settings)
       if (name && initialForm) {
         if (
           !name.includes('settings.notifications') &&
@@ -185,7 +183,7 @@ export function SettingsPage() {
   }, [watch, initialForm])
 
   // Fetch settings for current user
-  const { data: userSettings } = useQuery(['settings'], async () => {
+  const { data: userSettings, isFetched: isSettingsFetched } = useQuery(['settings'], async () => {
     const resp = await axios({
       method: 'GET',
       url: '/settings',
@@ -194,15 +192,16 @@ export function SettingsPage() {
   })
 
   // Fetch notifications list
-  const { data: notifications } = useQuery(['notifications'], async () => {
-    const resp = await axios({
-      method: 'GET',
-      url: '/settings/notifications',
-    })
-    const { profile } = getValues('settings')
-    resetForm(profile, userSettings, resp.data)
-    return resp.data
-  })
+  const { data: notifications, isFetched: isNotificationFetched } = useQuery(
+    ['notifications'],
+    async () => {
+      const resp = await axios({
+        method: 'GET',
+        url: '/settings/notifications',
+      })
+      return resp.data
+    }
+  )
 
   const resetForm = (
     profile: UserInfo,
@@ -250,7 +249,7 @@ export function SettingsPage() {
     if (userSettings && notifications) {
       resetForm(userInfo, userSettings, notifications)
     }
-  }, [userSettings, notifications])
+  }, [userSettings, notifications, isNotificationFetched, isSettingsFetched])
 
   const cancelChanges = () => {
     const notifications = getValues('settings.notifications')
@@ -258,16 +257,6 @@ export function SettingsPage() {
   }
 
   const onSubmit = async () => {
-    if (hasErrors) {
-      toast({
-        position: 'top',
-        description: 'Please fill all required fields',
-        status: 'error',
-        duration: 1500,
-        isClosable: false,
-      })
-      return false
-    }
     const settings = getValues('settings')
     // Save alert settings
     const userSettings = await axios
@@ -275,10 +264,7 @@ export function SettingsPage() {
         alert: settings.alert,
       })
       .then((resp) => resp.data)
-    const notifications = await axios({
-      method: 'GET',
-      url: '/settings/notifications',
-    }).then((resp) => resp.data)
+    const notifications = getValues('settings.notifications')
     resetForm(userInfo, userSettings, notifications)
     toast({
       position: 'top',
@@ -289,6 +275,8 @@ export function SettingsPage() {
       isClosable: true,
     })
   }
+
+  if (!userSettings || !notifications) return <></>
 
   return (
     <FormProvider {...methods}>

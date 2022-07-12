@@ -95,7 +95,7 @@ function NewNotification({ errors, emails }: Props) {
             >
               <option value=''>Please select an email</option>
               {emails.map((notificationEmail: NotificationEmail) => (
-                <option key={notificationEmail.id} value={notificationEmail.id}>
+                <option key={notificationEmail.id} value={notificationEmail.email}>
                   {notificationEmail.email}
                 </option>
               ))}
@@ -228,7 +228,7 @@ function EditNotification({ errors, emails }: Props) {
             >
               <option disabled>Please select an email</option>
               {emails.map((notificationEmail: NotificationEmail) => (
-                <option key={notificationEmail.id} value={notificationEmail.id}>
+                <option key={notificationEmail.id} value={notificationEmail.email}>
                   {notificationEmail.email}
                 </option>
               ))}
@@ -300,7 +300,7 @@ function EditNotification({ errors, emails }: Props) {
 
 export default function SettingsNotifications() {
   const { errors }: { errors: SettingFormValidation } = useOutletContext()
-  const { setValue, getValues } = useFormContext()
+  const { setValue, getValues, watch } = useFormContext()
   const [alertSetting, setAlertSetting] = useState<string | undefined>()
   const toast = useToast()
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false)
@@ -309,6 +309,7 @@ export default function SettingsNotifications() {
   const [isEdit, setIsEdit] = useState<boolean>(false)
 
   const notifications = getValues('settings.notifications')
+  const alert = watch('settings.alert')
 
   const { data: notificationEmails } = useQuery(['verifiedNotificaitonEmails'], async () => {
     const resp = await axios({
@@ -322,13 +323,13 @@ export default function SettingsNotifications() {
   })
 
   useEffect(() => {
-    const alertSettings = getValues('settings.alert')
-    if (alertSettings?.failCount) {
-      setAlertSetting('failCount')
-    } else if (alertSettings?.failTimeMinutes) {
+    if (!alert.failCount) {
       setAlertSetting('failTimeMinutes')
     }
-  }, [])
+    if (!alert.failTimeMinutes) {
+      setAlertSetting('failCount')
+    }
+  }, [alert])
 
   const alertSettingChanged = (value: string) => {
     setAlertSetting(value)

@@ -3,9 +3,11 @@ import {
   MonitorResult,
   SlackNotificationChannel,
   MSTeamsNotificationChannel,
+  EmailNotificationChannel,
 } from '@httpmon/db'
 import got from 'got'
 import { formatAssertionResults } from './Assertions'
+import { sendNotificationEmail } from './SendgridService'
 
 export function sendSlackNotification(
   type: string,
@@ -80,4 +82,28 @@ export function sendMSTeamsNotification(
       ],
     },
   })
+}
+
+export function sendEmailNotification(
+  type: string,
+  channel: EmailNotificationChannel,
+  monitor: Monitor,
+  result: MonitorResult
+) {
+  let message = ''
+  if (type == 'Alert') {
+    message = `Monitor *${monitor.name}* failed\n
+    Url: ${monitor.url}
+    Location: ${result.location}
+    Error: ${result.err}
+    ${formatAssertionResults(result)}
+    Result: ${result.id}`
+  } else if (type == 'Recover') {
+    //its receovery
+    message = `Monitor *${monitor.name}* recovered and its Up now\n
+    Url: ${monitor.url}
+    Location: ${result.location}
+    Result: ${result.id}`
+  }
+  sendNotificationEmail(channel.email, message)
 }

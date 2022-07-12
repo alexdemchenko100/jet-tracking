@@ -147,6 +147,12 @@ export class SettingsService {
   }
 
   public async deleteNotificationEmail(id: string) {
+    const result = await db
+      .selectFrom('NotificationEmail')
+      .select(['email'])
+      .where('id', '=', id)
+      .where('accountId', '=', currentUserInfo().accountId)
+      .executeTakeFirst()
     const resp = await db
       .deleteFrom('NotificationEmail')
       .where('id', '=', id)
@@ -154,7 +160,7 @@ export class SettingsService {
       .executeTakeFirst()
     await db
       .deleteFrom('NotificationChannel')
-      .where('channel', '=', { type: 'email', email: id })
+      .where('channel', '=', { type: 'email', email: result?.email || '' })
       .where('accountId', '=', currentUserInfo().accountId)
       .executeTakeFirst()
     return resp.numDeletedRows

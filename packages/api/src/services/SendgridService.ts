@@ -28,3 +28,30 @@ export async function sendVerificationEmail(to: string, token: string) {
   })
   return resp.statusCode == 202
 }
+
+export function sendNotificationEmail(email: string, message: string) {
+  got.post('https://api.sendgrid.com/v3/mail/send', {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
+    },
+    json: {
+      from: {
+        email: process.env.SENDGRID_SENDER_EMAIL,
+      },
+      personalizations: [
+        {
+          to: [
+            {
+              email,
+            },
+          ],
+          dynamic_template_data: {
+            message,
+          },
+        },
+      ],
+      template_id: process.env.SENDGRID_NOTIFICATION_EMAIL_TEMPLATE,
+    },
+  })
+}

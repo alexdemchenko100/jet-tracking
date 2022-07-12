@@ -1,7 +1,11 @@
 import { db, MonitorResult } from '@httpmon/db'
 import { logger } from 'src/Context'
 import { MonitorResultEvent } from './EventService'
-import { sendSlackNotification, sendMSTeamsNotification } from './SlackNotification'
+import {
+  sendSlackNotification,
+  sendMSTeamsNotification,
+  sendEmailNotification,
+} from './SlackNotification'
 
 export async function handlePostRequest(event: MonitorResultEvent) {
   //from event id, get monitor result from db
@@ -199,6 +203,11 @@ async function sendNotification(
     if (notificationChannel && notificationChannel.channel.type === 'ms-teams' && result) {
       logger.info(`sending notification to MSteams channel ${channel}`)
       sendMSTeamsNotification(type, notificationChannel.channel, monitor, result)
+    }
+
+    if (notificationChannel && notificationChannel.channel.type === 'email' && result) {
+      logger.info(`sending email notification to channel ${channel}`)
+      sendEmailNotification(type, notificationChannel.channel, monitor, result)
     }
   })
 }
