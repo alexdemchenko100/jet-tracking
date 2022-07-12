@@ -1,57 +1,84 @@
 import got from 'got'
+import { logger } from '../Context'
 
 export async function sendVerificationEmail(to: string, token: string) {
   const verifyLink = process.env.WEB_APP_URL + `/console/emails/verify?token=${token}&email=${to}`
-  const resp = await got.post('https://api.sendgrid.com/v3/mail/send', {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
-    },
-    json: {
-      from: {
-        email: process.env.SENDGRID_SENDER_EMAIL,
+  try {
+    if (
+      !process.env.SENDGRID_API_KEY ||
+      !process.env.SENDGRID_NOTIFICATION_EMAIL_TEMPLATE ||
+      !process.env.SENDGRID_SENDER_EMAIL
+    ) {
+      throw new Error('Some of environment variables are missing.')
+    }
+
+    const resp = await got.post('https://api.sendgrid.com/v3/mail/send', {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
       },
-      personalizations: [
-        {
-          to: [
-            {
-              email: to,
-            },
-          ],
-          dynamic_template_data: {
-            verify_link: verifyLink,
-          },
+      json: {
+        from: {
+          email: process.env.SENDGRID_SENDER_EMAIL,
         },
-      ],
-      template_id: process.env.SENDGRID_VERIFY_EMAIL_TEMPLATE,
-    },
-  })
-  return resp.statusCode == 202
+        personalizations: [
+          {
+            to: [
+              {
+                email: to,
+              },
+            ],
+            dynamic_template_data: {
+              verify_link: verifyLink,
+            },
+          },
+        ],
+        template_id: process.env.SENDGRID_VERIFY_EMAIL_TEMPLATE,
+      },
+    })
+    return resp.statusCode == 202
+  } catch ($error) {
+    logger.error(`SEND VERIFICATION MAIL: ${$error.message}`)
+    return $error
+  }
 }
 
 export function sendNotificationEmail(email: string, message: string) {
-  got.post('https://api.sendgrid.com/v3/mail/send', {
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
-    },
-    json: {
-      from: {
-        email: process.env.SENDGRID_SENDER_EMAIL,
+  try {
+    if (
+      !process.env.SENDGRID_API_KEY ||
+      !process.env.SENDGRID_NOTIFICATION_EMAIL_TEMPLATE ||
+      !process.env.SENDGRID_SENDER_EMAIL
+    ) {
+      throw new Error('Some of environment variables are missing.')
+    }
+
+    got.post('https://api.sendgrid.com/v3/mail/send', {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
       },
-      personalizations: [
-        {
-          to: [
-            {
-              email,
-            },
-          ],
-          dynamic_template_data: {
-            message,
-          },
+      json: {
+        from: {
+          email: process.env.SENDGRID_SENDER_EMAIL,
         },
-      ],
-      template_id: process.env.SENDGRID_NOTIFICATION_EMAIL_TEMPLATE,
-    },
-  })
+        personalizations: [
+          {
+            to: [
+              {
+                email,
+              },
+            ],
+            dynamic_template_data: {
+              message,
+            },
+          },
+        ],
+        template_id: process.env.SENDGRID_NOTIFICATION_EMAIL_TEMPLATE,
+      },
+    })
+  } catch ($error) {
+    logger.error(`SEND NOTIFICATION MAIL: ${$error.message}`)
+    return $error
+  }
 }

@@ -3,6 +3,7 @@ import { currentUserInfo } from './../Context'
 import { Settings, db, NotificationChannel, NotificationEmail } from '@httpmon/db'
 import { nanoid } from 'nanoid'
 import { sendVerificationEmail } from './SendgridService'
+import dayjs from 'dayjs'
 
 export class SettingsService {
   static instance: SettingsService
@@ -97,7 +98,7 @@ export class SettingsService {
 
   public async listNotificationEmails(status: string) {
     let data = [] as NotificationEmail[]
-    const yesterday = new Date(new Date().getTime() - 86400000)
+    const dayAgoStartime = dayjs().subtract(1, 'day').toDate()
     switch (status) {
       case 'verified':
         data = await db
@@ -113,7 +114,7 @@ export class SettingsService {
           .selectAll()
           .where('accountId', '=', currentUserInfo().accountId)
           .where('isVerified', '=', false)
-          .where('createdAt', '>=', yesterday)
+          .where('createdAt', '>=', dayAgoStartime)
           .execute()
         break
       case 'expired':
@@ -122,7 +123,7 @@ export class SettingsService {
           .selectAll()
           .where('accountId', '=', currentUserInfo().accountId)
           .where('isVerified', '=', false)
-          .where('createdAt', '<', yesterday)
+          .where('createdAt', '<', dayAgoStartime)
           .execute()
         break
       default:
