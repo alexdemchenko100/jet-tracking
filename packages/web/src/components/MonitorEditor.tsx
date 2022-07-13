@@ -30,7 +30,13 @@ import {
   ModalBody,
   ModalFooter,
 } from '@chakra-ui/react'
-import { AlertSettings, Monitor, MonitorAssertion, MonitorTuples } from '@httpmon/db'
+import {
+  AlertSettings,
+  Monitor,
+  MonitorAssertion,
+  MonitorTuples,
+  NotificationChannel,
+} from '@httpmon/db'
 import React, { useEffect, useRef } from 'react'
 import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from 'react-hook-form'
 
@@ -396,17 +402,6 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
     showLocations: MonitorLocation[]
   }
 
-  const { data: globalAlertSettings } = useQuery<AlertSettings>(
-    ['global-alert-settings'],
-    async () => {
-      const resp = await axios({
-        method: 'GET',
-        url: '/settings',
-      })
-      return resp.data ? resp.data.alert : {}
-    }
-  )
-
   const methods = useForm<FormMonitor>({
     defaultValues: {
       headers: [] as MonitorTuples,
@@ -432,7 +427,35 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
     handleSubmit,
     formState: { errors },
     getValues,
+    setValue,
   } = methods
+
+  const { data: globalAlertSettings } = useQuery<AlertSettings>(
+    ['global-alert-settings'],
+    async () => {
+      const resp = await axios({
+        method: 'GET',
+        url: '/settings',
+      })
+      return resp.data ? resp.data.alert : {}
+    }
+  )
+
+  const { data: notificationChannels } = useQuery<NotificationChannel[]>(
+    ['notificaitons'],
+    async () => {
+      const resp = await axios({
+        method: 'GET',
+        url: '/settings/notifications',
+      })
+      const channels = resp.data as NotificationChannel[]
+      const defaultEnabledChannels = channels
+        .filter((channel) => channel.isDefaultEnabled)
+        .map((channel: NotificationChannel) => channel.id || '')
+      setValue('notifications.channels', defaultEnabledChannels)
+      return channels
+    }
+  )
 
   const { isLoading, error: loadError } = useQuery<FormMonitor>(
     id || 'load',
@@ -569,6 +592,8 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
       })
     }
   }
+
+  console.log('---- channesl', getValues('notifications.channels'))
 
   return (
     <Box>
@@ -721,7 +746,7 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
                   Notifications
                 </Text>
                 <Box pt='5' pb='2'>
-                  <MonitorNotifications />
+                  <MonitorNotifications notificationChannels={notificationChannels} />
                 </Box>
               </Section>
 

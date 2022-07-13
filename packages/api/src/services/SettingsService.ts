@@ -103,7 +103,11 @@ export class SettingsService {
       .execute()
     await db
       .updateTable('Monitor')
-      .set({ notifications: { ...data.alert, useGlobal: true, channels: [] } })
+      .set({
+        notifications: sql`jsonb_set(jsonb_set(notifications, '{failCount}', ${
+          data.alert.failCount ?? 0
+        }), '{failTimeMinutes}', ${data.alert.failTimeMinutes ?? 0})`,
+      })
       .where('accountId', '=', currentUserInfo().accountId)
       .where(
         'id',
@@ -112,7 +116,6 @@ export class SettingsService {
       )
       .returningAll()
       .execute()
-
     return settings
   }
 

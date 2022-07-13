@@ -7,7 +7,11 @@ import { useQuery } from 'react-query'
 import { Text } from '../components'
 import { BlueEmailIcon, MSTeamsIcon, SlackIcon } from '../Assets'
 
-export function MonitorNotifications() {
+interface Props {
+  notificationChannels?: NotificationChannel[]
+}
+
+export function MonitorNotifications({ notificationChannels }: Props) {
   const { setValue, getValues, watch } = useFormContext()
   const [alertSetting, setAlertSetting] = useState<string>('failCount')
 
@@ -24,17 +28,6 @@ export function MonitorNotifications() {
     setValue('notifications.failCount', value === 'failCount' ? 1 : undefined)
     setValue('notifications.failTimeMinutes', value === 'failTimeMinutes' ? 5 : undefined)
   }
-
-  const { data: notificationChannels } = useQuery<NotificationChannel[]>(
-    ['notificaitons'],
-    async () => {
-      const resp = await axios({
-        method: 'GET',
-        url: '/settings/notifications',
-      })
-      return resp.data
-    }
-  )
 
   const onChangeNotificationChannel = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -59,9 +52,7 @@ export function MonitorNotifications() {
       useGlobal: value == '1',
       failCount: value == '1' ? undefined : 1,
       failTimeMinutes: undefined,
-      channels: notificationChannels
-        ?.filter((channel) => channel.isDefaultEnabled)
-        .map((channel) => channel.id),
+      channels: notifications.channels,
     })
   }
 
