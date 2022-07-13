@@ -8,31 +8,20 @@
     "web-dev": "pnpm -C packages/web run dev",
     "api-dev": "pnpm -C packages/api run dev",
     "db-dev": "pnpm -C packages/db run dev",
-    "site-dev": "pnpm -C packages/site run dev",
     "api-prod": "NODE_ENV=production NODE_RUN=local pnpm -C packages/api run dev",
     "web-prod": "NODE_ENV=production NODE_RUN=local pnpm -C packages/web run dev",
-    "site-prod": "pnpm local -C packages/site",
     "web-build": "pnpm -C packages/web run build",
     "api-build": "pnpm -C packages/api run build",
     "db-build": "pnpm -C packages/db run build",
-    "site-build": "pnpm -C packages/site run build",
-    "dev": "concurrently pnpm:db-dev pnpm:api-dev pnpm:web-dev pnpm:site-dev",
+    "dev": "concurrently pnpm:db-dev pnpm:api-dev pnpm:web-dev",
     "build": "pnpm db-build && pnpm web-build && pnpm api-build",
-    "start": "concurrently pnpm:api-prod pnpm:site-prod"
+    "start": "concurrently pnpm:api-prod"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/skogs/httpmon.git"
-  },
-  "author": "",
-  "license": "",
-  "bugs": {
-    "url": "https://github.com/skogs/httpmon/issues"
-  },
+  "author": "ProAutoma, Inc.",
+  "license": "Proprietary",
   "homepage": "https://github.com/skogs/httpmon#readme",
   "devDependencies": {
-    "@types/node": "^16.11.35",
-    "ts-node": "^10.7.0",
-    "typescript": "^4.6.4"
+    "@types/node": "^16.11.44",
+    "typescript": "^4.7.4"
   }
 }

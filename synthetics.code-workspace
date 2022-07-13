@@ -13,10 +13,6 @@
       "path": "packages/db"
     },
     {
-      "name": "site",
-      "path": "packages/site"
-    },
-    {
       "name": "sandbox",
       "path": "packages/sandbox"
     },
