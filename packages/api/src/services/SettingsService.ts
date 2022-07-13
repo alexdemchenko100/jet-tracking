@@ -1,9 +1,10 @@
 import { currentUserInfo } from './../Context'
 
-import { Settings, db, NotificationChannel, NotificationEmail } from '@httpmon/db'
+import { Settings, db, NotificationChannel, NotificationEmail, AlertSettings } from '@httpmon/db'
 import { nanoid } from 'nanoid'
 import { sendVerificationEmail } from './SendgridService'
 import dayjs from 'dayjs'
+import { sql } from 'kysely'
 
 export class SettingsService {
   static instance: SettingsService
@@ -92,6 +93,25 @@ export class SettingsService {
       .where('accountId', '=', currentUserInfo().accountId)
       .returningAll()
       .executeTakeFirst()
+
+    // Update monitors' notifications field that use global settings
+    const globalSettingMonitors = await db
+      .selectFrom('Monitor')
+      .select(['id'])
+      .where(sql<string>`notifications -> 'useGlobal' = 'true'`)
+      .where('accountId', '=', currentUserInfo().accountId)
+      .execute()
+    await db
+      .updateTable('Monitor')
+      .set({ notifications: { ...data.alert, useGlobal: true, channels: [] } })
+      .where('accountId', '=', currentUserInfo().accountId)
+      .where(
+        'id',
+        'in',
+        globalSettingMonitors.map((mon) => mon.id)
+      )
+      .returningAll()
+      .execute()
 
     return settings
   }

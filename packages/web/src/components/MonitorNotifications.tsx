@@ -102,7 +102,8 @@ export function MonitorNotifications() {
               <Flex alignItems='center'>
                 <Radio value='failCount' colorScheme='cyan'>
                   <Text variant='paragraph' whiteSpace='nowrap' mx={3} color='darkgray.100'>
-                    Notify when a monitor fails                   </Text>
+                    Notify when a monitor fails{' '}
+                  </Text>
                 </Radio>
                 <Select
                   width={20}

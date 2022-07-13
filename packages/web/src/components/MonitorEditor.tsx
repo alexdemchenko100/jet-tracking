@@ -30,7 +30,7 @@ import {
   ModalBody,
   ModalFooter,
 } from '@chakra-ui/react'
-import { Monitor, MonitorAssertion, MonitorTuples } from '@httpmon/db'
+import { AlertSettings, Monitor, MonitorAssertion, MonitorTuples } from '@httpmon/db'
 import React, { useEffect, useRef } from 'react'
 import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from 'react-hook-form'
 
@@ -396,6 +396,17 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
     showLocations: MonitorLocation[]
   }
 
+  const { data: globalAlertSettings } = useQuery<AlertSettings>(
+    ['global-alert-settings'],
+    async () => {
+      const resp = await axios({
+        method: 'GET',
+        url: '/settings',
+      })
+      return resp.data ? resp.data.alert : {}
+    }
+  )
+
   const methods = useForm<FormMonitor>({
     defaultValues: {
       headers: [] as MonitorTuples,
@@ -455,7 +466,16 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
     const resp = await axios({
       method,
       url,
-      data: { ...data },
+      data: {
+        ...data,
+        notifications: data.notifications?.useGlobal
+          ? {
+              ...data.notifications,
+              failCount: globalAlertSettings?.failCount,
+              failTimeMinutes: globalAlertSettings?.failTimeMinutes,
+            }
+          : data.notifications,
+      },
     })
     return resp.data as Monitor
   })
