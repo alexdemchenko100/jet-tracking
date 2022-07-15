@@ -593,8 +593,6 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
     }
   }
 
-  console.log('---- channesl', getValues('notifications.channels'))
-
   return (
     <Box>
       <FormProvider {...methods}>

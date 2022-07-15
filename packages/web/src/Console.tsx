@@ -18,7 +18,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { FaRegBell } from 'react-icons/fa'
-import { FiSettings, FiLayers, FiMenu, FiPackage, FiGrid } from 'react-icons/fi'
+import { FiSettings, FiLayers, FiMenu, FiPackage, FiGrid, FiActivity } from 'react-icons/fi'
 import { logoTitle } from './Assets'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { signOut, useAuth } from './services/FirebaseAuth'
@@ -72,6 +72,11 @@ export default function Console() {
         <NavItem icon={FiGrid} to='/console/dashboards'>
           <Text variant='text-field' color='inherit'>
             Dashboards
+          </Text>
+        </NavItem>
+        <NavItem icon={FiActivity} to='/console/status-pages'>
+          <Text variant='text-field' color='inherit'>
+            Status Pages
           </Text>
         </NavItem>
         <NavItem icon={FiSettings} to='/console/settings'>

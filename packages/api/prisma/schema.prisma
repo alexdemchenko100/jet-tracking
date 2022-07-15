@@ -18,6 +18,7 @@ model Account {
   settings          Settings[]
   NotificationState NotificationState[]
   NotificationEmail NotificationEmail[]
+  StatusPage        StatusPage[]
 }
 
 model UserAccount {
@@ -152,4 +153,17 @@ model NotificationEmail {
   accountId  String
 
   @@unique([email])
+}
+
+model StatusPage {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  logoUrl    String
+  name       String
+  url        String
+  monitors   String[]
+  account    Account  @relation(fields: [accountId], references: [id])
+  accountId  String
+
+  @@unique([name, accountId])
 }

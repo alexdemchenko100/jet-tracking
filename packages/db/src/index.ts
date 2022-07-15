@@ -10,6 +10,7 @@ import {
   NotificationState,
   Settings,
   NotificationEmail,
+  StatusPage,
 } from './types'
 export * from './types.js'
 
@@ -23,6 +24,7 @@ interface Database {
   NotificationState: NotificationState
   Settings: Settings
   NotificationEmail: NotificationEmail
+  StatusPage: StatusPage
 }
 
 import * as dotenv from 'dotenv'

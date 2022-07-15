@@ -8,6 +8,8 @@ import EnvRouter from './AuthRouters/EnvRouter.js'
 import SettingsRouter from './AuthRouters/SettingsRouter.js'
 import MonitorPreRequestRouter from './CloudHookRouters/MonitorPreRequestRouter.js'
 import SettingsPublicRouter from './PublicRouters/SettingsPublicRouter.js'
+import StatusPagesRouter from './AuthRouters/StatusPagesRouter.js'
+
 export default async function MainRouter(fastify: FastifyInstance) {
   //Public API router
   fastify.register(OndemandMonitorRouter, { prefix: '/ondemand' })
@@ -17,6 +19,7 @@ export default async function MainRouter(fastify: FastifyInstance) {
   fastify.register(MonitorRouter, { prefix: '/monitors' })
   fastify.register(EnvRouter, { prefix: '/environments' })
   fastify.register(SettingsRouter, { prefix: '/settings' })
+  fastify.register(StatusPagesRouter, { prefix: '/status-pages' })
 
   //cloud hooks for backend processing
   fastify.register(SchedulerRouter, { prefix: '/services/scheduler' })

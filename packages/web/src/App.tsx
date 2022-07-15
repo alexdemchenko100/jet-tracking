@@ -32,6 +32,9 @@ import {
   EnvView,
   EnvMain,
 } from './components'
+import StatusPages from './Pages/StatusPages'
+import NewStatusPage from './Pages/NewStatusPage'
+import EditStatusPage from './Pages/EditStatusPage'
 
 const history = createBrowserHistory()
 Store.history = history //save for later
@@ -173,6 +176,9 @@ function App() {
               <Route path='/console/envs/:id/edit' element={<EnvEditor />} />
               <Route path='/console/envs/new' element={<NewEnv />} />
             </Route>
+            <Route path='/console/status-pages' element={<StatusPages />} />
+            <Route path='/console/status-pages/new' element={<NewStatusPage />} />
+            <Route path='/console/status-pages/:id' element={<EditStatusPage />} />
             //unprotected for ondemand clients
             <Route path='/console/monitors/ondemand' element={<MonitorEditPanel />} />
           </Route>

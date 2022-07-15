@@ -422,3 +422,22 @@ export type EmailVerification = {
   email: string
   token?: string
 }
+
+export type StatusPage = {
+  id?: string
+  createdAt?: string | Date
+  accountId: string
+  name: string
+  url: string
+  logoUrl: string
+  monitors: string[]
+}
+
+export const StatusPageSchema = S.object()
+  .prop('id', S.string())
+  .prop('createdAt', S.string())
+  .prop('accountId', S.string())
+  .prop('name', S.string())
+  .prop('url', S.string())
+  .prop('logoUrl', S.string())
+  .prop('monitors', S.array().items(S.string()))

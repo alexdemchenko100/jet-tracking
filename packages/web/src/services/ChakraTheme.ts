@@ -14,6 +14,9 @@ export const theme = extendTheme({
     lg: '1.125rem',
     xl: '2rem',
   },
+  shadows: {
+    outline: 'none',
+  },
   colors: {
     lightgray: {
       100: '#f1f2f8',
