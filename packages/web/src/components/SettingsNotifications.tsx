@@ -29,7 +29,7 @@ import { useOutletContext } from 'react-router-dom'
 import axios from 'axios'
 import { useQuery } from 'react-query'
 import { NotificationChannel, NotificationEmail } from '@httpmon/db'
-import { Section, Text, ChannelSelect, PrimaryButton, EmailContacts } from '../components'
+import { Section, Text, ChannelSelect, PrimaryButton } from '../components'
 import { SettingFormValidation, NotificationFormErrors } from '../types/common'
 import { BlueEmailIcon, MSTeamsIcon, SlackIcon } from '../Assets'
 
@@ -505,8 +505,6 @@ export default function SettingsNotifications() {
           </Stack>
         </RadioGroup>
       </Section>
-      {/* Email Contacts */}
-      <EmailContacts />
       {/* Notifications */}
       <Section pt={4} pb={6} minH={60}>
         <Flex alignItems='center' justifyContent='space-between'>

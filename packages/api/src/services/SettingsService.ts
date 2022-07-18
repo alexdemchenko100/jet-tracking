@@ -1,6 +1,6 @@
 import { currentUserInfo } from './../Context'
 
-import { Settings, db, NotificationChannel, NotificationEmail, AlertSettings } from '@httpmon/db'
+import { Settings, db, NotificationChannel, NotificationEmail, UserAccount } from '@httpmon/db'
 import { nanoid } from 'nanoid'
 import { sendVerificationEmail } from './SendgridService'
 import dayjs from 'dayjs'
@@ -221,5 +221,34 @@ export class SettingsService {
       return 'success'
     }
     return 'failed'
+  }
+
+  public async listUsers() {
+    const dayAgoStartime = dayjs().subtract(1, 'day').toDate()
+    const userAccounts = await db
+      .selectFrom('UserAccount')
+      .selectAll()
+      .where('accountId', '=', currentUserInfo().accountId)
+      .where('default', '=', false)
+      .execute()
+    const notificationEmails = await db
+      .selectFrom('NotificationEmail')
+      .selectAll()
+      .where('accountId', '=', currentUserInfo().accountId)
+      .execute()
+    const data = [...userAccounts, ...notificationEmails] as UserAccount[]
+    data.forEach((item) => {
+      if (item.isVerified) {
+        item.status = 'verified'
+      } else if (item.createdAt && item.createdAt < dayAgoStartime) {
+        item.status = 'expired'
+      } else {
+        item.status = 'unverified'
+      }
+      if (!item.role) {
+        item.role = 'notifications'
+      }
+    })
+    return data
   }
 }

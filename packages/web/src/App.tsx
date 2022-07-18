@@ -29,8 +29,8 @@ import {
   SettingsProfile,
   SettingsNotifications,
   SettingsSecurity,
-  EnvView,
   EnvMain,
+  SettingsUsers,
 } from './components'
 import StatusPages from './Pages/StatusPages'
 import NewStatusPage from './Pages/NewStatusPage'
@@ -154,6 +154,14 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path='/console/settings/users'
+                element={
+                  <ProtectedRoute isAllowed={isLoggedIn}>
+                    <SettingsUsers />
+                  </ProtectedRoute>
+                }
+              />
             </Route>
             <Route
               path='/console/dashboards'
@@ -172,8 +180,7 @@ function App() {
               }
             >
               <Route path='/console/envs' element={<EnvMain />} />
-              <Route path='/console/envs/:id' element={<EnvView />} />
-              <Route path='/console/envs/:id/edit' element={<EnvEditor />} />
+              <Route path='/console/envs/:id' element={<EnvEditor />} />
               <Route path='/console/envs/new' element={<NewEnv />} />
             </Route>
             <Route path='/console/status-pages' element={<StatusPages />} />

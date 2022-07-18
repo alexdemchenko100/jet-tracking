@@ -37,6 +37,7 @@ export const createNewAccount = async (userId: string, email: string) => {
         accountId: account.id,
         default: true,
         role: 'admin',
+        isVerified: false,
       })
       .returningAll()
       .executeTakeFirst()

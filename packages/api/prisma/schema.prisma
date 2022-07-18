@@ -22,13 +22,15 @@ model Account {
 }
 
 model UserAccount {
-  id        String  @id
-  userId    String
-  email     String
-  role      String  @default("")
-  default   Boolean @default(true)
-  account   Account @relation(fields: [accountId], references: [id])
-  accountId String
+  id          String  @id
+  userId      String
+  email       String
+  role        String  @default("")
+  default     Boolean @default(true)
+  isVerified  Boolean @default(false)
+  token       String?
+  account     Account @relation(fields: [accountId], references: [id])
+  accountId   String
 
   @@unique([userId, accountId])
 }

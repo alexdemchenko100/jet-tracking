@@ -10,6 +10,7 @@ import {
   NotificationEmailSchema,
   EmailVerification,
   EmailVerificationSchema,
+  UserAccountSchema,
 } from '@httpmon/db'
 import {
   Params,
@@ -203,6 +204,22 @@ export default async function SettingsRouter(app: FastifyInstance) {
       const { email } = req.body
       const token = nanoid(64)
       const resp = await settingsService.resendVerificationMail(email, token)
+      reply.send(resp)
+    }
+  )
+
+  // GET /users
+  app.get(
+    '/users',
+    {
+      schema: {
+        response: {
+          200: S.array().items(UserAccountSchema),
+        },
+      },
+    },
+    async function (_, reply) {
+      const resp = await settingsService.listUsers()
       reply.send(resp)
     }
   )

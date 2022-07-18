@@ -1,7 +1,7 @@
 import { Flex, Box, useToast } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
-import { FiUser, FiShield, FiBell } from 'react-icons/fi'
+import { FiUser, FiShield, FiBell, FiUsers } from 'react-icons/fi'
 import { useForm, FormProvider } from 'react-hook-form'
 import axios from 'axios'
 import { NotificationChannel, Settings } from '@httpmon/db'
@@ -11,7 +11,7 @@ import { Section, Text, PrimaryButton, NavItem } from '../components'
 import { UserInfo } from '../types/common'
 import { SettingFormValidation } from '../types/common'
 
-const SIDEBAR_WIDTH = '200px'
+const SIDEBAR_WIDTH = '240px'
 
 interface SettingsForm {
   [x: string]: any
@@ -23,7 +23,7 @@ const SettingsSidebar = (props: any) => (
     px='4'
     bg='white'
     borderRadius={4}
-    w={SIDEBAR_WIDTH}
+    minW={SIDEBAR_WIDTH}
     minH={'calc(100vh - 140px)'}
     {...props}
   >
@@ -49,6 +49,11 @@ const SettingsSidebar = (props: any) => (
       <NavItem icon={FiBell} to='/console/settings/notifications'>
         <Text variant='text-field' color='inherit'>
           Notifications
+        </Text>
+      </NavItem>
+      <NavItem icon={FiUsers} to='/console/settings/users'>
+        <Text variant='text-field' color='inherit'>
+          User Management
         </Text>
       </NavItem>
     </Flex>
@@ -307,7 +312,7 @@ export function SettingsPage() {
         </Section>
         <Flex>
           <SettingsSidebar />
-          <Flex flex={1} ml={2} height='fit-content'>
+          <Flex flex={1} ml={2} height='fit-content' overflow='hidden'>
             <Outlet context={{ errors }} />
           </Flex>
         </Flex>

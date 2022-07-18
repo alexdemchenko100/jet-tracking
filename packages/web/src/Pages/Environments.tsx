@@ -1,64 +1,9 @@
-import { Flex, Box } from '@chakra-ui/react'
-import { Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { useQuery } from 'react-query'
-import axios from 'axios'
-import { MonEnv } from '@httpmon/db'
-
-import { Section, Text, PrimaryButton, EnvNavItem } from '../components'
-import { useEffect } from 'react'
-
-const SIDEBAR_WIDTH = '200px'
-
-const Sidebar = ({ envs }: { envs: MonEnv[] }) => {
-  return (
-    <Box as='nav' p='4' bg='white' borderRadius={4} w={SIDEBAR_WIDTH} minH={'calc(100vh - 140px)'}>
-      <Text variant='emphasis' color='black'>
-        All environments
-      </Text>
-      <Flex
-        direction='column'
-        as='nav'
-        py={4}
-        fontSize='sm'
-        color='darkgray.100'
-        aria-label='Main Navigation'
-      >
-        {envs?.map((item) => (
-          <EnvNavItem key={item.id} to={`/console/envs/${item.id}`}>
-            <Text
-              variant='text-field'
-              display={'block'}
-              color='inherit'
-              overflow='hidden'
-              textOverflow='ellipsis'
-              whiteSpace='nowrap'
-            >
-              {item.name}
-            </Text>
-          </EnvNavItem>
-        ))}
-      </Flex>
-    </Box>
-  )
-}
+import { Flex } from '@chakra-ui/react'
+import { Outlet, useNavigate } from 'react-router-dom'
+import { Section, Text, PrimaryButton } from '../components'
 
 export function Environments() {
   const navigate = useNavigate()
-  const location = useLocation()
-
-  const { data: envs, refetch } = useQuery<MonEnv[]>(['monenv'], async () => {
-    const resp = await axios({
-      method: 'GET',
-      url: `/environments`,
-    })
-    return resp.data as MonEnv[]
-  })
-
-  useEffect(() => {
-    if (location.pathname === '/console/envs') {
-      refetch()
-    }
-  }, [location])
 
   return (
     <>
@@ -79,11 +24,8 @@ export function Environments() {
           </Flex>
         </Flex>
       </Section>
-      <Flex>
-        <Sidebar envs={envs || []} />
-        <Flex flex={1} ml={2} height='fit-content'>
-          <Outlet context={{ envs }} />
-        </Flex>
+      <Flex flex={1} height='fit-content'>
+        <Outlet />
       </Flex>
     </>
   )

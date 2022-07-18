@@ -286,7 +286,22 @@ export type UserAccount = {
   accountId: string
   role: string
   default: boolean
+  status?: string
+  isVerified: boolean
+  token?: string
 }
+
+export const UserAccountSchema = S.object()
+  .prop('id', S.string())
+  .prop('createdAt', S.string())
+  .prop('userId', S.string())
+  .prop('email', S.string())
+  .prop('accountId', S.string())
+  .prop('role', S.string())
+  .prop('default', S.boolean())
+  .prop('status', S.string())
+  .prop('isVerified', S.boolean())
+  .prop('token', S.string())
 
 export type Account = {
   id?: string
