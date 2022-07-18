@@ -71,7 +71,7 @@ export default function EnvMain() {
           There is no envs yet.
         </Text>
       )}
-      <Grid gap={4} templateColumns={{ base: '1fr', lg: '1fr 1fr' }}>
+      <Grid gap={4} templateColumns={'1fr'} maxW={1000}>
         {envs?.map((env) => (
           <Box
             width='100%'
@@ -84,17 +84,22 @@ export default function EnvMain() {
             p='3'
           >
             <Flex justify='space-between' alignItems='center'>
-              <Text
-                variant='title'
-                color='black'
-                textTransform='capitalize'
-                transition='color 0.2s ease'
-                textOverflow='ellipsis'
-                overflow='hidden'
-                whiteSpace='nowrap'
-              >
-                {env.name}
-              </Text>
+              <Flex direction='column' gap={1}>
+                <Text
+                  variant='title'
+                  color='black'
+                  textTransform='capitalize'
+                  transition='color 0.2s ease'
+                  textOverflow='ellipsis'
+                  overflow='hidden'
+                  whiteSpace='nowrap'
+                >
+                  {env.name}
+                </Text>
+                <Text variant='details' color='gray.300'>
+                  {env.env.length} variable{env.env.length > 1 ? 's' : ''}
+                </Text>
+              </Flex>
               <Flex gap={2} alignItems='center'>
                 <Button
                   borderRadius='4'

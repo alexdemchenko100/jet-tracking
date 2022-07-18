@@ -15,10 +15,8 @@ export function Environments() {
           <Flex gap={2}>
             <PrimaryButton
               label='Add environment'
-              isOutline
               variant='emphasis'
-              color={'darkblue.100'}
-              py={2}
+              color={'white'}
               onClick={() => navigate('/console/envs/new')}
             ></PrimaryButton>
           </Flex>
