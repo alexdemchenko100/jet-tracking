@@ -68,7 +68,7 @@ export default function EnvMain() {
     <Section w='100%' minH='80' py='8'>
       {envs?.length === 0 && (
         <Text as='div' py='40' textAlign='center' variant='paragraph' color='gray.300'>
-          There is no envs yet.
+          No environments.
         </Text>
       )}
       <Grid gap={4} templateColumns={'1fr'} maxW={1000}>
