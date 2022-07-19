@@ -617,13 +617,13 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
             borderRadius={8}
             color='darkgray.100'
             borderColor={id ? 'transparent' : 'gray.300'}
-            fontSize={'xl'}
+            fontSize='24'
             fontWeight='bold'
             type='name'
             px='2'
-            mx='-2'
+            py='1'
             {...register('name')}
-            placeholder='Add name'
+            placeholder='Monitor Name'
             maxW='96'
           />
           <Flex>
@@ -716,13 +716,8 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
                   </Flex>
 
                   <Accordion allowToggle>
-                    <AccordionItem border='none' py={3}>
-                      <AccordionButton
-                        bg='transparent'
-                        px='3'
-                        py='0'
-                        _hover={{ bg: 'transparent' }}
-                      >
+                    <AccordionItem border='none' py={5}>
+                      <AccordionButton bg='transparent' p='0' _hover={{ bg: 'transparent' }}>
                         <AccordionIcon />
                         <Text variant='text-field' color='darkgray.100'>
                           Advanced
