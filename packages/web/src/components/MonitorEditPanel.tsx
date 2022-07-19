@@ -5,30 +5,9 @@ import { useState } from 'react'
 import { APIResultByDemand } from './APIResultByDemand'
 import { MonitorEditor } from './MonitorEditor'
 import SplitPane from './SplitPane'
-import Section from './Section'
-import Text from './Text'
-import PrimaryButton from './PrimaryButton'
 
 interface Props {
   open: () => void
-}
-
-function EditorHeader({ open }: Props) {
-  return (
-    <Section>
-      <Flex alignItems='center' justify={'space-between'}>
-        <Text variant='header' color='black'>
-          Monitors
-        </Text>
-        <PrimaryButton
-          label='Save Now'
-          variant='emphasis'
-          color={'white'}
-          onClick={open}
-        ></PrimaryButton>
-      </Flex>
-    </Section>
-  )
 }
 
 export function MonitorEditPanel() {
@@ -51,21 +30,11 @@ export function MonitorEditPanel() {
     drawer.onClose()
   }
 
-  function openModal() {
-    setModalOpen(true)
-  }
-
   return (
     <Box>
-      {!vertical && <EditorHeader open={openModal} />}
       <SplitPane orientation={vertical ? 'vertical' : 'horizontal'}>
         <Box>
-          {vertical && <EditorHeader open={openModal} />}
-          <MonitorEditor
-            handleOndemandMonitor={handleQuickRun}
-            isModalOpen={modalOpen}
-            onClose={() => setModalOpen(false)}
-          />
+          <MonitorEditor isVertical={vertical} handleOndemandMonitor={handleQuickRun} />
         </Box>
         {drawer.isOpen && (
           <APIResultByDemand

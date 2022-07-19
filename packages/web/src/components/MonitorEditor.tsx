@@ -22,13 +22,13 @@ import {
   useToast,
   InputGroup,
   InputLeftElement,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
+  Switch,
+  FormLabel,
+  AccordionPanel,
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
 } from '@chakra-ui/react'
 import {
   AlertSettings,
@@ -39,7 +39,6 @@ import {
 } from '@httpmon/db'
 import React, { useEffect, useRef } from 'react'
 import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from 'react-hook-form'
-
 import { FiPlus, FiTrash2, FiSearch } from 'react-icons/fi'
 import { useMutation, useQuery } from 'react-query'
 import axios from 'axios'
@@ -55,10 +54,7 @@ import { Store } from '../services/Store'
 import { frequencyMSToScale, FrequencyScales, scaleToFrequencyMS } from '../services/FrequencyScale'
 import { MonitorNotifications } from './MonitorNotifications'
 import { MonitorBodyEditor } from './MonitorBodyEditor'
-import Section from '../components/Section'
-import PrimaryButton from '../components/PrimaryButton'
-import Text from '../components/Text'
-import MonitorTab from '../components/MonitorTab'
+import { MonitorTab, Text, PrimaryButton, Section } from '../components'
 import { MonitorPreScriptEditor } from './MonitorPreScriptEditor'
 
 function SliderThumbWithTooltip() {
@@ -363,8 +359,7 @@ function Assertions() {
 
 interface EditProps {
   handleOndemandMonitor: (mon: Monitor) => void
-  isModalOpen: boolean
-  onClose: () => void
+  isVertical: boolean
 }
 
 interface OptionProps {
@@ -381,7 +376,7 @@ function SelectOption(props: OptionProps) {
   )
 }
 
-export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: EditProps) {
+export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) {
   //id tells apart Edit to a new check creation
   const { id } = useParams()
 
@@ -417,6 +412,7 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
       preScript: '',
       method: queryMethod || 'GET',
       url: queryUrl || '',
+      status: 'active',
     },
   })
 
@@ -571,12 +567,34 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
   }
 
   async function handleCreation(data: FormMonitor) {
+    let hasErrors, errorMessage
+    if (!data.url) {
+      hasErrors = true
+      errorMessage = 'URL is required.'
+    }
+    if (!data.name) {
+      hasErrors = true
+      errorMessage = 'Name is required.'
+    }
+    if (hasErrors) {
+      toast({
+        position: 'top',
+        title: 'Error',
+        description: errorMessage,
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+      })
+      return
+    }
     const monitor = prepareMonitor(data)
     const updating = Boolean(monitor.id)
-    const monResp = await createMonitor(monitor)
+    const monResp = await createMonitor({
+      ...monitor,
+      status: monitor.status === 'active' ? 'active' : 'paused',
+    })
 
     if (monResp.id) {
-      onClose() // close save modal
       Store.queryClient?.invalidateQueries(['monitors-list'])
       Store.queryClient?.invalidateQueries(['monitors-stats'])
       toast({
@@ -586,222 +604,228 @@ export function MonitorEditor({ handleOndemandMonitor, isModalOpen, onClose }: E
         status: 'success',
         duration: 2000,
         isClosable: true,
-        onCloseComplete: () => {
-          if (!updating) navigate('/console/monitors')
-        },
       })
+      navigate('/console/monitors')
     }
   }
 
   return (
-    <Box>
-      <FormProvider {...methods}>
-        <form>
-          <Box>
-            <Flex minH='100vh' justify='start' direction='column'>
-              <Section paddingTop='29px' paddingBottom='10px' height='440px'>
-                <Flex justify='space-between' alignItems='center'>
-                  <Flex
-                    alignItems='center'
-                    padding={1}
-                    borderRadius='3xl'
-                    border='1px'
-                    flex={1}
-                    borderColor='gray.200'
-                    borderStyle='solid'
-                  >
-                    <FormControl id='method' maxW='32'>
-                      <Select
-                        bg='rgba(16, 178, 215, 0.1)'
-                        color='lightblue.200'
-                        border='0'
-                        borderRadius='3xl'
-                        fontWeight='bold'
-                        {...register('method')}
-                      >
-                        <SelectOption value='GET'>GET</SelectOption>
-                        <SelectOption value='POST'>POST</SelectOption>
-                        <SelectOption value='PUT'>PUT</SelectOption>
-                        <SelectOption value='PATCH'>PATCH</SelectOption>
-                        <SelectOption value='DELETE'>DELETE</SelectOption>
-                        <SelectOption value='OPTIONS'>OPTIONS</SelectOption>
-                      </Select>
-                    </FormControl>
-
-                    <FormControl id='url' ml='3'>
-                      <InputGroup>
-                        <InputLeftElement
-                          pointerEvents='none'
-                          fontSize='2xl'
-                          height='1em'
-                          color='gray.300'
-                          children={<FiSearch />}
-                        />
-                        <Input
-                          variant='unstyled'
+    <>
+      <Section>
+        <Flex alignItems='center' justify={'space-between'}>
+          <Input
+            borderRadius={8}
+            color='darkgray.100'
+            borderColor={id ? 'transparent' : 'gray.300'}
+            fontSize={'xl'}
+            fontWeight='bold'
+            type='name'
+            px='2'
+            mx='-2'
+            {...register('name')}
+            placeholder='Add name'
+            maxW='96'
+          />
+          <Flex>
+            <FormControl display='flex' alignItems='center' mr={{ base: 0, lg: 6 }}>
+              <FormLabel mb='0'>
+                <Text variant='text-field' color='gray.300'>
+                  {watched.status === 'active' ? 'Active' : 'Paused'}
+                </Text>
+              </FormLabel>
+              <Switch
+                size='lg'
+                value='active'
+                isChecked={watched.status === 'active'}
+                {...register('status')}
+                colorScheme='cyan'
+              />
+            </FormControl>
+            <PrimaryButton
+              label='Save Now'
+              variant='emphasis'
+              color={'white'}
+              onClick={handleSubmit(handleCreation)}
+            ></PrimaryButton>
+          </Flex>
+        </Flex>
+      </Section>
+      <Box>
+        <FormProvider {...methods}>
+          <form>
+            <Box>
+              <Flex minH={isVertical ? 'unset' : '100vh'} justify='start' direction='column'>
+                <Section paddingTop='29px' paddingBottom='10px'>
+                  <Flex justify='space-between' alignItems='center' gap={2}>
+                    <Flex
+                      alignItems='center'
+                      padding={1}
+                      borderRadius='3xl'
+                      border='1px'
+                      flex={1}
+                      borderColor='gray.200'
+                      borderStyle='solid'
+                    >
+                      <FormControl id='method' maxW='32'>
+                        <Select
+                          bg='rgba(16, 178, 215, 0.1)'
+                          color='lightblue.200'
+                          border='0'
+                          borderRadius='3xl'
                           fontWeight='bold'
-                          color='gray.300'
-                          placeholder='https://'
-                          type='url'
-                          {...register('url')}
-                        />
-                      </InputGroup>
-                    </FormControl>
+                          {...register('method')}
+                        >
+                          <SelectOption value='GET'>GET</SelectOption>
+                          <SelectOption value='POST'>POST</SelectOption>
+                          <SelectOption value='PUT'>PUT</SelectOption>
+                          <SelectOption value='PATCH'>PATCH</SelectOption>
+                          <SelectOption value='DELETE'>DELETE</SelectOption>
+                          <SelectOption value='OPTIONS'>OPTIONS</SelectOption>
+                        </Select>
+                      </FormControl>
+
+                      <FormControl id='url' ml='3'>
+                        <InputGroup>
+                          <InputLeftElement
+                            pointerEvents='none'
+                            fontSize='2xl'
+                            height='1em'
+                            color='gray.300'
+                            children={<FiSearch />}
+                          />
+                          <Input
+                            variant='unstyled'
+                            fontWeight='bold'
+                            color='gray.300'
+                            placeholder='https://'
+                            type='url'
+                            {...register('url')}
+                          />
+                        </InputGroup>
+                      </FormControl>
+                    </Flex>
+
+                    <PrimaryButton
+                      label='Run now'
+                      variant='emphasis'
+                      color={'white'}
+                      disabled={watched.url == ''}
+                      onClick={handleQuickRun}
+                      padding={'14px 16px 15px'}
+                    ></PrimaryButton>
                   </Flex>
 
-                  <PrimaryButton
-                    label='Run now'
-                    variant='emphasis'
-                    color={'white'}
-                    disabled={watched.url == ''}
-                    onClick={handleQuickRun}
-                    marginLeft={2}
-                    padding={'14px 16px 15px'}
-                  ></PrimaryButton>
-                </Flex>
+                  <Accordion allowToggle>
+                    <AccordionItem border='none' py={3}>
+                      <AccordionButton
+                        bg='transparent'
+                        px='3'
+                        py='0'
+                        _hover={{ bg: 'transparent' }}
+                      >
+                        <AccordionIcon />
+                        <Text variant='text-field' color='darkgray.100'>
+                          Advanced
+                        </Text>
+                      </AccordionButton>
+                      <AccordionPanel pb={4}>
+                        <Tabs mt='4'>
+                          <TabList borderBottomColor='lightgray.100'>
+                            <MonitorTab>
+                              Body
+                              {hasValidBody() && <sup color='green'>1</sup>}
+                            </MonitorTab>
+                            <MonitorTab>
+                              Headers
+                              {numValues('headers') > 0 && (
+                                <sup color='green'>&nbsp;{numValues('headers')}</sup>
+                              )}
+                            </MonitorTab>
+                            <MonitorTab>
+                              Auth
+                              {hasValidAuth() && <sup color='green'>1</sup>}
+                            </MonitorTab>
+                            <MonitorTab>Setup Script</MonitorTab>
+                            <MonitorTab>
+                              Query Params
+                              {numValues('queryParams') > 0 && (
+                                <sup color='green'>&nbsp;{numValues('queryParams')}</sup>
+                              )}
+                            </MonitorTab>
+                            <MonitorTab>
+                              Env Variables
+                              {numValues('env') > 0 && (
+                                <sup color='green'>&nbsp;{numValues('env')}</sup>
+                              )}
+                            </MonitorTab>
+                          </TabList>
 
-                <Tabs mt='4'>
-                  <TabList borderBottomColor='lightgray.100'>
-                    <MonitorTab>
-                      Body
-                      {hasValidBody() && <sup color='green'>1</sup>}
-                    </MonitorTab>
-                    <MonitorTab>
-                      Headers
-                      {numValues('headers') > 0 && (
-                        <sup color='green'>&nbsp;{numValues('headers')}</sup>
-                      )}
-                    </MonitorTab>
-                    <MonitorTab>
-                      Auth
-                      {hasValidAuth() && <sup color='green'>1</sup>}
-                    </MonitorTab>
-                    <MonitorTab>Setup Script</MonitorTab>
-                    <MonitorTab>
-                      Query Params
-                      {numValues('queryParams') > 0 && (
-                        <sup color='green'>&nbsp;{numValues('queryParams')}</sup>
-                      )}
-                    </MonitorTab>
-                    <MonitorTab>
-                      Env Variables
-                      {numValues('env') > 0 && <sup color='green'>&nbsp;{numValues('env')}</sup>}
-                    </MonitorTab>
-                  </TabList>
+                          <TabPanels>
+                            <TabPanel px='0' pt='6' pb='0'>
+                              <MonitorBodyEditor />
+                            </TabPanel>
+                            <TabPanel px='0' pt='6' pb='0'>
+                              <TupleEditor name='headers' />
+                            </TabPanel>
+                            <TabPanel px='0' pt='6' pb='0'>
+                              <MonitorAuthEditor />
+                            </TabPanel>
+                            <TabPanel px='0' pt='6' pb='0'>
+                              <MonitorPreScriptEditor />
+                            </TabPanel>
+                            <TabPanel px='0' pt='6' pb='0'>
+                              <TupleEditor name='queryParams' />
+                            </TabPanel>
+                            <TabPanel px='0' pt='6' pb='0'>
+                              <TupleEditor name='env' />
+                            </TabPanel>
+                          </TabPanels>
+                        </Tabs>
+                      </AccordionPanel>
+                    </AccordionItem>
+                  </Accordion>
+                </Section>
 
-                  <TabPanels>
-                    <TabPanel px='0' pt='6' pb='0'>
-                      <MonitorBodyEditor />
-                    </TabPanel>
-                    <TabPanel px='0' pt='6' pb='0'>
-                      <TupleEditor name='headers' />
-                    </TabPanel>
-                    <TabPanel px='0' pt='6' pb='0'>
-                      <MonitorAuthEditor />
-                    </TabPanel>
-                    <TabPanel px='0' pt='6' pb='0'>
-                      <MonitorPreScriptEditor />
-                    </TabPanel>
-                    <TabPanel px='0' pt='6' pb='0'>
-                      <TupleEditor name='queryParams' />
-                    </TabPanel>
-                    <TabPanel px='0' pt='6' pb='0'>
-                      <TupleEditor name='env' />
-                    </TabPanel>
-                  </TabPanels>
-                </Tabs>
-              </Section>
+                <Section py='4'>
+                  <Text variant='title' color='black'>
+                    Choose Test criteria
+                  </Text>
+                  <Box pt='6' pb='0'>
+                    <Assertions />
+                  </Box>
+                </Section>
 
-              <Section py='4'>
-                <Text variant='title' color='black'>
-                  Choose Test criteria
-                </Text>
-                <Box pt='6' pb='0'>
-                  <Assertions />
-                </Box>
-              </Section>
+                <Section py='4'>
+                  <Text variant='title' color='black'>
+                    How Often To Run?
+                  </Text>
+                  <Box pt='6' pb='16' mx={1}>
+                    <SliderThumbWithTooltip />
+                  </Box>
+                </Section>
 
-              <Section py='4'>
-                <Text variant='title' color='black'>
-                  How Often To Run?
-                </Text>
-                <Box pt='6' pb='16' mx={1}>
-                  <SliderThumbWithTooltip />
-                </Box>
-              </Section>
+                <Section py='4'>
+                  <Text variant='title' color='black'>
+                    Choose Locations To Run From
+                  </Text>
+                  <Box pt='5' pb='2'>
+                    <Locations />
+                  </Box>
+                </Section>
 
-              <Section py='4'>
-                <Text variant='title' color='black'>
-                  Choose Locations To Run From
-                </Text>
-                <Box pt='5' pb='2'>
-                  <Locations />
-                </Box>
-              </Section>
-
-              <Section py='4' mb='0'>
-                <Text variant='title' color='black'>
-                  Notifications
-                </Text>
-                <Box pt='5' pb='2'>
-                  <MonitorNotifications notificationChannels={notificationChannels} />
-                </Box>
-              </Section>
-
-              <Modal isOpen={isModalOpen} onClose={onClose} isCentered>
-                <ModalOverlay />
-                <ModalContent borderRadius={16} boxShadow='0px 4px 16px rgba(38, 50, 56, 0.1)'>
-                  <ModalHeader pb={2}>
-                    <Text color='black' variant='header'>
-                      {id ? 'Update' : 'Add'} Monitor
-                    </Text>
-                  </ModalHeader>
-                  <ModalCloseButton />
-                  <ModalBody>
-                    <FormControl id='name' w='200'>
-                      <Text variant='details' color='black'>
-                        Name
-                      </Text>
-                      <Input
-                        borderRadius={8}
-                        color='gray.300'
-                        borderColor='gray.200'
-                        type='name'
-                        autoComplete='name'
-                        {...register('name')}
-                        placeholder='Add name'
-                      />
-                    </FormControl>
-                  </ModalBody>
-
-                  <ModalFooter>
-                    <Button
-                      variant='outline'
-                      borderRadius={24}
-                      border='2px'
-                      px='22px'
-                      color='darkblue.100'
-                      borderColor='darkblue.100'
-                      _hover={{ bg: 'transparent' }}
-                      mr={3}
-                      onClick={onClose}
-                    >
-                      Cancel
-                    </Button>
-                    <PrimaryButton
-                      label='Save'
-                      disabled={!watched.url || !watched.name}
-                      variant='emphasis'
-                      color='white'
-                      onClick={handleSubmit(handleCreation)}
-                    ></PrimaryButton>
-                  </ModalFooter>
-                </ModalContent>
-              </Modal>
-            </Flex>
-          </Box>
-        </form>
-      </FormProvider>
-    </Box>
+                <Section py='4' mb='0'>
+                  <Text variant='title' color='black'>
+                    Notifications
+                  </Text>
+                  <Box pt='5' pb='2'>
+                    <MonitorNotifications notificationChannels={notificationChannels} />
+                  </Box>
+                </Section>
+              </Flex>
+            </Box>
+          </form>
+        </FormProvider>
+      </Box>
+    </>
   )
 }

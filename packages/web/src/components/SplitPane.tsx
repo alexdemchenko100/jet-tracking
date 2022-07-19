@@ -152,7 +152,7 @@ const SplitPane = ({ orientation, children, ...props }: SplitPaneProps) => {
   const pane1Style = {
     // backgroundColor: 'yellow',
     //height: '100%',
-    overflow: 'auto',
+    overflow: !isHorizontal && pane2 ? 'auto' : 'inherit',
   }
 
   const handleStyle: any = {
@@ -168,6 +168,8 @@ const SplitPane = ({ orientation, children, ...props }: SplitPaneProps) => {
 
   // TODO: find handle component by using the type of the children
   // console.log("handle.type is DragHandle", handle?.type === DragHandle);
+
+  console.log('--- isHorizontal', isHorizontal)
 
   return (
     <div
