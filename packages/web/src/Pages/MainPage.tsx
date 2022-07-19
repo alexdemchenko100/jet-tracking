@@ -282,11 +282,11 @@ const StatBox = ({ status, stats }: StatBoxProps) => {
         {status === 'down' && <Icon color='white' as={FiTrendingDown} />}
         {status === 'paused' && <Icon color='white' fill='white' as={FiPause} />}
       </Flex>
-      <Flex direction={'column'}>
+      <Flex direction={'column'} alignItems={'center'}>
         <Text variant='text-field' color='gray.300' mb={1} textTransform='capitalize'>
           Total {status}
         </Text>
-        <Text variant='emphasis' color='black'>
+        <Text variant='header' color='black'>
           {getMonitorCountByStatus(status, stats)}
         </Text>
       </Flex>
@@ -564,13 +564,11 @@ export function MainPage() {
     <Flex direction='column'>
       <Section>
         <Flex alignItems='center' justify={'space-between'}>
-          <Text variant='header' color='black'>
-            All monitors
-          </Text>
           <PrimaryButton
             label='New monitor'
             variant='emphasis'
             color={'white'}
+            ml='auto'
             onClick={() => navigate('/console/monitors/newapi')}
           ></PrimaryButton>
         </Flex>

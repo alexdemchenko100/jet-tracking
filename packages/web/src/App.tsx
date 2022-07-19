@@ -19,7 +19,6 @@ import { Store } from './services/Store'
 import MainPage from './Pages/MainPage'
 import { APIResultById } from './components/APIResultById'
 import { SettingsPage } from './Pages/Settings'
-import { Dashboards } from './Pages/Dashboards'
 import { Environments } from './Pages/Environments'
 import NotFound from './Pages/NotFound'
 import VerifyEmail from './Pages/VerifyEmail'
@@ -163,14 +162,6 @@ function App() {
                 }
               />
             </Route>
-            <Route
-              path='/console/dashboards'
-              element={
-                <ProtectedRoute isAllowed={isLoggedIn}>
-                  <Dashboards />
-                </ProtectedRoute>
-              }
-            />
             <Route
               path='/console/envs'
               element={

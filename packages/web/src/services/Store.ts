@@ -56,7 +56,7 @@ const uiState: UIState = {
     filter: { timePeriod: TimePeriods[0], status: '', locations: [] },
   },
   monitors: {
-    isGridView: true,
+    isGridView: false,
   },
 }
 const store: StoreState = {

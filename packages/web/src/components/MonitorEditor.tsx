@@ -716,7 +716,7 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
               />
             </FormControl>
             <PrimaryButton
-              label='Save Now'
+              label='Save'
               variant='emphasis'
               color={'white'}
               onClick={handleSubmit(handleCreation)}
