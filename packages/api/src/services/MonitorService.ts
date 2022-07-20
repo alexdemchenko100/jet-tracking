@@ -43,8 +43,9 @@ function monitorToDBMonitor(mon: Monitor): Monitor {
   let values: { [k: string]: any } = { ...mon }
   if (values.headers) values.headers = JSON.stringify(values.headers)
   if (values.queryParams) values.queryParams = JSON.stringify(values.queryParams)
-  if (values.env) values.env = JSON.stringify(values.env)
+  if (values.variables) values.variables = JSON.stringify(values.variables)
   if (values.assertions) values.assertions = JSON.stringify(values.assertions)
+  if (values.env) values.env = JSON.stringify(values.env)
 
   return values as Monitor
 }
@@ -364,10 +365,10 @@ export class MonitorService {
     return results
   }
 
-  public async setEnv(monitorId: string, env: MonitorTuples) {
+  public async setVariables(monitorId: string, variables: MonitorTuples) {
     await db
       .updateTable('Monitor')
-      .set({ env: JSON.stringify(env) as any })
+      .set({ variables: JSON.stringify(variables) as any })
       .where('id', '=', monitorId)
       .where('accountId', '=', currentUserInfo().accountId)
       .execute()

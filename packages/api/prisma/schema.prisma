@@ -70,6 +70,7 @@ model Monitor {
   notifications   Json            @default("{}") // custom syntax
   notifyEmail     String?
   env             Json            @default("[]") // custom syntax
+  variables       Json            @default("[]") // custom syntax
   account         Account         @relation(fields: [accountId], references: [id])
   accountId       String
 

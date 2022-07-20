@@ -147,6 +147,19 @@ export type MonitorResultQuery = {
   totalItemCount?: number
 }
 
+export type MonEnv = {
+  id?: string
+  createdAt?: string | Date
+  accountId: string
+  name: string
+  env: MonitorTuples
+}
+
+export const EnvFluentSchema = S.object()
+  .prop('name', S.string())
+  .prop('id', S.string())
+  .prop('env', MonitorTupleFluentSchema)
+
 export const MonitorAssertionsFluentSchema = S.array()
   .items(
     S.object()
@@ -192,7 +205,8 @@ export const MonitorFluentSchema = S.object()
   .prop('cookies', S.anyOf([S.string(), S.null()]))
   .prop('followRedirects', S.integer())
   .prop('timeout', S.integer())
-  .prop('env', MonitorTupleFluentSchema)
+  .prop('variables', MonitorTupleFluentSchema)
+  .prop('env', S.array().items(S.string()))
   .prop('assertions', MonitorAssertionsFluentSchema)
   .prop('notifications', MonitorNotificationSchema)
 
@@ -269,7 +283,8 @@ export type MonitorTable = {
   followRedirects?: number
   timeout?: number
   assertions?: MonitorAssertion[]
-  env?: MonitorTuples
+  variables?: MonitorTuples
+  env?: string[]
   notifications?: MonitorNotifications
   day50?: number
   dayAvg?: number
@@ -307,19 +322,6 @@ export type Account = {
   id?: string
   name: string
 }
-
-export type MonEnv = {
-  id?: string
-  createdAt?: string | Date
-  accountId: string
-  name: string
-  env: MonitorTuples
-}
-
-export const EnvFluentSchema = S.object()
-  .prop('name', S.string())
-  .prop('id', S.string())
-  .prop('env', MonitorTupleFluentSchema)
 
 // export type EnvVariable = {
 //   id?: string

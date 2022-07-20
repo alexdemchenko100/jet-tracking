@@ -239,8 +239,8 @@ export default async function MonitorRouter(app: FastifyInstance) {
       },
     },
     async function (req, reply) {
-      await monitorSvc.setEnv(req.params.id, req.body)
-      reply.send('env set')
+      await monitorSvc.setVariables(req.params.id, req.body)
+      reply.send('env variables set')
     }
   )
 }

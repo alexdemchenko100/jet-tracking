@@ -1,4 +1,4 @@
-import { Box, useMediaQuery, useDisclosure, Flex } from '@chakra-ui/react'
+import { Box, useMediaQuery, useDisclosure } from '@chakra-ui/react'
 import { Monitor } from '@httpmon/db'
 
 import { useState } from 'react'
@@ -6,16 +6,11 @@ import { APIResultByDemand } from './APIResultByDemand'
 import { MonitorEditor } from './MonitorEditor'
 import SplitPane from './SplitPane'
 
-interface Props {
-  open: () => void
-}
-
 export function MonitorEditPanel() {
   const drawer = useDisclosure()
 
   const [ondemandMonitor, setOndemandMonitor] = useState<Monitor>()
   const [refreshOnDemand, setRefreshOnDemand] = useState(0)
-  const [modalOpen, setModalOpen] = useState(false)
 
   const [vertical] = useMediaQuery('(max-width: 1278px)')
 

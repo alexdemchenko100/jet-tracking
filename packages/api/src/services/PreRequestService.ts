@@ -40,7 +40,7 @@ function monitorToRequest(mon: Monitor) {
 
 export async function execPreRequestScript(mon: Monitor) {
   const request = monitorToRequest(mon)
-  const env = headersToMap(mon.env)
+  const env = headersToMap(mon.variables)
 
   //logger.info(request, 'execPreScript-Start')
 
@@ -52,7 +52,7 @@ export async function execPreRequestScript(mon: Monitor) {
     let newmon = {
       ...mon,
       headers: headersToTuples(resp.ctx.request.headers),
-      env: headersToTuples(resp.ctx.env),
+      variables: headersToTuples(resp.ctx.env),
     }
     return newmon
   } catch (e) {

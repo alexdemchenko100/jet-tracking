@@ -32,13 +32,15 @@ import {
 } from '@chakra-ui/react'
 import {
   AlertSettings,
+  MonEnv,
   Monitor,
   MonitorAssertion,
   MonitorTuples,
   NotificationChannel,
 } from '@httpmon/db'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from 'react-hook-form'
+import { MultiValue, Select as MultiSelect } from 'chakra-react-select'
 import { FiPlus, FiTrash2, FiSearch } from 'react-icons/fi'
 import { useMutation, useQuery } from 'react-query'
 import axios from 'axios'
@@ -138,7 +140,7 @@ function TupleEditor({ name }: TupleProps) {
         return 'Add Header'
       case 'queryParams':
         return 'Add Query Param'
-      case 'env':
+      case 'variables':
         return 'Add Env Variable'
       default:
         return ''
@@ -239,6 +241,77 @@ function Locations() {
         ))}
       </Stack>
     </CheckboxGroup>
+  )
+}
+
+type FilterOptionType = {
+  label: string
+  value?: string
+}
+
+function Environments() {
+  const { setValue, getValues } = useFormContext()
+  const [selectedEnvs, setSelectedEnvs] = useState<FilterOptionType[]>([])
+  const env = getValues('env')
+
+  const { data: AllEnvs } = useQuery<MonEnv[]>(['monenv'], async () => {
+    const resp = await axios({
+      method: 'GET',
+      url: `/environments`,
+    })
+
+    return resp.data as MonEnv[]
+  })
+
+  useEffect(() => {
+    if (env && AllEnvs) {
+      const data = AllEnvs?.filter((item: MonEnv) => {
+        return env.findIndex((i: string) => i === item.id) > -1
+      })
+      setSelectedEnvs(data.map((item: MonEnv) => ({ label: item.name, value: item.id })))
+    }
+  }, [env, AllEnvs])
+
+  const EnvsOptions = useMemo(
+    () =>
+      AllEnvs?.map((env) => {
+        return {
+          label: env.name,
+          value: env.id,
+        }
+      }) || [],
+    [AllEnvs]
+  )
+
+  const onChange = (value: MultiValue<FilterOptionType>) => {
+    setSelectedEnvs(value as FilterOptionType[])
+    setValue(
+      'env',
+      value.map((i: FilterOptionType) => i.value)
+    )
+  }
+
+  return (
+    <Box maxW='500'>
+      <MultiSelect
+        isMulti
+        value={selectedEnvs}
+        onChange={onChange}
+        options={EnvsOptions}
+        chakraStyles={{
+          dropdownIndicator: (provided) => ({
+            ...provided,
+            bg: 'transparent',
+            px: 2,
+            cursor: 'inherit',
+          }),
+          indicatorSeparator: (provided) => ({
+            ...provided,
+            display: 'none',
+          }),
+        }}
+      />
+    </Box>
   )
 }
 
@@ -401,7 +474,8 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
     defaultValues: {
       headers: [] as MonitorTuples,
       queryParams: [] as MonitorTuples,
-      env: [] as MonitorTuples,
+      variables: [] as MonitorTuples,
+      env: [] as string[],
       assertions: [{ type: 'code', op: '=', value: '200' }] as MonitorAssertion[],
       frequencyScale: Store.UIState.editor.frequencyScale,
       showLocations: Store.UIState.editor.monitorLocations,
@@ -506,7 +580,7 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
     handleOndemandMonitor(prepareMonitor(watched))
   }
 
-  function numValues<T extends 'headers' | 'queryParams' | 'env'>(name: T) {
+  function numValues<T extends 'headers' | 'queryParams' | 'variables'>(name: T) {
     const values = getValues(name)
 
     if (values && values.length > 0) {
@@ -550,8 +624,8 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
       monitor.queryParams = monitor.queryParams.filter((item) => item[0])
     }
 
-    if (monitor.env && monitor.env.length > 0) {
-      monitor.env = monitor.env.filter((item) => item[0])
+    if (monitor.variables && monitor.variables.length > 0) {
+      monitor.variables = monitor.variables.filter((item) => item[0])
     }
 
     if (monitor.auth) {
@@ -749,8 +823,8 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
                             </MonitorTab>
                             <MonitorTab>
                               Env Variables
-                              {numValues('env') > 0 && (
-                                <sup color='green'>&nbsp;{numValues('env')}</sup>
+                              {numValues('variables') > 0 && (
+                                <sup color='green'>&nbsp;{numValues('variables')}</sup>
                               )}
                             </MonitorTab>
                           </TabList>
@@ -772,13 +846,22 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
                               <TupleEditor name='queryParams' />
                             </TabPanel>
                             <TabPanel px='0' pt='6' pb='0'>
-                              <TupleEditor name='env' />
+                              <TupleEditor name='variables' />
                             </TabPanel>
                           </TabPanels>
                         </Tabs>
                       </AccordionPanel>
                     </AccordionItem>
                   </Accordion>
+                </Section>
+
+                <Section py='4'>
+                  <Text variant='title' color='black'>
+                    Environment
+                  </Text>
+                  <Box pt='5' pb='2'>
+                    <Environments />
+                  </Box>
                 </Section>
 
                 <Section py='4'>

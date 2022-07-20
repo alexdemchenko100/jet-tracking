@@ -112,8 +112,8 @@ function processTemplates(mon: Monitor) {
   //query value fields
   //body
   let env: { [k: string]: string } = {}
-  if (mon.env && Array.isArray(mon.env)) {
-    mon.env.map(([name, value], _index) => {
+  if (mon.variables && Array.isArray(mon.variables)) {
+    mon.variables.map(([name, value], _index) => {
       env[name] = value
     })
   }
