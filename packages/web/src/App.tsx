@@ -34,6 +34,7 @@ import {
 import StatusPages from './Pages/StatusPages'
 import NewStatusPage from './Pages/NewStatusPage'
 import EditStatusPage from './Pages/EditStatusPage'
+import ActivityLogs from './Pages/ActivityLogs'
 
 const history = createBrowserHistory()
 Store.history = history //save for later
@@ -179,6 +180,7 @@ function App() {
             <Route path='/console/status-pages/:id' element={<EditStatusPage />} />
             //unprotected for ondemand clients
             <Route path='/console/monitors/ondemand' element={<MonitorEditPanel />} />
+            <Route path='/console/activity' element={<ActivityLogs />} />
           </Route>
 
           <Route path='/console/signin' element={<SignIn />} />

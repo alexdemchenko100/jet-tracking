@@ -56,6 +56,13 @@ export async function handlePostRequest(event: MonitorResultEvent) {
   if (event.err == '') {
     //success
     if (bAlerted) {
+      const monitor = await db
+        .selectFrom('Monitor')
+        .selectAll()
+        .where('accountId', '=', event.accountId)
+        .where('id', '=', event.monitorId)
+        .executeTakeFirst()
+
       await db
         .insertInto('NotificationState')
         .values({
@@ -63,6 +70,8 @@ export async function handlePostRequest(event: MonitorResultEvent) {
           resultId: event.resultId,
           accountId: event.accountId,
           state: 'Recovered',
+          type: 'MONITOR_UP',
+          message: `Monitor ${monitor?.name} is up`,
         })
         .returningAll()
         .executeTakeFirst()
@@ -138,6 +147,13 @@ export async function handlePostRequest(event: MonitorResultEvent) {
   }
 
   if (bNotify && result) {
+    const monitor = await db
+      .selectFrom('Monitor')
+      .selectAll()
+      .where('accountId', '=', event.accountId)
+      .where('id', '=', event.monitorId)
+      .executeTakeFirst()
+
     await db
       .insertInto('NotificationState')
       .values({
@@ -145,6 +161,8 @@ export async function handlePostRequest(event: MonitorResultEvent) {
         resultId: event.resultId,
         accountId: event.accountId,
         state: 'Alert',
+        type: 'MONITOR_DOWN',
+        message: `Monitor ${monitor?.name} is down`,
       })
       .returningAll()
       .executeTakeFirst()

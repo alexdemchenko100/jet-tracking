@@ -74,6 +74,7 @@ export default function EnvMain() {
       <Grid gap={4} templateColumns={'1fr'} maxW={1000}>
         {envs?.map((env) => (
           <Box
+            key={env.id}
             width='100%'
             borderRadius='8'
             border='1px'

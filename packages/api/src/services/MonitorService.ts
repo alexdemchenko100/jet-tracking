@@ -25,11 +25,6 @@ export interface StatsQueryString {
   locations: string
 }
 
-export interface PaginateQueryString {
-  limit: number
-  offset: number
-}
-
 /**
  *
  * Super hacky function to go around type safety
@@ -93,13 +88,13 @@ export class MonitorService {
   public async delete(id: string) {
     const accountId = currentUserInfo().accountId
     if (!accountId) throw new Error('Account id mismatch')
-
-    const resp = await db
+    const resp = await this.find(id)
+    await db
       .deleteFrom('Monitor')
       .where('id', '=', id)
       .where('accountId', '=', currentUserInfo().accountId)
       .executeTakeFirst()
-    return resp.numDeletedRows
+    return resp
   }
 
   public async find(id: string) {

@@ -129,8 +129,9 @@ model NotificationState {
   account   Account        @relation(fields: [accountId], references: [id])
   accountId String
   monitor   Monitor        @relation(fields: [monitorId], references: [id])
-  monitorId String
+  monitorId String?
   state     String         @default("")
+  type      String         @default("")
   message   String         @default("")
   Result    MonitorResult? @relation(fields: [resultId], references: [id])
   resultId  String?        @db.Uuid

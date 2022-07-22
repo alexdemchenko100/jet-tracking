@@ -398,10 +398,11 @@ export const SettingsSchema = S.object().prop('id', S.string()).prop('alert', Al
 export type NotificationState = {
   id?: string
   createdAt?: String | Date
-  accountId: string
-  monitorId: string
-  resultId: string
+  accountId?: string
+  monitorId?: string
+  resultId?: string
   state: string // notification state
+  type: string
   message?: string
 }
 
@@ -411,7 +412,12 @@ export const NotificationStateSchema = S.object()
   .prop('monitorId', S.string())
   .prop('resultId', S.string())
   .prop('state', S.string())
+  .prop('type', S.string())
   .prop('message', S.string())
+
+export const ActivityLogsResponseSchema = S.object()
+  .prop('items', S.array().items(NotificationStateSchema))
+  .prop('total', S.number())
 
 export type NotificationEmail = {
   id?: string
@@ -458,3 +464,8 @@ export const StatusPageSchema = S.object()
   .prop('url', S.string())
   .prop('logoUrl', S.string())
   .prop('monitors', S.array().items(S.string()))
+
+export interface PaginateQueryString {
+  limit: number
+  offset: number
+}
