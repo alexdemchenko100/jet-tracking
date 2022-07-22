@@ -48,7 +48,7 @@ export async function handlePostRequest(event: MonitorResultEvent) {
   let bAlerted = false
 
   if (notifierState) {
-    bAlerted = notifierState.state == 'Alert'
+    bAlerted = notifierState.type == 'MONITOR_DOWN'
   }
 
   //3.
@@ -56,22 +56,14 @@ export async function handlePostRequest(event: MonitorResultEvent) {
   if (event.err == '') {
     //success
     if (bAlerted) {
-      const monitor = await db
-        .selectFrom('Monitor')
-        .selectAll()
-        .where('accountId', '=', event.accountId)
-        .where('id', '=', event.monitorId)
-        .executeTakeFirst()
-
       await db
         .insertInto('NotificationState')
         .values({
           monitorId: event.monitorId,
           resultId: event.resultId,
           accountId: event.accountId,
-          state: 'Recovered',
-          type: 'MONITOR_UP',
-          message: `Monitor ${monitor?.name} is up`,
+          type: 'MONITOR_RECOVERED',
+          message: `Monitor ${event.monitorName} is up`,
         })
         .returningAll()
         .executeTakeFirst()
@@ -147,22 +139,14 @@ export async function handlePostRequest(event: MonitorResultEvent) {
   }
 
   if (bNotify && result) {
-    const monitor = await db
-      .selectFrom('Monitor')
-      .selectAll()
-      .where('accountId', '=', event.accountId)
-      .where('id', '=', event.monitorId)
-      .executeTakeFirst()
-
     await db
       .insertInto('NotificationState')
       .values({
         monitorId: event.monitorId,
         resultId: event.resultId,
         accountId: event.accountId,
-        state: 'Alert',
         type: 'MONITOR_DOWN',
-        message: `Monitor ${monitor?.name} is down`,
+        message: `Monitor ${event.monitorName} is down`,
       })
       .returningAll()
       .executeTakeFirst()

@@ -67,7 +67,16 @@ export class MonitorService {
       })
       .returningAll()
       .executeTakeFirst()
-
+    await db
+      .insertInto('NotificationState')
+      .values({
+        monitorId: monResp?.id,
+        type: 'MONITOR_CREATED',
+        message: `Monitor ${mon.name} is created.`,
+        accountId: currentUserInfo().accountId,
+      })
+      .returningAll()
+      .executeTakeFirst()
     emitter.emit('monitor', monResp?.id)
     return monResp
   }
@@ -82,6 +91,41 @@ export class MonitorService {
       .where('id', '=', mon.id)
       .returningAll()
       .executeTakeFirst()
+
+    const lastState = await db
+      .selectFrom('NotificationState')
+      .selectAll()
+      .orderBy('createdAt', 'desc')
+      .where('monitorId', '=', mon.id)
+      .limit(1)
+      .executeTakeFirst()
+    if (mon.status == 'active') {
+      if (lastState?.type == 'MONITOR_PAUSED' || !lastState) {
+        await db
+          .insertInto('NotificationState')
+          .values({
+            monitorId: mon.id,
+            type: 'MONITOR_UP',
+            message: `Monitor ${mon.name} is active.`,
+            accountId: currentUserInfo().accountId,
+          })
+          .returningAll()
+          .executeTakeFirst()
+      }
+    } else if (mon.status == 'paused') {
+      if (lastState?.type != 'MONITOR_PAUSED' || !lastState) {
+        await db
+          .insertInto('NotificationState')
+          .values({
+            monitorId: mon.id,
+            type: 'MONITOR_PAUSED',
+            message: `Monitor ${monResp?.name} is paused.`,
+            accountId: currentUserInfo().accountId,
+          })
+          .returningAll()
+          .executeTakeFirst()
+      }
+    }
     return monResp
   }
 
@@ -89,6 +133,16 @@ export class MonitorService {
     const accountId = currentUserInfo().accountId
     if (!accountId) throw new Error('Account id mismatch')
     const resp = await this.find(id)
+    await db
+      .insertInto('NotificationState')
+      .values({
+        monitorId: id,
+        type: 'MONITOR_REMOVED',
+        message: `Monitor ${resp?.name} is removed.`,
+        accountId: currentUserInfo().accountId,
+      })
+      .returningAll()
+      .executeTakeFirst()
     await db
       .deleteFrom('Monitor')
       .where('id', '=', id)

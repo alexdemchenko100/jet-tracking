@@ -14,13 +14,11 @@ import {
   PaginateQueryString,
 } from '@httpmon/db'
 import { onRequestAuthHook } from '../RouterHooks'
-import { ActivityLogService } from '../../services/ActivityLogService'
 
 export default async function MonitorRouter(app: FastifyInstance) {
   app.addHook('onRequest', onRequestAuthHook)
 
   const monitorSvc = MonitorService.getInstance()
-  const activityLogService = ActivityLogService.getInstance()
 
   app.put<{ Body: Monitor }>(
     '/',
@@ -36,12 +34,6 @@ export default async function MonitorRouter(app: FastifyInstance) {
       const mon = req.body
 
       const resp = await monitorSvc.create(mon)
-      await activityLogService.newLog({
-        monitorId: resp?.id,
-        type: 'MONITOR_CREATED',
-        state: 'Alert',
-        message: `Monitor ${mon.name} is created.`,
-      })
       req.log.info(`Creating monitor: ${resp?.id}`)
 
       reply.send(resp)
@@ -101,25 +93,7 @@ export default async function MonitorRouter(app: FastifyInstance) {
         reply.code(400).send('Monitor id is not valid')
         return
       }
-      const origin = await monitorSvc.find(id)
       const resp = await monitorSvc.update(monitor)
-      if (origin?.status === monitor.status) {
-        if (monitor.status === 'paused') {
-          await activityLogService.newLog({
-            monitorId: monitor.id,
-            type: 'MONITOR_PAUSED',
-            state: 'Alert',
-            message: `Monitor ${monitor.name} is paused.`,
-          })
-        } else if (monitor.status === 'up') {
-          await activityLogService.newLog({
-            monitorId: monitor.id,
-            type: 'MONITOR_UP',
-            state: 'Recovered',
-            message: `Monitor ${monitor.name} is up again.`,
-          })
-        }
-      }
       log.info(`Updating monitor: ${monitor.id}`)
 
       reply.send(resp)
@@ -131,17 +105,13 @@ export default async function MonitorRouter(app: FastifyInstance) {
     {
       schema: {
         params: ParamsSchema,
-        body: MonitorFluentSchema,
+        response: {
+          200: MonitorFluentSchema,
+        },
       },
     },
     async function ({ params: { id }, log }, reply) {
       const resp = await monitorSvc.delete(id)
-      await activityLogService.newLog({
-        monitorId: id,
-        type: 'MONITOR_REMOVED',
-        state: 'Alert',
-        message: `Monitor ${resp?.name} is removed.`,
-      })
       log.info(resp, `Deleted monitor id: ${id}`)
       reply.send(resp)
     }

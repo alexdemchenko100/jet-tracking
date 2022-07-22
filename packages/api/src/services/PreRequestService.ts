@@ -70,6 +70,7 @@ export async function execPreRequestScript(mon: Monitor) {
     publishPostRequestEvent({
       type: 'monitor-postrequest',
       monitorId: mon.id,
+      monitorName: mon.name,
       resultId: monitorResult.id,
       accountId: mon.accountId,
       notifications: mon.notifications,

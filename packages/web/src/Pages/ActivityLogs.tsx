@@ -52,6 +52,8 @@ export default function ActivityLogs() {
     switch (state) {
       case 'MONITOR_UP':
         return 'darkblue.100'
+      case 'MONITOR_RECOVERED':
+        return 'cyan.400'
       case 'MONITOR_DOWN':
         return 'pink.400'
       case 'MONITOR_PAUSED':
@@ -126,17 +128,19 @@ export default function ActivityLogs() {
                         <Text variant='text-field' color='black'>
                           {log.message}
                         </Text>
-                        <Box mt='-1' as={Link} to={`/console/monitors/${log.monitorId}`}>
-                          <Text
-                            variant='details'
-                            color='gray.300'
-                            textTransform='lowercase'
-                            textDecoration='underline'
-                            wordBreak='break-all'
-                          >
-                            {`https://localhost:3000/console/monitors/${log.monitorId}`}
-                          </Text>
-                        </Box>
+                        {log.type !== 'MONITOR_REMOVED' && log.monitorId && (
+                          <Box mt='-1' as={Link} to={`/console/monitors/${log.monitorId}`}>
+                            <Text
+                              variant='details'
+                              color='gray.300'
+                              textTransform='lowercase'
+                              textDecoration='underline'
+                              wordBreak='break-all'
+                            >
+                              {`https://localhost:3000/console/monitors/${log.monitorId}`}
+                            </Text>
+                          </Box>
+                        )}
                       </Flex>
                     </Flex>
                   </Flex>

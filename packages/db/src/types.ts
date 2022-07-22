@@ -401,7 +401,6 @@ export type NotificationState = {
   accountId?: string
   monitorId?: string
   resultId?: string
-  state: string // notification state
   type: string
   message?: string
 }
@@ -411,7 +410,6 @@ export const NotificationStateSchema = S.object()
   .prop('accountId', S.string())
   .prop('monitorId', S.string())
   .prop('resultId', S.string())
-  .prop('state', S.string())
   .prop('type', S.string())
   .prop('message', S.string())
 

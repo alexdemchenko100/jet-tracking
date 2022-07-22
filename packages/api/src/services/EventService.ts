@@ -7,6 +7,7 @@ export interface MonitorResultEvent {
   type: string
   accountId: string
   monitorId: string
+  monitorName: string
   resultId: string
   err: string
   notifications: MonitorNotifications
@@ -17,6 +18,7 @@ export const MonitorResultEventSchema = S.object()
   .required()
   .prop('accountId', S.string())
   .prop('monitorId', S.string())
+  .prop('monitorName', S.string())
   .prop('resultId', S.string())
   .prop('err', S.string())
   .prop('notifications', MonitorNotificationSchema)

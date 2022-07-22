@@ -262,6 +262,7 @@ export async function runMonitor(monitor: Monitor) {
   let resultEvent: MonitorResultEvent = {
     type: 'monitor-postrequest',
     monitorId: monitor.id,
+    monitorName: monitor.name,
     resultId: monitorResult.id,
     accountId: monitor.accountId,
     notifications: monitor.notifications,
