@@ -85,47 +85,47 @@ export class MonitorService {
     const accountId = currentUserInfo().accountId
     if (!accountId) throw new Error('Account id mismatch')
 
-    const monResp = await db
-      .updateTable('Monitor')
-      .set({ ...monitorToDBMonitor(mon) })
-      .where('id', '=', mon.id)
-      .returningAll()
-      .executeTakeFirst()
+    let monResp
+    await db.transaction().execute(async (trx) => {
+      const origin = await trx
+        .selectFrom('Monitor')
+        .selectAll()
+        .where('id', '=', mon.id)
+        .where('accountId', '=', currentUserInfo().accountId)
+        .executeTakeFirst()
+      monResp = await trx
+        .updateTable('Monitor')
+        .set({ ...monitorToDBMonitor(mon) })
+        .where('id', '=', mon.id)
+        .returningAll()
+        .executeTakeFirst()
 
-    const lastState = await db
-      .selectFrom('NotificationState')
-      .selectAll()
-      .orderBy('createdAt', 'desc')
-      .where('monitorId', '=', mon.id)
-      .limit(1)
-      .executeTakeFirst()
-    if (mon.status == 'active') {
-      if (lastState?.type == 'MONITOR_PAUSED' || !lastState) {
-        await db
-          .insertInto('NotificationState')
-          .values({
-            monitorId: mon.id,
-            type: 'MONITOR_UP',
-            message: `Monitor ${mon.name} is active.`,
-            accountId: currentUserInfo().accountId,
-          })
-          .returningAll()
-          .executeTakeFirst()
+      if (origin?.status !== mon.status) {
+        if (mon.status == 'active') {
+          await trx
+            .insertInto('NotificationState')
+            .values({
+              monitorId: mon.id,
+              type: 'MONITOR_UP',
+              message: `Monitor ${mon.name} is active.`,
+              accountId: currentUserInfo().accountId,
+            })
+            .returningAll()
+            .executeTakeFirst()
+        } else if (mon.status == 'paused') {
+          await trx
+            .insertInto('NotificationState')
+            .values({
+              monitorId: mon.id,
+              type: 'MONITOR_PAUSED',
+              message: `Monitor ${mon.name} is paused.`,
+              accountId: currentUserInfo().accountId,
+            })
+            .returningAll()
+            .executeTakeFirst()
+        }
       }
-    } else if (mon.status == 'paused') {
-      if (lastState?.type != 'MONITOR_PAUSED' || !lastState) {
-        await db
-          .insertInto('NotificationState')
-          .values({
-            monitorId: mon.id,
-            type: 'MONITOR_PAUSED',
-            message: `Monitor ${monResp?.name} is paused.`,
-            accountId: currentUserInfo().accountId,
-          })
-          .returningAll()
-          .executeTakeFirst()
-      }
-    }
+    })
     return monResp
   }
 
