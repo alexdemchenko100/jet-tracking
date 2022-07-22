@@ -90,8 +90,8 @@ export default function ActivityLogs() {
               </Flex>
               <Box ml={10}>
                 <Box w='0.5' h='10' ml='7px' bg='lightgray.100'></Box>
-                {groupedLogs[group].map((log) => (
-                  <Flex key={log.id}>
+                {groupedLogs[group].map((log, index) => (
+                  <Flex key={`${group}-${currentPage}-${index}`}>
                     <Flex direction='column'>
                       <Flex
                         align='center'

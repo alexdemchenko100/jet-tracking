@@ -128,7 +128,7 @@ model NotificationState {
   createdAt DateTime       @default(now())
   account   Account        @relation(fields: [accountId], references: [id])
   accountId String
-  monitor   Monitor        @relation(fields: [monitorId], references: [id])
+  monitor   Monitor?       @relation(fields: [monitorId], references: [id])
   monitorId String?
   state     String         @default("")
   type      String         @default("")
