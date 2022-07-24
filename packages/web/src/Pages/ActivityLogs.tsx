@@ -22,27 +22,31 @@ export default function ActivityLogs() {
   const [logs, setLogs] = useState<ActivityLog[]>([])
   const [totalCount, setTotalCount] = useState<number | undefined>()
 
-  useQuery(['activitylogs', currentPage], async () => {
-    const offset = (currentPage - 1) * PAGE_SIZE
-    if (!totalCount || offset < totalCount) {
-      const resp = await axios({
-        method: 'GET',
-        url: '/activity-logs',
-        params: {
-          offset,
-          limit: PAGE_SIZE,
-        },
-      })
-      const { items, total } = resp.data
-      const data = items.map((item: ActivityLog) => {
-        item.date = dayjs(item.createdAt as string).format('MMMM D')
-        item.time = dayjs(item.createdAt as string).format('HH:mm')
-        return item
-      })
-      setLogs(logs.concat(data))
-      setTotalCount(total)
-    }
-  })
+  useQuery(
+    ['activitylogs', currentPage],
+    async () => {
+      const offset = (currentPage - 1) * PAGE_SIZE
+      if (!totalCount || offset < totalCount) {
+        const resp = await axios({
+          method: 'GET',
+          url: '/activity-logs',
+          params: {
+            offset,
+            limit: PAGE_SIZE,
+          },
+        })
+        const { items, total } = resp.data
+        const data = items.map((item: ActivityLog) => {
+          item.date = dayjs(item.createdAt as string).format('MMMM D')
+          item.time = dayjs(item.createdAt as string).format('HH:mm')
+          return item
+        })
+        setLogs(logs.concat(data))
+        setTotalCount(total)
+      }
+    },
+    { refetchOnWindowFocus: false }
+  )
 
   const loadMore = () => {
     setCurrentPage(currentPage + 1)
