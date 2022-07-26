@@ -1,4 +1,16 @@
-import { Flex, Select, Switch, RadioGroup, Stack, Radio, Box, Image } from '@chakra-ui/react'
+import {
+  Flex,
+  Select,
+  Switch,
+  RadioGroup,
+  Stack,
+  Radio,
+  Box,
+  Image,
+  Link as ChakraLink,
+  Button,
+  Icon,
+} from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { NotificationChannel } from '@httpmon/db'
 import { useFormContext } from 'react-hook-form'
@@ -6,6 +18,9 @@ import axios from 'axios'
 import { useQuery } from 'react-query'
 import { Text } from '../components'
 import { BlueEmailIcon, MSTeamsIcon, SlackIcon } from '../Assets'
+import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { FiEdit } from 'react-icons/fi'
 
 interface Props {
   notificationChannels?: NotificationChannel[]
@@ -16,6 +31,7 @@ export function MonitorNotifications({ notificationChannels }: Props) {
   const [alertSetting, setAlertSetting] = useState<string>('failCount')
 
   const notifications = watch('notifications')
+  const navigate = useNavigate()
 
   useEffect(() => {
     setAlertSetting(
@@ -75,6 +91,14 @@ export function MonitorNotifications({ notificationChannels }: Props) {
                   Use global notifications
                 </Text>
               </Radio>
+              <Button
+                borderRadius='4'
+                bg='lightgray.100'
+                p='0'
+                onClick={() => navigate(`/console/settings/notifications`)}
+              >
+                <Icon color='gray.300' as={FiEdit} cursor='pointer' />
+              </Button>
             </Flex>
             <Flex alignItems='center'>
               <Radio value='0' colorScheme='cyan'>

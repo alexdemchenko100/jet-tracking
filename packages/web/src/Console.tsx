@@ -18,7 +18,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { FaRegBell } from 'react-icons/fa'
-import { FiSettings, FiMenu, FiPackage, FiGrid, FiActivity, FiZap } from 'react-icons/fi'
+import { FiSettings, FiMenu, FiPackage, FiHome, FiActivity, FiZap } from 'react-icons/fi'
 import { logoTitle } from './Assets'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { signOut, useAuth } from './services/FirebaseAuth'
@@ -50,20 +50,17 @@ export default function Console() {
       w={SIDEBAR_WIDTH}
       {...props}
     >
-      <Flex
-        direction='column'
-        as='nav'
-        py={4}
-        fontSize='sm'
-        color='gray.600'
-        aria-label='Main Navigation'
-      >
-        <NavItem icon={FiGrid} to='/console/monitors'>
+      <Flex direction='column' as='nav' py={4} aria-label='Main Navigation'>
+        <NavItem icon={FiHome} to='/console/monitors'>
           <Text variant='text-field' color='inherit'>
             Dashboard
           </Text>
         </NavItem>
-
+        <NavItem icon={FiActivity} to='/console/activity'>
+          <Text variant='text-field' color='inherit'>
+            Activity
+          </Text>
+        </NavItem>
         <NavItem icon={FiPackage} to='/console/envs'>
           <Text variant='text-field' color='inherit'>
             Environments
@@ -72,11 +69,6 @@ export default function Console() {
         <NavItem icon={FiZap} to='/console/status-pages'>
           <Text variant='text-field' color='inherit'>
             Status Pages
-          </Text>
-        </NavItem>
-        <NavItem icon={FiActivity} to='/console/activity'>
-          <Text variant='text-field' color='inherit'>
-            Activity
           </Text>
         </NavItem>
         <NavItem icon={FiSettings} to='/console/settings'>

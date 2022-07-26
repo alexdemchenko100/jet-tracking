@@ -564,6 +564,9 @@ export function MainPage() {
     <Flex direction='column'>
       <Section>
         <Flex alignItems='center' justify={'space-between'}>
+          <Text variant='header' color='black'>
+            All monitors
+          </Text>
           <PrimaryButton
             label='New monitor'
             variant='emphasis'

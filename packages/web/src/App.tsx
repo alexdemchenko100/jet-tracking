@@ -11,7 +11,6 @@ import SignUp from './Pages/SignUp'
 import ForgotPassword from './components/ForgotPassword'
 import Console from './Console'
 import NewEnv from './components/NewEnv'
-import { MonitorDashboard } from './components/MonitorDashboard'
 import { MonitorView } from './components/MonitorView'
 import { MonitorEditPanel } from './components/MonitorEditPanel'
 import { useAuth } from './services/FirebaseAuth'
@@ -78,14 +77,6 @@ function App() {
               element={
                 <ProtectedRoute isAllowed={isLoggedIn}>
                   <MainPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path='/console/monitors2'
-              element={
-                <ProtectedRoute isAllowed={isLoggedIn}>
-                  <MonitorDashboard />
                 </ProtectedRoute>
               }
             />
