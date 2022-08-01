@@ -46,7 +46,7 @@ if (process.env.NODE_ENV === 'production') {
 } else {
   server.log.info('test mode')
   server.register(fastifyCors, {
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     credentials: true,

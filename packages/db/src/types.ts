@@ -75,6 +75,7 @@ export const PaginateQueryStringSchema = S.object()
 
 export const MonitorStatSummarySchema = S.object()
   .prop('monitorId', S.string())
+  .prop('monitorName', S.string())
   .prop('status', S.string())
   .prop('week', MonitorResultStatsSchema)
   .prop('day', MonitorResultStatsSchema)
@@ -452,6 +453,7 @@ export type StatusPage = {
   url: string
   logoUrl: string
   monitors: string[]
+  siteUrl?: string
 }
 
 export const StatusPageSchema = S.object()
@@ -462,6 +464,7 @@ export const StatusPageSchema = S.object()
   .prop('url', S.string())
   .prop('logoUrl', S.string())
   .prop('monitors', S.array().items(S.string()))
+  .prop('siteUrl', S.string())
 
 export interface PaginateQueryString {
   limit: number

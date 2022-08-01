@@ -55,16 +55,18 @@ function StatusPageTile({ data, onDelete }: StatusPageProps) {
           >
             {data?.name}
           </Text>
-          <Text
-            variant='text-field'
-            color='gray.300'
-            textOverflow='ellipsis'
-            overflow='hidden'
-            whiteSpace='nowrap'
-            mb={2}
-          >
-            {data?.url}
-          </Text>
+          <a href={data?.siteUrl} target='_blank'>
+            <Text
+              variant='text-field'
+              color='gray.300'
+              textOverflow='ellipsis'
+              overflow='hidden'
+              whiteSpace='nowrap'
+              mb={2}
+            >
+              {data?.siteUrl}
+            </Text>
+          </a>
         </Flex>
         <Button
           borderRadius='4'
