@@ -1,5 +1,5 @@
 import { Flex, Button, Icon, Box, Input, Image, useToast, Grid } from '@chakra-ui/react'
-import { Monitor, StatusPage } from '@httpmon/db'
+import { Monitor, StatusPageDetails } from '@httpmon/db'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
@@ -13,12 +13,11 @@ function EditStatusPage() {
   const { id } = useParams()
   const [formChanged, setFormChanged] = useState<boolean>(false)
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
-  const [selectedMons, setSelectedMons] = useState<Monitor[]>([])
-  const { register, watch, reset, getValues, setValue, handleSubmit } = useForm<StatusPage>()
+  const { register, watch, reset, getValues, setValue, handleSubmit } = useForm<StatusPageDetails>()
   const toast = useToast()
   const navigate = useNavigate()
 
-  watch()
+  const selectedMons = watch('monitors')
 
   useEffect(() => {
     const subscription = watch((value) => {
@@ -38,47 +37,32 @@ function EditStatusPage() {
     })
 
     if (resp.status == 200) {
-      setValue('name', resp.data.name)
-      setValue('logoUrl', resp.data.logoUrl)
-      setValue(
-        'monitors',
-        resp.data.monitors.map((mon: Monitor) => mon.id)
-      )
-      setSelectedMons(resp.data.monitors)
+      reset(resp.data)
       setFormChanged(false)
     }
   })
 
   const cancelChanges = () => {
     reset()
-    setSelectedMons([])
     setFormChanged(false)
   }
 
   const addNewMon = (mons: Monitor[]) => {
     const data = [...selectedMons, ...mons]
-    setSelectedMons(data)
-    setValue(
-      'monitors',
-      data.map((mon) => mon.id || '')
-    )
+    setValue('monitors', data)
   }
 
   const deleteMon = (index: number) => {
     const arr = [...selectedMons]
     arr.splice(index, 1)
-    setSelectedMons(arr)
-    setValue(
-      'monitors',
-      arr.map((mon) => mon.id || '')
-    )
+    setValue('monitors', arr)
   }
 
   const isImage = (url: string): boolean => {
     return /^https?:\/\/.+\.(jpg|jpeg|png|webp|avif|gif|svg)$/.test(url)
   }
 
-  const checkFormValidation = (data: StatusPage) => {
+  const checkFormValidation = (data: StatusPageDetails) => {
     const { name, logoUrl, monitors } = data
     if (!name) {
       return 'Name is required'
@@ -94,7 +78,7 @@ function EditStatusPage() {
     return
   }
 
-  const saveChanges = async (data: StatusPage) => {
+  const saveChanges = async (data: StatusPageDetails) => {
     const error = checkFormValidation(data)
     if (error) {
       toast({
@@ -105,11 +89,13 @@ function EditStatusPage() {
         isClosable: false,
       })
     } else {
-      // Save new env
       const resp = await axios({
         method: 'PUT',
         url: `/status-pages/${id}`,
-        data,
+        data: {
+          ...data,
+          monitors: data.monitors.map((mon) => mon.id),
+        },
       })
       if (resp.data) {
         toast({
@@ -212,7 +198,7 @@ function EditStatusPage() {
             </Button>
           </Flex>
           <Grid gap={4} mt={4} templateColumns={'1fr 1fr'}>
-            {selectedMons.map((monitor: Monitor, index: number) => (
+            {selectedMons?.map((monitor: Monitor, index: number) => (
               <Flex
                 key={index}
                 alignItems='center'

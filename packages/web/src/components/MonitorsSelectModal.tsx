@@ -40,7 +40,7 @@ interface Props {
 function MonitorsSelectModal({ isModalOpen, onClose, onChange, disabledItems }: Props) {
   const [selectedMons, setSelectedMons] = useState<Monitor[]>([])
   const [totalCount, setTotalCount] = useState<number>(0)
-  const { pages, pagesCount, pageSize, setPageSize, currentPage, setCurrentPage } = usePagination({
+  const { pages, pagesCount, currentPage, setCurrentPage } = usePagination({
     total: totalCount,
     initialState: {
       pageSize: 16,
@@ -84,7 +84,7 @@ function MonitorsSelectModal({ isModalOpen, onClose, onChange, disabledItems }: 
   }
 
   const isDisabled = (monitor: Monitor) => {
-    return disabledItems.findIndex((item) => item.id === monitor.id) > -1
+    return disabledItems?.findIndex((item) => item.id === monitor.id) > -1
   }
 
   const changeSelect = (monitor: Monitor) => {

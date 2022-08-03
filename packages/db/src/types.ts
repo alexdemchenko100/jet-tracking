@@ -456,6 +456,17 @@ export type StatusPage = {
   siteUrl?: string
 }
 
+export type StatusPageDetails = {
+  id: string
+  createdAt?: string | Date
+  accountId: string
+  name: string
+  url: string
+  logoUrl: string
+  monitors: Monitor[]
+  siteUrl: string
+}
+
 export const StatusPageSchema = S.object()
   .prop('id', S.string())
   .prop('createdAt', S.string())
@@ -464,6 +475,16 @@ export const StatusPageSchema = S.object()
   .prop('url', S.string())
   .prop('logoUrl', S.string())
   .prop('monitors', S.array().items(S.string()))
+  .prop('siteUrl', S.string())
+
+export const StatusPageDetailsSchema = S.object()
+  .prop('id', S.string())
+  .prop('createdAt', S.string())
+  .prop('accountId', S.string())
+  .prop('name', S.string())
+  .prop('url', S.string())
+  .prop('logoUrl', S.string())
+  .prop('monitors', S.array().items(MonitorFluentSchema))
   .prop('siteUrl', S.string())
 
 export interface PaginateQueryString {
