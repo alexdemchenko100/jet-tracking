@@ -22,15 +22,15 @@ model Account {
 }
 
 model UserAccount {
-  id          String  @id
-  userId      String
-  email       String
-  role        String  @default("")
-  default     Boolean @default(true)
-  isVerified  Boolean @default(false)
-  token       String?
-  account     Account @relation(fields: [accountId], references: [id])
-  accountId   String
+  id         String  @id
+  userId     String
+  email      String
+  role       String  @default("")
+  default    Boolean @default(true)
+  isVerified Boolean @default(false)
+  token      String?
+  account    Account @relation(fields: [accountId], references: [id])
+  accountId  String
 
   @@unique([userId, accountId])
 }
@@ -75,6 +75,7 @@ model Monitor {
   accountId       String
 
   NotificationState NotificationState[]
+
   @@unique([name, accountId])
 }
 
@@ -160,14 +161,13 @@ model NotificationEmail {
 }
 
 model StatusPage {
-  id         String   @id @default(cuid())
-  createdAt  DateTime @default(now())
-  logoUrl    String
-  name       String
-  url        String
-  monitors   String[]
-  account    Account  @relation(fields: [accountId], references: [id])
-  accountId  String
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  logoUrl   String
+  name      String
+  monitors  String[]
+  account   Account  @relation(fields: [accountId], references: [id])
+  accountId String
 
   @@unique([name, accountId])
 }

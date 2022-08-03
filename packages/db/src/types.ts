@@ -450,7 +450,6 @@ export type StatusPage = {
   createdAt?: string | Date
   accountId: string
   name: string
-  url: string
   logoUrl: string
   monitors: string[]
   siteUrl?: string
@@ -461,7 +460,6 @@ export type StatusPageDetails = {
   createdAt?: string | Date
   accountId: string
   name: string
-  url: string
   logoUrl: string
   monitors: Monitor[]
   siteUrl: string
@@ -472,7 +470,6 @@ export const StatusPageSchema = S.object()
   .prop('createdAt', S.string())
   .prop('accountId', S.string())
   .prop('name', S.string())
-  .prop('url', S.string())
   .prop('logoUrl', S.string())
   .prop('monitors', S.array().items(S.string()))
   .prop('siteUrl', S.string())
@@ -482,7 +479,6 @@ export const StatusPageDetailsSchema = S.object()
   .prop('createdAt', S.string())
   .prop('accountId', S.string())
   .prop('name', S.string())
-  .prop('url', S.string())
   .prop('logoUrl', S.string())
   .prop('monitors', S.array().items(MonitorFluentSchema))
   .prop('siteUrl', S.string())

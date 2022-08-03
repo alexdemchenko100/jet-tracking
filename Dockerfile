@@ -4,7 +4,7 @@ FROM node:16-alpine AS build
 WORKDIR /app
 
 # dependencies
-RUN npm install -g pnpm@6
+RUN npm install -g pnpm
 
 COPY pnpm-lock.yaml ./
 

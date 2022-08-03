@@ -16,28 +16,26 @@ export class StatusPageService {
   }
 
   public async listStatusPages() {
+    const statusDomain = process.env.STATUS_PAGE_DOMAIN_URL ?? 'https://status.proautoma.com'
     const statusPages = await db
       .selectFrom('StatusPage')
       .selectAll()
-      .select(
-        sql`CONCAT(${sql.literal(process.env.STATUS_PAGE_DOMAIN_URL)}, '/', url)`.as('siteUrl')
-      )
+      .select(sql`CONCAT(${sql.literal(statusDomain)}, '/', id)`.as('siteUrl'))
       .where('accountId', '=', currentUserInfo().accountId)
       .execute()
     return statusPages
   }
 
   public async newStatusPage(data: StatusPage) {
-    const nanoId = customAlphabet('abcdefghijklmnopqrstuvwxyz-', 24)
+    const idGen = customAlphabet('abcdefghijklmnopqrstuvwxyz', 24)
     const statusPage = await db
       .insertInto('StatusPage')
       .values({
-        id: nanoid(),
+        id: idGen(),
         name: data.name,
         logoUrl: data.logoUrl,
         monitors: data.monitors,
         accountId: currentUserInfo().accountId,
-        url: nanoId(),
       })
       .returningAll()
       .executeTakeFirst()
@@ -52,6 +50,7 @@ export class StatusPageService {
       .where('accountId', '=', currentUserInfo().accountId)
       .where('id', '=', id)
       .executeTakeFirst()
+
     const monitors = await db
       .selectFrom('Monitor')
       .selectAll()
@@ -64,9 +63,12 @@ export class StatusPageService {
   }
 
   public async updateStatusPage(id: string, data: StatusPage) {
+    //get rid of id and accountId to avoid possible overrides
+    const { id: _id, accountId, ...rest } = data
+
     const statusPage = await db
       .updateTable('StatusPage')
-      .set({ ...data })
+      .set({ ...rest })
       .where('id', '=', id)
       .where('accountId', '=', currentUserInfo().accountId)
       .executeTakeFirst()
@@ -145,11 +147,11 @@ export class StatusPageService {
     }
   }
 
-  public async getStatusPageFromUrl(url: string) {
+  public async getStatusPageById(id: string) {
     const statusPage = await db
       .selectFrom('StatusPage')
       .selectAll()
-      .where('url', '=', url)
+      .where('id', '=', id)
       .executeTakeFirst()
     if (statusPage) {
       const monitors = await db

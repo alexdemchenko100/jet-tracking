@@ -1,4 +1,4 @@
-import { Insertable, Kysely, PostgresDialect, sql } from 'kysely'
+import { Kysely, PostgresDialect } from 'kysely'
 import { Pool } from 'pg'
 
 import {
@@ -52,38 +52,3 @@ export const db = new Kysely<Database>({
     }),
   }),
 })
-
-function objectToJSON(object: any) {
-  if (typeof object == 'string') {
-    return object
-  } else if (typeof object == 'object') {
-    return JSON.stringify(object)
-  }
-  throw Error('Cannot convert to JSON')
-}
-
-export async function saveMonitorResult(result: Insertable<MonitorResultTable>) {
-  //Handle all JSON conversions here.. headers, cookies, variables etc
-  let resultForSaving = {
-    ...result,
-    headers: objectToJSON(result.headers),
-  }
-
-  if (result.assertResults) {
-    resultForSaving = {
-      ...resultForSaving,
-      assertResults: objectToJSON(result.assertResults),
-    }
-  }
-
-  try {
-    return await db
-      .insertInto('MonitorResult')
-      .values(resultForSaving)
-      .returningAll()
-      .executeTakeFirst()
-  } catch (e) {
-    console.log('exception: ', e)
-    return null
-  }
-}

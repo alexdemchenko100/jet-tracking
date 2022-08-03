@@ -18,7 +18,7 @@ export default async function StatusPublicRouter(app: FastifyInstance) {
     },
     async function (req, reply) {
       const { id } = req.params
-      const resp = await statusService.getStatusPageFromUrl(id)
+      const resp = await statusService.getStatusPageById(id)
       if (resp) {
         reply.send(resp)
       } else {
