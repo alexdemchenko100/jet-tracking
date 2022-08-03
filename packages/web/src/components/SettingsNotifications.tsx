@@ -24,10 +24,10 @@ import {
   ModalFooter,
 } from '@chakra-ui/react'
 import { FiEdit, FiTrash2, FiPlus } from 'react-icons/fi'
-import { FormProvider, useForm, useFormContext, Controller } from 'react-hook-form'
+import { FormProvider, useForm, useFormContext } from 'react-hook-form'
 import axios from 'axios'
 import { useQuery } from 'react-query'
-import { AlertSettings, NotificationChannel, NotificationEmail } from '@httpmon/db'
+import { NotificationChannel, NotificationEmail } from '@httpmon/db'
 
 import { Section, Text, ChannelSelect, PrimaryButton, SettingsHeader } from '../components'
 import { BlueEmailIcon, MSTeamsIcon, SlackIcon } from '../Assets'
@@ -81,7 +81,7 @@ function NewNotification({ errors, emails }: Props) {
             Type
           </Text>
           <ChannelSelect
-            channel={newNotification.channel.type}
+            channel={newNotification.channel?.type}
             onSelect={selectChannel}
             hasError={errors.channel?.type || false}
           />
@@ -357,7 +357,21 @@ export default function SettingsNotifications() {
       method: 'GET',
       url: '/settings',
     })
-    reset({ alert: resp.data.alert })
+    reset({
+      alert: resp.data.alert,
+      new_notification: {
+        name: '',
+        channel: {},
+        isDefaultEnabled: true,
+        applyOnExistingMonitors: false,
+      },
+      edit_notification: {
+        name: '',
+        channel: {},
+        isDefaultEnabled: false,
+        applyOnExistingMonitors: false,
+      },
+    })
   })
 
   const { data: notificationEmails } = useQuery(['verifiedNotificaitonEmails'], async () => {
@@ -522,7 +536,6 @@ export default function SettingsNotifications() {
   }
 
   const saveEditNotification = async () => {
-    console.log('selectedNotification:', selectedNotification)
     if (isEdit && selectedNotification) {
       await axios.put(`/settings/notifications/${selectedNotification}`, {
         ...watched.edit_notification,
@@ -551,7 +564,21 @@ export default function SettingsNotifications() {
       duration: 2000,
       isClosable: true,
     })
-    reset({ alert: resp.data.alert })
+    reset({
+      alert: resp.data.alert,
+      new_notification: {
+        name: '',
+        channel: {},
+        isDefaultEnabled: true,
+        applyOnExistingMonitors: false,
+      },
+      edit_notification: {
+        name: '',
+        channel: {},
+        isDefaultEnabled: false,
+        applyOnExistingMonitors: false,
+      },
+    })
   }
 
   return (
@@ -591,7 +618,9 @@ export default function SettingsNotifications() {
                       borderColor='gray.200'
                       size='sm'
                       value={watched.alert.failCount || 1}
-                      {...register(`alert.failCount` as const)}
+                      {...register(`alert.failCount` as const, {
+                        valueAsNumber: true,
+                      })}
                     >
                       {Array(10)
                         .fill('')
@@ -631,8 +660,10 @@ export default function SettingsNotifications() {
                       color='darkgray.100'
                       borderColor='gray.200'
                       size='sm'
-                      value={watched.alert.failTimeMinutes || 5}
-                      {...register(`alert.failTimeMinutes` as const)}
+                      value={watched.alert.failTimeMinutes ?? 5}
+                      {...register(`alert.failTimeMinutes` as const, {
+                        valueAsNumber: true,
+                      })}
                     >
                       <option value='5'>5</option>
                       <option value='10'>10</option>

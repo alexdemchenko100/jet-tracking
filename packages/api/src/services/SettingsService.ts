@@ -101,21 +101,20 @@ export class SettingsService {
       .where(sql<string>`notifications -> 'useGlobal' = 'true'`)
       .where('accountId', '=', currentUserInfo().accountId)
       .execute()
-    await db
-      .updateTable('Monitor')
-      .set({
-        notifications: sql`jsonb_set(jsonb_set(notifications, '{failCount}', ${
-          data.alert.failCount ?? 0
-        }), '{failTimeMinutes}', ${data.alert.failTimeMinutes ?? 0})`,
-      })
-      .where('accountId', '=', currentUserInfo().accountId)
-      .where(
-        'id',
-        'in',
-        globalSettingMonitors.map((mon) => mon.id)
-      )
-      .returningAll()
-      .execute()
+    if (globalSettingMonitors && globalSettingMonitors.length > 0) {
+      const ids = globalSettingMonitors.map((mon) => mon.id)
+      await db
+        .updateTable('Monitor')
+        .set({
+          notifications: sql`jsonb_set(jsonb_set(notifications, '{failCount}', ${
+            data.alert.failCount ?? 0
+          }), '{failTimeMinutes}', ${data.alert.failTimeMinutes ?? 0})`,
+        })
+        .where('accountId', '=', currentUserInfo().accountId)
+        .where('id', 'in', ids)
+        .returningAll()
+        .execute()
+    }
     return settings
   }
 

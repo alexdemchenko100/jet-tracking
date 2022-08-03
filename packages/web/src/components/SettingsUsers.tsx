@@ -101,7 +101,7 @@ function SettingsUsers() {
   const resendVerifyLink = async (user: UserAccount) => {
     if (user.role === 'notifications') {
       await axios.post('/settings/notifications/emails/send-verification-mail', {
-        email: email,
+        email: user.email,
       })
     }
     toast({
