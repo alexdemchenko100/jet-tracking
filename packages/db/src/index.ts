@@ -1,4 +1,5 @@
 import { Insertable, Kysely, PostgresDialect, sql } from 'kysely'
+import { Pool } from 'pg'
 
 import {
   Account,
@@ -46,7 +47,9 @@ if (process.env.DATABASE_URL) {
 
 export const db = new Kysely<Database>({
   dialect: new PostgresDialect({
-    ...config,
+    pool: new Pool({
+      ...config,
+    }),
   }),
 })
 

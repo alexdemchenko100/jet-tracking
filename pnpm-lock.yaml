@@ -44,7 +44,7 @@ importers:
       jsonpath-plus: ^6.0.1
       jsonwebtoken: ^8.5.1
       jwks-rsa: ^2.0.5
-      kysely: ^0.17.1
+      kysely: ^0.20.0
       lodash.clonedeep: ^4.5.0
       nanoid: ^3.3.1
       nodemon: ^2.0.15
@@ -72,7 +72,7 @@ importers:
       fastify-cors: 6.0.2
       fastify-request-context: 2.2.0_fastify@3.27.1
       fastify-static: 4.5.0
-      firebase-admin: 10.0.2
+      firebase-admin: 10.0.2_rk26ggi7fgy5nwvf4wc5ggkrpa
       fluent-json-schema: 3.1.0
       gcp-metadata: 5.0.0
       got: 11.8.3
@@ -80,7 +80,7 @@ importers:
       jsonpath-plus: 6.0.1
       jsonwebtoken: 8.5.1
       jwks-rsa: 2.0.5
-      kysely: 0.17.1
+      kysely: 0.20.0
       lodash.clonedeep: 4.5.0
       nanoid: 3.3.1
       pg: 8.7.3
@@ -90,7 +90,7 @@ importers:
     devDependencies:
       '@types/jsonwebtoken': 8.5.8
       '@types/lodash.clonedeep': 4.5.6
-      '@types/node': 18.6.1
+      '@types/node': 18.6.3
       concurrently: 7.0.0
       cross-env: 7.0.3
       esbuild: 0.14.25
@@ -107,19 +107,21 @@ importers:
 
   packages/db:
     specifiers:
+      '@types/pg': ^8.6.5
       dotenv: ^16.0.0
       fluent-json-schema: ^3.1.0
-      kysely: ^0.17.1
+      kysely: ^0.20.0
       pg: ^8.7.3
       pino: ^7.8.0
       typescript: ^4.5.5
     dependencies:
       dotenv: 16.0.0
       fluent-json-schema: 3.1.0
-      kysely: 0.17.1
+      kysely: 0.20.0
       pg: 8.7.3
       pino: 7.8.0
     devDependencies:
+      '@types/pg': 8.6.5
       typescript: 4.5.5
 
   packages/sandbox:
@@ -2048,15 +2050,6 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@firebase/auth-interop-types/0.1.6_@firebase+util@1.4.3:
-    resolution: {integrity: sha512-etIi92fW3CctsmR9e3sYM3Uqnoq861M0Id9mdOPF6PWIg38BXL5k4upCNBggGUpLIS0H1grMOvy/wn1xymwe2g==}
-    peerDependencies:
-      '@firebase/app-types': 0.x
-      '@firebase/util': 1.x
-    dependencies:
-      '@firebase/util': 1.4.3
-    dev: false
-
   /@firebase/auth-interop-types/0.1.6_siphrhvll7vqanzd4diurtkhyu:
     resolution: {integrity: sha512-etIi92fW3CctsmR9e3sYM3Uqnoq861M0Id9mdOPF6PWIg38BXL5k4upCNBggGUpLIS0H1grMOvy/wn1xymwe2g==}
     peerDependencies:
@@ -2102,21 +2095,6 @@ packages:
       tslib: 2.3.1
     dev: false
 
-  /@firebase/database-compat/0.1.5:
-    resolution: {integrity: sha512-UVxkHL24sZfsjsjs+yiKIdYdrWXHrLxSFCYNdwNXDlTkAc0CWP9AAY3feLhBVpUKk+4Cj0I4sGnyIm2C1ltAYg==}
-    peerDependencies:
-      '@firebase/app-compat': 0.x
-    dependencies:
-      '@firebase/component': 0.5.10
-      '@firebase/database': 0.12.5
-      '@firebase/database-types': 0.9.4
-      '@firebase/logger': 0.3.2
-      '@firebase/util': 1.4.3
-      tslib: 2.3.1
-    transitivePeerDependencies:
-      - '@firebase/app-types'
-    dev: false
-
   /@firebase/database-compat/0.1.5_rk26ggi7fgy5nwvf4wc5ggkrpa:
     resolution: {integrity: sha512-UVxkHL24sZfsjsjs+yiKIdYdrWXHrLxSFCYNdwNXDlTkAc0CWP9AAY3feLhBVpUKk+4Cj0I4sGnyIm2C1ltAYg==}
     peerDependencies:
@@ -2138,19 +2116,6 @@ packages:
     dependencies:
       '@firebase/app-types': 0.7.0
       '@firebase/util': 1.4.3
-    dev: false
-
-  /@firebase/database/0.12.5:
-    resolution: {integrity: sha512-1Pd2jYqvqZI7SQWAiXbTZxmsOa29PyOaPiUtr8pkLSfLp4AeyMBegYAXCLYLW6BNhKn3zNKFkxYDxYHq4q+Ixg==}
-    dependencies:
-      '@firebase/auth-interop-types': 0.1.6_@firebase+util@1.4.3
-      '@firebase/component': 0.5.10
-      '@firebase/logger': 0.3.2
-      '@firebase/util': 1.4.3
-      faye-websocket: 0.11.4
-      tslib: 2.3.1
-    transitivePeerDependencies:
-      - '@firebase/app-types'
     dev: false
 
   /@firebase/database/0.12.5_@firebase+app-types@0.7.0:
@@ -2529,7 +2494,7 @@ packages:
     engines: {node: ^8.13.0 || >=10.10.0}
     dependencies:
       '@grpc/proto-loader': 0.6.9
-      '@types/node': 18.0.0
+      '@types/node': 18.6.3
     dev: false
 
   /@grpc/proto-loader/0.6.9:
@@ -2810,7 +2775,7 @@ packages:
     resolution: {integrity: sha512-ALYone6pm6QmwZoAgeyNksccT9Q4AWZQ6PvfwR37GT6r6FWUPguq6sUmNGSMV2Wr761oQoBxwGGa6DR5o1DC9g==}
     dependencies:
       '@types/connect': 3.4.35
-      '@types/node': 18.6.1
+      '@types/node': 18.6.3
     dev: false
 
   /@types/cacheable-request/6.0.2:
@@ -2818,14 +2783,14 @@ packages:
     dependencies:
       '@types/http-cache-semantics': 4.0.1
       '@types/keyv': 3.1.3
-      '@types/node': 18.6.1
+      '@types/node': 18.6.3
       '@types/responselike': 1.0.0
     dev: false
 
   /@types/connect/3.4.35:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
     dependencies:
-      '@types/node': 18.6.1
+      '@types/node': 18.6.3
     dev: false
 
   /@types/d3-array/3.0.2:
@@ -2855,7 +2820,7 @@ packages:
   /@types/duplexify/3.6.1:
     resolution: {integrity: sha512-n0zoEj/fMdMOvqbHxmqnza/kXyoGgJmEpsXjpP+gEqE1Ye4yNqc7xWipKnUoMpWhMuzJQSfK2gMrwlElly7OGQ==}
     dependencies:
-      '@types/node': 18.6.1
+      '@types/node': 18.6.3
     dev: false
 
   /@types/eslint/8.4.5:
@@ -2879,7 +2844,7 @@ packages:
   /@types/express-serve-static-core/4.17.28:
     resolution: {integrity: sha512-P1BJAEAW3E2DJUlkgq4tOL3RyMunoWXqbSCygWo5ZIWTjUgN1YnaXWW4VWl/oc8vs/XoYibEGBKP0uZyF4AHig==}
     dependencies:
-      '@types/node': 18.6.1
+      '@types/node': 18.6.3
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
     dev: false
@@ -2918,13 +2883,13 @@ packages:
   /@types/jsonwebtoken/8.5.8:
     resolution: {integrity: sha512-zm6xBQpFDIDM6o9r6HSgDeIcLy82TKWctCXEPbJJcXb5AKmi5BNNdLXneixK4lplX3PqIVcwLBCGE/kAGnlD4A==}
     dependencies:
-      '@types/node': 18.6.1
+      '@types/node': 18.6.3
     dev: true
 
   /@types/keyv/3.1.3:
     resolution: {integrity: sha512-FXCJgyyN3ivVgRoml4h94G/p3kY+u/B86La+QptcqJaWtBWtmc6TtkNfS40n9bIvyLteHh7zXOtgbobORKPbDg==}
     dependencies:
-      '@types/node': 18.6.1
+      '@types/node': 18.6.3
 
   /@types/lodash.clonedeep/4.5.6:
     resolution: {integrity: sha512-cE1jYr2dEg1wBImvXlNtp0xDoS79rfEdGozQVgliDZj1uERH4k+rmEMTudP9b4VQ8O6nRb5gPqft0QzEQGMQgA==}
@@ -2955,23 +2920,23 @@ packages:
     resolution: {integrity: sha512-YATxVxgRqNH6nHEIsvg6k2Boc1JHI9ZbH5iWFFv/MTkchz3b1ieGDa5T0a9RznNdI0KhVbdbWSN+KWWrQZRxTw==}
     dev: false
 
-  /@types/node/16.11.35:
-    resolution: {integrity: sha512-QXu45LyepgnhUfnIAj/FyT4uM87ug5KpIrgXfQtUPNAlx8w5hmd8z8emqCLNvG11QkpRSCG9Qg2buMxvqfjfsQ==}
-    dev: false
-
   /@types/node/16.11.44:
     resolution: {integrity: sha512-gwP6+QDgL5TDBIWh1lbYh3EFPU11pa+8xcamcsA3ROkp3A9X+/3Y5cRgq93VPEEE+CGfxlQnqkg1kkWGBgh3fw==}
     dev: true
 
-  /@types/node/18.0.0:
-    resolution: {integrity: sha512-cHlGmko4gWLVI27cGJntjs/Sj8th9aYwplmZFwmmgYQQvL5NUsgVJG7OddLvNfLqYS31KFN0s3qlaD9qCaxACA==}
-    dev: false
-
-  /@types/node/18.6.1:
-    resolution: {integrity: sha512-z+2vB6yDt1fNwKOeGbckpmirO+VBDuQqecXkgeIqDlaOtmKn6hPR/viQ8cxCfqLU4fTlvM3+YjM367TukWdxpg==}
+  /@types/node/18.6.3:
+    resolution: {integrity: sha512-6qKpDtoaYLM+5+AFChLhHermMQxc3TOEFIDzrZLPRGHPrLEwqFkkT5Kx3ju05g6X7uDPazz3jHbKPX0KzCjntg==}
 
   /@types/parse-json/4.0.0:
     resolution: {integrity: sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==}
+
+  /@types/pg/8.6.5:
+    resolution: {integrity: sha512-tOkGtAqRVkHa/PVZicq67zuujI4Oorfglsr2IbKofDwBSysnaqSx7W1mDqFqdkGE6Fbgh+PZAl0r/BWON/mozw==}
+    dependencies:
+      '@types/node': 18.6.3
+      pg-protocol: 1.5.0
+      pg-types: 2.2.0
+    dev: true
 
   /@types/prop-types/15.7.4:
     resolution: {integrity: sha512-rZ5drC/jWjrArrS8BR6SIr4cWpW09RNTYt9AMZo3Jwwif+iacXAqgVjm0B0Bv/S1jhDXKHqRVNCbACkJ89RAnQ==}
@@ -3026,7 +2991,7 @@ packages:
   /@types/responselike/1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
-      '@types/node': 18.6.1
+      '@types/node': 18.6.3
 
   /@types/scheduler/0.16.2:
     resolution: {integrity: sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==}
@@ -3035,7 +3000,7 @@ packages:
     resolution: {integrity: sha512-nCkHGI4w7ZgAdNkrEu0bv+4xNV/XDqW+DydknebMOQwkpDGx8G+HTlj7R7ABI8i8nKxVw0wtKPi1D+lPOkh4YQ==}
     dependencies:
       '@types/mime': 1.3.2
-      '@types/node': 18.6.1
+      '@types/node': 18.6.3
     dev: false
 
   /@types/warning/3.0.0:
@@ -4846,13 +4811,13 @@ packages:
       locate-path: 3.0.0
     dev: true
 
-  /firebase-admin/10.0.2:
+  /firebase-admin/10.0.2_rk26ggi7fgy5nwvf4wc5ggkrpa:
     resolution: {integrity: sha512-MLH0SPmC4L0aCHvPjs1KThraru/T84T3hxiPY3uCH7NZEgE/T5n4GwecwU3RcM3X+br75BIBY7qhaR5uCxhdXA==}
     engines: {node: '>=12.7.0'}
     dependencies:
-      '@firebase/database-compat': 0.1.5
+      '@firebase/database-compat': 0.1.5_rk26ggi7fgy5nwvf4wc5ggkrpa
       '@firebase/database-types': 0.9.4
-      '@types/node': 18.6.1
+      '@types/node': 18.6.3
       dicer: 0.3.0
       jsonwebtoken: 8.5.1
       jwks-rsa: 2.0.5
@@ -5876,11 +5841,9 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
-  /kysely/0.17.1:
-    resolution: {integrity: sha512-v/UX15zHsdidX27A/a7tI1tEKeAL7VKM/XJBMgFn/xwvui3elT9HV4mYE491cg4NIkLbXtK9Pi8n1YUVn4HbOA==}
+  /kysely/0.20.0:
+    resolution: {integrity: sha512-qtt8zHpzj3wXb+j9VVvQj72Hsl4pF5N+rnFOEsTvGEK08K4iizQLTY6agiwlGhghzCzOuP71Y94Kbh+ylQV7bQ==}
     engines: {node: '>=14.0.0'}
-    dependencies:
-      '@types/node': 16.11.35
     dev: false
 
   /latest-version/5.1.0:
@@ -6503,7 +6466,6 @@ packages:
   /pg-int8/1.0.1:
     resolution: {integrity: sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==}
     engines: {node: '>=4.0.0'}
-    dev: false
 
   /pg-pool/3.5.1_pg@8.7.3:
     resolution: {integrity: sha512-6iCR0wVrro6OOHFsyavV+i6KYL4lVNyYAB9RD18w66xSzN+d8b66HiwuP30Gp1SH5O9T82fckkzsRjlrhD0ioQ==}
@@ -6515,7 +6477,6 @@ packages:
 
   /pg-protocol/1.5.0:
     resolution: {integrity: sha512-muRttij7H8TqRNu/DxrAJQITO4Ac7RmX3Klyr/9mJEOBeIpgnF8f9jAfRz5d3XwQZl5qBjF9gLsUtMPJE0vezQ==}
-    dev: false
 
   /pg-types/2.2.0:
     resolution: {integrity: sha512-qTAAlrEsl8s4OiEQY69wDvcMIdQN6wdz5ojQiOy6YRMuynxenON0O5oCpJI6lshc6scgAY8qvJ2On/p+CXY0GA==}
@@ -6526,7 +6487,6 @@ packages:
       postgres-bytea: 1.0.0
       postgres-date: 1.0.7
       postgres-interval: 1.2.0
-    dev: false
 
   /pg/8.7.3:
     resolution: {integrity: sha512-HPmH4GH4H3AOprDJOazoIcpI49XFsHCe8xlrjHkWiapdbHK+HLtbm/GQzXYAZwmPju/kzKhjaSfMACG+8cgJcw==}
@@ -6723,24 +6683,20 @@ packages:
   /postgres-array/2.0.0:
     resolution: {integrity: sha512-VpZrUqU5A69eQyW2c5CA1jtLecCsN2U/bD6VilrFDWq5+5UIEVO7nazS3TEcHf1zuPYO/sqGvUvW62g86RXZuA==}
     engines: {node: '>=4'}
-    dev: false
 
   /postgres-bytea/1.0.0:
     resolution: {integrity: sha1-AntTPAqokOJtFy1Hz5zOzFIazTU=}
     engines: {node: '>=0.10.0'}
-    dev: false
 
   /postgres-date/1.0.7:
     resolution: {integrity: sha512-suDmjLVQg78nMK2UZ454hAG+OAW+HQPZ6n++TNDUX+L0+uUlLywnoxJKDou51Zm+zTCjrCl0Nq6J9C5hP9vK/Q==}
     engines: {node: '>=0.10.0'}
-    dev: false
 
   /postgres-interval/1.2.0:
     resolution: {integrity: sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==}
     engines: {node: '>=0.10.0'}
     dependencies:
       xtend: 4.0.2
-    dev: false
 
   /prelude-ls/1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
@@ -6819,7 +6775,7 @@ packages:
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
       '@types/long': 4.0.1
-      '@types/node': 18.6.1
+      '@types/node': 18.6.3
       long: 4.0.0
     dev: false
 
