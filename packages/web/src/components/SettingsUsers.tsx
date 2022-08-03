@@ -130,7 +130,7 @@ function SettingsUsers() {
   return (
     <>
       <SettingsHeader formChanged={false} resetForm={() => {}}></SettingsHeader>
-      <Section width='100%' pb={10}>
+      <Section width='100%' pb={10} minH='96'>
         <Flex alignItems='center' justifyContent='flex-end'>
           <Button px={0} variant='unstyled' onClick={() => setInviteModalVisible(true)}>
             <Flex align='center'>

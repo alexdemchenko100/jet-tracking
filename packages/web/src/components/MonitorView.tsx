@@ -342,10 +342,10 @@ export function MonitorView() {
     isLoading,
     data: mon,
     error,
-  } = useQuery<Monitor | null>(id, async () => {
+  } = useQuery<Monitor, Error>(id, async () => {
     try {
       const resp = await axios({ method: 'GET', url: `/monitors/${id}` })
-      if (resp) return resp.data as Monitor
+      return resp.data as Monitor
     } catch (error: any) {
       if (error.response?.status === 404) {
         //if the monitor is not found, redirect to the list
@@ -353,7 +353,6 @@ export function MonitorView() {
       }
       throw error
     }
-    return null
   })
 
   const { data: stats, error: statError } = useQuery<MonitorStats>(['stats', id], async () => {

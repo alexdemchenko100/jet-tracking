@@ -1,4 +1,4 @@
-import { ChakraProvider } from '@chakra-ui/react'
+import { ChakraProvider, Box } from '@chakra-ui/react'
 import './App.css'
 import 'focus-visible/dist/focus-visible'
 
@@ -44,7 +44,11 @@ const ProtectedRoute = ({ isAllowed, children }: { isAllowed: boolean; children:
 
   if (!bLoadingUserFirstTime) {
     //wait for it
-    return <div>Loading...</div>
+    return (
+      <Box py='10' textAlign='center'>
+        Loading...
+      </Box>
+    )
   }
 
   if (!isAllowed) {
@@ -112,7 +116,14 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path='/console/settings' element={<SettingsPage />}>
+            <Route
+              path='/console/settings'
+              element={
+                <ProtectedRoute isAllowed={isLoggedIn}>
+                  <SettingsPage />
+                </ProtectedRoute>
+              }
+            >
               <Route
                 path='/console/settings'
                 element={
@@ -121,38 +132,10 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route
-                path='/console/settings/profile'
-                element={
-                  <ProtectedRoute isAllowed={isLoggedIn}>
-                    <SettingsProfile />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path='/console/settings/security'
-                element={
-                  <ProtectedRoute isAllowed={isLoggedIn}>
-                    <SettingsSecurity />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path='/console/settings/notifications'
-                element={
-                  <ProtectedRoute isAllowed={isLoggedIn}>
-                    <SettingsNotifications />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path='/console/settings/users'
-                element={
-                  <ProtectedRoute isAllowed={isLoggedIn}>
-                    <SettingsUsers />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path='/console/settings/profile' element={<SettingsProfile />} />
+              <Route path='/console/settings/security' element={<SettingsSecurity />} />
+              <Route path='/console/settings/notifications' element={<SettingsNotifications />} />
+              <Route path='/console/settings/users' element={<SettingsUsers />} />
             </Route>
             <Route
               path='/console/envs'
@@ -166,12 +149,40 @@ function App() {
               <Route path='/console/envs/:id' element={<EnvEditor />} />
               <Route path='/console/envs/new' element={<NewEnv />} />
             </Route>
-            <Route path='/console/status-pages' element={<StatusPages />} />
-            <Route path='/console/status-pages/new' element={<NewStatusPage />} />
-            <Route path='/console/status-pages/:id' element={<EditStatusPage />} />
+            <Route
+              path='/console/status-pages'
+              element={
+                <ProtectedRoute isAllowed={isLoggedIn}>
+                  <StatusPages />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/console/status-pages/new'
+              element={
+                <ProtectedRoute isAllowed={isLoggedIn}>
+                  <NewStatusPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='/console/status-pages/:id'
+              element={
+                <ProtectedRoute isAllowed={isLoggedIn}>
+                  <EditStatusPage />
+                </ProtectedRoute>
+              }
+            />
             //unprotected for ondemand clients
             <Route path='/console/monitors/ondemand' element={<MonitorEditPanel />} />
-            <Route path='/console/activity' element={<ActivityLogs />} />
+            <Route
+              path='/console/activity'
+              element={
+                <ProtectedRoute isAllowed={isLoggedIn}>
+                  <ActivityLogs />
+                </ProtectedRoute>
+              }
+            />
           </Route>
 
           <Route path='/console/signin' element={<SignIn />} />
