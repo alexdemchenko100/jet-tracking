@@ -23,6 +23,7 @@ export function EnvEditor() {
       url: `/environments/${id}`,
     })
     reset(resp.data)
+    setFormChanged(false)
     return resp.data as MonEnv
   })
 
