@@ -77,13 +77,11 @@ async function initGCPMetadata() {
   }
 }
 
-export function initializeRequestContext(server: any) {
+export async function initializeRequestContext(server: any) {
   server.register(fastifyRequestContextPlugin)
 
   //wrap in an async function so we can await initGCPMetadata
-  ;(async () => {
-    await initGCPMetadata()
-  })()
+  await initGCPMetadata()
 
   //set a hook to set the logger for each request
   server.addHook('onRequest', async (req: any) => {
