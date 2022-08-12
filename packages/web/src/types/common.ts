@@ -26,3 +26,15 @@ export interface SettingFormValidation {
   new_notification: NotificationFormErrors
   edit_notification: NotificationFormErrors
 }
+
+export interface PaymentCard {
+  id: string
+  card: {
+    brand: string
+    type: string
+    country: string
+    exp_month: number
+    exp_year: number
+    last4: string
+  }
+}

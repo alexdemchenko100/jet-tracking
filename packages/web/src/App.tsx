@@ -1,7 +1,8 @@
 import { ChakraProvider, Box } from '@chakra-ui/react'
 import './App.css'
 import 'focus-visible/dist/focus-visible'
-
+import { loadStripe } from '@stripe/stripe-js'
+import { Elements } from '@stripe/react-stripe-js'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 
 import { unstable_HistoryRouter as HistoryRouter } from 'react-router-dom'
@@ -29,11 +30,15 @@ import {
   SettingsSecurity,
   EnvMain,
   SettingsUsers,
+  SettingsBilling,
+  SettingsBillingPlans,
 } from './components'
 import StatusPages from './Pages/StatusPages'
 import NewStatusPage from './Pages/NewStatusPage'
 import EditStatusPage from './Pages/EditStatusPage'
 import ActivityLogs from './Pages/ActivityLogs'
+import SettingsBillingPayAsYouGo from './components/SettingsBillingPayAsYouGo'
+import SettingsBillingPrepaid from './components/SettingsBillingPrepaid'
 
 const history = createBrowserHistory()
 Store.history = history //save for later
@@ -60,137 +65,150 @@ const ProtectedRoute = ({ isAllowed, children }: { isAllowed: boolean; children:
 
 function App() {
   const { isLoggedIn } = useAuth()
+  const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY as string)
 
   return (
     <HistoryRouter history={history}>
       <ChakraProvider theme={theme}>
-        <Routes>
-          <Route
-            path='/'
-            element={
-              isLoggedIn ? (
-                <Navigate to='/console/monitors' replace />
-              ) : (
-                <Navigate to='/console/signin' />
-              )
-            }
-          />
-          <Route path='/console' element={<Console />}>
+        <Elements stripe={stripePromise}>
+          <Routes>
             <Route
-              path='/console/monitors'
+              path='/'
               element={
-                <ProtectedRoute isAllowed={isLoggedIn}>
-                  <MainPage />
-                </ProtectedRoute>
+                isLoggedIn ? (
+                  <Navigate to='/console/monitors' replace />
+                ) : (
+                  <Navigate to='/console/signin' />
+                )
               }
             />
-            <Route
-              path='/console/monitors/:id'
-              element={
-                <ProtectedRoute isAllowed={isLoggedIn}>
-                  <MonitorView />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path='/console/monitors/:id/edit'
-              element={
-                <ProtectedRoute isAllowed={isLoggedIn}>
-                  <MonitorEditPanel />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path='/console/monitors/newapi'
-              element={
-                <ProtectedRoute isAllowed={isLoggedIn}>
-                  <MonitorEditPanel />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path='/console/apiruns/:id'
-              element={
-                <ProtectedRoute isAllowed={isLoggedIn}>
-                  <APIResultById />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path='/console/settings'
-              element={
-                <ProtectedRoute isAllowed={isLoggedIn}>
-                  <SettingsPage />
-                </ProtectedRoute>
-              }
-            >
+            <Route path='/console' element={<Console />}>
+              <Route
+                path='/console/monitors'
+                element={
+                  <ProtectedRoute isAllowed={isLoggedIn}>
+                    <MainPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path='/console/monitors/:id'
+                element={
+                  <ProtectedRoute isAllowed={isLoggedIn}>
+                    <MonitorView />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path='/console/monitors/:id/edit'
+                element={
+                  <ProtectedRoute isAllowed={isLoggedIn}>
+                    <MonitorEditPanel />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path='/console/monitors/newapi'
+                element={
+                  <ProtectedRoute isAllowed={isLoggedIn}>
+                    <MonitorEditPanel />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path='/console/apiruns/:id'
+                element={
+                  <ProtectedRoute isAllowed={isLoggedIn}>
+                    <APIResultById />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path='/console/settings'
                 element={
                   <ProtectedRoute isAllowed={isLoggedIn}>
-                    <Navigate to='/console/settings/profile' replace />
+                    <SettingsPage />
+                  </ProtectedRoute>
+                }
+              >
+                <Route
+                  path='/console/settings'
+                  element={
+                    <ProtectedRoute isAllowed={isLoggedIn}>
+                      <Navigate to='/console/settings/profile' replace />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path='/console/settings/profile' element={<SettingsProfile />} />
+                <Route path='/console/settings/security' element={<SettingsSecurity />} />
+                <Route path='/console/settings/notifications' element={<SettingsNotifications />} />
+                <Route path='/console/settings/users' element={<SettingsUsers />} />
+                <Route path='/console/settings/billing' element={<SettingsBilling />} />
+                <Route path='/console/settings/billing/plans' element={<SettingsBillingPlans />} />
+                <Route
+                  path='/console/settings/billing/pay-as-you-go'
+                  element={<SettingsBillingPayAsYouGo />}
+                />
+                <Route
+                  path='/console/settings/billing/prepaid'
+                  element={<SettingsBillingPrepaid />}
+                />
+              </Route>
+              <Route
+                path='/console/envs'
+                element={
+                  <ProtectedRoute isAllowed={isLoggedIn}>
+                    <Environments />
+                  </ProtectedRoute>
+                }
+              >
+                <Route path='/console/envs' element={<EnvMain />} />
+                <Route path='/console/envs/:id' element={<EnvEditor />} />
+                <Route path='/console/envs/new' element={<NewEnv />} />
+              </Route>
+              <Route
+                path='/console/status-pages'
+                element={
+                  <ProtectedRoute isAllowed={isLoggedIn}>
+                    <StatusPages />
                   </ProtectedRoute>
                 }
               />
-              <Route path='/console/settings/profile' element={<SettingsProfile />} />
-              <Route path='/console/settings/security' element={<SettingsSecurity />} />
-              <Route path='/console/settings/notifications' element={<SettingsNotifications />} />
-              <Route path='/console/settings/users' element={<SettingsUsers />} />
+              <Route
+                path='/console/status-pages/new'
+                element={
+                  <ProtectedRoute isAllowed={isLoggedIn}>
+                    <NewStatusPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path='/console/status-pages/:id'
+                element={
+                  <ProtectedRoute isAllowed={isLoggedIn}>
+                    <EditStatusPage />
+                  </ProtectedRoute>
+                }
+              />
+              //unprotected for ondemand clients
+              <Route path='/console/monitors/ondemand' element={<MonitorEditPanel />} />
+              <Route
+                path='/console/activity'
+                element={
+                  <ProtectedRoute isAllowed={isLoggedIn}>
+                    <ActivityLogs />
+                  </ProtectedRoute>
+                }
+              />
             </Route>
-            <Route
-              path='/console/envs'
-              element={
-                <ProtectedRoute isAllowed={isLoggedIn}>
-                  <Environments />
-                </ProtectedRoute>
-              }
-            >
-              <Route path='/console/envs' element={<EnvMain />} />
-              <Route path='/console/envs/:id' element={<EnvEditor />} />
-              <Route path='/console/envs/new' element={<NewEnv />} />
-            </Route>
-            <Route
-              path='/console/status-pages'
-              element={
-                <ProtectedRoute isAllowed={isLoggedIn}>
-                  <StatusPages />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path='/console/status-pages/new'
-              element={
-                <ProtectedRoute isAllowed={isLoggedIn}>
-                  <NewStatusPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path='/console/status-pages/:id'
-              element={
-                <ProtectedRoute isAllowed={isLoggedIn}>
-                  <EditStatusPage />
-                </ProtectedRoute>
-              }
-            />
-            //unprotected for ondemand clients
-            <Route path='/console/monitors/ondemand' element={<MonitorEditPanel />} />
-            <Route
-              path='/console/activity'
-              element={
-                <ProtectedRoute isAllowed={isLoggedIn}>
-                  <ActivityLogs />
-                </ProtectedRoute>
-              }
-            />
-          </Route>
 
-          <Route path='/console/signin' element={<SignIn />} />
-          <Route path='/console/signup' element={<SignUp />} />
-          <Route path='/console/forgot' element={<ForgotPassword />} />
-          <Route path='/console/emails/verify' element={<VerifyEmail />} />
-          <Route path='*' element={<NotFound />} />
-        </Routes>
+            <Route path='/console/signin' element={<SignIn />} />
+            <Route path='/console/signup' element={<SignUp />} />
+            <Route path='/console/forgot' element={<ForgotPassword />} />
+            <Route path='/console/emails/verify' element={<VerifyEmail />} />
+            <Route path='*' element={<NotFound />} />
+          </Routes>
+        </Elements>
       </ChakraProvider>
     </HistoryRouter>
   )

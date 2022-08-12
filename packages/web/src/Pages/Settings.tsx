@@ -1,6 +1,6 @@
 import { Flex, Box } from '@chakra-ui/react'
 import { Outlet } from 'react-router-dom'
-import { FiUser, FiShield, FiBell, FiUsers } from 'react-icons/fi'
+import { FiUser, FiShield, FiBell, FiUsers, FiCreditCard } from 'react-icons/fi'
 import { Text, NavItem } from '../components'
 
 const SIDEBAR_WIDTH = '240px'
@@ -42,6 +42,11 @@ const SettingsSidebar = (props: any) => (
       <NavItem icon={FiUsers} to='/console/settings/users'>
         <Text variant='text-field' color='inherit'>
           User Management
+        </Text>
+      </NavItem>
+      <NavItem icon={FiCreditCard} to='/console/settings/billing'>
+        <Text variant='text-field' color='inherit'>
+          Billing & Usage
         </Text>
       </NavItem>
     </Flex>

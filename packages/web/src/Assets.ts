@@ -20,6 +20,10 @@ import SlackIcon from './assets/slack-icon.png'
 import MSTeamsIcon from './assets/ms-teams-icon.png'
 import logoTitleWhite from './assets/logo_title_white.svg'
 import googleIcon from './assets/google.png'
+import AmericanExpress from './assets/american-express.png'
+import MasterCard from './assets/master-card.png'
+import Visa from './assets/visa.png'
+import Maestro from './assets/maestro.png'
 
 export {
   grarGrid,
@@ -44,4 +48,8 @@ export {
   MSTeamsIcon,
   logoTitleWhite,
   googleIcon,
+  AmericanExpress,
+  MasterCard,
+  Visa,
+  Maestro,
 }

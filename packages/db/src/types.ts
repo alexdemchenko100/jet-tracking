@@ -305,6 +305,7 @@ export type UserAccount = {
   status?: string
   isVerified: boolean
   token?: string
+  stripeCustomerId?: string
 }
 
 export const UserAccountSchema = S.object()
@@ -318,6 +319,7 @@ export const UserAccountSchema = S.object()
   .prop('status', S.string())
   .prop('isVerified', S.boolean())
   .prop('token', S.string())
+  .prop('stripeCustomerId', S.string())
 
 export type Account = {
   id?: string
@@ -487,3 +489,20 @@ export interface PaginateQueryString {
   limit: number
   offset: number
 }
+
+export type BillingInfo = {
+  id?: string
+  createdAt?: string | Date
+  accountId: string
+  billingPlanType: string
+  monitorRunsLimit: number | null
+  defaultPaymentMethod?: string
+}
+
+export const BillingInfoSchema = S.object()
+  .prop('id', S.string())
+  .prop('createdAt', S.string())
+  .prop('accountId', S.string())
+  .prop('billingPlanType', S.string())
+  .prop('monitorRunsLimit', S.number())
+  .prop('defaultPaymentMethod', S.string())

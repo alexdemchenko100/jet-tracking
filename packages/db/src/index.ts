@@ -12,6 +12,7 @@ import {
   Settings,
   NotificationEmail,
   StatusPage,
+  BillingInfo,
 } from './types'
 export * from './types.js'
 
@@ -26,6 +27,7 @@ interface Database {
   Settings: Settings
   NotificationEmail: NotificationEmail
   StatusPage: StatusPage
+  BillingInfo: BillingInfo
 }
 
 import * as dotenv from 'dotenv'

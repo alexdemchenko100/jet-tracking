@@ -11,6 +11,7 @@ import SettingsPublicRouter from './PublicRouters/SettingsPublicRouter.js'
 import StatusPagesRouter from './AuthRouters/StatusPagesRouter.js'
 import ActivityLogRouter from './AuthRouters/ActivityLogRouter.js'
 import StatusPublicRouter from './PublicRouters/StatusPublicRouter.js'
+import BillingRouter from './AuthRouters/BillingRouter.js'
 
 export default async function MainRouter(fastify: FastifyInstance) {
   //Public API router
@@ -24,6 +25,7 @@ export default async function MainRouter(fastify: FastifyInstance) {
   fastify.register(SettingsRouter, { prefix: '/settings' })
   fastify.register(StatusPagesRouter, { prefix: '/status-pages' })
   fastify.register(ActivityLogRouter, { prefix: '/activity-logs' })
+  fastify.register(BillingRouter, { prefix: '/billing' })
 
   //cloud hooks for backend processing
   fastify.register(SchedulerRouter, { prefix: '/services/scheduler' })

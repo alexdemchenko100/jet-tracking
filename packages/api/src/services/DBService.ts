@@ -2,6 +2,7 @@ import { db, MonitorResultTable } from '@httpmon/db'
 import { Insertable } from 'kysely'
 import { nanoid } from 'nanoid'
 import { logger } from '../Context'
+import { createStripeCustomer } from '../services/StripeService'
 
 export const getAccountIdByUser = async (userId: string) => {
   const resp = await db
@@ -28,6 +29,9 @@ export const createNewAccount = async (userId: string, email: string) => {
       throw new Error('not able to create account')
     }
 
+    // create new stripe customer
+    const customer = await createStripeCustomer(userId, email)
+
     const userAccount = await trx
       .insertInto('UserAccount')
       .values({
@@ -38,6 +42,7 @@ export const createNewAccount = async (userId: string, email: string) => {
         default: true,
         role: 'admin',
         isVerified: false,
+        stripeCustomerId: customer.id,
       })
       .returningAll()
       .executeTakeFirst()
@@ -54,6 +59,18 @@ export const createNewAccount = async (userId: string, email: string) => {
         id: nanoid(),
         accountId: account.id,
         alert: { failCount: 1, failTimeMinutes: 0 },
+      })
+      .returningAll()
+      .executeTakeFirst()
+
+    // Set free plan to new user account
+    await trx
+      .insertInto('BillingInfo')
+      .values({
+        id: nanoid(),
+        accountId: account.id,
+        billingPlanType: 'free',
+        monitorRunsLimit: 5000,
       })
       .returningAll()
       .executeTakeFirst()
