@@ -3,8 +3,8 @@ import jwt from 'jsonwebtoken'
 import { JwksClient } from 'jwks-rsa'
 import S from 'fluent-json-schema'
 import Ajv from 'ajv'
-import { MonitorResultEvent, MonitorResultEventSchema } from 'src/services/EventService'
 import { handlePostRequest } from 'src/services/PostRequestService'
+import { MonitorRunResult, MonitorRunResultSchema } from '@httpmon/db'
 
 const PubsubMessageSchema = S.object()
   .prop('subscription', S.string())
@@ -19,8 +19,8 @@ const PubsubMessageSchema = S.object()
       .prop('publishTime', S.string())
   )
 
-const validateMonitorResultEvent = new Ajv({ allErrors: true }).compile<MonitorResultEvent>(
-  MonitorResultEventSchema.valueOf()
+const validateMonitorRunResult = new Ajv({ allErrors: true }).compile<MonitorRunResult>(
+  MonitorRunResultSchema.valueOf()
 )
 type PubsubMessage = {
   subscription: string
@@ -70,21 +70,21 @@ export default async function MonitorPostRequestRouter(app: FastifyInstance) {
       const msg = req.body
 
       const buf = Buffer.from(msg.message.data, 'base64')
-      const event = JSON.parse(buf.toString())
+      const obj = JSON.parse(buf.toString())
 
-      if (!validateMonitorResultEvent(event)) {
+      if (!validateMonitorRunResult(obj)) {
         app.log.error(
-          validateMonitorResultEvent.errors,
+          validateMonitorRunResult.errors,
           'Monitor exec failed due to schema validation errors'
         )
         reply.code(200).send()
         return
       }
 
-      app.log.info(event, 'Notification handling for event')
+      app.log.info(obj, 'Notification handling for event')
 
       //business logic
-      await handlePostRequest(event)
+      await handlePostRequest(obj as MonitorRunResult)
 
       reply.code(200).send()
     }

@@ -1,16 +1,16 @@
-import { DetailedPeerCertificate, PeerCertificate } from 'tls'
+import { DetailedPeerCertificate } from 'tls'
 
-import { Monitor, MonitorTuples, MonitorResult } from '@httpmon/db'
+import { Monitor, MonitorTuples, MonitorResult, MonitorRunResult } from '@httpmon/db'
 import https from 'https'
 import clone from 'lodash.clonedeep'
 import Handlebars from 'handlebars'
 import { randomInt } from 'crypto'
-import got, { Method, RequestError, Response } from 'got'
-import { Timings } from '@szmarczak/http-timer/dist/source'
-import { getCloudRegion, logger } from '../Context'
+import got, { Method, RequestError } from 'got'
+import { logger } from '../Context'
 import { processAssertions } from './Assertions'
-import { MonitorResultEvent, publishPostRequestEvent } from './EventService'
+import { publishPostRequestEvent } from './EventService'
 import { saveMonitorResult } from './DBService'
+import { requestErrorToMonitorResult, responseToMonitorResult } from 'src/utils/common'
 
 const customGot = got.extend({
   headers: {
@@ -24,86 +24,12 @@ Handlebars.registerHelper('RandomInt', function () {
   return randomInt(10000)
 })
 
-function convertTimings(timings?: Timings) {
-  return {
-    waitTime: timings?.phases?.wait ?? 0,
-    dnsTime: timings?.phases?.dns ?? 0,
-    tcpTime: timings?.phases?.tcp ?? 0,
-    tlsTime: timings?.phases?.tls ?? 0,
-    uploadTime: timings?.phases?.request ?? 0,
-    ttfb: timings?.phases?.firstByte ?? 0,
-    downloadTime: timings?.phases?.download ?? 0,
-    totalTime: timings?.phases?.total ?? 0,
-  }
-}
-
-function emptyResponse() {
-  return {
-    ip: '',
-    protocol: '',
-    body: '',
-    bodySize: 0,
-    headers: [],
-    certCommonName: '',
-    certExpiryDays: 0,
-    codeStatus: '',
-    code: 0,
-    location: getCloudRegion(),
-  }
-}
-export function makeMonitorResultError(monitor: Monitor, err: string) {
-  let result: MonitorResult = {
-    ...responseToMonitorResult(),
-    url: monitor.url,
-    monitorId: monitor.id ?? '',
-    accountId: monitor.accountId,
-    err: err,
-  }
-
-  return result
-}
-
-function responseToMonitorResult(resp?: Response<string>) {
-  return {
-    ...emptyResponse(),
-    ...convertTimings(resp?.timings),
-    code: resp?.statusCode ?? 0,
-    codeStatus: resp?.statusMessage ?? '',
-    ip: resp?.ip ?? '',
-    body: resp?.body ?? '',
-    bodySize: resp?.body.length ?? 0,
-    headers: resp?.headers ? headersToTuples(resp?.headers) : [],
-  }
-}
-
 function headersToMap(headers: MonitorTuples = []) {
   let hmap: { [key: string]: string } = {}
   headers.forEach((header) => {
     hmap[header[0]] = header[1]
   })
   return hmap
-}
-
-/**
- *
- * Axios formats duplicate response headers as an array
- * ex: { "set-cookie": [ "cookie-1", "cookie-2"]}
- * This function deconstructs such array to confirm to
- * the MonitorTuples format
- * ex: [ ["set-cookie", "cookie-1"], ["set-cookie", "cookie-2"]]
- */
-function headersToTuples(headers: object): MonitorTuples {
-  let tuples: MonitorTuples = []
-  Object.entries(headers ?? {}).map(([key, value]) => {
-    if (Array.isArray(value)) {
-      value.map((item) => {
-        tuples.push([key, item])
-      })
-    } else {
-      tuples.push([key, value])
-    }
-  })
-  return tuples
 }
 
 function processTemplates(mon: Monitor) {
@@ -218,13 +144,12 @@ export async function execMonitor(monitor: Monitor) {
   } catch (e: any) {
     logger.error(e, 'got failed')
     if (e instanceof RequestError) {
+      logger.error(e)
       return {
+        ...requestErrorToMonitorResult(e),
         monitorId: mon.id ?? 'ondemand',
         accountId: mon.accountId,
         url: mon.url,
-        ...emptyResponse(),
-        ...convertTimings(e.timings),
-        codeStatus: e.code,
         err: e.code,
       } as MonitorResult
     } else {
@@ -239,8 +164,9 @@ export async function execMonitor(monitor: Monitor) {
   }
 }
 
-export async function runMonitor(monitor: Monitor) {
-  const result = await execMonitor(monitor)
+export async function runMonitor(monrun: MonitorRunResult) {
+  const monitor = monrun.mon
+  const result = await execMonitor(monrun.mon)
   if (result.err == '') {
     const asserionResults = processAssertions(monitor, result)
     result.assertResults = asserionResults
@@ -254,20 +180,19 @@ export async function runMonitor(monitor: Monitor) {
   //createdAt caused type issue for db
   const monitorResult = await saveMonitorResult({
     ...result,
-    accountId: monitor.accountId,
+    accountId: monrun.mon.accountId,
   })
 
   if (!monitor.notifications || !monitor.id || !monitorResult?.id) return
 
-  let resultEvent: MonitorResultEvent = {
-    type: 'monitor-postrequest',
-    monitorId: monitor.id,
-    monitorName: monitor.name,
+  let runResult: MonitorRunResult = {
+    runId: monrun.runId,
+    mon: monitor,
     resultId: monitorResult.id,
-    accountId: monitor.accountId,
-    notifications: monitor.notifications,
-    err: result.err,
+    err: {
+      msg: result.err,
+    },
   }
 
-  publishPostRequestEvent(resultEvent)
+  publishPostRequestEvent(runResult)
 }

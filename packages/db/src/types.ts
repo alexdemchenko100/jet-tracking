@@ -506,3 +506,20 @@ export const BillingInfoSchema = S.object()
   .prop('billingPlanType', S.string())
   .prop('monitorRunsLimit', S.number())
   .prop('defaultPaymentMethod', S.string())
+export interface MonitorRunResult {
+  runId: string
+  mon: Monitor
+  resultId?: string
+  err?: {
+    msg: string
+    codeStatus?: string
+  }
+}
+
+export const MonitorRunResultSchema = S.object()
+  .prop('mon', MonitorFluentSchema)
+  .required()
+  .prop('runId', S.string())
+  .required()
+  .prop('resultId', S.string())
+  .prop('err', S.object().prop('msg', S.string()).prop('codeStatus', S.string()))

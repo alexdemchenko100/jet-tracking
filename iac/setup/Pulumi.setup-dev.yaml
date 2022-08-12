@@ -1,0 +1,3 @@
+encryptionsalt: v1:AZwkFgAdMNE=:v1:jTz7uQYusvL9KCWb:c4LSTWimFLOJ6lqtwWwx/+edclrFfQ==
+config:
+  gcp:project: httpmon-stage

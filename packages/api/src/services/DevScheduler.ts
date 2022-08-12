@@ -1,11 +1,13 @@
-import { db, Monitor } from '@httpmon/db'
+import { db, Monitor, MonitorRunResult } from '@httpmon/db'
 import { sql } from 'kysely'
 import { logger } from '../Context'
 import { emitter } from './emitter'
 import { runMonitor } from './MonitorRunner'
-import { handlePreRequest } from './PreRequestService'
 import { handlePostRequest } from './PostRequestService'
-import { MonitorResultEvent } from './EventService'
+import axios from 'axios'
+import { v4 as uuidv4 } from 'uuid'
+import { makeMonitorResultError } from 'src/utils/common'
+import { saveMonitorResult } from './DBService'
 
 async function selectReadyMonitors() {
   const now = new Date(Date.now())
@@ -39,17 +41,51 @@ export async function setupEmitterHandlers() {
   logger.info('* setting emitter *')
 
   emitter.on('monitor-prerequest', async (mon: Monitor) => {
-    logger.info(`${mon.name} - ${mon.url}`, 'monitor-prerequest')
-    const newmon = await handlePreRequest(mon)
-    if (newmon) emitter.emit('monitor-run', newmon)
+    logger.info(mon, 'monitor-prerequest')
+    const monrun: MonitorRunResult = { mon, runId: uuidv4() }
+    if (mon.preScript && mon.preScript.length > 0) {
+      emitter.emit('monitor-api-script-run', monrun)
+      return
+    }
+
+    emitter.emit('monitor-run', monrun)
   })
 
-  emitter.on('monitor-run', async (mon: Monitor) => {
-    logger.info('monitor')
-    await runMonitor(mon)
+  emitter.on('monitor-api-script-run', async (monrun: MonitorRunResult) => {
+    logger.info(monrun, 'monitor-api-script-run')
+    await handleRunScript(monrun)
   })
 
-  emitter.on('monitor-postrequest', async (event: MonitorResultEvent) => {
-    await handlePostRequest(event)
+  emitter.on('monitor-api-script-result', async (monrun: MonitorRunResult) => {
+    logger.info(monrun, 'monitor-api-script-result')
+    if (monrun.err) {
+      const result = makeMonitorResultError(monrun.mon, monrun.err?.msg)
+      //save error and quit
+      saveMonitorResult(result)
+      return
+    }
+    emitter.emit('monitor-run', monrun)
   })
+
+  emitter.on('monitor-run', async (monrun: MonitorRunResult) => {
+    logger.info(monrun, 'monitor-run')
+    await runMonitor(monrun)
+  })
+
+  emitter.on('monitor-postrequest', async (monrun: MonitorRunResult) => {
+    logger.info(monrun, 'monitor-postrequest')
+    await handlePostRequest(monrun)
+  })
+}
+
+async function handleRunScript(monrun: MonitorRunResult) {
+  let resp: any
+  try {
+    resp = await axios.post('http://localhost:8081/test', {
+      ...monrun,
+    })
+  } catch (e: any) {
+    logger.error(e)
+  }
+  emitter.emit('monitor-api-script-result', resp.data)
 }

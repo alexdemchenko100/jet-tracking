@@ -7,7 +7,7 @@ import {
   MonitorRunResultSchema,
 } from '@httpmon/db'
 import Ajv from 'ajv'
-import { runMonitor } from 'src/services/MonitorRunner'
+import { execPreScript } from '../services/PreScriptService'
 
 const PubsubMessageSchema = S.object()
   .prop('subscription', S.string())
@@ -25,6 +25,7 @@ const PubsubMessageSchema = S.object()
 const validateMonitorRunResult = new Ajv({ allErrors: true }).compile<MonitorRunResult>(
   MonitorRunResultSchema.valueOf()
 )
+
 type PubsubMessage = {
   subscription: string
   message: {
@@ -38,7 +39,7 @@ var client = new JwksClient({
   jwksUri: 'https://www.googleapis.com/oauth2/v3/certs',
 })
 
-export default async function MonitorRunRouter(app: FastifyInstance) {
+export default async function MonitorPreScriptRouter(app: FastifyInstance) {
   app.post<{ Body: PubsubMessage }>(
     '/',
     {
@@ -85,10 +86,9 @@ export default async function MonitorRunRouter(app: FastifyInstance) {
       }
 
       const monrun = obj as MonitorRunResult
+      app.log.info(`monitor prerequest event: ${monrun.mon.name}`)
 
-      app.log.info(`Exec monitor event: ${monrun.mon.name}`)
-
-      await runMonitor(monrun)
+      await execPreScript(monrun)
       reply.code(200).send()
     }
   )

@@ -1,19 +1,19 @@
-import { db, MonitorResult } from '@httpmon/db'
+import { db, MonitorResult, MonitorRunResult } from '@httpmon/db'
 import { logger } from 'src/Context'
-import { MonitorResultEvent } from './EventService'
 import {
   sendSlackNotification,
   sendMSTeamsNotification,
   sendEmailNotification,
 } from './SlackNotification'
 
-export async function handlePostRequest(event: MonitorResultEvent) {
+export async function handlePostRequest(monrun: MonitorRunResult) {
   //from event id, get monitor result from db
 
   // logger.error(event, 'IN Notification Service')
+  const mon = monrun.mon
 
-  let failCount = event.notifications.failCount ?? 0
-  let failTimeMinutes = event.notifications.failTimeMinutes ?? 0
+  let failCount = mon.notifications?.failCount ?? 0
+  let failTimeMinutes = mon.notifications?.failTimeMinutes ?? 0
 
   /**
 
@@ -41,7 +41,7 @@ export async function handlePostRequest(event: MonitorResultEvent) {
     .selectFrom('NotificationState')
     .selectAll()
     .orderBy('createdAt', 'desc')
-    .where('monitorId', '=', event.monitorId)
+    .where('monitorId', '=', mon.id)
     .limit(1)
     .executeTakeFirst()
 
@@ -53,17 +53,17 @@ export async function handlePostRequest(event: MonitorResultEvent) {
 
   //3.
 
-  if (event.err == '') {
+  if (monrun.err) {
     //success
     if (bAlerted) {
       await db
         .insertInto('NotificationState')
         .values({
-          monitorId: event.monitorId,
-          resultId: event.resultId,
-          accountId: event.accountId,
+          monitorId: monrun.mon.id,
+          resultId: monrun.resultId ?? '',
+          accountId: mon.accountId,
           type: 'MONITOR_RECOVERED',
-          message: `Monitor ${event.monitorName} is up`,
+          message: `Monitor ${mon.name} is up`,
         })
         .returningAll()
         .executeTakeFirst()
@@ -72,13 +72,13 @@ export async function handlePostRequest(event: MonitorResultEvent) {
       const result = await db
         .selectFrom('MonitorResult')
         .selectAll()
-        .where('accountId', '=', event.accountId)
-        .where('id', '=', event.resultId)
+        .where('accountId', '=', mon.accountId)
+        .where('id', '=', monrun.resultId)
         .executeTakeFirst()
 
       if (!result) return
 
-      sendNotification('Recover', event.accountId, event.monitorId, result)
+      if (mon.id) sendNotification('Recover', mon.accountId, mon.id, result)
     }
     return
   }
@@ -99,14 +99,14 @@ export async function handlePostRequest(event: MonitorResultEvent) {
   let result: MonitorResult | null = null
 
   //handle case where monitor has failed more than the threshold
-  logger.info(`monitor ${event.monitorId} failCount ${failCount} MS ${failTimeMinutes}`)
+  logger.info(`monitor ${mon.id} failCount ${failCount} MS ${failTimeMinutes}`)
 
   if (failCount > 0) {
     const results = await db
       .selectFrom('MonitorResult')
       .selectAll()
       .orderBy('createdAt', 'desc')
-      .where('monitorId', '=', event.monitorId)
+      .where('monitorId', '=', mon.id!!)
       .limit(failCount)
       .execute()
 
@@ -119,15 +119,15 @@ export async function handlePostRequest(event: MonitorResultEvent) {
   }
 
   const failTimeMS = failTimeMinutes * 60000 // get milliseconds from minutes
-  if (failTimeMS > 0 && event.monitorId) {
+  if (failTimeMS > 0 && mon.id) {
     const failDate = new Date(Date.now() - failTimeMS)
     const results = await db
       .selectFrom('MonitorResult')
       .selectAll()
       .orderBy('createdAt', 'desc')
       .where('createdAt', '<', failDate)
-      .where('monitorId', '=', event.monitorId)
-      .where('accountId', '=', event.accountId)
+      .where('monitorId', '=', mon.id)
+      .where('accountId', '=', mon.accountId)
       .execute()
 
     //if result count is same as failCount and all results are failed, send notification
@@ -142,15 +142,15 @@ export async function handlePostRequest(event: MonitorResultEvent) {
     await db
       .insertInto('NotificationState')
       .values({
-        monitorId: event.monitorId,
-        resultId: event.resultId,
-        accountId: event.accountId,
+        monitorId: mon.id,
+        resultId: monrun.resultId ?? '',
+        accountId: mon.accountId,
         type: 'MONITOR_DOWN',
-        message: `Monitor ${event.monitorName} is down`,
+        message: `Monitor ${monrun.mon.name} is down`,
       })
       .returningAll()
       .executeTakeFirst()
-    sendNotification('Alert', event.accountId, event.monitorId, result)
+    sendNotification('Alert', monrun.mon.accountId, mon.id!!, result)
   }
 
   logger.error('DONE handling error')

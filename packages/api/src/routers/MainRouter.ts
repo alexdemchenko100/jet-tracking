@@ -6,12 +6,12 @@ import MonitorPostRequestRouter from './CloudHookRouters/MonitorPostRequestRoute
 import OndemandMonitorRouter from './PublicRouters/OndemandMonitorRouter.js'
 import EnvRouter from './AuthRouters/EnvRouter.js'
 import SettingsRouter from './AuthRouters/SettingsRouter.js'
-import MonitorPreRequestRouter from './CloudHookRouters/MonitorPreRequestRouter.js'
 import SettingsPublicRouter from './PublicRouters/SettingsPublicRouter.js'
 import StatusPagesRouter from './AuthRouters/StatusPagesRouter.js'
 import ActivityLogRouter from './AuthRouters/ActivityLogRouter.js'
 import StatusPublicRouter from './PublicRouters/StatusPublicRouter.js'
 import BillingRouter from './AuthRouters/BillingRouter.js'
+import MonitorPreRequestRouter from './CloudHookRouters/MonitorPreRequestRouter.js'
 
 export default async function MainRouter(fastify: FastifyInstance) {
   //Public API router
@@ -29,8 +29,8 @@ export default async function MainRouter(fastify: FastifyInstance) {
 
   //cloud hooks for backend processing
   fastify.register(SchedulerRouter, { prefix: '/services/scheduler' })
-  fastify.register(MonitorPreRequestRouter, { prefix: '/services/monitor-prerequest' })
   fastify.register(MonitorRunRouter, { prefix: '/services/monitor-run' })
+  fastify.register(MonitorPreRequestRouter, { prefix: '/services/monitor-prerequest' })
   fastify.register(MonitorPostRequestRouter, { prefix: '/services/monitor-postrequest' })
 
   fastify.setNotFoundHandler((_req, reply) => {

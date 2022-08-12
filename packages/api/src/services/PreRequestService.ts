@@ -1,91 +1,60 @@
-import { Monitor, MonitorRequest, MonitorTuples } from '@httpmon/db'
+import { Monitor, MonitorRunResult } from '@httpmon/db'
+import { state } from '../Context'
+import { publishMessage, publishMonitorRunMessage } from './EventService'
 
-import { handlePreScriptExecution } from '@httpmon/sandbox'
-import { makeMonitorResultError } from './MonitorRunner'
-import { logger } from '../Context'
-import { saveMonitorResult } from './DBService'
-import { publishPostRequestEvent } from './EventService'
+import { v4 as uuidv4 } from 'uuid'
 
-function headersToMap(headers: MonitorTuples = []) {
-  let hmap: { [key: string]: string } = {}
-  headers.forEach((header) => {
-    hmap[header[0]] = header[1]
-  })
-  return hmap
-}
+// export async function execPreRequestScript(mon: Monitor) {
+//   const request = monitorToRequest(mon)
+//   const env = headersToMap(mon.variables)
 
-function headersToTuples(headers: object): MonitorTuples {
-  let tuples: MonitorTuples = []
-  Object.entries(headers ?? {}).map(([key, value]) => {
-    if (Array.isArray(value)) {
-      value.map((item) => {
-        tuples.push([key, item])
-      })
-    } else {
-      tuples.push([key, value])
-    }
-  })
-  return tuples
-}
+//   //logger.info(request, 'execPreScript-Start')
 
-function monitorToRequest(mon: Monitor) {
-  let req: MonitorRequest = {
-    method: mon.method,
-    url: mon.url,
-    headers: headersToMap(mon.headers),
-    queryParams: headersToMap(mon.queryParams),
-  }
-  return req
-}
+//   try {
+//     const resp = await handlePreScriptExecution(request, env, mon.preScript)
 
-export async function execPreRequestScript(mon: Monitor) {
-  const request = monitorToRequest(mon)
-  const env = headersToMap(mon.variables)
+//     logger.info(resp, 'execPreScript-Resp')
 
-  //logger.info(request, 'execPreScript-Start')
+//     let newmon = {
+//       ...mon,
+//       headers: headersToTuples(resp.ctx.request.headers),
+//       variables: headersToTuples(resp.ctx.env),
+//     }
+//     return newmon
+//   } catch (e) {
+//     //handle script error
+//     console.log('pre error: ', JSON.stringify(e))
 
-  try {
-    const resp = await handlePreScriptExecution(request, env, mon.preScript)
+//     //createdAt caused type issue for db
+//     const result = makeMonitorResultError(mon, e.err ?? e.toString())
+//     result.codeStatus = result.err
 
-    logger.info(resp, 'execPreScript-Resp')
+//     const monitorResult = await saveMonitorResult(result)
 
-    let newmon = {
-      ...mon,
-      headers: headersToTuples(resp.ctx.request.headers),
-      variables: headersToTuples(resp.ctx.env),
-    }
-    return newmon
-  } catch (e) {
-    //handle script error
-    console.log('pre error: ', JSON.stringify(e))
+//     if (!mon.notifications || !mon.id || !monitorResult?.id) return
 
-    //createdAt caused type issue for db
-    const result = makeMonitorResultError(mon, e.err ?? e.toString())
-    result.codeStatus = result.err
-
-    const monitorResult = await saveMonitorResult(result)
-
-    if (!mon.notifications || !mon.id || !monitorResult?.id) return
-
-    publishPostRequestEvent({
-      type: 'monitor-postrequest',
-      monitorId: mon.id,
-      monitorName: mon.name,
-      resultId: monitorResult.id,
-      accountId: mon.accountId,
-      notifications: mon.notifications,
-      err: result.err,
-    })
-  }
-  return null
-}
+//     publishPostRequestEvent({
+//       type: 'monitor-postrequest',
+//       monitorId: mon.id,
+//       monitorName: mon.name,
+//       resultId: monitorResult.id,
+//       accountId: mon.accountId,
+//       notifications: mon.notifications,
+//       err: result.err,
+//     })
+//   }
+//   return null
+// }
 
 export async function handlePreRequest(mon: Monitor) {
   //Todo: Compute final Env
 
+  const monrun: MonitorRunResult = { mon, runId: uuidv4() }
+
   if (mon.preScript && mon.preScript.length > 0) {
-    return execPreRequestScript(mon)
+    publishMessage(`${state.projectId}-api-script-run`, monrun)
+    return
   }
 
-  return mon
+  publishMonitorRunMessage(monrun)
 }

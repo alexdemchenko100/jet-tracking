@@ -38,7 +38,7 @@ esbuild
             to: ['dist/setup-node-sandbox.js'],
           },
           {
-            from: ['node_modules/@httpmon/sandbox/sandboxProcessMain.js'],
+            from: ['node_modules/@httpmon/sandbox/dist/sandboxProcessMain.js'],
             to: ['dist/sandboxProcessMain.js'],
           },
         ],

@@ -2,12 +2,9 @@ import { FastifyInstance } from 'fastify'
 import jwt from 'jsonwebtoken'
 import { JwksClient } from 'jwks-rsa'
 import S from 'fluent-json-schema'
-import {
-  MonitorRunResult,
-  MonitorRunResultSchema,
-} from '@httpmon/db'
 import Ajv from 'ajv'
-import { runMonitor } from 'src/services/MonitorRunner'
+import { MonitorRunResult, MonitorRunResultSchema } from '@httpmon/db'
+import { handleScriptResult } from 'src/services/ScriptResultService'
 
 const PubsubMessageSchema = S.object()
   .prop('subscription', S.string())
@@ -38,7 +35,7 @@ var client = new JwksClient({
   jwksUri: 'https://www.googleapis.com/oauth2/v3/certs',
 })
 
-export default async function MonitorRunRouter(app: FastifyInstance) {
+export default async function PreScriptResultRouter(app: FastifyInstance) {
   app.post<{ Body: PubsubMessage }>(
     '/',
     {
@@ -84,11 +81,11 @@ export default async function MonitorRunRouter(app: FastifyInstance) {
         return
       }
 
-      const monrun = obj as MonitorRunResult
+      app.log.info(obj, 'Notification handling for event')
 
-      app.log.info(`Exec monitor event: ${monrun.mon.name}`)
+      //business logic
+      await handleScriptResult(obj as MonitorRunResult)
 
-      await runMonitor(monrun)
       reply.code(200).send()
     }
   )

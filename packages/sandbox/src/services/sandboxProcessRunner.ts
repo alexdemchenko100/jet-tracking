@@ -1,20 +1,7 @@
-import { MonitorRequest, MonitorAuth } from '@httpmon/db'
+import { MonitorRequest } from '@httpmon/db'
 import { spawn } from 'child_process'
 import { join } from 'path'
-
-type SandBox = {
-  ctx: {
-    request: {
-      method: string
-      url: string
-      auth: MonitorAuth | undefined
-      headers: Record<string, string>
-      queryParams: Record<string, string>
-      body: string | undefined
-    }
-    env: Record<string, string>
-  }
-}
+import { SandBox } from '../types'
 
 export function handlePreScriptExecution(
   monitor: MonitorRequest,
@@ -35,11 +22,7 @@ export function handlePreScriptExecution(
     let err = ''
     var workerProcess = spawn(
       'node',
-      [
-        join(__dirname, 'sandboxProcessMain.js'),
-        script,
-        JSON.stringify(sandbox),
-      ],
+      [join(__dirname, 'sandboxProcessMain.js'), script, JSON.stringify(sandbox)],
       {
         stdio: [0, 1, 2, 'ipc'],
       }
@@ -58,7 +41,7 @@ export function handlePreScriptExecution(
     workerProcess.on('close', async function (code) {
       clearTimeout(timeout)
       console.log('==Result==')
-      console.log(scriptOutput)
+      console.log('scriptOutput', scriptOutput)
 
       try {
         let ctx = JSON.parse(sandboxOutJson)

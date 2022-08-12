@@ -4,10 +4,7 @@ import { JwksClient } from 'jwks-rsa'
 import S from 'fluent-json-schema'
 import { Monitor, MonitorFluentSchema } from '@httpmon/db'
 import Ajv from 'ajv'
-import { runMonitor } from 'src/services/MonitorRunner'
-import { execPreRequestScript, handlePreRequest } from 'src/services/PreRequestService'
-import { logger, state } from '../../Context'
-import { PubSub } from '@google-cloud/pubsub'
+import { handlePreRequest } from 'src/services/PreRequestService'
 
 const PubsubMessageSchema = S.object()
   .prop('subscription', S.string())
@@ -35,28 +32,6 @@ type PubsubMessage = {
 var client = new JwksClient({
   jwksUri: 'https://www.googleapis.com/oauth2/v3/certs',
 })
-
-let pubsub: PubSub | null = null
-
-async function publishMonitorRunMessage(mon: Monitor) {
-  const projectId = state.projectId
-  if (!pubsub) {
-    pubsub = new PubSub({ projectId })
-  }
-
-  if (!pubsub) throw new Error('Pubsub is not initialized')
-
-  if (!mon.locations || mon.locations.length < 1) return
-
-  mon.locations.forEach(async (locationName) => {
-    const TOPIC_NAME = `${projectId}-monitor-run-${locationName}`
-    try {
-      await pubsub?.topic(TOPIC_NAME).publishMessage({ json: mon })
-    } catch (error) {
-      logger.error(`Received error while publishing to ${TOPIC_NAME} - ${error.message}`)
-    }
-  })
-}
 
 export default async function MonitorPreRequestRouter(app: FastifyInstance) {
   app.post<{ Body: PubsubMessage }>(
@@ -92,23 +67,20 @@ export default async function MonitorPreRequestRouter(app: FastifyInstance) {
 
       const msg = req.body
 
-      const monitorBuf = Buffer.from(msg.message.data, 'base64')
-      const monitorObj = JSON.parse(monitorBuf.toString())
+      const buf = Buffer.from(msg.message.data, 'base64')
+      const obj = JSON.parse(buf.toString())
 
-      if (!validateMonitor(monitorObj)) {
+      if (!validateMonitor(obj)) {
         app.log.error(validateMonitor.errors, 'Monitor exec failed due to schema validation errors')
         reply.code(200).send()
         return
       }
 
-      const monitor = monitorObj as Monitor
+      const monitor = obj as Monitor
 
       app.log.info(`Setup monitor event: ${monitor.name}`)
 
-      const newmon = await handlePreRequest(monitor)
-      if (newmon) {
-        publishMonitorRunMessage(newmon)
-      }
+      await handlePreRequest(monitor)
       reply.code(200).send()
     }
   )

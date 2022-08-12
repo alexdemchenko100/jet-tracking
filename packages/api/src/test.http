@@ -50,3 +50,48 @@ content-type: application/json
 
 GET http://localhost:8080/api/monitors/wA3ztf0gr-_4GfJjjP_qn/results HTTP/1.1
 content-type: application/json
+
+###
+
+POST http://localhost:8888/test HTTP/1.1
+content-type: application/json
+
+{
+    "mon": {
+        "id": "ondemand",
+        "name": "nada",
+        "url": "https://httpbin.org/get",
+        "preScript": "ctx.request.headers['x'] = 'y'; ctx.env.g = 'f'; const axios=require('axios'); ctx.request.headers['dude'] = (await axios.get('https://httpbin.org/get')).data"
+    },
+    "runId": "9348048"
+}
+
+###
+
+POST https://sandbox-whzpdpqcua-ue.a.run.app/test HTTP/1.1
+content-type: application/json
+
+{
+    "mon": {
+        "id": "ondemand",
+        "name": "nada",
+        "url": "https://httpbin.org/get",
+        "preScript": "ctx.request.headers['x'] = 'y'; ctx.env.g = 'f'; const axios=require('axios'); ctx.request.headers['dude'] = (await axios.get('https://httpbin.org/get')).data"
+    },
+    "runId": "9348048"
+}
+
+###
+
+POST https://httpmon-sandbox-service-625b8ae-l6acatkuqq-ue.a.run.app/test HTTP/1.1
+content-type: application/json
+
+{
+    "mon": {
+        "id": "ondemand",
+        "name": "nada",
+        "url": "https://httpbin.org/get",
+        "preScript": "ctx.request.headers['x'] = 'y'; ctx.env.g = 'f'; const axios=require('axios'); ctx.request.headers['dude'] = (await axios.get('https://httpbin.org/get')).data"
+    },
+    "runId": "9348048"
+}

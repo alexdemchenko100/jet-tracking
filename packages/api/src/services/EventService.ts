@@ -1,31 +1,11 @@
 import { PubSub } from '@google-cloud/pubsub'
 import { logger, state } from '../Context'
-import S from 'fluent-json-schema'
 import emitter from './emitter'
-import { MonitorNotifications, MonitorNotificationSchema } from '@httpmon/db'
-export interface MonitorResultEvent {
-  type: string
-  accountId: string
-  monitorId: string
-  monitorName: string
-  resultId: string
-  err: string
-  notifications: MonitorNotifications
-}
-
-export const MonitorResultEventSchema = S.object()
-  .prop('type', S.string())
-  .required()
-  .prop('accountId', S.string())
-  .prop('monitorId', S.string())
-  .prop('monitorName', S.string())
-  .prop('resultId', S.string())
-  .prop('err', S.string())
-  .prop('notifications', MonitorNotificationSchema)
+import { MonitorRunResult } from '@httpmon/db'
 
 let pubsub: PubSub | null = null
 
-export async function publishPostRequestEvent(event: MonitorResultEvent) {
+export async function publishPostRequestEvent(event: MonitorRunResult) {
   if (state.projectId === '' || process.env.NODE_ENV !== 'production') {
     publishLocally(event)
     return
@@ -42,14 +22,52 @@ export async function publishPostRequestEvent(event: MonitorResultEvent) {
   try {
     await pubsub
       .topic(`${projectId}-postrequest`)
-      .publishMessage({ attributes: { type: event.type }, json: event })
-    logger.info(event, `Published event ${event.type} to ${projectId}-events`)
+      .publishMessage({ attributes: { type: `${projectId}-postrequest` }, json: event })
+    logger.info(event, `Published postrequest`)
   } catch (error) {
-    logger.error(`Received error while publishing to ${projectId}-events - ${error.message}`)
+    logger.error(`Received error while publishing to postrequest`)
   }
 }
 
-function publishLocally(event: MonitorResultEvent) {
-  logger.info(event, 'Publishing locally')
-  emitter.emit(event.type, event)
+function publishLocally(monrun: MonitorRunResult) {
+  logger.info(monrun, 'Publishing locally')
+  emitter.emit('monitor-', monrun)
+}
+
+export async function publishMessage(topic: string, event: any) {
+  const projectId = state.projectId
+  if (!pubsub) {
+    pubsub = new PubSub({ projectId })
+  }
+
+  if (!pubsub) throw new Error('Pubsub is not initialized')
+
+  //publish  to cloud pubsub
+  try {
+    await pubsub.topic(topic).publishMessage({ attributes: { type: topic }, json: event })
+    logger.info(event, `Published to ${topic}`)
+  } catch (error) {
+    logger.error(`Received error while publishing to ${topic} - ${error.message}`)
+  }
+  return event
+}
+
+export async function publishMonitorRunMessage(monrun: MonitorRunResult) {
+  const projectId = state.projectId
+  if (!pubsub) {
+    pubsub = new PubSub({ projectId })
+  }
+
+  if (!pubsub) throw new Error('Pubsub is not initialized')
+
+  if (!monrun.mon.locations || monrun.mon.locations.length < 1) return
+
+  monrun.mon.locations.forEach(async (locationName) => {
+    const TOPIC_NAME = `${projectId}-monitor-run-${locationName}`
+    try {
+      await pubsub?.topic(TOPIC_NAME).publishMessage({ json: monrun })
+    } catch (error) {
+      logger.error(`Received error while publishing to ${TOPIC_NAME} - ${error.message}`)
+    }
+  })
 }

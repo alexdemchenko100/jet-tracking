@@ -48,34 +48,33 @@ model MonEnv {
 }
 
 model Monitor {
-  id              String          @id @default(cuid())
-  createdAt       DateTime        @default(now())
+  id                String              @id @default(cuid())
+  createdAt         DateTime            @default(now())
   // updatedAt       DateTime        @default(now()) @updatedAt
-  name            String
-  status          String          @default("active")
-  url             String
-  method          String          @default("GET") // GET/POST/HEAD/PUT/DELETE
-  frequency       Int
+  name              String
+  status            String              @default("active")
+  url               String
+  method            String              @default("GET") // GET/POST/HEAD/PUT/DELETE
+  frequency         Int
   // text/plain, application/json, text/xml, text/html, application/x-www-form-urlencoded or none
-  bodyType        String?         @default("")
-  body            String?
-  auth            Json            @default("{}")
-  preScript       String          @default("")
-  headers         Json            @default("[]")
-  queryParams     Json            @default("[]")
-  cookies         String?
-  followRedirects Int?            @default(0)
-  timeout         Int?            @default(30) //30 seconds
-  locations       String[]
-  monitorResults  MonitorResult[]
-  assertions      Json            @default("[]") // custom syntax
-  notifications   Json            @default("{}") // custom syntax
-  notifyEmail     String?
-  env             Json            @default("[]") // custom syntax
-  variables       Json            @default("[]") // custom syntax
-  account         Account         @relation(fields: [accountId], references: [id])
-  accountId       String
-
+  bodyType          String?             @default("")
+  body              String?
+  auth              Json                @default("{}")
+  preScript         String              @default("")
+  headers           Json                @default("[]")
+  queryParams       Json                @default("[]")
+  cookies           String?
+  followRedirects   Int?                @default(0)
+  timeout           Int?                @default(30) //30 seconds
+  locations         String[]
+  monitorResults    MonitorResult[]
+  assertions        Json                @default("[]") // custom syntax
+  notifications     Json                @default("{}") // custom syntax
+  notifyEmail       String?
+  env               Json                @default("[]") // custom syntax
+  variables         Json                @default("[]") // custom syntax
+  account           Account             @relation(fields: [accountId], references: [id])
+  accountId         String
   NotificationState NotificationState[]
 
   @@unique([name, accountId])
@@ -129,7 +128,6 @@ model NotificationChannel {
 model NotificationState {
   id        String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   createdAt DateTime       @default(now())
-  account   Account        @relation(fields: [accountId], references: [id])
   accountId String
   monitor   Monitor?       @relation(fields: [monitorId], references: [id])
   monitorId String?
@@ -138,6 +136,7 @@ model NotificationState {
   message   String         @default("")
   Result    MonitorResult? @relation(fields: [resultId], references: [id])
   resultId  String?        @db.Uuid
+  Account   Account        @relation(fields: [accountId], references: [id])
 }
 
 model Settings {
