@@ -171,7 +171,7 @@ function CurrentPlan({ billingInfo }: Props) {
       </Flex>
       <Box mt={6} mb={2}>
         <PrimaryButton
-          label='Upgrade plan'
+          label='Switch'
           variant='emphasis'
           color={'white'}
           onClick={() => navigate('/console/settings/billing/plans')}

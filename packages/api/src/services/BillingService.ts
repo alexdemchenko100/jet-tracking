@@ -109,7 +109,11 @@ export class BillingService {
         await createPrepaidSubscription(userAccount.stripeCustomerId, amount, plan, billingStart)
         const billingInfo = await db
           .updateTable('BillingInfo')
-          .set({ billingPlanType: `prepaid_${plan}`, monitorRunsLimit: limit })
+          .set({
+            billingPlanType: `prepaid_${plan}`,
+            monitorRunsLimit: limit,
+            createdAt: new Date(),
+          })
           .where('accountId', '=', currentUserInfo().accountId)
           .executeTakeFirst()
         return billingInfo
@@ -159,7 +163,7 @@ export class BillingService {
         await deleteSubscriptions(userAccount?.stripeCustomerId)
         const billingInfo = await db
           .updateTable('BillingInfo')
-          .set({ billingPlanType: 'free', monitorRunsLimit: 5000, createdAt: new Date() })
+          .set({ billingPlanType: 'free', monitorRunsLimit: 50000, createdAt: new Date() })
           .where('accountId', '=', currentUserInfo().accountId)
           .executeTakeFirst()
         return billingInfo

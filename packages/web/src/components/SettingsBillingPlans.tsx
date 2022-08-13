@@ -33,7 +33,7 @@ function FreePlan({ isActive }: PlanProps) {
 
   return (
     <Section display='flex' flexDirection='column' boxShadow='0 0 2px 2px rgba(0,0,0,0.05)'>
-      <Box textAlign='right'>
+      <Box textAlign='left' mb={1}>
         <Badge variant='solid' colorScheme='green'>
           {isActive ? 'Current Plan' : ''}
         </Badge>
@@ -52,14 +52,14 @@ function FreePlan({ isActive }: PlanProps) {
             Monitor Runs Limit
           </Text>
           <Text variant='text-field' color='darkgray.100'>
-            5K / month
+            50K / month
           </Text>
         </Flex>
       </Flex>
       <Box mt={6} mb={2} textAlign='center'>
         <PrimaryButton
           disabled={isActive}
-          label='Upgrade plan'
+          label='Switch'
           variant='emphasis'
           color={'white'}
           onClick={startPlan}
@@ -74,7 +74,7 @@ function PayAsGoPlan({ isActive }: PlanProps) {
 
   return (
     <Section display='flex' flexDirection='column' boxShadow='0 0 2px 2px rgba(0,0,0,0.05)'>
-      <Box textAlign='right'>
+      <Box textAlign='left' mb={1}>
         <Badge variant='solid' colorScheme='green'>
           {isActive ? 'Current Plan' : ''}
         </Badge>
@@ -159,7 +159,7 @@ function PayAsGoPlan({ isActive }: PlanProps) {
       <Box mt={6} mb={2} textAlign='center'>
         <PrimaryButton
           disabled={isActive}
-          label='Upgrade plan'
+          label='Switch'
           variant='emphasis'
           color={'white'}
           onClick={() => navigate('/console/settings/billing/pay-as-you-go')}
@@ -174,7 +174,7 @@ function PrePaidPlan({ isActive }: PlanProps) {
 
   return (
     <Section display='flex' flexDirection='column' boxShadow='0 0 2px 2px rgba(0,0,0,0.05)'>
-      <Box textAlign='right'>
+      <Box textAlign='left' mb={1}>
         <Badge variant='solid' colorScheme='green'>
           {isActive ? 'Current Plan' : ''}
         </Badge>
@@ -259,7 +259,7 @@ function PrePaidPlan({ isActive }: PlanProps) {
       <Box mt={6} mb={2} textAlign='center'>
         <PrimaryButton
           disabled={isActive}
-          label='Upgrade plan'
+          label='Switch'
           variant='emphasis'
           color={'white'}
           onClick={() => navigate('/console/settings/billing/prepaid')}

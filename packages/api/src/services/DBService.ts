@@ -1,8 +1,9 @@
 import { db, MonitorResultTable } from '@httpmon/db'
 import { Insertable } from 'kysely'
 import { nanoid } from 'nanoid'
+import dayjs from 'dayjs'
 import { logger } from '../Context'
-import { createStripeCustomer } from '../services/StripeService'
+import { createStripeCustomer, payAsYouGoPlan } from '../services/StripeService'
 
 export const getAccountIdByUser = async (userId: string) => {
   const resp = await db
@@ -70,7 +71,7 @@ export const createNewAccount = async (userId: string, email: string) => {
         id: nanoid(),
         accountId: account.id,
         billingPlanType: 'free',
-        monitorRunsLimit: 5000,
+        monitorRunsLimit: 50000,
       })
       .returningAll()
       .executeTakeFirst()
@@ -105,11 +106,48 @@ export async function saveMonitorResult(result: Insertable<MonitorResultTable>) 
   }
 
   try {
-    return await db
-      .insertInto('MonitorResult')
-      .values(resultForSaving)
-      .returningAll()
-      .executeTakeFirst()
+    return await db.transaction().execute(async (trx) => {
+      const { count } = db.fn
+      await trx
+        .insertInto('MonitorResult')
+        .values(resultForSaving)
+        .returningAll()
+        .executeTakeFirst()
+      const billingInfo = await trx
+        .selectFrom('BillingInfo')
+        .selectAll()
+        .where('accountId', '=', result.accountId)
+        .executeTakeFirst()
+      if (
+        billingInfo?.billingPlanType === 'pay-as-you-go' &&
+        dayjs(billingInfo?.createdAt).add(1, 'month').format('YYYY-MM-DD') ===
+          dayjs().format('YYYY-MM-DD')
+      ) {
+        const total = await trx
+          .selectFrom('MonitorResult')
+          .select(count<number>('id').as('count'))
+          .where('accountId', '=', result.accountId)
+          .execute()
+        const amount = parseInt(((total[0].count / 100000) * 200).toString())
+        const userAccount = await trx
+          .selectFrom('UserAccount')
+          .select('stripeCustomerId')
+          .where('accountId', '=', result.accountId)
+          .executeTakeFirst()
+        if (userAccount?.stripeCustomerId) {
+          const invoice = await payAsYouGoPlan(userAccount?.stripeCustomerId, amount)
+          if (invoice) {
+            await trx
+              .updateTable('BillingInfo')
+              .set({
+                createdAt: new Date(),
+              })
+              .where('accountId', '=', result.accountId)
+              .executeTakeFirst()
+          }
+        }
+      }
+    })
   } catch (e) {
     console.log('exception: ', e)
     return null

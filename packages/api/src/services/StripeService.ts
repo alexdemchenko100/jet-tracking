@@ -85,3 +85,28 @@ export const deleteSubscriptions = async (customerId: string) => {
   })
   await Promise.all(promises)
 }
+
+export const payAsYouGoPlan = async (customerId: string, amount: number) => {
+  const product = await stripe.products.create({
+    name: `PayAsYouGo-${customerId}`,
+  })
+  const price = await stripe.prices.create({
+    unit_amount: amount,
+    currency: 'usd',
+    product: product.id,
+  })
+  const invoice = await stripe.invoices.create({
+    customer: customerId,
+  })
+  if (invoice.id) {
+    await stripe.invoiceItems.create({
+      customer: customerId,
+      price: price.id,
+      invoice: invoice.id,
+    })
+    await stripe.invoices.finalizeInvoice(invoice.id)
+    const result = await stripe.invoices.pay(invoice.id)
+    return result
+  }
+  return null
+}
