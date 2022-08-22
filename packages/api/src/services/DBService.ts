@@ -108,7 +108,7 @@ export async function saveMonitorResult(result: Insertable<MonitorResultTable>) 
   try {
     return await db.transaction().execute(async (trx) => {
       const { count } = db.fn
-      await trx
+      const monitorResult = await trx
         .insertInto('MonitorResult')
         .values(resultForSaving)
         .returningAll()
@@ -147,6 +147,7 @@ export async function saveMonitorResult(result: Insertable<MonitorResultTable>) 
           }
         }
       }
+      return monitorResult
     })
   } catch (e) {
     console.log('exception: ', e)
