@@ -24,7 +24,7 @@ model Account {
 
 model UserAccount {
   id               String  @id
-  userId           String
+  userId           String?
   email            String
   role             String  @default("")
   default          Boolean @default(true)

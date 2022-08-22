@@ -22,6 +22,7 @@ import { SettingsPage } from './Pages/Settings'
 import { Environments } from './Pages/Environments'
 import NotFound from './Pages/NotFound'
 import VerifyEmail from './Pages/VerifyEmail'
+import VerifyUser from './Pages/VerifyUser'
 import { EnvEditor } from './Pages/EnvEditor'
 import { theme } from './services/ChakraTheme'
 import {
@@ -206,6 +207,7 @@ function App() {
             <Route path='/console/signup' element={<SignUp />} />
             <Route path='/console/forgot' element={<ForgotPassword />} />
             <Route path='/console/emails/verify' element={<VerifyEmail />} />
+            <Route path='/console/users/verify' element={<VerifyUser />} />
             <Route path='*' element={<NotFound />} />
           </Routes>
         </Elements>

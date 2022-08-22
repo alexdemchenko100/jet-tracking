@@ -17,6 +17,10 @@ import {
   ParamsSchema,
   NotificationEmailsParams,
   NotificationEmailsParamsSchema,
+  UserInviteSchema,
+  UserInvite,
+  RoleUpdate,
+  RoleUpdateSchema,
 } from '../../types'
 import { onRequestAuthHook } from '../RouterHooks'
 import { nanoid } from 'nanoid'
@@ -220,6 +224,42 @@ export default async function SettingsRouter(app: FastifyInstance) {
     },
     async function (_, reply) {
       const resp = await settingsService.listUsers()
+      reply.send(resp)
+    }
+  )
+
+  // POST /users/invite
+  app.post<{ Body: UserInvite }>(
+    '/users/invite',
+    {
+      schema: {
+        body: UserInviteSchema,
+      },
+    },
+    async function (req, reply) {
+      const data = req.body
+      const token = nanoid(64)
+
+      const resp = await settingsService.sendUserInvite(data, token)
+      reply.send(resp)
+    }
+  )
+
+  // PUT /users/:id
+  app.put<{ Body: RoleUpdate; Params: Params }>(
+    '/users/:id',
+    {
+      schema: {
+        params: ParamsSchema,
+        body: RoleUpdateSchema,
+      },
+    },
+    async function (req, reply) {
+      const data = req.body
+      const { id } = req.params
+
+      const resp = await settingsService.updateUserRole(id, data.role)
+      req.log.info(`Updating user role: ${JSON.stringify(resp)}`)
       reply.send(resp)
     }
   )

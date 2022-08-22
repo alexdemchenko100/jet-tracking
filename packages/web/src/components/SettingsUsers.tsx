@@ -67,6 +67,21 @@ function SettingsUsers() {
     setValue('email', user?.email)
   }
 
+  const updateUserRole = async () => {
+    await axios.put(`/settings/users/${selectedUser?.id}`, {
+      role: role,
+    })
+    toast({
+      position: 'top',
+      description: 'The user role has been updated successfully.',
+      status: 'info',
+      duration: 2000,
+    })
+    refetchUsers()
+    onModalClose()
+    setSelectedUser(undefined)
+  }
+
   const deleteUser = async () => {
     if (selectedUser?.role === 'notifications') {
       await axios.delete(`/settings/notifications/emails/${selectedUser.id}`)
@@ -87,12 +102,17 @@ function SettingsUsers() {
       await axios.post('/settings/notifications/emails', {
         email: email,
       })
-      refetchUsers()
+    } else {
+      await axios.post('/settings/users/invite', {
+        email: email,
+        role: role,
+      })
     }
+    refetchUsers()
     onModalClose()
     toast({
       position: 'top',
-      description: 'New notification email has been added successfully.',
+      description: 'Verification link has been sent successfully.',
       status: 'success',
       duration: 2000,
     })
@@ -292,15 +312,9 @@ function SettingsUsers() {
                 </Text>
                 <Select borderRadius={8} borderColor='gray.200' {...register('role' as const)}>
                   <option value=''>Please select a user role</option>
-                  <option value='owner' disabled>
-                    Owner
-                  </option>
-                  <option value='admin' disabled>
-                    Admin
-                  </option>
-                  <option value='viewer' disabled>
-                    Viewer
-                  </option>
+                  <option value='owner'>Owner</option>
+                  <option value='admin'>Admin</option>
+                  <option value='viewer'>Viewer</option>
                   <option value='notifications'>Notifications</option>
                 </Select>
               </Flex>
@@ -343,16 +357,18 @@ function SettingsUsers() {
                   Role
                 </Text>
                 <Select borderRadius={8} borderColor='gray.200' {...register('role' as const)}>
-                  <option value='owner' disabled>
+                  <option value='owner' disabled={role === 'owner'}>
                     Owner
                   </option>
-                  <option value='admin' disabled>
+                  <option value='admin' disabled={role === 'admin'}>
                     Admin
                   </option>
-                  <option value='viewer' disabled>
+                  <option value='viewer' disabled={role === 'viewer'}>
                     Viewer
                   </option>
-                  <option value='notifications'>Notifications</option>
+                  <option value='notifications' disabled={role === 'notifications'}>
+                    Notifications
+                  </option>
                 </Select>
               </Flex>
             </ModalBody>
@@ -370,7 +386,7 @@ function SettingsUsers() {
                 label='Update'
                 variant='emphasis'
                 color='white'
-                onClick={onModalClose}
+                onClick={updateUserRole}
               ></PrimaryButton>
             </ModalFooter>
           </ModalContent>

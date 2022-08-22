@@ -5,6 +5,7 @@ import { nanoid } from 'nanoid'
 import { sendVerificationEmail } from './SendgridService'
 import dayjs from 'dayjs'
 import { sql } from 'kysely'
+import { UserInvite } from '../types'
 
 export class SettingsService {
   static instance: SettingsService
@@ -190,13 +191,6 @@ export class SettingsService {
   }
 
   public async resendVerificationMail(email: string, token: string) {
-    await db
-      .updateTable('NotificationEmail')
-      .set({ token: token })
-      .where('email', '=', email)
-      .where('accountId', '=', currentUserInfo().accountId)
-      .returningAll()
-      .executeTakeFirst()
     const resp = await sendVerificationEmail(email, token)
     return resp
   }
@@ -213,6 +207,27 @@ export class SettingsService {
     if (resp?.id && token === resp?.token) {
       await db
         .updateTable('NotificationEmail')
+        .set({ isVerified: true, token: null })
+        .where('id', '=', resp?.id)
+        .returningAll()
+        .executeTakeFirst()
+      return 'success'
+    }
+    return 'failed'
+  }
+
+  public async verifyUser(email: string, token: string) {
+    const resp = await db
+      .selectFrom('UserAccount')
+      .select(['id', 'isVerified', 'token'])
+      .where('email', '=', email)
+      .executeTakeFirst()
+    if (resp?.isVerified) {
+      return 'already_verified'
+    }
+    if (resp?.id && token === resp?.token) {
+      await db
+        .updateTable('UserAccount')
         .set({ isVerified: true, token: null })
         .where('id', '=', resp?.id)
         .returningAll()
@@ -249,5 +264,32 @@ export class SettingsService {
       }
     })
     return data
+  }
+
+  public async sendUserInvite(data: UserInvite, token: string) {
+    await db
+      .insertInto('UserAccount')
+      .values({
+        id: nanoid(),
+        email: data.email,
+        accountId: currentUserInfo().accountId,
+        default: false,
+        role: data.role,
+        isVerified: false,
+        token,
+      })
+      .returningAll()
+      .executeTakeFirst()
+    await sendVerificationEmail(data.email, token, true)
+  }
+
+  public async updateUserRole(id: string, role: string) {
+    const user = await db
+      .updateTable('UserAccount')
+      .set({ role: role })
+      .where('id', '=', id)
+      .returningAll()
+      .executeTakeFirst()
+    return user
   }
 }

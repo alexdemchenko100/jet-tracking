@@ -52,3 +52,21 @@ export const CreatePrepaidPlanSchema = S.object()
   .prop('limit', S.number())
   .prop('plan', S.string())
   .prop('billing_start', S.number())
+
+export type UserInvite = {
+  email: string
+  role: 'owner' | 'admin' | 'viewer'
+}
+
+export const UserInviteSchema = S.object()
+  .prop('email', S.string())
+  .prop('role', S.string().enum(['owner', 'admin', 'viewer']))
+
+export type RoleUpdate = {
+  role: 'owner' | 'admin' | 'viewer'
+}
+
+export const RoleUpdateSchema = S.object().prop(
+  'role',
+  S.string().enum(['owner', 'admin', 'viewer'])
+)

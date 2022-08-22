@@ -41,7 +41,7 @@ export const createNewAccount = async (userId: string, email: string) => {
         email: email,
         accountId: account.id,
         default: true,
-        role: 'admin',
+        role: 'owner',
         isVerified: false,
         stripeCustomerId: customer.id,
       })

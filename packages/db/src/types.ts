@@ -297,14 +297,14 @@ export type Monitor = MonitorTable
 export type UserAccount = {
   id?: string
   createdAt?: string | Date
-  userId: string
+  userId?: string
   email: string
   accountId: string
   role: string
   default: boolean
   status?: string
   isVerified: boolean
-  token?: string
+  token: string | null
   stripeCustomerId?: string
 }
 

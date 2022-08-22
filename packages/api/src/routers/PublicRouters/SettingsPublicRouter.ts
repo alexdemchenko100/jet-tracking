@@ -24,4 +24,23 @@ export default async function SettingsPublicRouter(app: FastifyInstance) {
       reply.send({ message: resp })
     }
   )
+
+  // POST /users/verify
+  app.post<{ Body: EmailVerification }>(
+    '/users/verify',
+    {
+      schema: {
+        body: EmailVerificationSchema,
+        response: {
+          200: S.object().prop('message', S.string()),
+        },
+      },
+    },
+    async function (req, reply) {
+      const { email, token } = req.body
+
+      const resp = await settingsService.verifyUser(email, token || '')
+      reply.send({ message: resp })
+    }
+  )
 }
