@@ -1,11 +1,12 @@
-import { EnvService } from '../../services/EnvService'
 import { FastifyInstance } from 'fastify'
 import S from 'fluent-json-schema'
 import { EnvFluentSchema, MonEnv } from '@httpmon/db'
-import { onRequestAuthHook } from '../RouterHooks'
+import { onRequestAuthHook, onAdminRequestAuthHook } from '../../RouterHooks'
+import { EnvService } from '../../../services/EnvService'
 
 export default async function EnvRouter(app: FastifyInstance) {
   app.addHook('onRequest', onRequestAuthHook)
+  app.addHook('onRequest', onAdminRequestAuthHook)
 
   const envService = EnvService.getInstance()
 

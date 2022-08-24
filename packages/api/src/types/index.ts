@@ -70,3 +70,25 @@ export const RoleUpdateSchema = S.object().prop(
   'role',
   S.string().enum(['owner', 'admin', 'viewer'])
 )
+
+export type UserCreate = {
+  email: string
+  password: string
+  displayName: string
+}
+
+export const UserCreateSchema = S.object()
+  .prop('email', S.string())
+  .prop('password', S.string())
+  .prop('displayName', S.string())
+
+export type UserVerification = {
+  email: string
+  accountId: string
+  token: string
+}
+
+export const UserVerificationSchema = S.object()
+  .prop('email', S.string())
+  .prop('accountId', S.string())
+  .prop('token', S.string())

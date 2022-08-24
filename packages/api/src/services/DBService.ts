@@ -15,6 +15,17 @@ export const getAccountIdByUser = async (userId: string) => {
   return resp?.accountId
 }
 
+export const getRoleFromAccountId = async (accountId: string, email: string) => {
+  const resp = await db
+    .selectFrom('UserAccount')
+    .select(['role'])
+    .where('accountId', '=', accountId)
+    .where('email', '=', email)
+    .executeTakeFirst()
+
+  return resp?.role
+}
+
 export const createNewAccount = async (userId: string, email: string) => {
   let newAccountId = ''
 
@@ -42,7 +53,7 @@ export const createNewAccount = async (userId: string, email: string) => {
         accountId: account.id,
         default: true,
         role: 'owner',
-        isVerified: false,
+        isVerified: true,
         stripeCustomerId: customer.id,
       })
       .returningAll()

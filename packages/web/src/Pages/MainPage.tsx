@@ -50,6 +50,7 @@ import {
 } from '@ajna/pagination'
 import { Text, Section, PrimaryButton, StatusUpOrDown, NewMonitorHero } from '../components'
 import { Store } from '../services/Store'
+import { useAuth } from '../services/FirebaseAuth'
 
 interface StatusProps {
   mon?: Monitor
@@ -192,7 +193,7 @@ function MonitorStatusCard({ mon, stats }: StatusProps) {
             UPTIME
           </Text>
           <Text variant='emphasis' color='gray.300'>
-            {mon?.uptime + '%'}
+            {mon ? mon.uptime : 0 + '%'}
           </Text>
         </Flex>
 
@@ -296,6 +297,7 @@ const StatBox = ({ status, stats }: StatBoxProps) => {
 
 const MonitorListItem = ({ mon, stats, onDelete }: MonitorListProps) => {
   const navigate = useNavigate()
+  const { userInfo } = useAuth()
 
   if (!mon || !stats) return <></>
 
@@ -344,7 +346,7 @@ const MonitorListItem = ({ mon, stats, onDelete }: MonitorListProps) => {
       </Td>
       <Td px={4} py={2}>
         <Text variant='text-field' color='gray.300'>
-          {mon.uptime + '%'}
+          {mon.uptime ? `${mon.uptime}%` : ''}
         </Text>
       </Td>
       <Td px={4} py={2}>
@@ -362,33 +364,35 @@ const MonitorListItem = ({ mon, stats, onDelete }: MonitorListProps) => {
           {stats?.day.p95.toFixed(2)}
         </Text>
       </Td>
-      <Td textAlign='center' px={4} py={2}>
-        <Flex gap={2} alignItems='center' justifyContent='center'>
-          <Button
-            borderRadius='4'
-            bg='lightgray.100'
-            color=''
-            w={7}
-            h={7}
-            p={0}
-            minW={7}
-            onClick={() => onDelete(mon?.id || '')}
-          >
-            <Icon color='gray.300' fontSize='sm' as={FiTrash2} cursor='pointer' />
-          </Button>
-          <Button
-            borderRadius='4'
-            bg='lightgray.100'
-            w={7}
-            h={7}
-            p={0}
-            minW={7}
-            onClick={() => navigate(`/console/monitors/${mon?.id}/edit`)}
-          >
-            <Icon color='gray.300' fontSize='sm' as={FiEdit} cursor='pointer' />
-          </Button>
-        </Flex>
-      </Td>
+      {userInfo.role !== 'viewer' && (
+        <Td textAlign='center' px={4} py={2}>
+          <Flex gap={2} alignItems='center' justifyContent='center'>
+            <Button
+              borderRadius='4'
+              bg='lightgray.100'
+              color=''
+              w={7}
+              h={7}
+              p={0}
+              minW={7}
+              onClick={() => onDelete(mon?.id || '')}
+            >
+              <Icon color='gray.300' fontSize='sm' as={FiTrash2} cursor='pointer' />
+            </Button>
+            <Button
+              borderRadius='4'
+              bg='lightgray.100'
+              w={7}
+              h={7}
+              p={0}
+              minW={7}
+              onClick={() => navigate(`/console/monitors/${mon?.id}/edit`)}
+            >
+              <Icon color='gray.300' fontSize='sm' as={FiEdit} cursor='pointer' />
+            </Button>
+          </Flex>
+        </Td>
+      )}
     </Tr>
   )
 }
@@ -401,6 +405,7 @@ const SortIcons = () => (
 )
 
 export function MainPage() {
+  const { userInfo } = useAuth()
   const navigate = useNavigate()
   const [filterOption, setFilterOption] = useState<string | undefined>(undefined)
   const { register, watch } = useForm<IFormInputs>()
@@ -567,13 +572,15 @@ export function MainPage() {
           <Text variant='header' color='black'>
             All monitors
           </Text>
-          <PrimaryButton
-            label='New monitor'
-            variant='emphasis'
-            color={'white'}
-            ml='auto'
-            onClick={() => navigate('/console/monitors/newapi')}
-          ></PrimaryButton>
+          {userInfo.role !== 'viewer' && (
+            <PrimaryButton
+              label='New monitor'
+              variant='emphasis'
+              color={'white'}
+              ml='auto'
+              onClick={() => navigate('/console/monitors/newapi')}
+            ></PrimaryButton>
+          )}
         </Flex>
       </Section>
       <Section py={4}>
@@ -645,7 +652,7 @@ export function MainPage() {
           <StatBox status='paused' stats={stats} />
         </Flex>
       </Section>
-      <Section p={0} mb='0' display='flex' minH='calc(100vh - 300px)' flexDirection='column'>
+      <Section p={0} mb='0' display='flex' minH='calc(100vh - 320px)' flexDirection='column'>
         {isGridView ? (
           <Box p={4} pb={8} flex='1'>
             <Grid gap='6' templateColumns={{ sm: '1fr', xl: '1fr 1fr' }}>
@@ -715,11 +722,13 @@ export function MainPage() {
                         24HR P95
                       </Text>
                     </Th>
-                    <Th px={4} py={3} textAlign='center'>
-                      <Text variant='emphasis' color='black'>
-                        ACTIONS
-                      </Text>
-                    </Th>
+                    {userInfo.role !== 'viewer' && (
+                      <Th px={4} py={3} textAlign='center'>
+                        <Text variant='emphasis' color='black'>
+                          ACTIONS
+                        </Text>
+                      </Th>
+                    )}
                   </Tr>
                 </Thead>
                 <Tbody>

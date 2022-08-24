@@ -1,12 +1,13 @@
 import { FastifyInstance } from 'fastify'
 import S from 'fluent-json-schema'
 import { StatusPage, StatusPageDetailsSchema, StatusPageSchema } from '@httpmon/db'
-import { Params, ParamsSchema } from '../../types'
-import { onRequestAuthHook } from '../RouterHooks'
-import { StatusPageService } from '../../services/StatusPageService'
+import { Params, ParamsSchema } from '../../../types'
+import { onRequestAuthHook, onAdminRequestAuthHook } from '../../RouterHooks'
+import { StatusPageService } from '../../../services/StatusPageService'
 
 export default async function StatusPagesRouter(app: FastifyInstance) {
   app.addHook('onRequest', onRequestAuthHook)
+  app.addHook('onRequest', onAdminRequestAuthHook)
 
   const statusPageService = StatusPageService.getInstance()
 

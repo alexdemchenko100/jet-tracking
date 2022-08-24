@@ -1,6 +1,6 @@
-import { SettingsService } from '../../services/SettingsService'
 import { FastifyInstance } from 'fastify'
 import S from 'fluent-json-schema'
+import { nanoid } from 'nanoid'
 import {
   NotificationSchema,
   NotificationChannel,
@@ -21,12 +21,14 @@ import {
   UserInvite,
   RoleUpdate,
   RoleUpdateSchema,
-} from '../../types'
-import { onRequestAuthHook } from '../RouterHooks'
-import { nanoid } from 'nanoid'
+} from '../../../types'
+import { onAdminRequestAuthHook, onRequestAuthHook } from '../../RouterHooks'
+import { SettingsService } from '../../../services/SettingsService'
+import { currentUserInfo } from '../../../Context'
 
 export default async function SettingsRouter(app: FastifyInstance) {
   app.addHook('onRequest', onRequestAuthHook)
+  app.addHook('onRequest', onAdminRequestAuthHook)
 
   const settingsService = SettingsService.getInstance()
 
@@ -41,6 +43,9 @@ export default async function SettingsRouter(app: FastifyInstance) {
       },
     },
     async function (req, reply) {
+      if (currentUserInfo().role === 'viewer') {
+        reply.status(403).send()
+      }
       const resp = await settingsService.getSettings()
       req.log.info(`Get settings: ${JSON.stringify(resp)}`)
       reply.send(resp)
@@ -78,6 +83,9 @@ export default async function SettingsRouter(app: FastifyInstance) {
       },
     },
     async function (_, reply) {
+      if (currentUserInfo().role === 'viewer') {
+        reply.status(403).send()
+      }
       const resp = await settingsService.listNotifications()
       reply.send(resp)
     }
@@ -260,6 +268,43 @@ export default async function SettingsRouter(app: FastifyInstance) {
 
       const resp = await settingsService.updateUserRole(id, data.role)
       req.log.info(`Updating user role: ${JSON.stringify(resp)}`)
+      reply.send(resp)
+    }
+  )
+
+  // DELETE /users/:id
+  app.delete<{ Params: Params }>(
+    '/users/:id',
+    {
+      schema: {
+        params: ParamsSchema,
+      },
+    },
+    async function (req, reply) {
+      const { id } = req.params
+
+      const resp = await settingsService.deleteUser(id)
+      req.log.info(`Delete user: ${JSON.stringify(resp)}`)
+      reply.send(resp)
+    }
+  )
+
+  interface TeamsParams {
+    email: string
+  }
+
+  // GET /users/:email/teams
+  app.get<{ Params: TeamsParams }>(
+    '/users/:email/teams',
+    {
+      schema: {
+        response: {
+          200: S.array().items(UserAccountSchema),
+        },
+      },
+    },
+    async function ({ params: { email } }, reply) {
+      const resp = await settingsService.getTeams(email)
       reply.send(resp)
     }
   )

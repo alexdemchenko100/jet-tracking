@@ -1,17 +1,18 @@
 import { FastifyInstance } from 'fastify'
-import MonitorRouter from './AuthRouters/MonitorRouter.js'
+import MonitorRouter from './AuthRouters/Admin/MonitorRouter.js'
 import MonitorRunRouter from './CloudHookRouters/MonitorRunRouter.js'
 import SchedulerRouter from './CloudHookRouters/SchedulerRouter.js'
 import MonitorPostRequestRouter from './CloudHookRouters/MonitorPostRequestRouter.js'
 import OndemandMonitorRouter from './PublicRouters/OndemandMonitorRouter.js'
-import EnvRouter from './AuthRouters/EnvRouter.js'
-import SettingsRouter from './AuthRouters/SettingsRouter.js'
+import EnvRouter from './AuthRouters/Admin/EnvRouter.js'
+import SettingsRouter from './AuthRouters/Admin/SettingsRouter.js'
 import SettingsPublicRouter from './PublicRouters/SettingsPublicRouter.js'
-import StatusPagesRouter from './AuthRouters/StatusPagesRouter.js'
-import ActivityLogRouter from './AuthRouters/ActivityLogRouter.js'
+import StatusPagesRouter from './AuthRouters/Admin/StatusPagesRouter.js'
+import ActivityLogRouter from './AuthRouters/Admin/ActivityLogRouter.js'
 import StatusPublicRouter from './PublicRouters/StatusPublicRouter.js'
-import BillingRouter from './AuthRouters/BillingRouter.js'
+import BillingRouter from './AuthRouters/Owner/BillingRouter.js'
 import MonitorPreRequestRouter from './CloudHookRouters/MonitorPreRequestRouter.js'
+import MonitorViewerRouter from './AuthRouters/MonitorRouter'
 
 export default async function MainRouter(fastify: FastifyInstance) {
   //Public API router
@@ -20,6 +21,7 @@ export default async function MainRouter(fastify: FastifyInstance) {
   fastify.register(StatusPublicRouter, { prefix: '/status' })
 
   //Authorized APIs
+  fastify.register(MonitorViewerRouter, { prefix: '/monitors' })
   fastify.register(MonitorRouter, { prefix: '/monitors' })
   fastify.register(EnvRouter, { prefix: '/environments' })
   fastify.register(SettingsRouter, { prefix: '/settings' })

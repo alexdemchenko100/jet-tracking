@@ -68,7 +68,7 @@
 span.chakra-checkbox__control {
   border-radius: 4px;
   padding: 3px;
-  border: 1px solid #25292F;
+  border: 1px solid #25292f;
 }
 
 span.chakra-checkbox__control svg {
@@ -81,4 +81,9 @@ span.chakra-checkbox__label {
 
 .captialize-first-letter::first-letter {
   text-transform: uppercase;
+}
+
+.selected-menu-item {
+  pointer-events: none;
+  background-color: rgba(0, 0, 0, 0.03);
 }

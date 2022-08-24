@@ -43,6 +43,7 @@ import { Store } from '../services/Store'
 import Text from './Text'
 import Section from './Section'
 import PrimaryButton from './PrimaryButton'
+import { useAuth } from '../services/FirebaseAuth'
 
 interface DeleteProps {
   id: string
@@ -230,6 +231,7 @@ function MonitorStatsView({ stats, title }: MonitorStatsProps) {
 
 function MonitorInfo(props: MonitorInfoProps) {
   const navigate = useNavigate()
+  const { userInfo } = useAuth()
   const { id, mon, runNow } = props
 
   const freqFormat = useMemo(() => formatFrequency(mon?.frequency ?? 0), [mon])
@@ -253,34 +255,38 @@ function MonitorInfo(props: MonitorInfoProps) {
           {mon?.name}
         </Text>
         <Flex gap='4' alignItems={'center'}>
-          <Menu>
-            <MenuButton
-              as={IconButton}
-              aria-label='Options'
-              width={6}
-              minW={6}
-              h={6}
-              bg='lightgray.100'
-              icon={<FiMoreHorizontal />}
-            />
-            <MenuList color='gray.800' zIndex='3'>
-              <DoubleCheckDelete id={id} />
-            </MenuList>
-          </Menu>
+          {userInfo.role !== 'viewer' && (
+            <Menu>
+              <MenuButton
+                as={IconButton}
+                aria-label='Options'
+                width={6}
+                minW={6}
+                h={6}
+                bg='lightgray.100'
+                icon={<FiMoreHorizontal />}
+              />
+              <MenuList color='gray.800' zIndex='3'>
+                <DoubleCheckDelete id={id} />
+              </MenuList>
+            </Menu>
+          )}
           <PrimaryButton
             label='Run Now'
             variant='emphasis'
             color={'white'}
             onClick={runNow}
           ></PrimaryButton>
-          <Button
-            borderRadius='4'
-            bg='lightgray.100'
-            p='0'
-            onClick={() => navigate(`/console/monitors/${id}/edit`)}
-          >
-            <Icon color='gray.300' as={FiEdit} cursor='pointer' />
-          </Button>
+          {userInfo.role !== 'viewer' && (
+            <Button
+              borderRadius='4'
+              bg='lightgray.100'
+              p='0'
+              onClick={() => navigate(`/console/monitors/${id}/edit`)}
+            >
+              <Icon color='gray.300' as={FiEdit} cursor='pointer' />
+            </Button>
+          )}
         </Flex>
       </Flex>
       <Flex alignItems={'center'} wrap='wrap' gap={2} mt={5}>

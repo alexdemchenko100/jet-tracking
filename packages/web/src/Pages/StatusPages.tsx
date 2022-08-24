@@ -148,7 +148,7 @@ export function StatusPages() {
           ></PrimaryButton>
         </Flex>
       </Section>
-      <Section p={0} mb='0' display='flex' minH='calc(100vh - 300px)' flexDirection='column'>
+      <Section p={0} mb='0' display='flex' minH='calc(100vh - 320px)' flexDirection='column'>
         <Box p={4} pb={8} flex='1'>
           <Grid gap='6' templateColumns={{ sm: '1fr', xl: '1fr 1fr' }}>
             {statusPages?.map((statusPage) => (

@@ -1,16 +1,15 @@
-import { ActivityLogService } from '../../services/ActivityLogService'
 import { FastifyInstance } from 'fastify'
 import {
   PaginateQueryStringSchema,
-  NotificationState,
   PaginateQueryString,
   ActivityLogsResponseSchema,
-  NotificationStateSchema,
 } from '@httpmon/db'
-import { onRequestAuthHook } from '../RouterHooks'
+import { onRequestAuthHook, onAdminRequestAuthHook } from '../../RouterHooks'
+import { ActivityLogService } from '../../../services/ActivityLogService'
 
 export default async function ActivityLogRouter(app: FastifyInstance) {
   app.addHook('onRequest', onRequestAuthHook)
+  app.addHook('onRequest', onAdminRequestAuthHook)
 
   const activityLogService = ActivityLogService.getInstance()
 

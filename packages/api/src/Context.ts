@@ -18,6 +18,7 @@ export const state: WebAppState = {
 interface UserInfo {
   user: string
   accountId: string
+  role?: string
 }
 
 declare module 'fastify-request-context' {

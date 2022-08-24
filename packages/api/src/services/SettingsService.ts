@@ -6,6 +6,8 @@ import { sendVerificationEmail } from './SendgridService'
 import dayjs from 'dayjs'
 import { sql } from 'kysely'
 import { UserInvite } from '../types'
+import { firebaseAuth } from '../Firebase'
+import { createNewAccount } from './DBService'
 
 export class SettingsService {
   static instance: SettingsService
@@ -216,25 +218,36 @@ export class SettingsService {
     return 'failed'
   }
 
-  public async verifyUser(email: string, token: string) {
+  public async verifyUser(email: string, accountId: string, token: string) {
+    const defaultUser = await db
+      .selectFrom('UserAccount')
+      .select(['id'])
+      .where('email', '=', email)
+      .where('default', '=', true)
+      .executeTakeFirst()
     const resp = await db
       .selectFrom('UserAccount')
       .select(['id', 'isVerified', 'token'])
       .where('email', '=', email)
+      .where('accountId', '=', accountId)
       .executeTakeFirst()
+    let status = 'failed'
     if (resp?.isVerified) {
-      return 'already_verified'
+      status = 'already_verified'
     }
     if (resp?.id && token === resp?.token) {
       await db
         .updateTable('UserAccount')
-        .set({ isVerified: true, token: null })
+        .set({ isVerified: true })
         .where('id', '=', resp?.id)
         .returningAll()
         .executeTakeFirst()
-      return 'success'
+      status = 'success'
     }
-    return 'failed'
+    return {
+      hasDefaultUser: !!defaultUser,
+      status,
+    }
   }
 
   public async listUsers() {
@@ -280,7 +293,7 @@ export class SettingsService {
       })
       .returningAll()
       .executeTakeFirst()
-    await sendVerificationEmail(data.email, token, true)
+    await sendVerificationEmail(data.email, token, currentUserInfo().accountId, true)
   }
 
   public async updateUserRole(id: string, role: string) {
@@ -291,5 +304,44 @@ export class SettingsService {
       .returningAll()
       .executeTakeFirst()
     return user
+  }
+
+  public async createUser(email: string, password: string, displayName: string) {
+    // Check if the default user with email address exists.
+    const resp = await db
+      .selectFrom('UserAccount')
+      .select(['id'])
+      .where('email', '=', email)
+      .where('default', '=', true)
+      .executeTakeFirst()
+    if (!resp) {
+      const user = await firebaseAuth.createUser({
+        email,
+        password,
+        displayName,
+        emailVerified: true,
+      })
+      await createNewAccount(user.uid, email)
+      return user
+    }
+    return null
+  }
+
+  public async getTeams(email: string) {
+    const teams = await db
+      .selectFrom('UserAccount')
+      .selectAll()
+      .where('email', '=', email)
+      .execute()
+    return teams
+  }
+
+  public async deleteUser(id: string) {
+    const resp = await db
+      .deleteFrom('UserAccount')
+      .where('id', '=', id)
+      .where('accountId', '=', currentUserInfo().accountId)
+      .executeTakeFirst()
+    return resp.numDeletedRows
   }
 }

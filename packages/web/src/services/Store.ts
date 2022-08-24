@@ -12,6 +12,8 @@ interface UserInfo {
   displayName?: string
   photoURL?: string
   phoneNumber?: string | null
+  role?: string
+  accountId?: string
 }
 
 interface UserState {

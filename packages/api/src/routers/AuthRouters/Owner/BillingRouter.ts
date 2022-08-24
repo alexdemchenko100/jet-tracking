@@ -9,12 +9,13 @@ import {
   AddPaymentMethodSchema,
   CreatePrepaidPlan,
   CreatePrepaidPlanSchema,
-} from '../../types'
-import { onRequestAuthHook } from '../RouterHooks'
-import { BillingService } from '../../services/BillingService'
+} from '../../../types'
+import { onRequestAuthHook, onOwnerRequestAuthHook } from '../../RouterHooks'
+import { BillingService } from '../../../services/BillingService'
 
 export default async function BillingRouter(app: FastifyInstance) {
   app.addHook('onRequest', onRequestAuthHook)
+  app.addHook('onRequest', onOwnerRequestAuthHook)
 
   const billingService = BillingService.getInstance()
 

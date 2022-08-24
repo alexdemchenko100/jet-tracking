@@ -34,7 +34,7 @@ model UserAccount {
   account          Account @relation(fields: [accountId], references: [id])
   accountId        String
 
-  @@unique([userId, accountId])
+  @@unique([email, accountId])
 }
 
 model MonEnv {

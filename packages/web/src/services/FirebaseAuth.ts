@@ -93,7 +93,7 @@ export function isLoggedIn(): boolean {
   return false
 }
 
-export function setUser(user: User | null) {
+export function setUser(user: User | null, role?: string, accountId?: string) {
   if (user) {
     const { uid, email, displayName, photoURL, phoneNumber } = user
     Store.UserState.userInfo.uid = uid
@@ -102,6 +102,12 @@ export function setUser(user: User | null) {
     Store.UserState.userInfo.photoURL = photoURL || undefined
     Store.UserState.userInfo.phoneNumber = phoneNumber
     Store.user = user
+  }
+  if (role) {
+    Store.UserState.userInfo.role = role
+  }
+  if (role) {
+    Store.UserState.userInfo.accountId = accountId
   }
 
   getIDTokenPossiblyRefreshed()

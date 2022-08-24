@@ -56,7 +56,7 @@ async function start() {
     await server.register(fastifyCors, {
       origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'],
       methods: ['GET', 'POST', 'PUT', 'DELETE'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'x-proautoma-accountId'],
       credentials: true,
     })
   }

@@ -83,8 +83,11 @@ function SettingsUsers() {
   }
 
   const deleteUser = async () => {
+    if (!selectedUser) return
     if (selectedUser?.role === 'notifications') {
       await axios.delete(`/settings/notifications/emails/${selectedUser.id}`)
+    } else {
+      await axios.delete(`/settings/users/${selectedUser.id}`)
     }
     toast({
       position: 'top',

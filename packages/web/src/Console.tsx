@@ -1,5 +1,7 @@
+import { useRef } from 'react'
 import {
   Avatar,
+  Badge,
   Box,
   Drawer,
   DrawerContent,
@@ -20,11 +22,105 @@ import {
 import { FaRegBell } from 'react-icons/fa'
 import { FiSettings, FiMenu, FiPackage, FiHome, FiActivity, FiZap } from 'react-icons/fi'
 import { logoTitle } from './Assets'
+import axios from 'axios'
+import { useQuery } from 'react-query'
 import { Outlet, useNavigate } from 'react-router-dom'
-import { signOut, useAuth } from './services/FirebaseAuth'
+import { signOut, useAuth, setUser } from './services/FirebaseAuth'
 import { Text, NavItem } from './components'
+import { ChevronRightIcon } from '@chakra-ui/icons'
+import { UserAccount } from '@httpmon/db'
 
 const SIDEBAR_WIDTH = '240px'
+
+function SubMenu() {
+  const { userInfo: user } = useAuth()
+  const navigate = useNavigate()
+  const menuBtnRef = useRef<HTMLButtonElement>(null)
+
+  const { data: teams } = useQuery(['teams'], async () => {
+    const resp = await axios({
+      method: 'GET',
+      url: `/settings/users/${user.email}/teams`,
+    })
+    return resp.data
+  })
+
+  if (!teams || teams?.length < 2) return <></>
+
+  const switchAccount = (team: UserAccount) => {
+    axios.defaults.headers.common['x-proautoma-accountId'] = team.accountId
+    setUser(null, team.role, team.accountId)
+    navigate('/console/monitors')
+    menuBtnRef.current?.click()
+  }
+
+  return (
+    <>
+      <MenuItem ref={menuBtnRef} hidden></MenuItem>
+      <Menu>
+        <MenuButton w='100%'>
+          <Flex
+            padding='0.3rem 0.8rem'
+            cursor='pointer'
+            alignItems='center'
+            justifyContent='space-between'
+          >
+            <Text variant='paragraph' color='darkgray.100'>
+              Switch account
+            </Text>
+            <ChevronRightIcon />
+          </Flex>
+        </MenuButton>
+        <MenuList
+          position='absolute'
+          top='-12'
+          right='102%'
+          borderRadius='md'
+          maxH={96}
+          bg='white'
+          boxShadow='sm'
+          borderWidth='1px'
+          marginRight='0.5'
+        >
+          {teams?.map((team: UserAccount, idx: number) => (
+            <MenuItem
+              key={idx}
+              display='flex'
+              alignItems='center'
+              justifyContent='space-between'
+              _hover={{ bg: 'gray.100' }}
+              className={team.accountId === user.accountId ? 'selected-menu-item' : ''}
+              onClick={() => switchAccount(team)}
+            >
+              <Flex direction='column' mr='2'>
+                <Text
+                  variant='details'
+                  color='black'
+                  textTransform='capitalize'
+                  textOverflow='ellipsis'
+                  whiteSpace='nowrap'
+                  overflow='hidden'
+                  w='100%'
+                >
+                  {team.accountId}
+                </Text>
+                <Text variant='small' display={'block'} color='gray.300' textTransform='capitalize'>
+                  {team.role}
+                </Text>
+              </Flex>
+              {team.accountId === user.accountId && (
+                <Badge colorScheme='green' variant='solid' fontSize='8px' mb='0.5'>
+                  Current
+                </Badge>
+              )}
+            </MenuItem>
+          ))}
+        </MenuList>
+      </Menu>
+      <MenuDivider />
+    </>
+  )
+}
 
 export default function Console() {
   const sidebar = useDisclosure()
@@ -56,26 +152,30 @@ export default function Console() {
             Dashboard
           </Text>
         </NavItem>
-        <NavItem icon={FiActivity} to='/console/activity'>
-          <Text variant='text-field' color='inherit'>
-            Activity
-          </Text>
-        </NavItem>
-        <NavItem icon={FiPackage} to='/console/envs'>
-          <Text variant='text-field' color='inherit'>
-            Environments
-          </Text>
-        </NavItem>
-        <NavItem icon={FiZap} to='/console/status-pages'>
-          <Text variant='text-field' color='inherit'>
-            Status Pages
-          </Text>
-        </NavItem>
-        <NavItem icon={FiSettings} to='/console/settings'>
-          <Text variant='text-field' color='inherit'>
-            Settings
-          </Text>
-        </NavItem>
+        {user.role !== 'viewer' && (
+          <>
+            <NavItem icon={FiActivity} to='/console/activity'>
+              <Text variant='text-field' color='inherit'>
+                Activity
+              </Text>
+            </NavItem>
+            <NavItem icon={FiPackage} to='/console/envs'>
+              <Text variant='text-field' color='inherit'>
+                Environments
+              </Text>
+            </NavItem>
+            <NavItem icon={FiZap} to='/console/status-pages'>
+              <Text variant='text-field' color='inherit'>
+                Status Pages
+              </Text>
+            </NavItem>
+            <NavItem icon={FiSettings} to='/console/settings'>
+              <Text variant='text-field' color='inherit'>
+                Settings
+              </Text>
+            </NavItem>
+          </>
+        )}
       </Flex>
     </Box>
   )
@@ -135,6 +235,7 @@ export default function Console() {
               {user && user.displayName && <MenuItem color='purple'>{user.displayName}</MenuItem>}
               {user && user.email && <MenuItem>{user.email}</MenuItem>}
               <MenuDivider />
+              <SubMenu></SubMenu>
               <MenuItem
                 onClick={async () => {
                   await signOut()

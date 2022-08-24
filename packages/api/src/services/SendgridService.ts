@@ -1,10 +1,17 @@
 import got from 'got'
 import { logger } from '../Context'
 
-export async function sendVerificationEmail(to: string, token: string, isUserInvite?: boolean) {
+export async function sendVerificationEmail(
+  to: string,
+  token: string,
+  accountId?: string,
+  isUserInvite?: boolean
+) {
   const verifyLink =
     process.env.WEB_APP_URL +
-    `/console/${isUserInvite ? 'users' : 'emails'}/verify?token=${token}&email=${to}`
+    `/console/${
+      isUserInvite ? 'users' : 'emails'
+    }/verify?token=${token}&email=${to}&accountId=${accountId}`
   try {
     if (
       !process.env.SENDGRID_API_KEY ||
