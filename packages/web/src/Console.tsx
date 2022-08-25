@@ -29,6 +29,7 @@ import { signOut, useAuth, setUser } from './services/FirebaseAuth'
 import { Text, NavItem } from './components'
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { UserAccount } from '@httpmon/db'
+import { Store } from './services/Store'
 
 const SIDEBAR_WIDTH = '240px'
 
@@ -52,6 +53,8 @@ function SubMenu() {
     setUser(null, team.role, team.accountId)
     navigate('/console/monitors')
     menuBtnRef.current?.click()
+    Store.queryClient?.invalidateQueries(['monitors-list'])
+    Store.queryClient?.invalidateQueries(['monitors-stats'])
   }
 
   return (
@@ -89,7 +92,11 @@ function SubMenu() {
               alignItems='center'
               justifyContent='space-between'
               _hover={{ bg: 'gray.100' }}
-              className={team.accountId === user.accountId ? 'selected-menu-item' : ''}
+              className={
+                team.accountId === user.accountId || (team.default && !user.accountId)
+                  ? 'selected-menu-item'
+                  : ''
+              }
               onClick={() => switchAccount(team)}
             >
               <Flex direction='column' mr='2'>
@@ -108,7 +115,7 @@ function SubMenu() {
                   {team.role}
                 </Text>
               </Flex>
-              {team.accountId === user.accountId && (
+              {(team.accountId === user.accountId || (team.default && !user.accountId)) && (
                 <Badge colorScheme='green' variant='solid' fontSize='8px' mb='0.5'>
                   Current
                 </Badge>

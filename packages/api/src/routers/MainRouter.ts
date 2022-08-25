@@ -13,6 +13,7 @@ import StatusPublicRouter from './PublicRouters/StatusPublicRouter.js'
 import BillingRouter from './AuthRouters/Owner/BillingRouter.js'
 import MonitorPreRequestRouter from './CloudHookRouters/MonitorPreRequestRouter.js'
 import MonitorViewerRouter from './AuthRouters/MonitorRouter'
+import SettingsViewerRouter from './AuthRouters/SettingsRouter'
 
 export default async function MainRouter(fastify: FastifyInstance) {
   //Public API router
@@ -22,6 +23,7 @@ export default async function MainRouter(fastify: FastifyInstance) {
 
   //Authorized APIs
   fastify.register(MonitorViewerRouter, { prefix: '/monitors' })
+  fastify.register(SettingsViewerRouter, { prefix: '/settings' })
   fastify.register(MonitorRouter, { prefix: '/monitors' })
   fastify.register(EnvRouter, { prefix: '/environments' })
   fastify.register(SettingsRouter, { prefix: '/settings' })

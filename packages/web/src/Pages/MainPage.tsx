@@ -314,7 +314,7 @@ const MonitorListItem = ({ mon, stats, onDelete }: MonitorListProps) => {
         </Text>
       </Td>
       <Td px={4} py={2}>
-        <Flex alignItems='center' gap={2}>
+        <Flex key={mon.status} alignItems='center' gap={2}>
           {mon.status === 'paused' && (
             <>
               <Icon color='gold.200' fill='gold.200' as={FiPause} />
@@ -345,7 +345,7 @@ const MonitorListItem = ({ mon, stats, onDelete }: MonitorListProps) => {
         <RunChart stats={stats} narrowMode />
       </Td>
       <Td px={4} py={2}>
-        <Text variant='text-field' color='gray.300'>
+        <Text key={mon.uptime} variant='text-field' color='gray.300'>
           {mon.uptime ? `${mon.uptime}%` : ''}
         </Text>
       </Td>
@@ -482,7 +482,7 @@ export function MainPage() {
 
   useEffect(() => {
     if (monitors && stats) {
-      monitors.forEach((monitor) => {
+      const data = monitors.map((monitor) => {
         const statsData = stats.find((stat) => monitor.id === stat.monitorId)
         if (statsData) {
           monitor.status = statsData.status
@@ -490,8 +490,9 @@ export function MainPage() {
           monitor.day50 = statsData.day.p50
           monitor.dayAvg = statsData.day.avg
         }
+        return monitor
       })
-      setSortedMonitors(monitors)
+      setSortedMonitors(data)
     }
   }, [monitors, stats])
 

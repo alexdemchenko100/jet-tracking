@@ -288,24 +288,4 @@ export default async function SettingsRouter(app: FastifyInstance) {
       reply.send(resp)
     }
   )
-
-  interface TeamsParams {
-    email: string
-  }
-
-  // GET /users/:email/teams
-  app.get<{ Params: TeamsParams }>(
-    '/users/:email/teams',
-    {
-      schema: {
-        response: {
-          200: S.array().items(UserAccountSchema),
-        },
-      },
-    },
-    async function ({ params: { email } }, reply) {
-      const resp = await settingsService.getTeams(email)
-      reply.send(resp)
-    }
-  )
 }

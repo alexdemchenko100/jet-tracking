@@ -48,7 +48,7 @@ const SettingsSidebar = (props: any) => {
             User Management
           </Text>
         </NavItem>
-        {userInfo.role === 'owner' && (
+        {(!userInfo.role || userInfo.role === 'owner') && (
           <NavItem icon={FiCreditCard} to='/console/settings/billing'>
             <Text variant='text-field' color='inherit'>
               Billing & Usage
