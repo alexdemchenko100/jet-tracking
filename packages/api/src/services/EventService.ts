@@ -30,7 +30,8 @@ export async function publishPostRequestEvent(event: MonitorRunResult) {
 }
 
 function publishLocally(monrun: MonitorRunResult) {
-  logger.info(monrun, 'Publishing locally')
+  logger.info(monrun.resultId, 'Publishing locally')
+  // logger.info(monrun, 'Publishing locally')
   emitter.emit('monitor-', monrun)
 }
 

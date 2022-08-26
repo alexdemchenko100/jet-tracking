@@ -16,7 +16,7 @@ let auth: Auth | null = null
 export function initFirebaseAuth() {
   const firebaseConfig = {
     apiKey: 'AIzaSyAqn0-0Bq3yUQaoVm3Yf-XU8dSN3nNUa9g',
-    authDomain: 'httpmon-test.firebaseapp.com',
+    authDomain: 'www.proautoma.com',
     projectId: 'httpmon-test',
     storageBucket: 'httpmon-test.appspot.com',
     messagingSenderId: '439355076640',

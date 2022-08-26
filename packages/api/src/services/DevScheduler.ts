@@ -52,7 +52,8 @@ export async function setupEmitterHandlers() {
   })
 
   emitter.on('monitor-api-script-run', async (monrun: MonitorRunResult) => {
-    logger.info(monrun, 'monitor-api-script-run')
+    //logger.info(monrun, 'monitor-api-script-run')
+    logger.info(monrun.resultId, 'monitor-api-script-run signal')
     await handleRunScript(monrun)
   })
 
@@ -68,12 +69,14 @@ export async function setupEmitterHandlers() {
   })
 
   emitter.on('monitor-run', async (monrun: MonitorRunResult) => {
-    logger.info(monrun, 'monitor-run')
+    //logger.info(monrun, 'monitor-run')
+    logger.info(monrun.resultId, 'monitor-run signal')
     await runMonitor(monrun)
   })
 
   emitter.on('monitor-postrequest', async (monrun: MonitorRunResult) => {
-    logger.info(monrun, 'monitor-postrequest')
+    //logger.info(monrun, 'monitor-postrequest signal')
+    logger.info(monrun.resultId, 'monitor-postrequest signal')
     await handlePostRequest(monrun)
   })
 }

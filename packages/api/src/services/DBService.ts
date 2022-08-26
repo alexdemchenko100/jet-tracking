@@ -1,6 +1,6 @@
 import { db, MonitorResultTable } from '@httpmon/db'
 import { Insertable } from 'kysely'
-import { nanoid } from 'nanoid'
+import { v4 as uuidv4 } from 'uuid'
 import dayjs from 'dayjs'
 import { logger } from '../Context'
 import { createStripeCustomer, payAsYouGoPlan } from '../services/StripeService'
@@ -33,7 +33,7 @@ export const createNewAccount = async (userId: string, email: string) => {
     //create account
     const account = await trx
       .insertInto('Account')
-      .values({ id: nanoid(), name: userId })
+      .values({ id: uuidv4(), name: userId })
       .returningAll()
       .executeTakeFirst()
 
@@ -47,7 +47,7 @@ export const createNewAccount = async (userId: string, email: string) => {
     const userAccount = await trx
       .insertInto('UserAccount')
       .values({
-        id: nanoid(),
+        id: uuidv4(),
         userId: userId,
         email: email,
         accountId: account.id,

@@ -3,9 +3,11 @@ import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
   UserCredential,
   AuthError,
   User,
+  getRedirectResult,
 } from 'firebase/auth'
 
 import { useForm } from 'react-hook-form'
@@ -55,7 +57,11 @@ export function SignIn() {
     let creds
     try {
       if (!data) {
-        creds = await signInWithPopup(getAuth(), new GoogleAuthProvider())
+        const auth = getAuth()
+        const provider = new GoogleAuthProvider()
+        await signInWithRedirect(auth, provider)
+        // After returning from the redirect when your app initializes you can obtain the result
+        creds = await getRedirectResult(auth)
       } else {
         creds = await signInWithEmailAndPassword(getAuth(), data.email, data.password)
       }
