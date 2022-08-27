@@ -7,7 +7,7 @@ import { FiTrash2, FiPlus, FiEdit, FiSave } from 'react-icons/fi'
 import { useMutation, useQuery } from 'react-query'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Store } from '../services/Store'
-import { Section, Text, PrimaryButton } from '../components'
+import { Section, Text, PrimaryButton, Loading } from '../components'
 
 export function EnvEditor() {
   const { id } = useParams()
@@ -123,7 +123,8 @@ export function EnvEditor() {
     }
   }
 
-  if (!monEnv) return <p>Loading...</p>
+  if (!monEnv)
+    return <Loading/>
 
   const name = getValues('name')
 

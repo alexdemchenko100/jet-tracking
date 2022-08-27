@@ -14,7 +14,7 @@ import {
 import React, { useState, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 
-import { Section, SettingsHeader, Text, InputField } from '../components'
+import { Section, SettingsHeader, Text, InputField, Loading } from '../components'
 import { googleIcon } from '../Assets'
 import { useAuth } from '../services/FirebaseAuth'
 
@@ -76,7 +76,7 @@ export default function SettingsProfile() {
   }
 
   if (!user) {
-    return <>Loading...</>
+    return <Loading/>
   }
 
   return (

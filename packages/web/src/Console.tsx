@@ -26,33 +26,27 @@ import axios from 'axios'
 import { useQuery } from 'react-query'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { signOut, useAuth, setUser } from './services/FirebaseAuth'
-import { Text, NavItem } from './components'
+import { Text, NavItem, Loading } from './components'
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { UserAccount } from '@httpmon/db'
 import { Store } from './services/Store'
 
 const SIDEBAR_WIDTH = '240px'
 
-function SubMenu() {
-  const { userInfo: user } = useAuth()
+interface SwitchAccountMenuProps {
+  teams: UserAccount[]
+}
+
+function SwitchAccountMenu({ teams }: SwitchAccountMenuProps) {
   const navigate = useNavigate()
   const menuBtnRef = useRef<HTMLButtonElement>(null)
 
-  const { data: teams } = useQuery(['teams'], async () => {
-    const resp = await axios({
-      method: 'GET',
-      url: `/settings/users/${user.email}/teams`,
-    })
-    return resp.data
-  })
-
-  if (!teams || teams?.length < 2) return <></>
-
-  const switchAccount = (team: UserAccount) => {
+  const switchAccount = async (team: UserAccount) => {
     axios.defaults.headers.common['x-proautoma-accountId'] = team.accountId
     setUser(null, team.role, team.accountId)
-    navigate('/console/monitors')
     menuBtnRef.current?.click()
+    await axios.post('/settings/teams/default', { email: team.email, accountId: team.accountId })
+    navigate('/console/monitors')
     Store.queryClient?.invalidateQueries(['monitors-list'])
     Store.queryClient?.invalidateQueries(['monitors-stats'])
   }
@@ -92,11 +86,7 @@ function SubMenu() {
               alignItems='center'
               justifyContent='space-between'
               _hover={{ bg: 'gray.100' }}
-              className={
-                team.accountId === user.accountId || (team.default && !user.accountId)
-                  ? 'selected-menu-item'
-                  : ''
-              }
+              className={team.default ? 'selected-menu-item' : ''}
               onClick={() => switchAccount(team)}
             >
               <Flex direction='column' mr='2'>
@@ -115,7 +105,7 @@ function SubMenu() {
                   {team.role}
                 </Text>
               </Flex>
-              {(team.accountId === user.accountId || (team.default && !user.accountId)) && (
+              {team.default && (
                 <Badge colorScheme='green' variant='solid' fontSize='8px' mb='0.5'>
                   Current
                 </Badge>
@@ -134,6 +124,19 @@ export default function Console() {
   const navigate = useNavigate()
 
   const { userInfo: user } = useAuth()
+
+  const { isLoading, data: teams } = useQuery<UserAccount[]>(['teams', user], async () => {
+    if (user.email) {
+      const resp = await axios({
+        method: 'GET',
+        url: `/settings/users/${user.email}/teams`,
+      })
+      const defaultTeam = resp.data.find((item: UserAccount) => item.default)
+      setUser(null, defaultTeam.role, defaultTeam.accountId)
+      axios.defaults.headers.common['x-proautoma-accountId'] = defaultTeam.accountId
+      return resp.data
+    }
+  })
 
   const SidebarContent = (props: any) => (
     <Box
@@ -159,7 +162,7 @@ export default function Console() {
             Dashboard
           </Text>
         </NavItem>
-        {user.role !== 'viewer' && (
+        {user.role && user.role !== 'viewer' && (
           <>
             <NavItem icon={FiActivity} to='/console/activity'>
               <Text variant='text-field' color='inherit'>
@@ -242,7 +245,7 @@ export default function Console() {
               {user && user.displayName && <MenuItem color='purple'>{user.displayName}</MenuItem>}
               {user && user.email && <MenuItem>{user.email}</MenuItem>}
               <MenuDivider />
-              <SubMenu></SubMenu>
+              {teams && teams?.length > 1 && <SwitchAccountMenu teams={teams}></SwitchAccountMenu>}
               <MenuItem
                 onClick={async () => {
                   await signOut()
@@ -270,8 +273,7 @@ export default function Console() {
           transition='.3s ease'
         >
           <Box as='main' p='2'>
-            {/* Add content here, remove div below  */}
-            <Outlet />
+            {isLoading ? <Loading /> : <Outlet />}
           </Box>
         </Box>
       </Flex>

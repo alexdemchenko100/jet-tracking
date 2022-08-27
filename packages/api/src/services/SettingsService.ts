@@ -256,7 +256,6 @@ export class SettingsService {
       .selectFrom('UserAccount')
       .selectAll()
       .where('accountId', '=', currentUserInfo().accountId)
-      .where('default', '=', false)
       .execute()
     const notificationEmails = await db
       .selectFrom('NotificationEmail')
@@ -328,12 +327,33 @@ export class SettingsService {
   }
 
   public async getTeams(email: string) {
-    const teams = await db
+    const currentUser = await db
       .selectFrom('UserAccount')
       .selectAll()
       .where('email', '=', email)
-      .execute()
-    return teams
+      .where('default', '=', true)
+      .executeTakeFirst()
+    if (currentUser) {
+      const teams = await db
+        .selectFrom('UserAccount')
+        .selectAll()
+        .where('email', '=', email)
+        .where('default', '=', false)
+        .execute()
+      return [currentUser, ...teams]
+    }
+    const defaultOwner = await db
+      .selectFrom('UserAccount')
+      .selectAll()
+      .where('email', '=', email)
+      .where('role', '=', 'owner')
+      .executeTakeFirst()
+    await db
+      .updateTable('UserAccount')
+      .set({ default: true })
+      .where('id', '=', defaultOwner?.id)
+      .executeTakeFirst()
+    return [defaultOwner]
   }
 
   public async deleteUser(id: string) {
@@ -343,5 +363,20 @@ export class SettingsService {
       .where('accountId', '=', currentUserInfo().accountId)
       .executeTakeFirst()
     return resp.numDeletedRows
+  }
+
+  public async changeDefaultTeam(accountId: string, email: string) {
+    await db
+      .updateTable('UserAccount')
+      .set({ default: false })
+      .where('email', '=', email)
+      .executeTakeFirst()
+    const data = await db
+      .updateTable('UserAccount')
+      .set({ default: true })
+      .where('accountId', '=', accountId)
+      .where('email', '=', email)
+      .executeTakeFirst()
+    return data
   }
 }

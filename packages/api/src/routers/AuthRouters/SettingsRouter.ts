@@ -13,6 +13,11 @@ export default async function SettingsRouter(app: FastifyInstance) {
     email: string
   }
 
+  interface SetDefaultTeams {
+    accountId: string
+    email: string
+  }
+
   // GET /users/:email/teams
   app.get<{ Params: TeamsParams }>(
     '/users/:email/teams',
@@ -25,6 +30,16 @@ export default async function SettingsRouter(app: FastifyInstance) {
     },
     async function ({ params: { email } }, reply) {
       const resp = await settingsService.getTeams(email)
+      reply.send(resp)
+    }
+  )
+
+  // POST /teams/default
+  app.post<{ Body: SetDefaultTeams }>(
+    '/teams/default',
+    {},
+    async function ({ body: { accountId, email } }, reply) {
+      const resp = await settingsService.changeDefaultTeam(accountId, email)
       reply.send(resp)
     }
   )

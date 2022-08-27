@@ -28,13 +28,20 @@ import { useQuery } from 'react-query'
 import { UserAccount } from '@httpmon/db'
 import { Text, PrimaryButton, Section, SettingsHeader } from '../components'
 import { useForm } from 'react-hook-form'
+import { useAuth } from '../services/FirebaseAuth'
+import { useNavigate } from 'react-router-dom'
+import { Store } from '../services/Store'
 
 function SettingsUsers() {
   const toast = useToast()
+  const { userInfo } = useAuth()
+  const navigate = useNavigate()
+
   const [isInviteModalVisible, setInviteModalVisible] = useState<boolean>(false)
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false)
   const [showEditModal, setShowEditModal] = useState<boolean>(false)
   const [selectedUser, setSelectedUser] = useState<UserAccount | undefined>()
+  const [hasOneOwner, setHasOneOwner] = useState<boolean>(false)
 
   const { register, watch, reset, setValue } = useForm<UserAccount>()
   const email = watch('email')
@@ -45,6 +52,12 @@ function SettingsUsers() {
       method: 'GET',
       url: '/settings/users',
     })
+    const owners = resp.data.filter((user: UserAccount) => user.role === 'owner')
+    if (owners.length < 2) {
+      setHasOneOwner(true)
+    } else {
+      setHasOneOwner(false)
+    }
     return resp.data
   })
 
@@ -79,7 +92,12 @@ function SettingsUsers() {
     })
     refetchUsers()
     onModalClose()
-    setSelectedUser(undefined)
+    if (selectedUser?.email === userInfo.email) {
+      Store.queryClient?.invalidateQueries(['teams'])
+      navigate('/console/monitors')
+    } else {
+      setSelectedUser(undefined)
+    }
   }
 
   const deleteUser = async () => {
@@ -221,28 +239,32 @@ function SettingsUsers() {
                           <Icon color='darkgray.100' fontSize={'xs'} as={FiSend} cursor='pointer' />
                         </Button>
                       )}
-                      <Button
-                        w={6}
-                        h={6}
-                        minW={6}
-                        borderRadius='4'
-                        bg='lightgray.100'
-                        p='0'
-                        onClick={() => onEditUser(user)}
-                      >
-                        <Icon color='gray.300' fontSize={'xs'} as={FiEdit} cursor='pointer' />
-                      </Button>
-                      <Button
-                        w={6}
-                        h={6}
-                        minW={6}
-                        borderRadius='4'
-                        bg='lightgray.100'
-                        p='0'
-                        onClick={() => openDeleteModal(user)}
-                      >
-                        <Icon color='gray.300' fontSize={'xs'} as={FiTrash2} cursor='pointer' />
-                      </Button>
+                      {(!hasOneOwner || user.role !== 'owner') && user.role !== 'notifications' && (
+                        <Button
+                          w={6}
+                          h={6}
+                          minW={6}
+                          borderRadius='4'
+                          bg='lightgray.100'
+                          p='0'
+                          onClick={() => onEditUser(user)}
+                        >
+                          <Icon color='gray.300' fontSize={'xs'} as={FiEdit} cursor='pointer' />
+                        </Button>
+                      )}
+                      {(!hasOneOwner || user.role !== 'owner') && (
+                        <Button
+                          w={6}
+                          h={6}
+                          minW={6}
+                          borderRadius='4'
+                          bg='lightgray.100'
+                          p='0'
+                          onClick={() => openDeleteModal(user)}
+                        >
+                          <Icon color='gray.300' fontSize={'xs'} as={FiTrash2} cursor='pointer' />
+                        </Button>
+                      )}
                     </Flex>
                   </Td>
                 </Tr>
@@ -368,9 +390,6 @@ function SettingsUsers() {
                   </option>
                   <option value='viewer' disabled={role === 'viewer'}>
                     Viewer
-                  </option>
-                  <option value='notifications' disabled={role === 'notifications'}>
-                    Notifications
                   </option>
                 </Select>
               </Flex>

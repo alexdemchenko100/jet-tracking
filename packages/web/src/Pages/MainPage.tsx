@@ -48,7 +48,7 @@ import {
   PaginationPage,
   usePagination,
 } from '@ajna/pagination'
-import { Text, Section, PrimaryButton, StatusUpOrDown, NewMonitorHero } from '../components'
+import { Text, Section, PrimaryButton, StatusUpOrDown, NewMonitorHero, Loading } from '../components'
 import { Store } from '../services/Store'
 import { useAuth } from '../services/FirebaseAuth'
 
@@ -496,7 +496,11 @@ export function MainPage() {
     }
   }, [monitors, stats])
 
-  if (monitors && monitors.length == 0) {
+  if (isLoading) {
+    return <Loading />
+  }
+
+  if (!monitors || monitors?.length == 0) {
     return <NewMonitorHero />
   }
 

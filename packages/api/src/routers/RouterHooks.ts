@@ -23,23 +23,20 @@ export async function onRequestAuthHook(request: FastifyRequest, reply: FastifyR
     return
   }
 
-  if (curAccountId && user.email) {
-    const role = await getRoleFromAccountId(curAccountId, user.email)
-    request.requestContext.set('user', {
-      user: user.email,
-      accountId: curAccountId,
-      role,
-    })
+  let accountId
+  if (curAccountId) {
+    accountId = curAccountId
   } else {
-    let accountId = await getAccountIdByUser(user.uid)
+    accountId = await getAccountIdByUser(user.uid)
     if (!accountId) {
       request.log.error(`user ${user.uid} ${user.email} not found`)
 
       //It may be a new user, so create an account for them
       accountId = await createNewAccount(user.uid, user.email ?? '')
     }
-    request.requestContext.set('user', { user: user.email ?? '', accountId })
   }
+  const role = await getRoleFromAccountId(accountId, user.email || '')
+  request.requestContext.set('user', { user: user.email ?? '', accountId, role })
 
   request.log.info(requestContext.get('user'), 'user authorized')
 }
