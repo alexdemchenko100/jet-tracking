@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 import dayjs from 'dayjs'
 import { logger } from '../Context'
 import { createStripeCustomer, payAsYouGoPlan } from '../services/StripeService'
+import { nanoid } from 'nanoid'
 
 export const getAccountIdByUser = async (userId: string) => {
   const resp = await db

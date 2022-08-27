@@ -5,7 +5,7 @@ import * as dotenv from 'dotenv'
 import path from 'path'
 import { schedule, setupEmitterHandlers } from './services/DevScheduler.js'
 import fastifyStatic from 'fastify-static'
-import { initializeRequestContext, getCloudRegion } from './Context.js'
+import { initializeRequestContext, getCloudRegion, plogger } from './Context.js'
 import { db } from '@httpmon/db'
 
 async function start() {
@@ -13,10 +13,7 @@ async function start() {
   dotenv.config({ path: path.resolve(process.cwd(), '../..', '.env') })
 
   const server = fastify({
-    logger: {
-      prettyPrint: true,
-      level: 'info',
-    },
+    logger: plogger,
   })
 
   await initializeRequestContext(server)

@@ -41,7 +41,7 @@ export async function setupEmitterHandlers() {
   logger.info('* setting emitter *')
 
   emitter.on('monitor-prerequest', async (mon: Monitor) => {
-    logger.info(mon, 'monitor-prerequest')
+    logger.info({ id: mon.id }, 'monitor-prerequest')
     const monrun: MonitorRunResult = { mon, runId: uuidv4() }
     if (mon.preScript && mon.preScript.length > 0) {
       emitter.emit('monitor-api-script-run', monrun)
@@ -53,7 +53,7 @@ export async function setupEmitterHandlers() {
 
   emitter.on('monitor-api-script-run', async (monrun: MonitorRunResult) => {
     //logger.info(monrun, 'monitor-api-script-run')
-    logger.info(monrun.resultId, 'monitor-api-script-run signal')
+    logger.info({ res: monrun.resultId }, 'monitor-api-script-run signal')
     await handleRunScript(monrun)
   })
 

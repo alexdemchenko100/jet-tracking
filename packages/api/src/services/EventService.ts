@@ -19,13 +19,12 @@ export async function publishPostRequestEvent(event: MonitorRunResult) {
   if (!pubsub) throw new Error('Pubsub is not initialized')
 
   //publish  to cloud pubsub
+  const topic = `${projectId}-monitor-postrequest`
   try {
-    await pubsub
-      .topic(`${projectId}-postrequest`)
-      .publishMessage({ attributes: { type: `${projectId}-postrequest` }, json: event })
+    await pubsub.topic(topic).publishMessage({ attributes: { type: topic }, json: event })
     logger.info(event, `Published postrequest`)
   } catch (error) {
-    logger.error(`Received error while publishing to postrequest`)
+    logger.error(`Received error while publishing to postrequest: ${error}`)
   }
 }
 

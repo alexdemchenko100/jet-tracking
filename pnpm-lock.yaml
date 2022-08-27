@@ -95,7 +95,7 @@ importers:
     devDependencies:
       '@types/jsonwebtoken': 8.5.8
       '@types/lodash.clonedeep': 4.5.6
-      '@types/node': 18.7.2
+      '@types/node': 18.7.13
       '@types/uuid': 8.3.4
       concurrently: 7.0.0
       cross-env: 7.0.3
@@ -206,6 +206,7 @@ importers:
       '@vitejs/plugin-react': ^1.2.0
       autoprefixer: ^10.4.2
       axios: ^0.25.0
+      browserlist: ^1.0.1
       chakra-react-select: ^3.1.2
       chakra-ui-autocomplete: ^1.4.5
       chakra-ui-simple-autocomplete: ^1.0.0
@@ -291,6 +292,7 @@ importers:
       '@types/react-dom': 17.0.11
       '@vitejs/plugin-react': 1.2.0
       autoprefixer: 10.4.2_postcss@8.4.7
+      browserlist: 1.0.1
       eslint: 8.19.0
       postcss: 8.4.7
       tailwindcss: 3.0.23_autoprefixer@10.4.2
@@ -2710,7 +2712,7 @@ packages:
     engines: {node: ^8.13.0 || >=10.10.0}
     dependencies:
       '@grpc/proto-loader': 0.6.9
-      '@types/node': 18.7.2
+      '@types/node': 18.7.13
     dev: false
 
   /@grpc/proto-loader/0.6.9:
@@ -3261,7 +3263,7 @@ packages:
     resolution: {integrity: sha512-ALYone6pm6QmwZoAgeyNksccT9Q4AWZQ6PvfwR37GT6r6FWUPguq6sUmNGSMV2Wr761oQoBxwGGa6DR5o1DC9g==}
     dependencies:
       '@types/connect': 3.4.35
-      '@types/node': 18.7.2
+      '@types/node': 18.7.13
     dev: false
 
   /@types/cacheable-request/6.0.2:
@@ -3269,14 +3271,14 @@ packages:
     dependencies:
       '@types/http-cache-semantics': 4.0.1
       '@types/keyv': 3.1.3
-      '@types/node': 18.7.2
+      '@types/node': 18.7.13
       '@types/responselike': 1.0.0
     dev: false
 
   /@types/connect/3.4.35:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
     dependencies:
-      '@types/node': 18.7.2
+      '@types/node': 18.7.13
     dev: false
 
   /@types/d3-array/3.0.2:
@@ -3306,7 +3308,7 @@ packages:
   /@types/duplexify/3.6.1:
     resolution: {integrity: sha512-n0zoEj/fMdMOvqbHxmqnza/kXyoGgJmEpsXjpP+gEqE1Ye4yNqc7xWipKnUoMpWhMuzJQSfK2gMrwlElly7OGQ==}
     dependencies:
-      '@types/node': 18.7.2
+      '@types/node': 18.7.13
     dev: false
 
   /@types/eslint/8.4.5:
@@ -3330,7 +3332,7 @@ packages:
   /@types/express-serve-static-core/4.17.28:
     resolution: {integrity: sha512-P1BJAEAW3E2DJUlkgq4tOL3RyMunoWXqbSCygWo5ZIWTjUgN1YnaXWW4VWl/oc8vs/XoYibEGBKP0uZyF4AHig==}
     dependencies:
-      '@types/node': 18.7.2
+      '@types/node': 18.7.13
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
     dev: false
@@ -3398,13 +3400,13 @@ packages:
   /@types/jsonwebtoken/8.5.8:
     resolution: {integrity: sha512-zm6xBQpFDIDM6o9r6HSgDeIcLy82TKWctCXEPbJJcXb5AKmi5BNNdLXneixK4lplX3PqIVcwLBCGE/kAGnlD4A==}
     dependencies:
-      '@types/node': 18.7.2
+      '@types/node': 18.7.13
     dev: true
 
   /@types/keyv/3.1.3:
     resolution: {integrity: sha512-FXCJgyyN3ivVgRoml4h94G/p3kY+u/B86La+QptcqJaWtBWtmc6TtkNfS40n9bIvyLteHh7zXOtgbobORKPbDg==}
     dependencies:
-      '@types/node': 18.7.2
+      '@types/node': 18.7.13
 
   /@types/lodash.clonedeep/4.5.6:
     resolution: {integrity: sha512-cE1jYr2dEg1wBImvXlNtp0xDoS79rfEdGozQVgliDZj1uERH4k+rmEMTudP9b4VQ8O6nRb5gPqft0QzEQGMQgA==}
@@ -3443,8 +3445,12 @@ packages:
     resolution: {integrity: sha512-6qKpDtoaYLM+5+AFChLhHermMQxc3TOEFIDzrZLPRGHPrLEwqFkkT5Kx3ju05g6X7uDPazz3jHbKPX0KzCjntg==}
     dev: true
 
+  /@types/node/18.7.13:
+    resolution: {integrity: sha512-46yIhxSe5xEaJZXWdIBP7GU4HDTG8/eo0qd9atdiL+lFpA03y8KS+lkTN834TWJj5767GbWv4n/P6efyTFt1Dw==}
+
   /@types/node/18.7.2:
     resolution: {integrity: sha512-ce7MIiaYWCFv6A83oEultwhBXb22fxwNOQf5DIxWA4WXvDQ7K+L0fbWl/YOfCzlR5B/uFkSnVBhPcOfOECcWvA==}
+    dev: true
 
   /@types/parse-json/4.0.0:
     resolution: {integrity: sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==}
@@ -3514,7 +3520,7 @@ packages:
   /@types/responselike/1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
-      '@types/node': 18.7.2
+      '@types/node': 18.7.13
 
   /@types/scheduler/0.16.2:
     resolution: {integrity: sha512-hppQEBDmlwhFAXKJX2KnWLYu5yMfi91yazPb2l+lbJiwW+wdo1gNeRA+3RgNSO39WYX2euey41KEwnqesU2Jew==}
@@ -3523,7 +3529,7 @@ packages:
     resolution: {integrity: sha512-nCkHGI4w7ZgAdNkrEu0bv+4xNV/XDqW+DydknebMOQwkpDGx8G+HTlj7R7ABI8i8nKxVw0wtKPi1D+lPOkh4YQ==}
     dependencies:
       '@types/mime': 1.3.2
-      '@types/node': 18.7.2
+      '@types/node': 18.7.13
     dev: false
 
   /@types/stack-utils/2.0.1:
@@ -3999,6 +4005,13 @@ packages:
       rimraf: 3.0.2
       unload: 2.2.0
     dev: false
+
+  /browserlist/1.0.1:
+    resolution: {integrity: sha512-nYq9jiWv+qXcgrJxQzivfEc7Wo2GvAKkeRViE5L3cUJpq4SZO6NZR710I/8T+OjE5BPECbzpm8rpUkwslE3nTg==}
+    hasBin: true
+    dependencies:
+      chalk: 2.4.2
+    dev: true
 
   /browserslist/4.19.3:
     resolution: {integrity: sha512-XK3X4xtKJ+Txj8G5c30B4gsm71s69lqXlkYui4s6EkKxuv49qjYlY6oVd+IFJ73d4YymtM3+djvvt/R/iJwwDg==}
@@ -5522,7 +5535,7 @@ packages:
     dependencies:
       '@firebase/database-compat': 0.1.5
       '@firebase/database-types': 0.9.4
-      '@types/node': 18.7.2
+      '@types/node': 18.7.13
       dicer: 0.3.0
       jsonwebtoken: 8.5.1
       jwks-rsa: 2.0.5
@@ -8028,7 +8041,7 @@ packages:
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
       '@types/long': 4.0.1
-      '@types/node': 18.7.2
+      '@types/node': 18.7.13
       long: 4.0.0
     dev: false
 
@@ -9019,7 +9032,7 @@ packages:
     resolution: {integrity: sha512-y0tW31r8rk0cGAVN+lxZUU0yqcFq7y+Kmi0SKuNPxDVKRx1aCvU1xpnVR9mZv5wNQOKpsx5C14UpeenoYu8+7A==}
     engines: {node: ^8.1 || >=10.*}
     dependencies:
-      '@types/node': 18.7.2
+      '@types/node': 18.7.13
       qs: 6.11.0
     dev: false
 
