@@ -22,9 +22,9 @@ export async function publishPostRequestEvent(event: MonitorRunResult) {
   const topic = `${projectId}-monitor-postrequest`
   try {
     await pubsub.topic(topic).publishMessage({ attributes: { type: topic }, json: event })
-    logger.info(event, `Published postrequest`)
+    logger.info({ runId: event.runId }, `Published ${topic}`)
   } catch (error) {
-    logger.error(`Received error while publishing to postrequest: ${error}`)
+    logger.error(error, `Received error while publishing to postrequest`)
   }
 }
 
@@ -45,9 +45,9 @@ export async function publishMessage(topic: string, event: any) {
   //publish  to cloud pubsub
   try {
     await pubsub.topic(topic).publishMessage({ attributes: { type: topic }, json: event })
-    logger.info(event, `Published to ${topic}`)
+    logger.info({ runId: event.runID }, `Published to ${topic}`)
   } catch (error) {
-    logger.error(`Received error while publishing to ${topic} - ${error.message}`)
+    logger.error(error, `Received error while publishing to ${topic}`)
   }
   return event
 }
@@ -67,7 +67,7 @@ export async function publishMonitorRunMessage(monrun: MonitorRunResult) {
     try {
       await pubsub?.topic(TOPIC_NAME).publishMessage({ json: monrun })
     } catch (error) {
-      logger.error(`Received error while publishing to ${TOPIC_NAME} - ${error.message}`)
+      logger.error(error, `Received error while publishing to ${TOPIC_NAME}`)
     }
   })
 }

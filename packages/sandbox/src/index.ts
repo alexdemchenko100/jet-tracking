@@ -1,13 +1,10 @@
 import fastify from 'fastify'
-import { initializeRequestContext, getCloudRegion } from './services/Context'
-import MonitorPreScriptRouter from './routers/PreScriptRouter'
+import { initializeRequestContext, getCloudRegion, plogger } from './services/Context'
+import PreScriptRouter from './routers/PreScriptRouter'
 import testRouter from './routers/testRouter'
 
 const server = fastify({
-  logger: {
-    prettyPrint: true,
-    level: 'info',
-  },
+  logger: plogger,
 })
 
 async function start() {
@@ -36,7 +33,7 @@ async function start() {
   await server.register(testRouter, { prefix: '/test' })
   // }
 
-  await server.register(MonitorPreScriptRouter, { prefix: '/services/api-script-runner' })
+  await server.register(PreScriptRouter, { prefix: '/api/services/api-script-run' })
 
   server.setErrorHandler((error, _req, reply) => {
     // The expected errors will be handled here, but unexpected ones should eventually result in a crash.
@@ -53,7 +50,7 @@ async function start() {
   const FASTIFY_PORT = Number(process.env.PORT) || 8081
 
   await server.listen(FASTIFY_PORT, '0.0.0.0')
-  console.log(`🚀  Fastify server running on port ${FASTIFY_PORT}`)
+  server.log.info(`🚀  Fastify server running on port ${FASTIFY_PORT}`)
 }
 
 start()

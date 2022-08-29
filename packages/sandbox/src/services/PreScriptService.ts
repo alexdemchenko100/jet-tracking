@@ -1,12 +1,5 @@
-import {
-  Monitor,
-  MonitorFluentSchema,
-  MonitorRequest,
-  MonitorTuples,
-  MonitorRunResult,
-} from '@httpmon/db'
+import { Monitor, MonitorRequest, MonitorTuples, MonitorRunResult } from '@httpmon/db'
 import { logger, state } from './Context'
-import S from 'fluent-json-schema'
 import { PubSub } from '@google-cloud/pubsub'
 import { handlePreScriptExecution } from './sandboxProcessRunner'
 
@@ -64,12 +57,14 @@ function monitorToRequest(mon: Monitor) {
   return req
 }
 
+//Handle `${state.projectId}-api-script-run`
+
 export async function execPreScript(monrun: MonitorRunResult) {
   const mon = monrun.mon
   const request = monitorToRequest(mon)
   const env = headersToMap(mon.variables)
 
-  const topic = `${state.projectId}-end-api-prescript`
+  const topic = `${state.projectId}-api-script-result`
 
   const bPreScript = mon.preScript && mon.preScript.length > 0
 
@@ -78,12 +73,12 @@ export async function execPreScript(monrun: MonitorRunResult) {
     return publishMessage(topic, monrun)
   }
 
-  logger.info(request, 'execPreScript-Start')
+  logger.debug(request, 'execPreScript-Start')
 
   try {
     const resp = await handlePreScriptExecution(request, env, mon.preScript)
 
-    logger.info(resp, 'execPreScript-Resp')
+    logger.debug(resp, 'execPreScript-Resp')
 
     let newmon = {
       ...mon,
@@ -93,7 +88,7 @@ export async function execPreScript(monrun: MonitorRunResult) {
     return publishMessage(topic, { mon: newmon, runId: monrun.runId })
   } catch (e) {
     //handle script error
-    console.log('pre error: ', JSON.stringify(e))
+    logger.error(e, 'script error')
     monrun.err = { msg: `preScript: ${JSON.stringify(e)}` }
 
     return publishMessage(topic, monrun)

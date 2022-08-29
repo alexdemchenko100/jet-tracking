@@ -86,7 +86,7 @@ export function processAssertions(
           const result = JSONPath({
             path,
             json: bodyJson,
-            wrap: false,
+            wrap: false, //provide result automically. default is wrapped in an array
           })
 
           if (typeof result === 'string') {

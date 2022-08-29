@@ -162,7 +162,7 @@ export async function saveMonitorResult(result: Insertable<MonitorResultTable>) 
       return monitorResult
     })
   } catch (e) {
-    console.log('exception: ', e)
+    logger.error(e, 'exception in saving monitor result')
     return null
   }
 }

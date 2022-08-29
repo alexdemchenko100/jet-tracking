@@ -2,8 +2,38 @@ import { FastifyLoggerInstance } from 'fastify'
 import { fastifyRequestContextPlugin, requestContext } from 'fastify-request-context'
 import * as gcpMetadata from 'gcp-metadata'
 
-import pino from 'pino'
-const plogger = pino()
+import pino, { LoggerOptions } from 'pino'
+const isCloud = process.env.NODE_ENV === 'production'
+const PinoLevelToSeverity: { [k: string]: string } = {
+  silent: 'OFF',
+  trace: 'DEBUG',
+  debug: 'DEBUG',
+  info: 'INFO',
+  warn: 'WARNING',
+  error: 'ERROR',
+  fatal: 'CRITICAL',
+}
+const productionPinoConfig: LoggerOptions = {
+  level: 'info',
+  prettyPrint: false,
+  messageKey: 'message',
+  base: null,
+  formatters: {
+    level(label: string, _number: number) {
+      return {
+        severity: PinoLevelToSeverity[label] || 'INFO',
+      }
+    },
+    log(object) {
+      const logObject = object as { err?: Error }
+      const stackProp = logObject?.err?.stack ? { stack_trace: logObject.err.stack } : {}
+      return { ...object, ...stackProp }
+    },
+  },
+  timestamp: () => `,"eventTime":${Date.now() / 1000.0}`,
+}
+
+export const plogger = pino(isCloud ? productionPinoConfig : {})
 
 interface WebAppState {
   projectId: string

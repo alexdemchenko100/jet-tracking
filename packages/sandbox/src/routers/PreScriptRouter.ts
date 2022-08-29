@@ -2,10 +2,7 @@ import { FastifyInstance } from 'fastify'
 import jwt from 'jsonwebtoken'
 import { JwksClient } from 'jwks-rsa'
 import S from 'fluent-json-schema'
-import {
-  MonitorRunResult,
-  MonitorRunResultSchema,
-} from '@httpmon/db'
+import { MonitorRunResult, MonitorRunResultSchema } from '@httpmon/db'
 import Ajv from 'ajv'
 import { execPreScript } from '../services/PreScriptService'
 
@@ -39,7 +36,7 @@ var client = new JwksClient({
   jwksUri: 'https://www.googleapis.com/oauth2/v3/certs',
 })
 
-export default async function MonitorPreScriptRouter(app: FastifyInstance) {
+export default async function PreScriptRouter(app: FastifyInstance) {
   app.post<{ Body: PubsubMessage }>(
     '/',
     {

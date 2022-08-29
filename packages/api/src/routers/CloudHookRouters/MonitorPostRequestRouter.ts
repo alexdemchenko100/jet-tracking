@@ -81,8 +81,6 @@ export default async function MonitorPostRequestRouter(app: FastifyInstance) {
         return
       }
 
-      app.log.info(obj, 'Notification handling for event')
-
       //business logic
       await handlePostRequest(obj as MonitorRunResult)
 

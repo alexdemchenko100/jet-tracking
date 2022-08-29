@@ -38,27 +38,26 @@ export async function schedule() {
 }
 
 export async function setupEmitterHandlers() {
-  logger.info('* setting emitter *')
+  logger.info('Setting Emitters for local pubsub simulation')
 
   emitter.on('monitor-prerequest', async (mon: Monitor) => {
-    logger.info({ id: mon.id }, 'monitor-prerequest')
+    logger.info({ id: mon.id }, 'topic: monitor-prerequest')
     const monrun: MonitorRunResult = { mon, runId: uuidv4() }
     if (mon.preScript && mon.preScript.length > 0) {
-      emitter.emit('monitor-api-script-run', monrun)
+      emitter.emit('api-script-run', monrun)
       return
     }
 
     emitter.emit('monitor-run', monrun)
   })
 
-  emitter.on('monitor-api-script-run', async (monrun: MonitorRunResult) => {
-    //logger.info(monrun, 'monitor-api-script-run')
-    logger.info({ res: monrun.resultId }, 'monitor-api-script-run signal')
+  emitter.on('api-script-run', async (monrun: MonitorRunResult) => {
+    logger.info({ runId: monrun.runId }, 'topic: api-script-run')
     await handleRunScript(monrun)
   })
 
-  emitter.on('monitor-api-script-result', async (monrun: MonitorRunResult) => {
-    logger.info(monrun, 'monitor-api-script-result')
+  emitter.on('api-script-result', async (monrun: MonitorRunResult) => {
+    logger.info({ runId: monrun.runId }, 'topic: api-script-result')
     if (monrun.err) {
       const result = makeMonitorResultError(monrun.mon, monrun.err?.msg)
       //save error and quit
@@ -69,14 +68,12 @@ export async function setupEmitterHandlers() {
   })
 
   emitter.on('monitor-run', async (monrun: MonitorRunResult) => {
-    //logger.info(monrun, 'monitor-run')
-    logger.info(monrun.resultId, 'monitor-run signal')
+    logger.info({ runId: monrun.runId }, 'topic: monitor-run')
     await runMonitor(monrun)
   })
 
   emitter.on('monitor-postrequest', async (monrun: MonitorRunResult) => {
-    //logger.info(monrun, 'monitor-postrequest signal')
-    logger.info(monrun.resultId, 'monitor-postrequest signal')
+    logger.info({ runId: monrun.runId }, 'topic: monitor-postrequest')
     await handlePostRequest(monrun)
   })
 }
@@ -88,7 +85,7 @@ async function handleRunScript(monrun: MonitorRunResult) {
       ...monrun,
     })
   } catch (e: any) {
-    logger.error(e)
+    logger.error(e, 'Handling script run')
   }
-  emitter.emit('monitor-api-script-result', resp.data)
+  emitter.emit('api-script-result', resp.data)
 }

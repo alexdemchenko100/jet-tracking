@@ -89,7 +89,7 @@ async function start() {
   const FASTIFY_PORT = Number(process.env.PORT) || 8080
 
   await server.listen(FASTIFY_PORT, '0.0.0.0')
-  console.log(`🚀  Fastify server running on port ${FASTIFY_PORT}`)
+  server.log.info(`🚀  Fastify server running on port ${FASTIFY_PORT}`)
 }
 
 start()

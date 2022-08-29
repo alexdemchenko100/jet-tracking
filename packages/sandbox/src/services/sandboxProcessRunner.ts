@@ -2,6 +2,7 @@ import { MonitorRequest } from '@httpmon/db'
 import { spawn } from 'child_process'
 import { join } from 'path'
 import { SandBox } from '../types'
+import { logger } from './Context'
 
 export function handlePreScriptExecution(
   monitor: MonitorRequest,
@@ -33,15 +34,14 @@ export function handlePreScriptExecution(
     }, 10000)
 
     workerProcess.on('message', function (data) {
-      console.log('message: ' + data)
+      logger.info('message: ' + data)
       data = data.toString()
       sandboxOutJson += data
     })
 
     workerProcess.on('close', async function (code) {
       clearTimeout(timeout)
-      console.log('==Result==')
-      console.log('scriptOutput', scriptOutput)
+      logger.info('scriptOutput', scriptOutput)
 
       try {
         let ctx = JSON.parse(sandboxOutJson)

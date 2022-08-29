@@ -81,8 +81,6 @@ export default async function PreScriptResultRouter(app: FastifyInstance) {
         return
       }
 
-      app.log.info(obj, 'Notification handling for event')
-
       //business logic
       await handleScriptResult(obj as MonitorRunResult)
 
