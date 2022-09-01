@@ -18,6 +18,7 @@ esbuild
     external: ['pg-native'],
     watch: config == '-w',
     sourcemap: config == '-w',
+    keepNames: true,
     logLevel: 'info',
     plugins: [
       copyPlugin.copy({

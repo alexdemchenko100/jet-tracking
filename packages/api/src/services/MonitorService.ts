@@ -2,10 +2,11 @@ import { currentUserInfo } from './../Context'
 import emitter from './emitter.js'
 
 import { db, Monitor, MonitorTuples } from '@httpmon/db'
-import { nanoid } from 'nanoid'
+import { v4 as uuidv4 } from 'uuid'
 import pino from 'pino'
 import dayjs from 'dayjs'
 import { sql } from 'kysely'
+import { readObject, deleteObject } from './GSCService'
 
 const logger = pino()
 
@@ -62,7 +63,7 @@ export class MonitorService {
       .insertInto('Monitor')
       .values({
         ...monitorToDBMonitor(mon),
-        id: nanoid(),
+        id: uuidv4(),
         accountId: currentUserInfo().accountId,
       })
       .returningAll()
@@ -139,14 +140,25 @@ export class MonitorService {
         monitorId: id,
         type: 'MONITOR_REMOVED',
         message: `Monitor ${resp?.name} is removed.`,
-        accountId: currentUserInfo().accountId,
+        accountId,
       })
       .returningAll()
       .executeTakeFirst()
+    const monResults = await db
+      .selectFrom('MonitorResult')
+      .select(['id'])
+      .where('monitorId', '=', id)
+      .where('accountId', '=', accountId)
+      .execute()
+    for (const result of monResults) {
+      if (result?.id) {
+        deleteObject(accountId, result.id, 'body')
+      }
+    }
     await db
       .deleteFrom('Monitor')
       .where('id', '=', id)
-      .where('accountId', '=', currentUserInfo().accountId)
+      .where('accountId', '=', accountId)
       .executeTakeFirst()
     return resp
   }
@@ -188,7 +200,11 @@ export class MonitorService {
       .where('id', '=', id)
       .where('accountId', '=', currentUserInfo().accountId)
       .executeTakeFirst()
-    return monResultResp
+    const bodyData = await readObject(currentUserInfo().accountId, id, 'body')
+    return {
+      ...monResultResp,
+      body: bodyData,
+    }
   }
 
   /**

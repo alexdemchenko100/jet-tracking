@@ -5,6 +5,7 @@ import dayjs from 'dayjs'
 import { logger } from '../Context'
 import { createStripeCustomer, payAsYouGoPlan } from '../services/StripeService'
 import { nanoid } from 'nanoid'
+import { createBucket, uploadObject } from './GSCService'
 
 export const getAccountIdByUser = async (userId: string) => {
   const resp = await db
@@ -44,6 +45,10 @@ export const createNewAccount = async (userId: string, email: string) => {
 
     // create new stripe customer
     const customer = await createStripeCustomer(userId, email)
+    // create GCS bucket
+    createBucket(account.id).catch((err) => {
+      throw err
+    })
 
     const userAccount = await trx
       .insertInto('UserAccount')
@@ -122,9 +127,19 @@ export async function saveMonitorResult(result: Insertable<MonitorResultTable>) 
       const { count } = db.fn
       const monitorResult = await trx
         .insertInto('MonitorResult')
-        .values(resultForSaving)
+        .values({
+          ...resultForSaving,
+          id: uuidv4(),
+          body: '',
+        })
         .returningAll()
         .executeTakeFirst()
+
+      if (!monitorResult?.id) throw new Error()
+      // Saving body to cloud storage
+      const { body } = resultForSaving
+      uploadObject(result.accountId, monitorResult.id, 'body', body)
+
       const billingInfo = await trx
         .selectFrom('BillingInfo')
         .selectAll()
