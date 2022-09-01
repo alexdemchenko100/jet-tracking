@@ -32,23 +32,34 @@ export async function uploadObject(
 ) {
   const bucketName = `${BUCKET_PREFIX}-${accountId}`
   const filePath = `${monitorResultId}/${objectName}`
+  const bucket = storage.bucket(bucketName)
+  const bucketExists = await bucket.exists()
+  if (!bucketExists[0]) {
+    await storage.createBucket(bucketName)
+  }
   await storage.bucket(bucketName).file(filePath).save(data)
-
   logger.info(`${filePath} uploaded to the bucket: ${bucketName}`)
 }
 
 export async function readObject(accountId: string, monitorResultId: string, objectName: string) {
   const bucketName = `${BUCKET_PREFIX}-${accountId}`
   const filePath = `${monitorResultId}/${objectName}`
-  const file = await storage.bucket(bucketName).file(filePath).download()
+  const bucket = storage.bucket(bucketName)
+  const bucketExists = await bucket.exists()
+  if (!bucketExists[0]) return ''
+  const file = await bucket.file(filePath).download()
   return file[0].toString('utf8')
 }
 
 export async function deleteObject(accountId: string, monitorResultId: string, objectName: string) {
   const bucketName = `${BUCKET_PREFIX}-${accountId}`
   const filePath = `${monitorResultId}/${objectName}`
-  const file = await storage.bucket(bucketName).file(filePath)
-  if (file) {
+  const bucket = storage.bucket(bucketName)
+  const bucketExists = await bucket.exists()
+  if (!bucketExists[0]) return
+  const file = await bucket.file(filePath)
+  const fileExists = await file.exists()
+  if (fileExists[0]) {
     file.delete()
     logger.info(`${filePath} removed from the bucket: ${bucketName}`)
   }
