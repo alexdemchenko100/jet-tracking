@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid'
 import pino from 'pino'
 import dayjs from 'dayjs'
 import { sql } from 'kysely'
-import { readObject, deleteObject } from './GSCService'
+import { readObject } from './GSCService'
 
 const logger = pino()
 
@@ -150,11 +150,7 @@ export class MonitorService {
       .where('monitorId', '=', id)
       .where('accountId', '=', accountId)
       .execute()
-    for (const result of monResults) {
-      if (result?.id) {
-        deleteObject(accountId, result.id, 'body')
-      }
-    }
+    emitter.emit('delete-cloud-storage-objects', { accountId, items: monResults })
     await db
       .deleteFrom('Monitor')
       .where('id', '=', id)

@@ -8,7 +8,6 @@ import { sql } from 'kysely'
 import { UserInvite } from '../types'
 import { firebaseAuth } from '../Firebase'
 import { createNewAccount } from './DBService'
-import { deleteBucket } from './GSCService'
 
 export class SettingsService {
   static instance: SettingsService
@@ -363,7 +362,6 @@ export class SettingsService {
       .where('id', '=', id)
       .where('accountId', '=', currentUserInfo().accountId)
       .executeTakeFirst()
-    deleteBucket(currentUserInfo().accountId)
     return resp.numDeletedRows
   }
 
