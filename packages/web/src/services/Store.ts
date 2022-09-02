@@ -1,10 +1,12 @@
 import { TimePeriods } from './MonitorTimePeriod'
-import { MonitorLocation, MonitorLocations } from './MonitorLocations'
+import { MonitorLocations } from './MonitorLocations'
 import { User } from 'firebase/auth'
-import { proxy, useSnapshot } from 'valtio'
+import { proxy, subscribe, useSnapshot } from 'valtio'
 import { devtools } from 'valtio/utils'
 import { BrowserHistory } from 'history'
 import { QueryClient } from 'react-query'
+import { UIState } from '@httpmon/db'
+import axios from 'axios'
 
 interface UserInfo {
   uid?: string
@@ -29,26 +31,8 @@ interface StoreState {
   user: User | null
 }
 
-interface UIState {
-  editor: {
-    monitorLocations: MonitorLocation[]
-    frequencyScale: number
-  }
-  results: {
-    tabIndex: number
-    filter: {
-      timePeriod: { label: string; value: string }
-      status: string
-      locations: string[]
-    }
-  }
-  monitors: {
-    isGridView: boolean
-  }
-}
-
-const userState: UserState = { userInfo: {}, bLoadingUserFirstTime: false }
-const uiState: UIState = {
+const defaultUserState: UserState = { userInfo: {}, bLoadingUserFirstTime: false }
+const defaultUiState: UIState = {
   editor: {
     monitorLocations: [...MonitorLocations],
     frequencyScale: 0,
@@ -61,9 +45,13 @@ const uiState: UIState = {
     isGridView: false,
   },
 }
+
+const uiState = proxy(defaultUiState)
+const userState = proxy(defaultUserState)
+
 const store: StoreState = {
-  UserState: proxy(userState),
-  UIState: proxy(uiState),
+  UserState: userState,
+  UIState: uiState,
   history: null,
   queryClient: null,
   user: null,
@@ -73,3 +61,13 @@ export const Store = {
   ...store,
   watch: useSnapshot,
 }
+
+subscribe(uiState, () => {
+  axios({
+    method: 'PUT',
+    url: `/settings/users/${userState.userInfo.email}/ui-state`,
+    data: {
+      uiState,
+    },
+  })
+})

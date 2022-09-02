@@ -140,11 +140,12 @@ model NotificationState {
 }
 
 model Settings {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  alert     Json     @default("{}")
-  account   Account  @relation(fields: [accountId], references: [id])
-  accountId String
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  alert      Json     @default("{}")
+  uiState    Json     @default("{}")
+  account    Account  @relation(fields: [accountId], references: [id])
+  accountId  String
 
   @@unique([accountId])
 }

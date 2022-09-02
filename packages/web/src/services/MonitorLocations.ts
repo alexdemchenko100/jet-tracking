@@ -1,10 +1,6 @@
-import { Store } from './Store'
+import { MonitorLocation } from '@httpmon/db'
 
-export interface MonitorLocation {
-  region: string
-  name: string
-  set: boolean
-}
+import { Store } from './Store'
 
 export const MonitorLocations: MonitorLocation[] = [
   { region: 'us-east1', name: 'S. Carolina', set: true },

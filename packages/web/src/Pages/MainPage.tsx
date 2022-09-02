@@ -48,7 +48,14 @@ import {
   PaginationPage,
   usePagination,
 } from '@ajna/pagination'
-import { Text, Section, PrimaryButton, StatusUpOrDown, NewMonitorHero, Loading } from '../components'
+import {
+  Text,
+  Section,
+  PrimaryButton,
+  StatusUpOrDown,
+  NewMonitorHero,
+  Loading,
+} from '../components'
 import { Store } from '../services/Store'
 import { useAuth } from '../services/FirebaseAuth'
 
@@ -570,6 +577,11 @@ export function MainPage() {
     onModalClose()
   }
 
+  const updateMonitorsView = async (isGridView: boolean) => {
+    setIsGridView(isGridView)
+    Store.UIState.monitors.isGridView = isGridView
+  }
+
   return (
     <Flex direction='column'>
       <Section>
@@ -599,10 +611,7 @@ export function MainPage() {
             borderColor='gray.200'
             borderRadius={8}
             p={1}
-            onClick={() => {
-              Store.UIState.monitors.isGridView = true
-              setIsGridView(true)
-            }}
+            onClick={() => updateMonitorsView(true)}
           >
             <Icon
               color={isGridView ? 'darkblue.100' : 'darkgray.100'}
@@ -617,10 +626,7 @@ export function MainPage() {
             borderColor='gray.200'
             borderRadius={8}
             p={1}
-            onClick={() => {
-              Store.UIState.monitors.isGridView = false
-              setIsGridView(false)
-            }}
+            onClick={() => updateMonitorsView(false)}
           >
             <Icon
               color={!isGridView ? 'darkblue.100' : 'darkgray.100'}

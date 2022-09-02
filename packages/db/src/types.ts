@@ -390,13 +390,68 @@ export const AlertSettingsSchema = S.object()
   .prop('failCount', S.integer().minimum(0).maximum(10))
   .prop('failTimeMinutes', S.integer().enum(Object.values([0, 5, 10, 15, 20, 30, 60])))
 
+export type MonitorLocation = {
+  region: string
+  name: string
+  set: boolean
+}
+
+export const MonitorLocationSchema = S.object()
+  .prop('region', S.string())
+  .prop('name', S.string())
+  .prop('set', S.boolean())
+
+export type UIState = {
+  editor: {
+    monitorLocations: MonitorLocation[]
+    frequencyScale: number
+  }
+  results: {
+    tabIndex: number
+    filter: {
+      timePeriod: { label: string; value: string }
+      status: string
+      locations: string[]
+    }
+  }
+  monitors: {
+    isGridView: boolean
+  }
+}
+
+export const UIStateSchema = S.object()
+  .prop(
+    'editor',
+    S.object()
+      .prop('monitorLocations', S.array().items(MonitorLocationSchema))
+      .prop('frequencyScale', S.number())
+  )
+  .prop(
+    'results',
+    S.object()
+      .prop('tabIndex', S.number())
+      .prop(
+        'filter',
+        S.object()
+          .prop('timePeriod', S.object().prop('label', S.string()).prop('value', S.string()))
+          .prop('status', S.string())
+          .prop('locations', S.array().items(S.string()))
+      )
+  )
+  .prop('monitors', S.object().prop('isGridView', S.boolean()))
+
 export type Settings = {
   id?: string
   alert: AlertSettings
+  uiState?: UIState
   accountId: string
 }
 
-export const SettingsSchema = S.object().prop('id', S.string()).prop('alert', AlertSettingsSchema)
+export const SettingsSchema = S.object()
+  .prop('id', S.string())
+  .prop('uiState', UIStateSchema)
+  .prop('accountId', S.string())
+  .prop('alert', AlertSettingsSchema)
 
 export type NotificationState = {
   id?: string

@@ -28,7 +28,7 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import { signOut, useAuth, setUser } from './services/FirebaseAuth'
 import { Text, NavItem, Loading } from './components'
 import { ChevronRightIcon } from '@chakra-ui/icons'
-import { UserAccount } from '@httpmon/db'
+import { UserAccount, UIState } from '@httpmon/db'
 import { Store } from './services/Store'
 
 const SIDEBAR_WIDTH = '240px'
@@ -134,6 +134,20 @@ export default function Console() {
       const defaultTeam = resp.data.find((item: UserAccount) => item.default)
       setUser(null, defaultTeam.role, defaultTeam.accountId)
       axios.defaults.headers.common['x-proautoma-accountId'] = defaultTeam.accountId
+      // UIState settings
+      const { data } = await axios({
+        method: 'GET',
+        url: `/settings/users/${user.email}/ui-state`,
+      })
+      if (data.uiState) {
+        Store.UIState.monitors.isGridView = data.uiState.monitors.isGridView
+        Store.UIState.editor.frequencyScale = data.uiState.editor.frequencyScale
+        Store.UIState.editor.monitorLocations = data.uiState.editor.monitorLocations
+        Store.UIState.results.tabIndex = data.uiState.results.tabIndex
+        Store.UIState.results.filter.timePeriod = data.uiState.results.filter.timePeriod
+        Store.UIState.results.filter.status = data.uiState.results.filter.status
+        Store.UIState.results.filter.locations = data.uiState.results.filter.locations
+      }
       return resp.data
     }
   })

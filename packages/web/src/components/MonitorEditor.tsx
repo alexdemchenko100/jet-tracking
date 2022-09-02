@@ -37,6 +37,7 @@ import {
   MonitorAssertion,
   MonitorTuples,
   NotificationChannel,
+  MonitorLocation,
 } from '@httpmon/db'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from 'react-hook-form'
@@ -49,7 +50,6 @@ import { MonitorAuthEditor } from './MonitorAuthEditor'
 import {
   getRegionsFromShowLocations,
   getShowLocationsFromRegions,
-  MonitorLocation,
   syncShowLocationsWithStore,
 } from '../services/MonitorLocations'
 import { Store } from '../services/Store'

@@ -1,6 +1,13 @@
 import { currentUserInfo } from './../Context'
 
-import { Settings, db, NotificationChannel, NotificationEmail, UserAccount } from '@httpmon/db'
+import {
+  Settings,
+  db,
+  NotificationChannel,
+  NotificationEmail,
+  UserAccount,
+  UIState,
+} from '@httpmon/db'
 import { nanoid } from 'nanoid'
 import { sendVerificationEmail } from './SendgridService'
 import dayjs from 'dayjs'
@@ -378,5 +385,41 @@ export class SettingsService {
       .where('email', '=', email)
       .executeTakeFirst()
     return data
+  }
+
+  public async getUIStateSetting(email: string) {
+    const originOwner = await db
+      .selectFrom('UserAccount')
+      .selectAll()
+      .where('email', '=', email)
+      .where('stripeCustomerId', '<>', '')
+      .executeTakeFirst()
+    if (originOwner?.accountId) {
+      const settings = await db
+        .selectFrom('Settings')
+        .select(['uiState'])
+        .where('accountId', '=', originOwner.accountId)
+        .executeTakeFirst()
+      return settings?.uiState
+    }
+    return
+  }
+
+  public async updateUIStateSetting(email: string, uiState: UIState) {
+    const originOwner = await db
+      .selectFrom('UserAccount')
+      .selectAll()
+      .where('email', '=', email)
+      .where('stripeCustomerId', '<>', '')
+      .executeTakeFirst()
+    if (originOwner?.accountId) {
+      const res = await db
+        .updateTable('Settings')
+        .set({ uiState })
+        .where('accountId', '=', originOwner.accountId)
+        .executeTakeFirst()
+      return res.numUpdatedRows
+    }
+    return
   }
 }
