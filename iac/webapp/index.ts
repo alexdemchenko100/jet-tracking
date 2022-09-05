@@ -7,18 +7,8 @@ import * as docker from '@pulumi/docker'
 //gcloud auth configure-docker
 
 // Location to deploy Cloud Run services
-const location = gcp.config.region || 'us-east1'
+const mainRegionName = gcp.config.region || 'us-east1'
 const project = 'httpmon-stage'
-
-// const EnabledServices = ['run', 'cloudscheduler', 'eventarc', 'iam']
-
-// const allServices = EnabledServices.map(
-//   (api) =>
-//     new gcp.projects.Service(`${api}-enabled`, {
-//       service: `${api}.googleapis.com`,
-//       disableDependentServices: true,
-//     })
-// )
 
 // Build a Docker image from our sample Ruby app and put it to Google Container Registry.
 // Note: Run `gcloud auth configure-docker` in your command line to configure auth to GCR.
@@ -42,14 +32,13 @@ new gcp.projects.IAMBinding('cloud-run-cloud-sql', {
   role: 'roles/cloudsql.client',
 })
 
-const dbInstanceName = 'httpmon-stage:us-east1:mondb-instance'
+const dbInstanceName = `${project}:${mainRegionName}:mondb-instance`
 
-const httpmonMainService = new gcp.cloudrun.Service(
-  'httpmon-main-service',
-  {
+function createService(name: string, region: string) {
+  const serviceResource = new gcp.cloudrun.Service(name, {
     project,
-    name: 'httpmon-main-service',
-    location,
+    name,
+    location: region,
     template: {
       spec: {
         serviceAccountName: serviceAccount.email,
@@ -68,7 +57,7 @@ const httpmonMainService = new gcp.cloudrun.Service(
               },
               {
                 name: 'DB_HOST',
-                value: '/cloudsql/httpmon-stage:us-east1:mondb-instance',
+                value: `/cloudsql/${dbInstanceName}`,
               },
               {
                 name: 'DB_PORT',
@@ -106,18 +95,19 @@ const httpmonMainService = new gcp.cloudrun.Service(
         latestRevision: true,
       },
     ],
-  }
-  //   { dependsOn: allServices }
-)
+  })
 
-// Open the service to public unrestricted access
-new gcp.cloudrun.IamMember('httpmon-main-everyone', {
-  project,
-  service: httpmonMainService.name,
-  location,
-  role: 'roles/run.invoker',
-  member: 'allUsers',
-})
+  // Open the service to public unrestricted access
+  new gcp.cloudrun.IamMember(`httpmon-everyone-${name}`, {
+    project,
+    service: serviceResource.name,
+    location: region,
+    role: 'roles/run.invoker',
+    member: 'allUsers',
+  })
+
+  return serviceResource
+}
 
 // const sandboxImage = new docker.Image('httpmon-sandbox-image', {
 //   imageName: pulumi.interpolate`gcr.io/${project}/httpmon-sandbox:v0.0.1`,
@@ -169,33 +159,20 @@ new gcp.cloudrun.IamMember('httpmon-main-everyone', {
 //   member: 'allUsers',
 // })
 
-//Scheduler
-
-const schedulerTopic = new gcp.pubsub.Topic(`${project}-scheduler`, {
-  name: `${project}-scheduler`, //this will be topic name
-  project,
-})
-
-new gcp.cloudscheduler.Job(
-  'scheduler-job',
-  {
+function createTopicAndTrigger(
+  serviceRes: gcp.cloudrun.Service,
+  regionName: string,
+  topicName: string,
+  servicePath: string
+) {
+  const topicRes = new gcp.pubsub.Topic(`${project}-${topicName}`, {
+    name: `${project}-${topicName}`, //this will be topic name
     project,
-    schedule: '* * * * *',
-    pubsubTarget: {
-      topicName: schedulerTopic.id,
-      data: btoa('Schedule now!'),
-    },
-    region: location,
-    timeZone: 'Europe/London',
-  }
-  //   { dependsOn: allServices }
-)
+  })
 
-const schedulerTrigger = new gcp.eventarc.Trigger(
-  'scheduler-trigger',
-  {
+  new gcp.eventarc.Trigger(`${topicName}-trigger`, {
     project,
-    location,
+    location: regionName,
     serviceAccount: serviceAccount.email,
     matchingCriterias: [
       {
@@ -205,20 +182,55 @@ const schedulerTrigger = new gcp.eventarc.Trigger(
     ],
     destination: {
       cloudRunService: {
-        service: httpmonMainService.name,
-        region: location,
-        path: '/api/services/scheduler',
+        service: serviceRes.name,
+        region: regionName,
+        path: servicePath, //'/api/services/topic',
       },
     },
     transports: [
       {
         pubsubs: [
           {
-            topic: schedulerTopic.name,
+            topic: topicRes.name,
           },
         ],
       },
     ],
-  }
-  //   { dependsOn: allServices }
-)
+  })
+  return topicRes
+}
+
+const mainServiceTopics = [
+  { name: 'scheduler', path: '/api/services/scheduler' },
+  { name: 'monitor-prerequest', path: '/api/services/monitor-prerequest' },
+  { name: `monitor-run-${mainRegionName}`, path: '/api/services/monitor-run' },
+  { name: 'monitor-postrequest', path: '/api/services/monitor-postrequest' },
+  { name: 'api-script-run', path: '/api/services/api-script-run' },
+  { name: 'api-script-result', path: '/api/services/api-script-result' },
+]
+
+const httpmonMainService = createService(`httpmon-main-service`, mainRegionName)
+
+const mainServiceTopicResources = mainServiceTopics.map(({ name, path }) => {
+  return createTopicAndTrigger(httpmonMainService, mainRegionName, name, path)
+})
+
+//first one is scheduler
+const schedulerTopic = mainServiceTopicResources[0]
+
+new gcp.cloudscheduler.Job('scheduler-job', {
+  project,
+  schedule: '* * * * *',
+  pubsubTarget: {
+    topicName: schedulerTopic.id,
+    data: btoa('Schedule now!'),
+  },
+  region: mainRegionName,
+  timeZone: 'Europe/London',
+})
+
+const runLocations = ['europe-west3']
+runLocations.map((locName) => {
+  const service = createService(`httpmon-service-${locName}`, locName)
+  createTopicAndTrigger(service, locName, `monitor-run-${locName}`, '/api/services/monitor-run')
+})
