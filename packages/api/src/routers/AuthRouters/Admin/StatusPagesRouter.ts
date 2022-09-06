@@ -54,7 +54,6 @@ export default async function StatusPagesRouter(app: FastifyInstance) {
     {
       schema: {
         params: ParamsSchema,
-        body: S.number(),
         response: {
           200: StatusPageDetailsSchema,
         },

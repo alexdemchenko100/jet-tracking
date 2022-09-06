@@ -49,7 +49,7 @@ async function start() {
 
   const FASTIFY_PORT = Number(process.env.PORT) || 8081
 
-  await server.listen(FASTIFY_PORT, '0.0.0.0')
+  await server.listen({ port: FASTIFY_PORT, host: '0.0.0.0' })
   server.log.info(`🚀  Fastify server running on port ${FASTIFY_PORT}`)
 }
 

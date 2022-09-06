@@ -1,5 +1,5 @@
 import { FastifyLoggerInstance } from 'fastify'
-import { fastifyRequestContextPlugin, requestContext } from 'fastify-request-context'
+import { fastifyRequestContextPlugin, requestContext } from '@fastify/request-context'
 import * as gcpMetadata from 'gcp-metadata'
 
 import pino, { LoggerOptions } from 'pino'
@@ -50,13 +50,6 @@ interface UserInfo {
   user: string
   accountId: string
   role?: string
-}
-
-declare module 'fastify-request-context' {
-  interface RequestContextData {
-    user: UserInfo
-    logger: FastifyLoggerInstance
-  }
 }
 
 export const logger = new Proxy(plogger as FastifyLoggerInstance, {

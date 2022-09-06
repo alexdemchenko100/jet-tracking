@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
-import { requestContext } from 'fastify-request-context'
+import { requestContext } from '@fastify/request-context'
 import { firebaseAuth } from '../Firebase'
 import { createNewAccount, getAccountIdByUser, getRoleFromAccountId } from '../services/DBService'
 

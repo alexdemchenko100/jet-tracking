@@ -18,28 +18,28 @@ import PreScriptResultRouter from './CloudHookRouters/PreScriptResultRouter.js'
 
 export default async function MainRouter(fastify: FastifyInstance) {
   //Public API router
-  fastify.register(OndemandMonitorRouter, { prefix: '/ondemand' })
-  fastify.register(SettingsPublicRouter, { prefix: '/settings' })
-  fastify.register(StatusPublicRouter, { prefix: '/status' })
+  await fastify.register(OndemandMonitorRouter, { prefix: '/ondemand' })
+  await fastify.register(SettingsPublicRouter, { prefix: '/settings' })
+  await fastify.register(StatusPublicRouter, { prefix: '/status' })
 
   //Authorized APIs
-  fastify.register(MonitorViewerRouter, { prefix: '/monitors' })
-  fastify.register(SettingsViewerRouter, { prefix: '/settings' })
-  fastify.register(MonitorRouter, { prefix: '/monitors' })
-  fastify.register(EnvRouter, { prefix: '/environments' })
-  fastify.register(SettingsRouter, { prefix: '/settings' })
-  fastify.register(StatusPagesRouter, { prefix: '/status-pages' })
-  fastify.register(ActivityLogRouter, { prefix: '/activity-logs' })
-  fastify.register(BillingRouter, { prefix: '/billing' })
+  await fastify.register(MonitorViewerRouter, { prefix: '/monitors' })
+  await fastify.register(SettingsViewerRouter, { prefix: '/settings' })
+  await fastify.register(MonitorRouter, { prefix: '/monitors' })
+  await fastify.register(EnvRouter, { prefix: '/environments' })
+  await fastify.register(SettingsRouter, { prefix: '/settings' })
+  await fastify.register(StatusPagesRouter, { prefix: '/status-pages' })
+  await fastify.register(ActivityLogRouter, { prefix: '/activity-logs' })
+  await fastify.register(BillingRouter, { prefix: '/billing' })
 
   //cloud hooks for backend processing
-  fastify.register(SchedulerRouter, { prefix: '/services/scheduler' })
-  fastify.register(MonitorRunRouter, { prefix: '/services/monitor-run' })
-  fastify.register(MonitorPreRequestRouter, { prefix: '/services/monitor-prerequest' })
-  fastify.register(PreScriptResultRouter, { prefix: '/services/api-script-result' })
-  fastify.register(MonitorPostRequestRouter, { prefix: '/services/monitor-postrequest' })
+  await fastify.register(SchedulerRouter, { prefix: '/services/scheduler' })
+  await fastify.register(MonitorRunRouter, { prefix: '/services/monitor-run' })
+  await fastify.register(MonitorPreRequestRouter, { prefix: '/services/monitor-prerequest' })
+  await fastify.register(PreScriptResultRouter, { prefix: '/services/api-script-result' })
+  await fastify.register(MonitorPostRequestRouter, { prefix: '/services/monitor-postrequest' })
 
-  fastify.setNotFoundHandler((_req, reply) => {
+  await fastify.setNotFoundHandler((_req, reply) => {
     // The expected errors will be handled here, but unexpected ones should eventually result in a crash.
     reply.code(409).send({ error: 'top level unknown error' })
   })
