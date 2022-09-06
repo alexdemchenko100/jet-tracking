@@ -147,7 +147,12 @@ export function SignIn() {
                   <Text fontSize='md' whiteSpace='nowrap'>
                     or continue with
                   </Text>
-                  <Image w='60%' src={googleSigninButton} onClick={() => handleSignIn()}></Image>
+                  <Image
+                    w='60%'
+                    cursor='pointer'
+                    src={googleSigninButton}
+                    onClick={() => handleSignIn()}
+                  ></Image>
                 </VStack>
               </Stack>
             </Stack>

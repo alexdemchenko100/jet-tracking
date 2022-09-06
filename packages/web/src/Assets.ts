@@ -24,6 +24,7 @@ import AmericanExpress from './assets/american-express.png'
 import MasterCard from './assets/master-card.png'
 import Visa from './assets/visa.png'
 import Maestro from './assets/maestro.png'
+import googleSignupButton from './assets/google_sign_up_button.png'
 
 export {
   grarGrid,
@@ -52,4 +53,5 @@ export {
   MasterCard,
   Visa,
   Maestro,
+  googleSignupButton,
 }

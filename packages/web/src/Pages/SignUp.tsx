@@ -33,12 +33,16 @@ import {
   sendEmailVerification,
   updateProfile,
   UserCredential,
+  GoogleAuthProvider,
+  signInWithRedirect,
+  getRedirectResult,
 } from 'firebase/auth'
 import { useForm } from 'react-hook-form'
 import { useMutation } from 'react-query'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
-import { logoTitle } from '../Assets'
+import { logoTitle, googleSignupButton } from '../Assets'
+import { isLoggedIn, setUser } from '../services/FirebaseAuth'
 
 type SignUpParams = {
   fullName: string
@@ -47,6 +51,8 @@ type SignUpParams = {
 }
 
 export default function SignUp() {
+  const navigate = useNavigate()
+
   const {
     register,
     handleSubmit,
@@ -80,6 +86,21 @@ export default function SignUp() {
     try {
       await signupAsync(data)
     } catch (e) {}
+  }
+
+  async function handleGoogleSignUp() {
+    try {
+      const auth = getAuth()
+      const provider = new GoogleAuthProvider()
+      await signInWithRedirect(auth, provider)
+      // After returning from the redirect when your app initializes you can obtain the result
+      const creds = await getRedirectResult(auth)
+      setUser(creds ? creds.user : null)
+    } catch (e) {}
+  }
+
+  if (isLoggedIn()) {
+    navigate('/console/monitors')
   }
 
   return (
@@ -128,6 +149,17 @@ export default function SignUp() {
               >
                 Create Account
               </Button>
+              <VStack>
+                <Text fontSize='md' whiteSpace='nowrap'>
+                  or continue with
+                </Text>
+                <Image
+                  w='60%'
+                  cursor='pointer'
+                  src={googleSignupButton}
+                  onClick={() => handleGoogleSignUp()}
+                ></Image>
+              </VStack>
               <VStack>
                 <Text size='xs'>By signing up, you agree to the</Text>
                 <Text size='xs'>
