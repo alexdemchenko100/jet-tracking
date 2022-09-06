@@ -10,16 +10,21 @@ import * as docker from '@pulumi/docker'
 const mainRegionName = gcp.config.region || 'us-east1'
 const project = 'httpmon-stage'
 
-// Build a Docker image from our sample Ruby app and put it to Google Container Registry.
+const config = new pulumi.Config()
+
+// Build a Docker image and put it to Google Container Registry.
 // Note: Run `gcloud auth configure-docker` in your command line to configure auth to GCR.
 const mainImageName = pulumi.interpolate`gcr.io/${project}/httpmon-main:v0.0.1`
-// const mainImage = new docker.Image('httpmon-main-image', {
-//   imageName: mainImageName,
-//   build: {
-//     context: '..',
-//     dockerfile: '../Dockerfile',
-//   },
-// })
+const mainImage = new docker.Image('httpmon-main-image', {
+  imageName: mainImageName,
+  build: {
+    context: '../..',
+    dockerfile: '../../Dockerfile',
+    args: {
+      VITE_PROJECT_ID: project,
+    },
+  },
+})
 
 const serviceAccount = new gcp.serviceaccount.Account(`${project}-sa`, {
   accountId: `${project}-sa`,
@@ -32,7 +37,23 @@ new gcp.projects.IAMBinding('cloud-run-cloud-sql', {
   role: 'roles/cloudsql.client',
 })
 
-const dbInstanceName = `${project}:${mainRegionName}:mondb-instance`
+const plainEnvs = [
+  'SENDGRID_SENDER_EMAIL',
+  'SENDGRID_NOTIFICATION_EMAIL_TEMPLATE',
+  'SENDGRID_VERIFY_EMAIL_TEMPLATE',
+  'WEB_APP_URL',
+]
+const secretEnvs = ['STRIPE_SECRET_KEY', 'SENDGRID_API_KEY']
+
+const plainEnvArray = plainEnvs.map((name) => {
+  return { name, value: config.require(name) }
+})
+
+const secretEnvArray = secretEnvs.map((name) => {
+  return { name, value: config.requireSecret(name) }
+})
+
+const dbInstanceName = `${project}:${mainRegionName}:mondb-${project}-instance`
 
 function createService(name: string, region: string) {
   const serviceResource = new gcp.cloudrun.Service(name, {
@@ -44,7 +65,7 @@ function createService(name: string, region: string) {
         serviceAccountName: serviceAccount.email,
         containers: [
           {
-            image: mainImageName, //mainImage.imageName,
+            image: mainImage.imageName,
             ports: [
               {
                 containerPort: 8080,
@@ -71,6 +92,8 @@ function createService(name: string, region: string) {
                 name: 'DB_PASSWORD',
                 value: 'rdjdiirejf',
               },
+              ...plainEnvArray,
+              ...secretEnvArray,
             ],
             resources: {
               limits: {
@@ -109,55 +132,51 @@ function createService(name: string, region: string) {
   return serviceResource
 }
 
-// const sandboxImage = new docker.Image('httpmon-sandbox-image', {
-//   imageName: pulumi.interpolate`gcr.io/${project}/httpmon-sandbox:v0.0.1`,
-//   build: {
-//     context: '..',
-//     dockerfile: '../Dockerfile.sandbox',
-//   },
-// })
-//
-// const httpmonSandboxService = new gcp.cloudrun.Service(
-//   'httpmon-sandbox-service',
-//   {
-//     location,
-//     template: {
-//       spec: {
-//         containers: [
-//           {
-//             image: sandboxImage.imageName,
-//             ports: [
-//               {
-//                 containerPort: 8080,
-//               },
-//             ],
-//             resources: {
-//               limits: {
-//                 memory: '1Gi',
-//               },
-//             },
-//           },
-//         ],
-//         containerConcurrency: 80,
-//       },
-//     },
-//     traffics: [
-//       {
-//         percent: 100,
-//         latestRevision: true,
-//       },
-//     ],
-//   },
-//   { dependsOn: allServices }
-// )
-//
-// // Open the service to public unrestricted access
-// new gcp.cloudrun.IamMember('httpmon-sandbox-everyone', {
-//   service: httpmonSandboxService.name,
-//   location,
-//   role: 'roles/run.invoker',
-//   member: 'allUsers',
-// })
+const sandboxImage = new docker.Image('httpmon-sandbox-image', {
+  imageName: pulumi.interpolate`gcr.io/${project}/httpmon-sandbox:v0.0.1`,
+  build: {
+    context: '../..',
+    dockerfile: '../../Dockerfile.sandbox',
+  },
+})
+
+const httpmonSandboxService = new gcp.cloudrun.Service('httpmon-sandbox-service', {
+  location: mainRegionName,
+  template: {
+    spec: {
+      containers: [
+        {
+          image: sandboxImage.imageName,
+          ports: [
+            {
+              containerPort: 8080,
+            },
+          ],
+          resources: {
+            limits: {
+              memory: '1Gi',
+            },
+          },
+        },
+      ],
+      containerConcurrency: 80,
+    },
+  },
+  traffics: [
+    {
+      percent: 100,
+      latestRevision: true,
+    },
+  ],
+})
+
+// Open the service to public unrestricted access
+new gcp.cloudrun.IamMember('httpmon-sandbox-everyone', {
+  service: httpmonSandboxService.name,
+  location: mainRegionName,
+  role: 'roles/run.invoker',
+  member: 'allUsers',
+})
 
 function createTopicAndTrigger(
   serviceRes: gcp.cloudrun.Service,
@@ -165,7 +184,7 @@ function createTopicAndTrigger(
   topicName: string,
   servicePath: string
 ) {
-  const topicRes = new gcp.pubsub.Topic(`${project}-${topicName}`, {
+  const topicRes = new gcp.pubsub.Topic(`${project}-${topicName}-topic`, {
     name: `${project}-${topicName}`, //this will be topic name
     project,
   })
@@ -205,7 +224,6 @@ const mainServiceTopics = [
   { name: 'monitor-prerequest', path: '/api/services/monitor-prerequest' },
   { name: `monitor-run-${mainRegionName}`, path: '/api/services/monitor-run' },
   { name: 'monitor-postrequest', path: '/api/services/monitor-postrequest' },
-  { name: 'api-script-run', path: '/api/services/api-script-run' },
   { name: 'api-script-result', path: '/api/services/api-script-result' },
 ]
 
@@ -231,6 +249,14 @@ new gcp.cloudscheduler.Job('scheduler-job', {
 
 const runLocations = ['europe-west3']
 runLocations.map((locName) => {
-  const service = createService(`httpmon-service-${locName}`, locName)
+  const service = createService(`httpmon-monitor-run-service-${locName}`, locName)
   createTopicAndTrigger(service, locName, `monitor-run-${locName}`, '/api/services/monitor-run')
 })
+
+//create Sandbox
+createTopicAndTrigger(
+  httpmonSandboxService,
+  mainRegionName,
+  'api-script-run',
+  '/api/services/api-script-run'
+)

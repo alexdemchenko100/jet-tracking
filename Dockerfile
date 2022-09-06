@@ -21,6 +21,8 @@ RUN --mount=type=cache,id=pnpm-store,target=/root/.pnpm-store\
   pnpm -r install --frozen-lockfile --offline
 
 # build step
+ARG VITE_PROJECT_ID=httpmon-test
+ARG VITE_STRIPE_PUBLIC_KEY=pk_test_51LPpMdIPGf5DGRkK2ueVuSCFMdwv053JEQD7kfX66xdvUC4AG6D1aAlAnfvyN20JosLFNycDC1l7kysmGsPooZA600x3kSwLH2
 RUN pnpm build
 
 # run --------------> The production image

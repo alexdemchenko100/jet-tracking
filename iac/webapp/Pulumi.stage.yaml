@@ -1,0 +1,10 @@
+config:
+  gcp:project: httpmon-stage
+  iac:SENDGRID_API_KEY:
+    secure: AAABAEV287zuSiOWRzOk9pyUSSR3Rv3fyE3flFuiLi+aoqDDkWvf0JB91iTz5tvbSjDekMDEsoCuRoi9LXF6CJWnZRSuKVuiXbvtIAU8MBlJLH6N76dNgLzoTOCt+r7rehnAwhE=
+  iac:SENDGRID_NOTIFICATION_EMAIL_TEMPLATE: d-27b0b5e1dc9f4d04974c1a93241056c0
+  iac:SENDGRID_SENDER_EMAIL: support@proautoma.com
+  iac:SENDGRID_VERIFY_EMAIL_TEMPLATE: d-9403e0f827db4b0ba99ee8e89ef0c53d
+  iac:STRIPE_SECRET_KEY:
+    secure: AAABAMkO+9fvgTw6SuSBFGmDffEqpE8Wc1zoM7eXWWuy3WB88XH3M0z9IiBR7wQ5ylNrv+RxKyEHn+nEqcPhH6kYQJgZsMZDHQ6HpmaWn69RDgFgv4smkUfoo5obeRgHZzi3uNh3dgCR9+iV32BckSOq3leB3pJzOL+kzM1k4cpHRS+5dpWUK5hcvQ==
+  iac:WEB_APP_URL: https://stage.proautoma.com

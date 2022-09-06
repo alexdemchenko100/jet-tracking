@@ -11,33 +11,44 @@ const EnabledServices = ['run', 'cloudscheduler', 'eventarc', 'iam', 'sqladmin',
 const allServices = EnabledServices.map(
   (api) =>
     new gcp.projects.Service(`${api}-enabled`, {
+      project,
       service: `${api}.googleapis.com`,
       disableDependentServices: true,
     })
 )
 
-const dbServer = new gcp.sql.DatabaseInstance('instance', {
-  project,
-  name: 'mondb-instance',
-  region,
-  databaseVersion: 'POSTGRES_14',
-  settings: {
-    tier: 'db-f1-micro',
-    diskSize: 25,
-    ipConfiguration: {
-      ipv4Enabled: true,
+const dbServer = new gcp.sql.DatabaseInstance(
+  `mondb-${project}-instance`,
+  {
+    project,
+    name: `mondb-${project}-instance`,
+    region,
+    databaseVersion: 'POSTGRES_14',
+    settings: {
+      tier: 'db-f1-micro',
+      diskSize: 25,
+      ipConfiguration: {
+        ipv4Enabled: true,
+      },
     },
+    deletionProtection: true,
   },
-  deletionProtection: true,
-})
+  {
+    dependsOn: allServices,
+  }
+)
+
 const database = new gcp.sql.Database('mondb', {
   project,
   name: 'mondb',
   instance: dbServer.name,
 })
 
-const users = new gcp.sql.User('users', {
+const user = new gcp.sql.User('users', {
   instance: dbServer.name,
   name: 'postgres',
   password: 'rdjdiirejf',
 })
+
+export const dbUser = user.name
+export const dbPass = user.password

@@ -14,16 +14,28 @@ import { UserAccount } from '@httpmon/db'
 
 let auth: Auth | null = null
 
+const projectId = import.meta.env.VITE_PROJECT_ID
+
 export function initFirebaseAuth() {
-  const firebaseConfig = {
-    apiKey: 'AIzaSyAqn0-0Bq3yUQaoVm3Yf-XU8dSN3nNUa9g',
-    authDomain: 'www.proautoma.com',
-    projectId: 'httpmon-test',
-    storageBucket: 'httpmon-test.appspot.com',
-    messagingSenderId: '439355076640',
-    appId: '1:439355076640:web:3754458b85e17b34120c45',
-    measurementId: 'G-MGHY3X5DJN',
-  }
+  const firebaseConfig =
+    projectId == 'httpmon-stage'
+      ? {
+          apiKey: 'AIzaSyCnCXQ23mj2_VI2r70k2Zpmb8J5g4JC_wA',
+          authDomain: 'httpmon-stage.firebaseapp.com',
+          projectId: 'httpmon-stage',
+          storageBucket: 'httpmon-stage.appspot.com',
+          messagingSenderId: '818508123940',
+          appId: '1:818508123940:web:51c3e74d248b65c31fadb1',
+        }
+      : {
+          apiKey: 'AIzaSyAqn0-0Bq3yUQaoVm3Yf-XU8dSN3nNUa9g',
+          authDomain: 'www.proautoma.com',
+          projectId: 'httpmon-test',
+          storageBucket: 'httpmon-test.appspot.com',
+          messagingSenderId: '439355076640',
+          appId: '1:439355076640:web:3754458b85e17b34120c45',
+          measurementId: 'G-MGHY3X5DJN',
+        }
 
   const app = initializeApp(firebaseConfig)
   const analytics = getAnalytics(app)
