@@ -44,7 +44,7 @@ import { FormProvider, useFieldArray, useForm, useFormContext, Controller } from
 import { MultiValue, Select as MultiSelect } from 'chakra-react-select'
 import { FiPlus, FiTrash2, FiSearch } from 'react-icons/fi'
 import { useMutation, useQuery } from 'react-query'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { MonitorAuthEditor } from './MonitorAuthEditor'
 import {
@@ -452,6 +452,8 @@ function SelectOption(props: OptionProps) {
 export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) {
   //id tells apart Edit to a new check creation
   const { id } = useParams()
+  const toast = useToast()
+  const navigate = useNavigate()
 
   let [searchParams, _] = useSearchParams()
   const queryUrl = searchParams.get('url')
@@ -553,7 +555,7 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
     mutateAsync: createMonitor,
     isLoading: isCreating,
     error: createError,
-  } = useMutation<Monitor, Error, Monitor>(async (data: Monitor) => {
+  } = useMutation<Monitor, AxiosError, Monitor>(async (data: Monitor) => {
     const method = id ? 'POST' : 'PUT'
     const url = id ? `/monitors/${id}` : '/monitors'
     const resp = await axios({
@@ -573,8 +575,20 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
     return resp.data as Monitor
   })
 
+  useEffect(() => {
+    if (createError) {
+      toast({
+        position: 'top',
+        title: 'Error',
+        description: createError.response?.data.message,
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+      })
+    }
+  }, [createError])
+
   const watched = watch()
-  console.log(watched)
 
   function handleQuickRun() {
     handleOndemandMonitor(prepareMonitor(watched))
@@ -602,9 +616,6 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
   function hasValidBody() {
     return watched.bodyType != '' && Boolean(watched.body)
   }
-
-  const toast = useToast()
-  const navigate = useNavigate()
 
   function prepareMonitor(data: FormMonitor): Monitor {
     //cleanse data to become the monitor

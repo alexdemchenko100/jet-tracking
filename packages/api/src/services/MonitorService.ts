@@ -56,6 +56,16 @@ export class MonitorService {
     return MonitorService.instance
   }
 
+  public async checkMonExists(mon: Monitor) {
+    const existingMon = await db
+      .selectFrom('Monitor')
+      .selectAll()
+      .where('name', '=', mon.name)
+      .where('accountId', '=', currentUserInfo().accountId)
+      .executeTakeFirst()
+    return existingMon?.id
+  }
+
   public async create(mon: Monitor) {
     logger.info(mon, 'creating mon')
 

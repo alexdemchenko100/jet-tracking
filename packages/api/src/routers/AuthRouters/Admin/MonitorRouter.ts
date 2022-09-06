@@ -25,13 +25,22 @@ export default async function MonitorRouter(app: FastifyInstance) {
         },
       },
     },
-    async function (req, reply) {
-      const mon = req.body
+    async function ({ body, log }, reply) {
+      const exists = await monitorSvc.checkMonExists(body)
+      if (exists) {
+        reply
+          .status(400)
+          .send({ message: 'Monitor with the same name already exists. Please use another name' })
+      }
+      try {
+        const resp = await monitorSvc.create(body)
+        log.info(`Creating monitor: ${resp?.id}`)
 
-      const resp = await monitorSvc.create(mon)
-      req.log.info(`Creating monitor: ${resp?.id}`)
-
-      reply.send(resp)
+        reply.send(resp)
+      } catch (error) {
+        log.error(`Creating monitor: ${error.message}`)
+        reply.status(400).send({ message: error.message })
+      }
     }
   )
 
