@@ -119,7 +119,6 @@ async function getDefaultRoleAndAccount(email: string) {
   const defaultAccount = resp.data.find((item: UserAccount) => item.isCurrentAccount) as UserAccount
 
   if (!Store.UserState.userInfo.role) {
-    console.log('def acct', defaultAccount)
     Store.UserState.userInfo.role = defaultAccount?.role
     Store.UserState.userInfo.accountId = defaultAccount?.accountId
   }
@@ -133,13 +132,13 @@ async function getDefaultRoleAndAccount(email: string) {
     url: `/settings/ui-state`,
   })
   if (data.uiState) {
-    Store.UIState.monitors.isGridView = data.uiState.monitors.isGridView
-    Store.UIState.editor.frequencyScale = data.uiState.editor.frequencyScale
-    Store.UIState.editor.monitorLocations = data.uiState.editor.monitorLocations
-    Store.UIState.results.tabIndex = data.uiState.results.tabIndex
-    Store.UIState.results.filter.timePeriod = data.uiState.results.filter.timePeriod
-    Store.UIState.results.filter.status = data.uiState.results.filter.status
-    Store.UIState.results.filter.locations = data.uiState.results.filter.locations
+    Store.UIState.monitors.isGridView = data.uiState?.monitors?.isGridView
+    Store.UIState.editor.frequencyScale = data.uiState?.editor?.frequencyScale
+    Store.UIState.editor.monitorLocations = data.uiState?.editor?.monitorLocations
+    Store.UIState.results.tabIndex = data.uiState?.results?.tabIndex
+    Store.UIState.results.filter.timePeriod = data.uiState?.results?.filter?.timePeriod
+    Store.UIState.results.filter.status = data.uiState?.results?.filter?.status
+    Store.UIState.results.filter.locations = data.uiState?.results?.filter?.locations
   }
 }
 

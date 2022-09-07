@@ -42,9 +42,9 @@ function SwitchAccountMenu({ teams }: SwitchAccountMenuProps) {
   const menuBtnRef = useRef<HTMLButtonElement>(null)
 
   const switchAccount = async (account: UserAccount) => {
-    //setUser(null, team.role, team.accountId)
     menuBtnRef.current?.click()
     await setCurrentAccount(account)
+
     navigate('/console/monitors')
     Store.queryClient?.invalidateQueries(['monitors-list'])
     Store.queryClient?.invalidateQueries(['monitors-stats'])

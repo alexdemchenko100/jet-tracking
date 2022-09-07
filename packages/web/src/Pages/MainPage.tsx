@@ -416,7 +416,6 @@ export function MainPage() {
   const navigate = useNavigate()
   const [filterOption, setFilterOption] = useState<string | undefined>(undefined)
   const { register, watch } = useForm<IFormInputs>()
-  const [isGridView, setIsGridView] = useState<boolean>(Store.UIState.monitors.isGridView)
   const [sortOption, setSortOption] = useState<string>('')
   const [sortDir, setSortDir] = useState<string>('asc')
   const [sortedMonitors, setSortedMonitors] = useState<Monitor[]>([])
@@ -430,6 +429,8 @@ export function MainPage() {
       currentPage: 1,
     },
   })
+
+  const uiState = Store.watch(Store.UIState)
 
   watch()
 
@@ -578,7 +579,6 @@ export function MainPage() {
   }
 
   const updateMonitorsView = async (isGridView: boolean) => {
-    setIsGridView(isGridView)
     Store.UIState.monitors.isGridView = isGridView
   }
 
@@ -614,7 +614,7 @@ export function MainPage() {
             onClick={() => updateMonitorsView(true)}
           >
             <Icon
-              color={isGridView ? 'darkblue.100' : 'darkgray.100'}
+              color={uiState.monitors.isGridView ? 'darkblue.100' : 'darkgray.100'}
               fontSize={'lg'}
               as={FiGrid}
               cursor='pointer'
@@ -629,7 +629,7 @@ export function MainPage() {
             onClick={() => updateMonitorsView(false)}
           >
             <Icon
-              color={!isGridView ? 'darkblue.100' : 'darkgray.100'}
+              color={!uiState.monitors.isGridView ? 'darkblue.100' : 'darkgray.100'}
               fontSize={'lg'}
               as={FiList}
               cursor='pointer'
@@ -664,7 +664,7 @@ export function MainPage() {
         </Flex>
       </Section>
       <Section p={0} mb='0' display='flex' minH='calc(100vh - 320px)' flexDirection='column'>
-        {isGridView ? (
+        {uiState.monitors.isGridView ? (
           <Box p={4} pb={8} flex='1'>
             <Grid gap='6' templateColumns={{ sm: '1fr', xl: '1fr 1fr' }}>
               {stats &&

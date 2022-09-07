@@ -1,7 +1,7 @@
 import { TimePeriods } from './MonitorTimePeriod'
 import { MonitorLocations } from './MonitorLocations'
 import { User } from 'firebase/auth'
-import { proxy, subscribe, useSnapshot } from 'valtio'
+import { proxy, snapshot, subscribe, useSnapshot } from 'valtio'
 import { devtools } from 'valtio/utils'
 import { BrowserHistory } from 'history'
 import { QueryClient } from 'react-query'
@@ -63,12 +63,12 @@ export const Store = {
   watch: useSnapshot,
 }
 
-// subscribe(uiState, () => {
-//   axios({
-//     method: 'PUT',
-//     url: `/settings/ui-state`,
-//     data: {
-//       uiState,
-//     },
-//   })
-// })
+subscribe(uiState, () => {
+  axios({
+    method: 'PUT',
+    url: `/settings/ui-state`,
+    data: {
+      uiState: snapshot(uiState),
+    },
+  })
+})
