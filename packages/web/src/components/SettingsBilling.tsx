@@ -32,6 +32,9 @@ import { AmericanExpress, MasterCard, Visa } from '../Assets'
 
 import { Store } from '../services/Store'
 import { BillingInfo } from '@httpmon/db'
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js/pure'
+loadStripe.setLoadParameters({ advancedFraudSignals: false })
 
 interface Props {
   billingInfo?: BillingInfo
@@ -432,8 +435,10 @@ export default function SettingsBilling() {
     return resp.data
   })
 
+  const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY as string)
+
   return (
-    <>
+    <Elements stripe={stripePromise}>
       <SettingsHeader formChanged={false} resetForm={() => {}}></SettingsHeader>
       <Box width='100%'>
         <Section pt={4} pb={10}>
@@ -453,6 +458,6 @@ export default function SettingsBilling() {
           </Grid>
         </Section>
       </Box>
-    </>
+    </Elements>
   )
 }
