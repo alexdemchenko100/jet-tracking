@@ -10,6 +10,7 @@ import { initializeApp } from 'firebase/app'
 import { getAnalytics } from 'firebase/analytics'
 import { getAuth, Auth, User } from 'firebase/auth'
 import { Store } from './Store'
+import { UserAccount } from '@httpmon/db'
 
 let auth: Auth | null = null
 
@@ -93,7 +94,58 @@ export function isLoggedIn(): boolean {
   return false
 }
 
+export async function setCurrentAccount(account: UserAccount) {
+  //let the server know
+  await axios.post('/settings/accounts/default', {
+    email: account.email,
+    accountId: account.accountId,
+  })
+
+  Store.UserState.userInfo.role = account.role
+  Store.UserState.userInfo.accountId = account.accountId
+  axios.defaults.headers.common['x-proautoma-accountid'] = account.accountId
+
+  //console.log('switch to ', account)
+
+  await getDefaultRoleAndAccount(account.email)
+}
+
+async function getDefaultRoleAndAccount(email: string) {
+  const resp = await axios({
+    method: 'GET',
+    url: `/settings/accounts`,
+  })
+
+  const defaultAccount = resp.data.find((item: UserAccount) => item.isCurrentAccount) as UserAccount
+
+  if (!Store.UserState.userInfo.role) {
+    console.log('def acct', defaultAccount)
+    Store.UserState.userInfo.role = defaultAccount?.role
+    Store.UserState.userInfo.accountId = defaultAccount?.accountId
+  }
+
+  //Store team info in the Store
+  Store.UserState.teams = resp.data as UserAccount[]
+
+  // UIState settings
+  const { data } = await axios({
+    method: 'GET',
+    url: `/settings/ui-state`,
+  })
+  if (data.uiState) {
+    Store.UIState.monitors.isGridView = data.uiState.monitors.isGridView
+    Store.UIState.editor.frequencyScale = data.uiState.editor.frequencyScale
+    Store.UIState.editor.monitorLocations = data.uiState.editor.monitorLocations
+    Store.UIState.results.tabIndex = data.uiState.results.tabIndex
+    Store.UIState.results.filter.timePeriod = data.uiState.results.filter.timePeriod
+    Store.UIState.results.filter.status = data.uiState.results.filter.status
+    Store.UIState.results.filter.locations = data.uiState.results.filter.locations
+  }
+}
+
 export function setUser(user: User | null, role?: string, accountId?: string) {
+  console.log('set user', user, role, accountId)
+
   if (user) {
     const { uid, email, displayName, photoURL, phoneNumber } = user
     Store.UserState.userInfo.uid = uid
@@ -103,14 +155,20 @@ export function setUser(user: User | null, role?: string, accountId?: string) {
     Store.UserState.userInfo.phoneNumber = phoneNumber
     Store.user = user
   }
+
   if (role) {
     Store.UserState.userInfo.role = role
   }
-  if (role) {
+
+  if (accountId) {
     Store.UserState.userInfo.accountId = accountId
+    axios.defaults.headers.common['x-proautoma-accountid'] = accountId
   }
 
-  getIDTokenPossiblyRefreshed()
+  getIDTokenPossiblyRefreshed().then(() => {
+    //get team data here after setting the bearer token
+    if (user && user.email && !Store.UserState.userInfo.role) getDefaultRoleAndAccount(user.email)
+  })
 }
 
 export function useAuth() {
@@ -120,5 +178,6 @@ export function useAuth() {
     isLoggedIn: isLoggedIn(),
     signOut: signOut,
     userInfo: userState.userInfo,
+    teams: userState.teams,
   }
 }

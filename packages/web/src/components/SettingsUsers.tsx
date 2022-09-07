@@ -50,7 +50,7 @@ function SettingsUsers() {
   const { data: users, refetch: refetchUsers } = useQuery(['users'], async () => {
     const resp = await axios({
       method: 'GET',
-      url: '/settings/users',
+      url: '/settings/accounts',
     })
     const owners = resp.data.filter((user: UserAccount) => user.role === 'owner')
     if (owners.length < 2) {

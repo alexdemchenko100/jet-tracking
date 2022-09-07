@@ -17,10 +17,10 @@ import {
 export * from './types.js'
 
 interface Database {
+  Account: Account
+  UserAccount: UserAccount
   MonitorResult: MonitorResultTable
   Monitor: MonitorTable
-  UserAccount: UserAccount
-  Account: Account
   MonEnv: MonEnv
   NotificationChannel: NotificationChannel
   NotificationState: NotificationState

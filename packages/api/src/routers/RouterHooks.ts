@@ -1,7 +1,12 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { requestContext } from '@fastify/request-context'
 import { firebaseAuth } from '../Firebase'
-import { createNewAccount, getAccountIdByUser, getRoleFromAccountId } from '../services/DBService'
+import {
+  createNewAccount,
+  getCurrentAccountIdByUser,
+  getRoleFromAccountId,
+  processInvitedAccounts,
+} from '../services/DBService'
 
 export async function onRequestAuthHook(request: FastifyRequest, reply: FastifyReply) {
   const authHeader = request.headers.authorization ?? ''
@@ -27,16 +32,19 @@ export async function onRequestAuthHook(request: FastifyRequest, reply: FastifyR
   if (curAccountId) {
     accountId = curAccountId
   } else {
-    accountId = await getAccountIdByUser(user.uid)
+    accountId = await getCurrentAccountIdByUser(user.uid)
     if (!accountId) {
       request.log.error(`user ${user.uid} ${user.email} not found`)
+
+      processInvitedAccounts(user.uid, user.email ?? '')
 
       //It may be a new user, so create an account for them
       accountId = await createNewAccount(user.uid, user.email ?? '')
     }
   }
-  const role = await getRoleFromAccountId(accountId, user.email || '')
-  request.requestContext.set('user', { user: user.email ?? '', accountId, role })
+
+  const role = await getRoleFromAccountId(accountId, user.uid)
+  request.requestContext.set('user', { user: user.email, userId: user.uid, accountId, role })
 
   request.log.info(requestContext.get('user'), 'user authorized')
 }

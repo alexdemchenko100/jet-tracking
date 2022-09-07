@@ -9,7 +9,9 @@ datasource db {
 
 model Account {
   id                String                @id
+  createdAt         DateTime              @default(now())
   name              String                @unique
+  stripeCustomerId  String?
   users             UserAccount[]
   Monitor           Monitor[]
   MonitorResult     MonitorResult[]
@@ -27,10 +29,9 @@ model UserAccount {
   userId           String?
   email            String
   role             String  @default("")
-  default          Boolean @default(true)
+  isCurrentAccount Boolean @default(false)
   isVerified       Boolean @default(false)
   token            String?
-  stripeCustomerId String?
   account          Account @relation(fields: [accountId], references: [id])
   accountId        String
 
@@ -140,12 +141,12 @@ model NotificationState {
 }
 
 model Settings {
-  id         String   @id @default(cuid())
-  createdAt  DateTime @default(now())
-  alert      Json     @default("{}")
-  uiState    Json     @default("{}")
-  account    Account  @relation(fields: [accountId], references: [id])
-  accountId  String
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  alert     Json     @default("{}")
+  uiState   Json     @default("{}")
+  account   Account  @relation(fields: [accountId], references: [id])
+  accountId String
 
   @@unique([accountId])
 }
@@ -175,11 +176,11 @@ model StatusPage {
 }
 
 model BillingInfo {
-  id               String      @id @default(cuid())
-  createdAt        DateTime    @default(now())
+  id               String   @id @default(cuid())
+  createdAt        DateTime @default(now())
   billingPlanType  String
   monitorRunsLimit Int?
-  account          Account     @relation(fields: [accountId], references: [id])
+  account          Account  @relation(fields: [accountId], references: [id])
   accountId        String
 
   @@unique([id])

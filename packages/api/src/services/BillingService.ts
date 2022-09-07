@@ -13,6 +13,15 @@ import {
   deleteSubscriptions,
 } from './StripeService'
 
+async function getStripeCustomerId() {
+  const account = await db
+    .selectFrom('Account')
+    .select('stripeCustomerId')
+    .where('id', '=', currentUserInfo().accountId)
+    .executeTakeFirst()
+  return account?.stripeCustomerId
+}
+
 export class BillingService {
   static instance: BillingService
 
@@ -24,13 +33,9 @@ export class BillingService {
   }
 
   public async listPaymentMethods() {
-    const userAccount = await db
-      .selectFrom('UserAccount')
-      .select('stripeCustomerId')
-      .where('accountId', '=', currentUserInfo().accountId)
-      .executeTakeFirst()
-    if (userAccount?.stripeCustomerId) {
-      const { data } = await getPaymentCards(userAccount.stripeCustomerId)
+    const stripeCustomerId = await getStripeCustomerId()
+    if (stripeCustomerId) {
+      const { data } = await getPaymentCards(stripeCustomerId)
       return data
     }
     return []
@@ -42,26 +47,18 @@ export class BillingService {
   }
 
   public async addPaymentMethod(paymentMethodId: string) {
-    const userAccount = await db
-      .selectFrom('UserAccount')
-      .select('stripeCustomerId')
-      .where('accountId', '=', currentUserInfo().accountId)
-      .executeTakeFirst()
-    if (userAccount?.stripeCustomerId) {
-      const data = await addPaymentCard(userAccount.stripeCustomerId, paymentMethodId)
+    const stripeCustomerId = await getStripeCustomerId()
+    if (stripeCustomerId) {
+      const data = await addPaymentCard(stripeCustomerId, paymentMethodId)
       return data
     }
     return
   }
 
   public async updatePaymentMethod(paymentMethodId: string) {
-    const userAccount = await db
-      .selectFrom('UserAccount')
-      .select('stripeCustomerId')
-      .where('accountId', '=', currentUserInfo().accountId)
-      .executeTakeFirst()
-    if (userAccount?.stripeCustomerId) {
-      const data = await updateDefaultPaymentCard(userAccount.stripeCustomerId, paymentMethodId)
+    const stripeCustomerId = await getStripeCustomerId()
+    if (stripeCustomerId) {
+      const data = await updateDefaultPaymentCard(stripeCustomerId, paymentMethodId)
       return data
     }
     return false
@@ -74,13 +71,10 @@ export class BillingService {
       .where('accountId', '=', currentUserInfo().accountId)
       .orderBy('createdAt', 'desc')
       .executeTakeFirst()
-    const userAccount = await db
-      .selectFrom('UserAccount')
-      .select('stripeCustomerId')
-      .where('accountId', '=', currentUserInfo().accountId)
-      .executeTakeFirst()
-    if (userAccount?.stripeCustomerId) {
-      const data = await getCutomerDetails(userAccount.stripeCustomerId)
+
+    const stripeCustomerId = await getStripeCustomerId()
+    if (stripeCustomerId) {
+      const data = await getCutomerDetails(stripeCustomerId)
       return {
         ...billingInfo,
         defaultPaymentMethod: data,
@@ -98,15 +92,11 @@ export class BillingService {
     plan: Stripe.PriceCreateParams.Recurring.Interval,
     billingStart: number
   ) {
-    const userAccount = await db
-      .selectFrom('UserAccount')
-      .select('stripeCustomerId')
-      .where('accountId', '=', currentUserInfo().accountId)
-      .executeTakeFirst()
-    if (userAccount?.stripeCustomerId) {
+    const stripeCustomerId = await getStripeCustomerId()
+    if (stripeCustomerId) {
       try {
-        await deleteSubscriptions(userAccount?.stripeCustomerId)
-        await createPrepaidSubscription(userAccount.stripeCustomerId, amount, plan, billingStart)
+        await deleteSubscriptions(stripeCustomerId)
+        await createPrepaidSubscription(stripeCustomerId, amount, plan, billingStart)
         const billingInfo = await db
           .updateTable('BillingInfo')
           .set({
@@ -126,14 +116,10 @@ export class BillingService {
   }
 
   public async upgradeToPayAsYouGoPlan() {
-    const userAccount = await db
-      .selectFrom('UserAccount')
-      .select('stripeCustomerId')
-      .where('accountId', '=', currentUserInfo().accountId)
-      .executeTakeFirst()
-    if (userAccount?.stripeCustomerId) {
+    const stripeCustomerId = await getStripeCustomerId()
+    if (stripeCustomerId) {
       try {
-        await deleteSubscriptions(userAccount?.stripeCustomerId)
+        await deleteSubscriptions(stripeCustomerId)
         const billingInfo = await db
           .updateTable('BillingInfo')
           .set({
@@ -153,14 +139,10 @@ export class BillingService {
   }
 
   public async downgradeToFreePlan() {
-    const userAccount = await db
-      .selectFrom('UserAccount')
-      .select('stripeCustomerId')
-      .where('accountId', '=', currentUserInfo().accountId)
-      .executeTakeFirst()
-    if (userAccount?.stripeCustomerId) {
+    const stripeCustomerId = await getStripeCustomerId()
+    if (stripeCustomerId) {
       try {
-        await deleteSubscriptions(userAccount?.stripeCustomerId)
+        await deleteSubscriptions(stripeCustomerId)
         const billingInfo = await db
           .updateTable('BillingInfo')
           .set({ billingPlanType: 'free', monitorRunsLimit: 50000, createdAt: new Date() })

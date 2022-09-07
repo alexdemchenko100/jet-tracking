@@ -5,7 +5,7 @@ import { proxy, subscribe, useSnapshot } from 'valtio'
 import { devtools } from 'valtio/utils'
 import { BrowserHistory } from 'history'
 import { QueryClient } from 'react-query'
-import { UIState } from '@httpmon/db'
+import { UIState, UserAccount } from '@httpmon/db'
 import axios from 'axios'
 
 interface UserInfo {
@@ -20,6 +20,7 @@ interface UserInfo {
 
 interface UserState {
   userInfo: UserInfo
+  teams: UserAccount[]
   bLoadingUserFirstTime: boolean
 }
 
@@ -31,7 +32,7 @@ interface StoreState {
   user: User | null
 }
 
-const defaultUserState: UserState = { userInfo: {}, bLoadingUserFirstTime: false }
+const defaultUserState: UserState = { userInfo: {}, bLoadingUserFirstTime: false, teams: [] }
 const defaultUiState: UIState = {
   editor: {
     monitorLocations: [...MonitorLocations],
@@ -62,12 +63,12 @@ export const Store = {
   watch: useSnapshot,
 }
 
-subscribe(uiState, () => {
-  axios({
-    method: 'PUT',
-    url: `/settings/users/${userState.userInfo.email}/ui-state`,
-    data: {
-      uiState,
-    },
-  })
-})
+// subscribe(uiState, () => {
+//   axios({
+//     method: 'PUT',
+//     url: `/settings/ui-state`,
+//     data: {
+//       uiState,
+//     },
+//   })
+// })

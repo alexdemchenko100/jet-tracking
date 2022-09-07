@@ -25,7 +25,7 @@ import { logoTitle } from './Assets'
 import axios from 'axios'
 import { useQuery } from 'react-query'
 import { Outlet, useNavigate } from 'react-router-dom'
-import { signOut, useAuth, setUser } from './services/FirebaseAuth'
+import { signOut, useAuth, setUser, setCurrentAccount } from './services/FirebaseAuth'
 import { Text, NavItem, Loading } from './components'
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { UserAccount, UIState } from '@httpmon/db'
@@ -34,18 +34,17 @@ import { Store } from './services/Store'
 const SIDEBAR_WIDTH = '240px'
 
 interface SwitchAccountMenuProps {
-  teams: UserAccount[]
+  teams: readonly UserAccount[]
 }
 
 function SwitchAccountMenu({ teams }: SwitchAccountMenuProps) {
   const navigate = useNavigate()
   const menuBtnRef = useRef<HTMLButtonElement>(null)
 
-  const switchAccount = async (team: UserAccount) => {
-    axios.defaults.headers.common['x-proautoma-accountId'] = team.accountId
-    setUser(null, team.role, team.accountId)
+  const switchAccount = async (account: UserAccount) => {
+    //setUser(null, team.role, team.accountId)
     menuBtnRef.current?.click()
-    await axios.post('/settings/teams/default', { email: team.email, accountId: team.accountId })
+    await setCurrentAccount(account)
     navigate('/console/monitors')
     Store.queryClient?.invalidateQueries(['monitors-list'])
     Store.queryClient?.invalidateQueries(['monitors-stats'])
@@ -86,7 +85,7 @@ function SwitchAccountMenu({ teams }: SwitchAccountMenuProps) {
               alignItems='center'
               justifyContent='space-between'
               _hover={{ bg: 'gray.100' }}
-              className={team.default ? 'selected-menu-item' : ''}
+              className={team.isCurrentAccount ? 'selected-menu-item' : ''}
               onClick={() => switchAccount(team)}
             >
               <Flex direction='column' mr='2'>
@@ -105,7 +104,7 @@ function SwitchAccountMenu({ teams }: SwitchAccountMenuProps) {
                   {team.role}
                 </Text>
               </Flex>
-              {team.default && (
+              {team.isCurrentAccount && (
                 <Badge colorScheme='green' variant='solid' fontSize='8px' mb='0.5'>
                   Current
                 </Badge>
@@ -123,34 +122,7 @@ export default function Console() {
   const sidebar = useDisclosure()
   const navigate = useNavigate()
 
-  const { userInfo: user } = useAuth()
-
-  const { isLoading, data: teams } = useQuery<UserAccount[]>(['teams', user], async () => {
-    if (user.email) {
-      const resp = await axios({
-        method: 'GET',
-        url: `/settings/users/${user.email}/teams`,
-      })
-      const defaultTeam = resp.data.find((item: UserAccount) => item.default)
-      setUser(null, defaultTeam.role, defaultTeam.accountId)
-      axios.defaults.headers.common['x-proautoma-accountId'] = defaultTeam.accountId
-      // UIState settings
-      const { data } = await axios({
-        method: 'GET',
-        url: `/settings/users/${user.email}/ui-state`,
-      })
-      if (data.uiState) {
-        Store.UIState.monitors.isGridView = data.uiState.monitors.isGridView
-        Store.UIState.editor.frequencyScale = data.uiState.editor.frequencyScale
-        Store.UIState.editor.monitorLocations = data.uiState.editor.monitorLocations
-        Store.UIState.results.tabIndex = data.uiState.results.tabIndex
-        Store.UIState.results.filter.timePeriod = data.uiState.results.filter.timePeriod
-        Store.UIState.results.filter.status = data.uiState.results.filter.status
-        Store.UIState.results.filter.locations = data.uiState.results.filter.locations
-      }
-      return resp.data
-    }
-  })
+  const { userInfo: user, teams } = useAuth()
 
   const SidebarContent = (props: any) => (
     <Box
@@ -287,7 +259,7 @@ export default function Console() {
           transition='.3s ease'
         >
           <Box as='main' p='2'>
-            {isLoading ? <Loading /> : <Outlet />}
+            <Outlet />
           </Box>
         </Box>
       </Flex>

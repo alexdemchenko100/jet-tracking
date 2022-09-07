@@ -1,5 +1,5 @@
+import { v4 as uuidv4 } from 'uuid'
 import { currentUserInfo } from './../Context'
-
 import {
   Settings,
   db,
@@ -230,18 +230,21 @@ export class SettingsService {
       .selectFrom('UserAccount')
       .select(['id'])
       .where('email', '=', email)
-      .where('default', '=', true)
+      .where('isCurrentAccount', '=', true)
       .executeTakeFirst()
+
     const resp = await db
       .selectFrom('UserAccount')
       .select(['id', 'isVerified', 'token'])
       .where('email', '=', email)
       .where('accountId', '=', accountId)
       .executeTakeFirst()
+
     let status = 'failed'
     if (resp?.isVerified) {
       status = 'already_verified'
     }
+
     if (resp?.id && token === resp?.token) {
       await db
         .updateTable('UserAccount')
@@ -251,6 +254,7 @@ export class SettingsService {
         .executeTakeFirst()
       status = 'success'
     }
+
     return {
       hasDefaultUser: !!defaultUser,
       status,
@@ -286,13 +290,22 @@ export class SettingsService {
   }
 
   public async sendUserInvite(data: UserInvite, token: string) {
+    //does this user has an account already?
+    const user = await db
+      .selectFrom('UserAccount')
+      .selectAll()
+      .where('email', '=', data.email)
+      .where('userId', '<>', '')
+      .executeTakeFirst()
+
     await db
       .insertInto('UserAccount')
       .values({
-        id: nanoid(),
+        id: uuidv4(),
+        userId: user?.userId,
         email: data.email,
         accountId: currentUserInfo().accountId,
-        default: false,
+        isCurrentAccount: false,
         role: data.role,
         isVerified: false,
         token,
@@ -318,8 +331,9 @@ export class SettingsService {
       .selectFrom('UserAccount')
       .select(['id'])
       .where('email', '=', email)
-      .where('default', '=', true)
+      .where('isCurrentAccount', '=', true)
       .executeTakeFirst()
+
     if (!resp) {
       const user = await firebaseAuth.createUser({
         email,
@@ -327,40 +341,19 @@ export class SettingsService {
         displayName,
         emailVerified: true,
       })
+
       await createNewAccount(user.uid, email)
       return user
     }
     return null
   }
 
-  public async getTeams(email: string) {
-    const currentUser = await db
+  public async getTeams() {
+    return await db
       .selectFrom('UserAccount')
       .selectAll()
-      .where('email', '=', email)
-      .where('default', '=', true)
-      .executeTakeFirst()
-    if (currentUser) {
-      const teams = await db
-        .selectFrom('UserAccount')
-        .selectAll()
-        .where('email', '=', email)
-        .where('default', '=', false)
-        .execute()
-      return [currentUser, ...teams]
-    }
-    const defaultOwner = await db
-      .selectFrom('UserAccount')
-      .selectAll()
-      .where('email', '=', email)
-      .where('role', '=', 'owner')
-      .executeTakeFirst()
-    await db
-      .updateTable('UserAccount')
-      .set({ default: true })
-      .where('id', '=', defaultOwner?.id)
-      .executeTakeFirst()
-    return [defaultOwner]
+      .where('userId', '=', currentUserInfo().userId)
+      .execute()
   }
 
   public async deleteUser(id: string) {
@@ -372,54 +365,39 @@ export class SettingsService {
     return resp.numDeletedRows
   }
 
-  public async changeDefaultTeam(accountId: string, email: string) {
-    await db
-      .updateTable('UserAccount')
-      .set({ default: false })
-      .where('email', '=', email)
-      .executeTakeFirst()
-    const data = await db
-      .updateTable('UserAccount')
-      .set({ default: true })
-      .where('accountId', '=', accountId)
-      .where('email', '=', email)
-      .executeTakeFirst()
-    return data
+  public async changeDefaultTeam(newDefaultAccountId: string) {
+    await db.transaction().execute(async (trx) => {
+      await trx
+        .updateTable('UserAccount')
+        .set({ isCurrentAccount: true })
+        .where('accountId', '=', newDefaultAccountId)
+        .where('userId', '=', currentUserInfo().userId)
+        .execute()
+
+      await trx
+        .updateTable('UserAccount')
+        .set({ isCurrentAccount: false })
+        .where('accountId', '<>', newDefaultAccountId)
+        .where('userId', '=', currentUserInfo().userId)
+        .execute()
+    })
   }
 
-  public async getUIStateSetting(email: string) {
-    const originOwner = await db
-      .selectFrom('UserAccount')
-      .selectAll()
-      .where('email', '=', email)
-      .where('stripeCustomerId', '<>', '')
+  public async getUIStateSetting() {
+    const settings = await db
+      .selectFrom('Settings')
+      .select(['uiState'])
+      .where('accountId', '=', currentUserInfo().accountId)
       .executeTakeFirst()
-    if (originOwner?.accountId) {
-      const settings = await db
-        .selectFrom('Settings')
-        .select(['uiState'])
-        .where('accountId', '=', originOwner.accountId)
-        .executeTakeFirst()
-      return settings?.uiState
-    }
-    return
+    return settings?.uiState
   }
 
-  public async updateUIStateSetting(email: string, uiState: UIState) {
-    const originOwner = await db
-      .selectFrom('UserAccount')
-      .selectAll()
-      .where('email', '=', email)
-      .where('stripeCustomerId', '<>', '')
+  public async updateUIStateSetting(uiState: UIState) {
+    const res = await db
+      .updateTable('Settings')
+      .set({ uiState })
+      .where('accountId', '=', currentUserInfo().accountId)
       .executeTakeFirst()
-    if (originOwner?.accountId) {
-      const res = await db
-        .updateTable('Settings')
-        .set({ uiState })
-        .where('accountId', '=', originOwner.accountId)
-        .executeTakeFirst()
-      return res.numUpdatedRows
-    }
-    return
+    return res.numUpdatedRows
   }
 }

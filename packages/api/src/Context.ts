@@ -47,7 +47,8 @@ export const state: WebAppState = {
 }
 
 interface UserInfo {
-  user: string
+  userEmail: string
+  userId: string
   accountId: string
   role?: string
 }

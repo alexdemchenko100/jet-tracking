@@ -19,8 +19,8 @@ export default async function SettingsRouter(app: FastifyInstance) {
   }
 
   // GET /users/:email/teams
-  app.get<{ Params: TeamsParams }>(
-    '/users/:email/teams',
+  app.get(
+    '/accounts',
     {
       schema: {
         response: {
@@ -28,18 +28,18 @@ export default async function SettingsRouter(app: FastifyInstance) {
         },
       },
     },
-    async function ({ params: { email } }, reply) {
-      const resp = await settingsService.getTeams(email)
+    async function ({}, reply) {
+      const resp = await settingsService.getTeams()
       reply.send(resp)
     }
   )
 
   // POST /teams/default
   app.post<{ Body: SetDefaultTeams }>(
-    '/teams/default',
+    '/accounts/default',
     {},
-    async function ({ body: { accountId, email } }, reply) {
-      const resp = await settingsService.changeDefaultTeam(accountId, email)
+    async function ({ body: { accountId } }, reply) {
+      const resp = await settingsService.changeDefaultTeam(accountId)
       reply.send(resp)
     }
   )
@@ -51,8 +51,8 @@ export default async function SettingsRouter(app: FastifyInstance) {
   const SetUIStateSchema = S.object().prop('uiState', UIStateSchema)
 
   // GET /users/:email/ui-state
-  app.get<{ Params: TeamsParams }>(
-    '/users/:email/ui-state',
+  app.get(
+    '/ui-state',
     {
       schema: {
         response: {
@@ -60,15 +60,15 @@ export default async function SettingsRouter(app: FastifyInstance) {
         },
       },
     },
-    async function ({ params: { email } }, reply) {
-      const resp = await settingsService.getUIStateSetting(email)
+    async function ({}, reply) {
+      const resp = await settingsService.getUIStateSetting()
       reply.send({ uiState: resp })
     }
   )
 
   // PUT /users/:email/ui-state
-  app.put<{ Params: TeamsParams; Body: SetUIState }>(
-    '/users/:email/ui-state',
+  app.put<{ Body: SetUIState }>(
+    '/ui-state',
     {
       schema: {
         body: SetUIStateSchema,
@@ -77,8 +77,8 @@ export default async function SettingsRouter(app: FastifyInstance) {
         },
       },
     },
-    async function ({ body: { uiState }, params: { email } }, reply) {
-      const resp = await settingsService.updateUIStateSetting(email, uiState)
+    async function ({ body: { uiState } }, reply) {
+      const resp = await settingsService.updateUIStateSetting(uiState)
       reply.send(resp)
     }
   )

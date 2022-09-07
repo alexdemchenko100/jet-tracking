@@ -7,25 +7,44 @@ import { createStripeCustomer, payAsYouGoPlan } from '../services/StripeService'
 import { nanoid } from 'nanoid'
 import { createBucket, uploadObject } from './GSCService'
 
-export const getAccountIdByUser = async (userId: string) => {
+export const getCurrentAccountIdByUser = async (userId: string) => {
   const resp = await db
     .selectFrom('UserAccount')
     .selectAll()
     .where('userId', '=', userId)
+    .where('isCurrentAccount', '=', true)
     .executeTakeFirst()
 
   return resp?.accountId
 }
 
-export const getRoleFromAccountId = async (accountId: string, email: string) => {
+export const getRoleFromAccountId = async (accountId: string, userId: string) => {
   const resp = await db
     .selectFrom('UserAccount')
     .select(['role'])
     .where('accountId', '=', accountId)
-    .where('email', '=', email)
+    .where('userId', '=', userId)
     .executeTakeFirst()
 
   return resp?.role
+}
+
+export const processInvitedAccounts = async (userId: string, email: string) => {
+  const userAccounts = await db
+    .selectFrom('UserAccount')
+    .selectAll()
+    .where('email', '=', email)
+    .execute()
+
+  userAccounts.map(async (acct) => {
+    if (!acct.userId) {
+      await db
+        .updateTable('UserAccount')
+        .set({ ...acct, userId })
+        .returningAll()
+        .executeTakeFirst()
+    }
+  })
 }
 
 export const createNewAccount = async (userId: string, email: string) => {
@@ -33,9 +52,12 @@ export const createNewAccount = async (userId: string, email: string) => {
 
   await db.transaction().execute(async (trx) => {
     //create account
+    // create new stripe customer
+    const customer = await createStripeCustomer(userId, email)
+
     const account = await trx
       .insertInto('Account')
-      .values({ id: uuidv4(), name: userId })
+      .values({ id: uuidv4(), name: userId, stripeCustomerId: customer.id })
       .returningAll()
       .executeTakeFirst()
 
@@ -43,8 +65,6 @@ export const createNewAccount = async (userId: string, email: string) => {
       throw new Error('not able to create account')
     }
 
-    // create new stripe customer
-    const customer = await createStripeCustomer(userId, email)
     // create GCS bucket
     createBucket(account.id).catch((err) => {
       throw err
@@ -57,10 +77,9 @@ export const createNewAccount = async (userId: string, email: string) => {
         userId: userId,
         email: email,
         accountId: account.id,
-        default: true,
+        isCurrentAccount: true,
         role: 'owner',
         isVerified: true,
-        stripeCustomerId: customer.id,
       })
       .returningAll()
       .executeTakeFirst()
@@ -156,13 +175,13 @@ export async function saveMonitorResult(result: Insertable<MonitorResultTable>) 
           .where('accountId', '=', result.accountId)
           .execute()
         const amount = parseInt(((total[0].count / 100000) * 200).toString())
-        const userAccount = await trx
-          .selectFrom('UserAccount')
+        const account = await trx
+          .selectFrom('Account')
           .select('stripeCustomerId')
-          .where('accountId', '=', result.accountId)
+          .where('id', '=', result.accountId)
           .executeTakeFirst()
-        if (userAccount?.stripeCustomerId) {
-          const invoice = await payAsYouGoPlan(userAccount?.stripeCustomerId, amount)
+        if (account?.stripeCustomerId) {
+          const invoice = await payAsYouGoPlan(account?.stripeCustomerId, amount)
           if (invoice) {
             await trx
               .updateTable('BillingInfo')
