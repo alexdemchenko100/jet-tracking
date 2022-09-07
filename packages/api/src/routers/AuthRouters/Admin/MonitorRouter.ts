@@ -26,20 +26,17 @@ export default async function MonitorRouter(app: FastifyInstance) {
       },
     },
     async function ({ body, log }, reply) {
-      const exists = await monitorSvc.checkMonExists(body)
-      if (exists) {
-        reply
-          .status(400)
-          .send({ message: 'Monitor with the same name already exists. Please use another name' })
-      }
       try {
         const resp = await monitorSvc.create(body)
         log.info(`Creating monitor: ${resp?.id}`)
 
         reply.send(resp)
       } catch (error) {
-        log.error(`Creating monitor: ${error.message}`)
-        reply.status(400).send({ message: error.message })
+        if (error.message === 'Monitor_name_accountId_key') {
+          reply
+            .status(400)
+            .send({ message: 'Monitor with the same name already exists. Please use another name' })
+        }
       }
     }
   )

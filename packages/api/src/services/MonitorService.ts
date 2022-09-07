@@ -68,28 +68,31 @@ export class MonitorService {
 
   public async create(mon: Monitor) {
     logger.info(mon, 'creating mon')
-
-    const monResp = await db
-      .insertInto('Monitor')
-      .values({
-        ...monitorToDBMonitor(mon),
-        id: uuidv4(),
-        accountId: currentUserInfo().accountId,
-      })
-      .returningAll()
-      .executeTakeFirst()
-    await db
-      .insertInto('NotificationState')
-      .values({
-        monitorId: monResp?.id,
-        type: 'MONITOR_CREATED',
-        message: `Monitor ${mon.name} is created.`,
-        accountId: currentUserInfo().accountId,
-      })
-      .returningAll()
-      .executeTakeFirst()
-    emitter.emit('monitor', monResp?.id)
-    return monResp
+    try {
+      const monResp = await db
+        .insertInto('Monitor')
+        .values({
+          ...monitorToDBMonitor(mon),
+          id: uuidv4(),
+          accountId: currentUserInfo().accountId,
+        })
+        .returningAll()
+        .executeTakeFirst()
+      await db
+        .insertInto('NotificationState')
+        .values({
+          monitorId: monResp?.id,
+          type: 'MONITOR_CREATED',
+          message: `Monitor ${mon.name} is created.`,
+          accountId: currentUserInfo().accountId,
+        })
+        .returningAll()
+        .executeTakeFirst()
+      emitter.emit('monitor', monResp?.id)
+      return monResp
+    } catch (error) {
+      throw new Error(error.constraint)
+    }
   }
 
   public async update(mon: Monitor) {
