@@ -143,14 +143,10 @@ async function getDefaultRoleAndAccount(email: string) {
     method: 'GET',
     url: `/settings/ui-state`,
   })
-  if (data.uiState && Object.keys(data.uiState).length) {
-    Store.UIState.monitors.isGridView = data.uiState?.monitors?.isGridView
-    Store.UIState.editor.frequencyScale = data.uiState?.editor?.frequencyScale
-    Store.UIState.editor.monitorLocations = data.uiState?.editor?.monitorLocations
-    Store.UIState.results.tabIndex = data.uiState?.results?.tabIndex
-    Store.UIState.results.filter.timePeriod = data.uiState?.results?.filter?.timePeriod
-    Store.UIState.results.filter.status = data.uiState?.results?.filter?.status
-    Store.UIState.results.filter.locations = data.uiState?.results?.filter?.locations
+  if (data.uiState) {
+    Store.UIState.monitors = { ...Store.UIState.monitors, ...data.uiState.monitors }
+    Store.UIState.editor = { ...Store.UIState.editor, ...data.uiState.editor }
+    Store.UIState.results = { ...Store.UIState.results, ...data.uiState.results }
   }
 }
 
