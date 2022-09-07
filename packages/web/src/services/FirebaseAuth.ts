@@ -143,7 +143,7 @@ async function getDefaultRoleAndAccount(email: string) {
     method: 'GET',
     url: `/settings/ui-state`,
   })
-  if (data.uiState) {
+  if (data.uiState && Object.keys(data.uiState).length) {
     Store.UIState.monitors.isGridView = data.uiState?.monitors?.isGridView
     Store.UIState.editor.frequencyScale = data.uiState?.editor?.frequencyScale
     Store.UIState.editor.monitorLocations = data.uiState?.editor?.monitorLocations
