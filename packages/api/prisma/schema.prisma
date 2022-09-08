@@ -185,3 +185,14 @@ model BillingInfo {
 
   @@unique([id])
 }
+
+model ApiKey {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  name      String
+  hash      String
+  tag       String
+  userId    String
+
+  @@unique([name, userId])
+}

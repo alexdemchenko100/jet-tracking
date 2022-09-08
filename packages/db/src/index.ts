@@ -13,6 +13,7 @@ import {
   NotificationEmail,
   StatusPage,
   BillingInfo,
+  ApiKey,
 } from './types'
 export * from './types.js'
 
@@ -28,6 +29,7 @@ interface Database {
   NotificationEmail: NotificationEmail
   StatusPage: StatusPage
   BillingInfo: BillingInfo
+  ApiKey: ApiKey
 }
 
 import * as dotenv from 'dotenv'

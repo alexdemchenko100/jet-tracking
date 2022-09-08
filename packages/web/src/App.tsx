@@ -32,6 +32,7 @@ import {
   SettingsUsers,
   SettingsBilling,
   SettingsBillingPlans,
+  SettingsApiKeys,
 } from './components'
 import StatusPages from './Pages/StatusPages'
 import NewStatusPage from './Pages/NewStatusPage'
@@ -140,6 +141,7 @@ function App() {
               <Route path='/console/settings/profile' element={<SettingsProfile />} />
               <Route path='/console/settings/security' element={<SettingsSecurity />} />
               <Route path='/console/settings/notifications' element={<SettingsNotifications />} />
+              <Route path='/console/settings/api-keys' element={<SettingsApiKeys />} />
               <Route path='/console/settings/users' element={<SettingsUsers />} />
               <Route path='/console/settings/billing' element={<SettingsBilling />} />
               <Route path='/console/settings/billing/plans' element={<SettingsBillingPlans />} />

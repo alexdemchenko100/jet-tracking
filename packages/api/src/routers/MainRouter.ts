@@ -9,6 +9,7 @@ import SettingsRouter from './AuthRouters/Admin/SettingsRouter.js'
 import SettingsPublicRouter from './PublicRouters/SettingsPublicRouter.js'
 import StatusPagesRouter from './AuthRouters/Admin/StatusPagesRouter.js'
 import ActivityLogRouter from './AuthRouters/Admin/ActivityLogRouter.js'
+import ApiKeyRouter from './AuthRouters/Admin/ApiKeyRouter.js'
 import StatusPublicRouter from './PublicRouters/StatusPublicRouter.js'
 import BillingRouter from './AuthRouters/Owner/BillingRouter.js'
 import MonitorPreRequestRouter from './CloudHookRouters/MonitorPreRequestRouter.js'
@@ -31,6 +32,7 @@ export default async function MainRouter(fastify: FastifyInstance) {
   await fastify.register(StatusPagesRouter, { prefix: '/status-pages' })
   await fastify.register(ActivityLogRouter, { prefix: '/activity-logs' })
   await fastify.register(BillingRouter, { prefix: '/billing' })
+  await fastify.register(ApiKeyRouter, { prefix: '/api-keys' })
 
   //cloud hooks for backend processing
   await fastify.register(SchedulerRouter, { prefix: '/services/scheduler' })

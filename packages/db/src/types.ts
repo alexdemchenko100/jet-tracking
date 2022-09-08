@@ -578,3 +578,20 @@ export const MonitorRunResultSchema = S.object()
   .required()
   .prop('resultId', S.string())
   .prop('err', S.object().prop('msg', S.string()).prop('codeStatus', S.string()))
+
+export type ApiKey = {
+  id?: string
+  name: string
+  hash: string
+  tag: string
+  token?: string
+  userId: string
+}
+
+export const ApiKeySchema = S.object()
+  .prop('id', S.string())
+  .prop('name', S.string())
+  .prop('hash', S.string())
+  .prop('tag', S.string())
+  .prop('userId', S.string())
+  .prop('token', S.string())

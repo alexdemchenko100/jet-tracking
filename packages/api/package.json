@@ -38,6 +38,7 @@
     "firebase-admin": "^10.3.0",
     "fluent-json-schema": "^3.1.0",
     "gcp-metadata": "^5.0.0",
+    "generate-api-key": "^1.0.1",
     "got": "11.8.3",
     "handlebars": "^4.7.7",
     "jsonpath-plus": "^6.0.1",

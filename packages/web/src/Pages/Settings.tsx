@@ -1,6 +1,6 @@
 import { Flex, Box } from '@chakra-ui/react'
 import { Outlet } from 'react-router-dom'
-import { FiUser, FiShield, FiBell, FiUsers, FiCreditCard } from 'react-icons/fi'
+import { FiUser, FiShield, FiBell, FiUsers, FiCreditCard, FiKey } from 'react-icons/fi'
 import { Text, NavItem } from '../components'
 import { useAuth } from '../services/FirebaseAuth'
 
@@ -41,6 +41,11 @@ const SettingsSidebar = (props: any) => {
         <NavItem icon={FiBell} to='/console/settings/notifications'>
           <Text variant='text-field' color='inherit'>
             Notifications
+          </Text>
+        </NavItem>
+        <NavItem icon={FiKey} to='/console/settings/api-keys'>
+          <Text variant='text-field' color='inherit'>
+            Api Keys
           </Text>
         </NavItem>
         <NavItem icon={FiUsers} to='/console/settings/users'>
