@@ -130,7 +130,7 @@ function SettingsApiKeys() {
                 cursor='pointer'
               />
               <Text variant='text-field' color='darkblue.100'>
-                Add New Key
+                Create New Key
               </Text>
             </Flex>
           </Button>
@@ -139,23 +139,23 @@ function SettingsApiKeys() {
           <Table variant='simple' mt={6}>
             <Thead>
               <Tr>
-                <Th>Name</Th>
-                <Th>Tag</Th>
                 <Th>Created</Th>
+                <Th>Name</Th>
+                <Th>Tag (Key suffix)</Th>
                 <Th align='right'>&nbsp;</Th>
               </Tr>
             </Thead>
             <Tbody>
               {apiKeys?.map((key: ApiKey) => (
                 <Tr key={key.id}>
-                  <Td width='100%'>{key.name}</Td>
+                  <Td whiteSpace='nowrap'>{dayjs(key.createdAt).format('MMM DD hh:mm')}</Td>
+                  <Td>{key.name}</Td>
                   <Td>
                     <Box display='inline' letterSpacing={2}>
                       ...
                     </Box>
                     {key.tag}
                   </Td>
-                  <Td whiteSpace='nowrap'>{dayjs(key.createdAt).format('MMM DD hh:mm')}</Td>
                   <Td>
                     <Flex alignItems='center' gap={2} justifyContent='flex-end'>
                       <Button
@@ -224,7 +224,7 @@ function SettingsApiKeys() {
             </ModalHeader>
             <ModalCloseButton />
             <ModalBody>
-              {!token ? (
+              {token == '' ? (
                 <Flex direction='column' w='100%'>
                   <Text variant='details' mb={1} color='black'>
                     Name
@@ -239,7 +239,7 @@ function SettingsApiKeys() {
               ) : (
                 <Flex direction='column' w='100%'>
                   <Text variant='details' mb={1} color='black'>
-                    Token
+                    API Key
                   </Text>
                   <Flex alignItems='center' borderRadius={4} bg='lightgray.100' py='2' px='2'>
                     <Text flex='1' variant='paragraph' fontSize={14} color='gray'>
@@ -247,25 +247,29 @@ function SettingsApiKeys() {
                     </Text>
                     <Icon color='gray.300' fontSize={'sm'} as={FiClipboard} cursor='pointer' />
                   </Flex>
+                  <Text variant='details' mb={1} color='black'>
+                    This is only time you will be able to see the key!! Please copy and safely store
+                    it.
+                  </Text>
                 </Flex>
               )}
             </ModalBody>
             <ModalFooter mt={4} textAlign='center'>
-              {token ? (
-                <PrimaryButton
-                  disabled={!name}
-                  label='Copy to clipboard and close'
-                  variant='emphasis'
-                  color='white'
-                  onClick={() => copyToClipboard(token)}
-                ></PrimaryButton>
-              ) : (
+              {token == '' ? (
                 <PrimaryButton
                   disabled={!name}
                   label='Create'
                   variant='emphasis'
                   color='white'
                   onClick={createApiKey}
+                ></PrimaryButton>
+              ) : (
+                <PrimaryButton
+                  disabled={!name}
+                  label='Close - Copies to clipboard'
+                  variant='emphasis'
+                  color='white'
+                  onClick={() => copyToClipboard(token)}
                 ></PrimaryButton>
               )}
             </ModalFooter>

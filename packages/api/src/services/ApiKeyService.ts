@@ -5,21 +5,12 @@ import generateApiKey from 'generate-api-key'
 import { hashSync, compareSync } from 'bcryptjs'
 
 export async function validateKey(accountId: string, key: string) {
-  const userAccounts = await db
-    .selectFrom('UserAccount')
-    .selectAll()
-    .where('accountId', '=', accountId)
-    .execute()
-
-  if (!userAccounts) return
-
-  const users = userAccounts.map((u) => u.userId).filter((u) => u) as string[]
-
   const apiKeys = await db
-    .selectFrom('ApiKey')
+    .selectFrom('UserAccount')
+    .innerJoin('ApiKey', 'ApiKey.userId', 'UserAccount.userId')
     .selectAll()
     .where('tag', '=', key.slice(-4))
-    .where('userId', 'in', users)
+    .where('accountId', '=', accountId)
     .execute()
 
   for (let i = 0; i < apiKeys.length; i++) {
