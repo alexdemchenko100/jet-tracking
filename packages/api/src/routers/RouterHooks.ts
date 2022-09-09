@@ -8,6 +8,8 @@ import {
   processInvitedAccounts,
 } from '../services/DBService'
 
+import { validateKey } from '../services/ApiKeyService'
+
 export async function onRequestAuthHook(request: FastifyRequest, reply: FastifyReply) {
   const authHeader = request.headers.authorization ?? ''
   let user = null
@@ -21,9 +23,21 @@ export async function onRequestAuthHook(request: FastifyRequest, reply: FastifyR
   }
 
   try {
-    user = await firebaseAuth.verifyIdToken(token)
+    if (token.startsWith('pak.')) {
+      const userId = await validateKey(curAccountId, token)
+      if (userId) {
+        user = await firebaseAuth.getUser(userId)
+      }
+    } else {
+      user = await firebaseAuth.verifyIdToken(token)
+    }
   } catch (error) {
     request.log.error(error)
+    reply.code(401).send({ message: 'Not authorized' })
+    return
+  }
+
+  if (!user) {
     reply.code(401).send({ message: 'Not authorized' })
     return
   }

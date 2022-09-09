@@ -95,3 +95,10 @@ content-type: application/json
     },
     "runId": "9348048"
 }
+
+###
+
+GET http://localhost:8080/api/monitors HTTP/1.1
+content-type: application/json
+x-proautoma-accountid: 111eca8e-9ae4-425f-b6ce-54cd58f79090
+Authorization: Bearer pak.d8d5RigjyPm+CVwR8+x7IYS0_Zme-q7Tc31a
