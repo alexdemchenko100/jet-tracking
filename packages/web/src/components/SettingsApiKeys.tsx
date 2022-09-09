@@ -26,6 +26,7 @@ import { useQuery } from 'react-query'
 import { ApiKey } from '@httpmon/db'
 import { Text, PrimaryButton, Section, SettingsHeader } from '.'
 import { useForm } from 'react-hook-form'
+import dayjs from 'dayjs'
 
 function SettingsApiKeys() {
   const toast = useToast()
@@ -34,8 +35,9 @@ function SettingsApiKeys() {
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false)
   const [selectedApiKey, setSelectedApiKey] = useState<ApiKey | undefined>()
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([])
+  const [token, setToken] = useState<string>('')
 
-  const { register, watch, reset, setValue } = useForm<ApiKey>()
+  const { register, watch, reset } = useForm<ApiKey>()
   const name = watch('name')
 
   const { refetch: refetchApiKeys } = useQuery(['users'], async () => {
@@ -85,6 +87,7 @@ function SettingsApiKeys() {
         const arr = apiKeys.slice()
         arr.push(res.data)
         setApiKeys(arr)
+        setToken(res.data.token)
       })
       .catch((error: AxiosError) => {
         toast({
@@ -94,24 +97,18 @@ function SettingsApiKeys() {
           duration: 2000,
         })
       })
-      .finally(() => {
-        onModalClose()
-      })
   }
 
   const copyToClipboard = (content: string) => {
-    const el = document.createElement('textarea')
-    el.value = content
-    document.body.appendChild(el)
-    el.select()
-    document.execCommand('copy')
-    document.body.removeChild(el)
+    navigator.clipboard.writeText(content)
     toast({
       position: 'top',
       description: 'Api Token has been copied to clipboard!',
       status: 'info',
       duration: 2000,
     })
+    setToken('')
+    onModalClose()
   }
 
   return (
@@ -143,39 +140,22 @@ function SettingsApiKeys() {
             <Thead>
               <Tr>
                 <Th>Name</Th>
-                <Th>Token</Th>
+                <Th>Tag</Th>
+                <Th>Created</Th>
                 <Th align='right'>&nbsp;</Th>
               </Tr>
             </Thead>
             <Tbody>
               {apiKeys?.map((key: ApiKey) => (
                 <Tr key={key.id}>
-                  <Td>{key.name}</Td>
-                  {key.token ? (
-                    <Td>
-                      <Flex
-                        maxW='64'
-                        alignItems='center'
-                        borderRadius={4}
-                        bg='lightgray.100'
-                        py='1.5'
-                        px='2'
-                      >
-                        <Text flex='1' variant='small' color='gray'>
-                          {key.token}
-                        </Text>
-                        <Icon
-                          color='gray.300'
-                          fontSize={'sm'}
-                          as={FiClipboard}
-                          cursor='pointer'
-                          onClick={() => copyToClipboard(key.token || '')}
-                        />
-                      </Flex>
-                    </Td>
-                  ) : (
-                    <Td>-</Td>
-                  )}
+                  <Td width='100%'>{key.name}</Td>
+                  <Td>
+                    <Box display='inline' letterSpacing={2}>
+                      ...
+                    </Box>
+                    {key.tag}
+                  </Td>
+                  <Td whiteSpace='nowrap'>{dayjs(key.createdAt).format('MMM DD hh:mm')}</Td>
                   <Td>
                     <Flex alignItems='center' gap={2} justifyContent='flex-end'>
                       <Button
@@ -244,26 +224,50 @@ function SettingsApiKeys() {
             </ModalHeader>
             <ModalCloseButton />
             <ModalBody>
-              <Flex direction='column' w='100%'>
-                <Text variant='details' mb={1} color='black'>
-                  Name
-                </Text>
-                <Input
-                  borderRadius={8}
-                  borderColor='gray.200'
-                  type='text'
-                  {...register('name' as const)}
-                />
-              </Flex>
+              {!token ? (
+                <Flex direction='column' w='100%'>
+                  <Text variant='details' mb={1} color='black'>
+                    Name
+                  </Text>
+                  <Input
+                    borderRadius={8}
+                    borderColor='gray.200'
+                    type='text'
+                    {...register('name' as const)}
+                  />
+                </Flex>
+              ) : (
+                <Flex direction='column' w='100%'>
+                  <Text variant='details' mb={1} color='black'>
+                    Token
+                  </Text>
+                  <Flex alignItems='center' borderRadius={4} bg='lightgray.100' py='2' px='2'>
+                    <Text flex='1' variant='paragraph' fontSize={14} color='gray'>
+                      {token}
+                    </Text>
+                    <Icon color='gray.300' fontSize={'sm'} as={FiClipboard} cursor='pointer' />
+                  </Flex>
+                </Flex>
+              )}
             </ModalBody>
             <ModalFooter mt={4} textAlign='center'>
-              <PrimaryButton
-                disabled={!name}
-                label='Create'
-                variant='emphasis'
-                color='white'
-                onClick={createApiKey}
-              ></PrimaryButton>
+              {token ? (
+                <PrimaryButton
+                  disabled={!name}
+                  label='Copy to clipboard and close'
+                  variant='emphasis'
+                  color='white'
+                  onClick={() => copyToClipboard(token)}
+                ></PrimaryButton>
+              ) : (
+                <PrimaryButton
+                  disabled={!name}
+                  label='Create'
+                  variant='emphasis'
+                  color='white'
+                  onClick={createApiKey}
+                ></PrimaryButton>
+              )}
             </ModalFooter>
           </ModalContent>
         </Modal>

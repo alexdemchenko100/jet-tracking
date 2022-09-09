@@ -586,6 +586,7 @@ export type ApiKey = {
   tag: string
   token?: string
   userId: string
+  createdAt?: string
 }
 
 export const ApiKeySchema = S.object()
@@ -595,3 +596,4 @@ export const ApiKeySchema = S.object()
   .prop('tag', S.string())
   .prop('userId', S.string())
   .prop('token', S.string())
+  .prop('createdAt', S.string())

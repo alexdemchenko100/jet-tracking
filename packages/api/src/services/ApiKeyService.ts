@@ -43,7 +43,7 @@ export class ApiKeyService {
   public async listKeys() {
     const keys = await db
       .selectFrom('ApiKey')
-      .select(['id', 'name'])
+      .selectAll()
       .where('userId', '=', currentUserInfo().userId)
       .execute()
     return keys
@@ -83,7 +83,7 @@ export class ApiKeyService {
         .returningAll()
         .executeTakeFirst()
 
-      return { id: key?.id, name, token, tag }
+      return { ...key, token }
     } catch (error) {
       throw new Error(error.constraint)
     }
