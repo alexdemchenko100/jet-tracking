@@ -51,6 +51,7 @@ function SettingsApiKeys() {
   const onModalClose = () => {
     setShowDeleteModal(false)
     setShowAddModal(false)
+    setToken('')
     reset()
   }
 
@@ -107,7 +108,6 @@ function SettingsApiKeys() {
       status: 'info',
       duration: 2000,
     })
-    setToken('')
     onModalClose()
   }
 
