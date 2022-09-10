@@ -8,9 +8,10 @@ import * as docker from '@pulumi/docker'
 
 // Location to deploy Cloud Run services
 const mainRegionName = gcp.config.region || 'us-east1'
-const project = 'httpmon-stage'
 
 const config = new pulumi.Config()
+const gcpConfig = new pulumi.Config('gcp')
+const project = gcpConfig.get('project') ?? 'httpmon-test'
 
 // Build a Docker image and put it to Google Container Registry.
 // Note: Run `gcloud auth configure-docker` in your command line to configure auth to GCR.
@@ -26,15 +27,21 @@ const mainImage = new docker.Image('httpmon-main-image', {
   },
 })
 
+//TODO: create a different SA for sandbox to limit privileges
 const serviceAccount = new gcp.serviceaccount.Account(`${project}-sa`, {
   accountId: `${project}-sa`,
   project,
 })
 
-new gcp.projects.IAMBinding('cloud-run-cloud-sql', {
-  project,
-  members: [pulumi.interpolate`serviceAccount:${serviceAccount.email}`],
-  role: 'roles/cloudsql.client',
+const roles = ['storage.admin', 'cloudsql.client', 'pubsub.editor']
+const saMember = pulumi.interpolate`serviceAccount:${serviceAccount.email}`
+
+roles.forEach((role) => {
+  new gcp.projects.IAMBinding(`iam-binding-role-${role}`, {
+    project,
+    members: [saMember],
+    role: `roles/${role}`,
+  })
 })
 
 const plainEnvs = [
@@ -98,6 +105,7 @@ function createService(name: string, region: string) {
             resources: {
               limits: {
                 memory: '512Mi',
+                cpu: '1000m',
               },
             },
           },
@@ -155,6 +163,7 @@ const httpmonSandboxService = new gcp.cloudrun.Service('httpmon-sandbox-service'
           resources: {
             limits: {
               memory: '1Gi',
+              cpu: '1000m',
             },
           },
         },
@@ -228,6 +237,17 @@ const mainServiceTopics = [
 ]
 
 const httpmonMainService = createService(`httpmon-main-service`, mainRegionName)
+
+new gcp.cloudrun.DomainMapping('http-main-domain-mapping', {
+  name: 'app.proautoma.com',
+  location: mainRegionName,
+  metadata: {
+    namespace: project,
+  },
+  spec: {
+    routeName: httpmonMainService.name,
+  },
+})
 
 const mainServiceTopicResources = mainServiceTopics.map(({ name, path }) => {
   return createTopicAndTrigger(httpmonMainService, mainRegionName, name, path)

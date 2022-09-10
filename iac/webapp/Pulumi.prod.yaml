@@ -1,0 +1,10 @@
+config:
+  gcp:project: proautoma-prod
+  iac:SENDGRID_API_KEY:
+    secure: AAABAJdy2ZwLmT4pFmAoAUbMqRji9EpAkDSPdXc4v85oOOginocnqVjFDokzU8x9MLYGGu/DNw+vG8wLlWdzjkbG/AervpgH4Iq17vvnhO28BJsfYwEuW498Oc+64s2XfmyGXOU=
+  iac:STRIPE_SECRET_KEY:
+    secure: AAABAClH2aEhPJHFNXBSFQ6JqbOJlFVlc+OBMvhNBKf1xAVhdrhrZBtII+zhN2cNsCnNkxkwOeXuhIKilubJansi7VZDixQf7Bgrnb+Sy3SlLJXwKa4017pgOUxVp92mhdAEknvCOqmunvTLSqsh8UALqy6Jx6fJFbhfk+efaDBc+tZooN8xkH9dTQ==
+  iac:SENDGRID_NOTIFICATION_EMAIL_TEMPLATE: d-27b0b5e1dc9f4d04974c1a93241056c0
+  iac:SENDGRID_SENDER_EMAIL: support@proautoma.com
+  iac:SENDGRID_VERIFY_EMAIL_TEMPLATE: d-9403e0f827db4b0ba99ee8e89ef0c53d
+  iac:WEB_APP_URL: https://app.proautoma.com

@@ -4,7 +4,9 @@ import * as gcp from '@pulumi/gcp'
 // Location to deploy Cloud Run services
 const location = gcp.config.region || 'us-east1'
 const region = location
-const project = 'httpmon-stage'
+
+const gcpConfig = new pulumi.Config('gcp')
+const project = gcpConfig.get('project') ?? 'httpmon-test'
 
 const EnabledServices = ['run', 'cloudscheduler', 'eventarc', 'iam', 'sqladmin', 'compute']
 
