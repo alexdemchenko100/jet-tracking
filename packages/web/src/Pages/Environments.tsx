@@ -1,8 +1,12 @@
 import { Flex } from '@chakra-ui/react'
+import { useEffect } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { Section, Text, PrimaryButton } from '../components'
 
 export function Environments() {
+  useEffect(() => {
+    document.title = 'Environments | ProAutoma'
+  }, [])
   const navigate = useNavigate()
 
   return (

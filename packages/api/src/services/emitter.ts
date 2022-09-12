@@ -1,9 +1,8 @@
 import Emittery from 'emittery'
 import { deleteObject } from './GSCService'
 
-import pino from 'pino'
 import { MonitorResult } from '@httpmon/db'
-const logger = pino()
+import { logger } from '../Context'
 
 export const emitter = new Emittery()
 
@@ -15,8 +14,10 @@ emitter.on(
   'delete-cloud-storage-objects',
   function ({ accountId, items }: { accountId: string; items: MonitorResult[] }) {
     for (const item of items) {
-      if (item?.id) {
-        deleteObject(accountId, item.id, 'body')
+      if (item?.id && item?.monitorId) {
+        const folderName = `${item.monitorId}/${item.id}`
+        deleteObject(accountId, folderName, 'body')
+        deleteObject(accountId, folderName, 'headers')
       }
     }
   }

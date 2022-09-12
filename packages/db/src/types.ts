@@ -301,10 +301,11 @@ export type UserAccount = {
   email: string
   accountId: string
   role: string
-  isCurrentAccount: boolean
+  isPrimary: boolean
   status?: string
   isVerified: boolean
   token: string | null
+  tokenExpiryAt?: string | Date | null
 }
 
 export const UserAccountSchema = S.object()
@@ -314,14 +315,16 @@ export const UserAccountSchema = S.object()
   .prop('email', S.string())
   .prop('accountId', S.string())
   .prop('role', S.string())
-  .prop('isCurrentAccount', S.boolean())
+  .prop('isPrimary', S.boolean())
   .prop('status', S.string())
   .prop('isVerified', S.boolean())
   .prop('token', S.string())
+  .prop('tokenExpiryAt', S.string())
 
 export type Account = {
   id?: string
   createdAt?: string | Date
+  owner: string
   name: string
   stripeCustomerId?: string
 }
@@ -474,23 +477,6 @@ export const NotificationStateSchema = S.object()
 export const ActivityLogsResponseSchema = S.object()
   .prop('items', S.array().items(NotificationStateSchema))
   .prop('total', S.number())
-
-export type NotificationEmail = {
-  id?: string
-  accountId?: string
-  email: string
-  createdAt?: string | Date
-  isVerified: boolean
-  token: string | null
-}
-
-export const NotificationEmailSchema = S.object()
-  .prop('id', S.string())
-  .prop('createdAt', S.string())
-  .prop('accountId', S.string())
-  .prop('email', S.string())
-  .prop('isVerified', S.boolean())
-  .prop('token', S.anyOf([S.string(), S.null()]))
 
 export type NotificationEmailStatus = 'verified' | 'unverified' | 'expired'
 

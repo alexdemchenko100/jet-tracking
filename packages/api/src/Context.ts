@@ -1,4 +1,4 @@
-import { FastifyLoggerInstance } from 'fastify'
+import { FastifyBaseLogger } from 'fastify'
 import { fastifyRequestContextPlugin, requestContext } from '@fastify/request-context'
 import * as gcpMetadata from 'gcp-metadata'
 
@@ -34,7 +34,7 @@ const productionPinoConfig: LoggerOptions = {
   timestamp: () => `,"eventTime":${Date.now() / 1000.0}`,
 }
 
-export const plogger = pino(isCloud ? productionPinoConfig : {})
+export const plogger = pino(isCloud ? productionPinoConfig : { level: 'trace' })
 
 interface WebAppState {
   projectId: string
@@ -53,9 +53,9 @@ interface UserInfo {
   role?: string
 }
 
-export const logger = new Proxy(plogger as FastifyLoggerInstance, {
+export const logger = new Proxy(plogger as FastifyBaseLogger, {
   get(target, property, receiver) {
-    target = (requestContext.get('logger') as FastifyLoggerInstance) || target
+    target = (requestContext.get('logger') as FastifyBaseLogger) || target
     return Reflect.get(target, property, receiver)
   },
 })

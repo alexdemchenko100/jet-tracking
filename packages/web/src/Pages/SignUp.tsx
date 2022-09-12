@@ -37,6 +37,7 @@ import {
   signInWithRedirect,
   getRedirectResult,
 } from 'firebase/auth'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useMutation } from 'react-query'
 import { Link, useNavigate } from 'react-router-dom'
@@ -51,6 +52,10 @@ type SignUpParams = {
 }
 
 export default function SignUp() {
+  useEffect(() => {
+    document.title = 'SignUp | ProAutoma'
+  }, [])
+
   const navigate = useNavigate()
 
   const {
@@ -78,6 +83,7 @@ export default function SignUp() {
       handleCodeInApp: true,
     }
     await sendEmailVerification(creds.user, actionCodeSettings)
+    //console.log('email verification sent')
     return creds
   }
 

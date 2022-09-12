@@ -157,18 +157,22 @@ export class MonitorService {
       })
       .returningAll()
       .executeTakeFirst()
+
     const monResults = await db
       .selectFrom('MonitorResult')
-      .select(['id'])
+      .select(['id', 'monitorId'])
       .where('monitorId', '=', id)
       .where('accountId', '=', accountId)
       .execute()
+
     emitter.emit('delete-cloud-storage-objects', { accountId, items: monResults })
+
     await db
       .deleteFrom('Monitor')
       .where('id', '=', id)
       .where('accountId', '=', accountId)
       .executeTakeFirst()
+
     return resp
   }
 
@@ -209,10 +213,21 @@ export class MonitorService {
       .where('id', '=', id)
       .where('accountId', '=', currentUserInfo().accountId)
       .executeTakeFirst()
-    const bodyData = await readObject(currentUserInfo().accountId, id, 'body')
+
+    if (!monResultResp) {
+      throw new Error('Could not find result for ' + id)
+    }
+
+    const folderName = `${monResultResp.monitorId}/${id}`
+
+    const bodyData = await readObject(currentUserInfo().accountId, folderName, 'body')
+    const headerData = await readObject(currentUserInfo().accountId, folderName, 'headers')
+    const headerTuples = JSON.parse(headerData)
+
     return {
       ...monResultResp,
       body: bodyData,
+      headers: headerTuples as MonitorTuples,
     }
   }
 

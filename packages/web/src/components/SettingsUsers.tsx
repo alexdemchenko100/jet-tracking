@@ -50,7 +50,7 @@ function SettingsUsers() {
   const { data: users, refetch: refetchUsers } = useQuery(['users'], async () => {
     const resp = await axios({
       method: 'GET',
-      url: '/settings/accounts',
+      url: '/team',
     })
     const owners = resp.data.filter((user: UserAccount) => user.role === 'owner')
     if (owners.length < 2) {
@@ -81,7 +81,8 @@ function SettingsUsers() {
   }
 
   const updateUserRole = async () => {
-    await axios.put(`/settings/users/${selectedUser?.id}`, {
+    await axios.post(`/team`, {
+      email: selectedUser?.email,
       role: role,
     })
     toast({
@@ -102,11 +103,8 @@ function SettingsUsers() {
 
   const deleteUser = async () => {
     if (!selectedUser) return
-    if (selectedUser?.role === 'notifications') {
-      await axios.delete(`/settings/notifications/emails/${selectedUser.id}`)
-    } else {
-      await axios.delete(`/settings/users/${selectedUser.id}`)
-    }
+    await axios.delete(`/team/${selectedUser.id}`)
+
     toast({
       position: 'top',
       description: 'The user has been removed successfully.',
@@ -119,16 +117,11 @@ function SettingsUsers() {
   }
 
   async function sendInvite() {
-    if (role === 'notifications') {
-      await axios.post('/settings/notifications/emails', {
-        email: email,
-      })
-    } else {
-      await axios.post('/settings/users/invite', {
-        email: email,
-        role: role,
-      })
-    }
+    await axios.post('/team', {
+      email: email,
+      role: role,
+    })
+
     refetchUsers()
     onModalClose()
     toast({
@@ -140,11 +133,12 @@ function SettingsUsers() {
   }
 
   const resendVerifyLink = async (user: UserAccount) => {
-    if (user.role === 'notifications') {
-      await axios.post('/settings/notifications/emails/send-verification-mail', {
-        email: user.email,
-      })
-    }
+    await axios.post('/team', {
+      email: user.email,
+      role: user.role,
+      resendToken: true,
+    })
+
     toast({
       position: 'top',
       description: 'Email verification link was sent again to the email.',

@@ -81,7 +81,7 @@ export default async function MonitorRouter(app: FastifyInstance) {
     },
     async function ({ params: { id }, log }, reply) {
       const resp = await monitorSvc.delete(id)
-      log.info(resp, `Deleted monitor id: ${id}`)
+      log.info(`Deleted monitor id: ${id}`)
       reply.send(resp)
     }
   )

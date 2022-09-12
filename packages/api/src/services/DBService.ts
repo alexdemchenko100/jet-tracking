@@ -8,14 +8,21 @@ import { nanoid } from 'nanoid'
 import { createBucket, uploadObject } from './GSCService'
 
 export const getCurrentAccountIdByUser = async (userId: string) => {
-  const resp = await db
+  const userAccounts = await db
     .selectFrom('UserAccount')
     .selectAll()
     .where('userId', '=', userId)
-    .where('isCurrentAccount', '=', true)
-    .executeTakeFirst()
+    .where('isVerified', '=', true)
+    .execute()
 
-  return resp?.accountId
+  if (!userAccounts || userAccounts.length < 1) return null
+
+  const currentUser = userAccounts.find((acct) => acct.isPrimary == true)
+  if (currentUser) {
+    return currentUser.accountId
+  }
+
+  return userAccounts[0].accountId
 }
 
 export const getRoleFromAccountId = async (accountId: string, userId: string) => {
@@ -30,45 +37,31 @@ export const getRoleFromAccountId = async (accountId: string, userId: string) =>
 }
 
 export const processInvitedAccounts = async (userId: string, email: string) => {
-  const userAccounts = await db
-    .selectFrom('UserAccount')
-    .selectAll()
+  await db
+    .updateTable('UserAccount')
+    .set({ userId })
     .where('email', '=', email)
+    .where('userId', '<>', '')
     .execute()
-
-  userAccounts.map(async (acct) => {
-    if (!acct.userId) {
-      await db
-        .updateTable('UserAccount')
-        .set({ ...acct, userId })
-        .returningAll()
-        .executeTakeFirst()
-    }
-  })
 }
 
 export const createNewAccount = async (userId: string, email: string) => {
   let newAccountId = ''
-
-  await db.transaction().execute(async (trx) => {
+  const newAccount = await db.transaction().execute(async (trx) => {
     //create account
-    // create new stripe customer
-    const customer = await createStripeCustomer(userId, email)
-
-    const account = await trx
+    let account = await trx
       .insertInto('Account')
-      .values({ id: uuidv4(), name: userId, stripeCustomerId: customer.id })
+      .values({
+        id: uuidv4(),
+        owner: email,
+        name: `By ${email}`,
+      })
       .returningAll()
       .executeTakeFirst()
 
     if (!account || !account.id) {
       throw new Error('not able to create account')
     }
-
-    // create GCS bucket
-    createBucket(account.id).catch((err) => {
-      throw err
-    })
 
     const userAccount = await trx
       .insertInto('UserAccount')
@@ -77,7 +70,7 @@ export const createNewAccount = async (userId: string, email: string) => {
         userId: userId,
         email: email,
         accountId: account.id,
-        isCurrentAccount: true,
+        isPrimary: true,
         role: 'owner',
         isVerified: true,
       })
@@ -113,7 +106,13 @@ export const createNewAccount = async (userId: string, email: string) => {
       .executeTakeFirst()
 
     logger.info(`created new account for user ${userId} ${email} account id ${newAccountId}`)
+    return account
   })
+
+  if (newAccount && newAccount.id) {
+    // create GCS bucket
+    await createBucket(newAccount.id)
+  }
 
   return newAccountId
 }
@@ -141,8 +140,10 @@ export async function saveMonitorResult(result: Insertable<MonitorResultTable>) 
     }
   }
 
+  let savedResult
+
   try {
-    return await db.transaction().execute(async (trx) => {
+    savedResult = await db.transaction().execute(async (trx) => {
       const { count } = db.fn
       const monitorResult = await trx
         .insertInto('MonitorResult')
@@ -150,20 +151,19 @@ export async function saveMonitorResult(result: Insertable<MonitorResultTable>) 
           ...resultForSaving,
           id: uuidv4(),
           body: '',
+          headers: '[]',
         })
         .returningAll()
         .executeTakeFirst()
 
-      if (!monitorResult?.id) throw new Error()
-      // Saving body to cloud storage
-      const { body } = resultForSaving
-      uploadObject(result.accountId, monitorResult.id, 'body', body)
+      if (!monitorResult?.id) throw new Error('result id is empty!')
 
       const billingInfo = await trx
         .selectFrom('BillingInfo')
         .selectAll()
         .where('accountId', '=', result.accountId)
         .executeTakeFirst()
+
       if (
         billingInfo?.billingPlanType === 'pay-as-you-go' &&
         dayjs(billingInfo?.createdAt).add(1, 'month').format('YYYY-MM-DD') ===
@@ -195,6 +195,17 @@ export async function saveMonitorResult(result: Insertable<MonitorResultTable>) 
       }
       return monitorResult
     })
+
+    if (!savedResult.id) {
+      throw Error(`Failed to save the result to db for monitor: ${resultForSaving.monitorId}`)
+    }
+
+    // Saving body and headers to cloud storage
+    const { monitorId, body, headers } = resultForSaving
+    uploadObject(result.accountId, `${monitorId}/${savedResult.id}`, 'body', body)
+    uploadObject(result.accountId, `${monitorId}/${savedResult.id}`, 'headers', headers)
+
+    return savedResult
   } catch (e) {
     logger.error(e, 'exception in saving monitor result')
     return null

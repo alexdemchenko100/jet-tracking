@@ -55,20 +55,22 @@ export const CreatePrepaidPlanSchema = S.object()
 
 export type UserInvite = {
   email: string
-  role: 'owner' | 'admin' | 'viewer'
+  role: 'owner' | 'admin' | 'viewer' | 'notifications'
+  resendToken?: boolean
 }
 
 export const UserInviteSchema = S.object()
   .prop('email', S.string())
-  .prop('role', S.string().enum(['owner', 'admin', 'viewer']))
+  .prop('role', S.string().enum(['owner', 'admin', 'viewer', 'notifications']))
+  .prop('resendToken', S.boolean())
 
 export type RoleUpdate = {
-  role: 'owner' | 'admin' | 'viewer'
+  role: 'owner' | 'admin' | 'viewer' | 'notifications'
 }
 
 export const RoleUpdateSchema = S.object().prop(
   'role',
-  S.string().enum(['owner', 'admin', 'viewer'])
+  S.string().enum(['owner', 'admin', 'viewer', 'notifications'])
 )
 
 export type UserCreate = {

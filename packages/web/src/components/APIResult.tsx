@@ -29,6 +29,7 @@ import { javascript } from '@codemirror/lang-javascript'
 
 import { Store } from '../services/Store'
 import Section from '../components/Section'
+import { useEffect } from 'react'
 
 interface TimingBarProps extends FlexProps {
   result: MonitorResult
@@ -177,6 +178,10 @@ interface APIResultProps {
 export function APIResult({ result, onClose }: APIResultProps) {
   const isSuccess = result.err == '' && hasFailedAssertions(result) === false
   const [vertical] = useMediaQuery('(max-width: 1278px)')
+
+  useEffect(() => {
+    document.title = 'Results | ProAutoma'
+  }, [])
 
   return (
     <Section py={4} mb={0} position={'sticky'} top={vertical ? '0' : '16'} pr={2}>

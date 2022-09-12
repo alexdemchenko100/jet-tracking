@@ -1,7 +1,5 @@
 import { Storage } from '@google-cloud/storage'
-import pino from 'pino'
-
-const logger = pino()
+import { logger } from '../Context'
 
 const BUCKET_PREFIX = process.env.NODE_ENV == 'production' ? 'pa-acct' : 'pa-acct-dev'
 
@@ -19,49 +17,65 @@ const storage = new Storage(
 )
 
 export async function createBucket(name: string) {
-  const bucketName = `${BUCKET_PREFIX}-${name}`
-  await storage.createBucket(bucketName)
-  logger.info(`Bucket ${bucketName} created.`)
+  try {
+    const bucketName = `${BUCKET_PREFIX}-${name}`
+    const bucket = storage.bucket(bucketName)
+    const bucketExists = await bucket.exists()
+    if (!bucketExists) await storage.createBucket(bucketName)
+    logger.info(`Bucket ${bucketName} created.`)
+  } catch (e) {}
 }
 
 export async function uploadObject(
   accountId: string,
-  monitorResultId: string,
+  folderName: string,
   objectName: string,
   data: string
 ) {
   const bucketName = `${BUCKET_PREFIX}-${accountId}`
-  const filePath = `${monitorResultId}/${objectName}`
-  const bucket = storage.bucket(bucketName)
-  const bucketExists = await bucket.exists()
-  if (!bucketExists[0]) {
-    await storage.createBucket(bucketName)
+  const filePath = `${folderName}/${objectName}`
+  try {
+    await storage.bucket(bucketName).file(filePath).save(data)
+    logger.info(`${filePath} uploaded to the bucket: ${bucketName}`)
+  } catch (e) {
+    logger.error(e, 'upload failed, seeing if bucket exists')
+    const msg = e?.message as string
+    if (msg && msg.includes('bucket does not exist')) {
+      try {
+        await storage.createBucket(bucketName)
+        logger.info(`Bucket ${bucketName} created.`)
+        //now, try saving again
+        await storage.bucket(bucketName).file(filePath).save(data)
+        logger.info(`${filePath} uploaded to the bucket: ${bucketName}`)
+      } catch (e) {
+        //give up... tried our best
+      }
+    }
   }
-  await storage.bucket(bucketName).file(filePath).save(data)
-  logger.info(`${filePath} uploaded to the bucket: ${bucketName}`)
 }
 
-export async function readObject(accountId: string, monitorResultId: string, objectName: string) {
+export async function readObject(accountId: string, folderName: string, objectName: string) {
   const bucketName = `${BUCKET_PREFIX}-${accountId}`
-  const filePath = `${monitorResultId}/${objectName}`
+  const filePath = `${folderName}/${objectName}`
   const bucket = storage.bucket(bucketName)
-  const bucketExists = await bucket.exists()
-  if (!bucketExists[0]) return ''
-  const file = await bucket.file(filePath).download()
-  return file[0].toString('utf8')
+  try {
+    const file = await bucket.file(filePath).download()
+    return file[0].toString('utf8')
+  } catch (e) {
+    logger.error(filePath, 'Storage object read failed')
+  }
+  return ''
 }
 
-export async function deleteObject(accountId: string, monitorResultId: string, objectName: string) {
+export async function deleteObject(accountId: string, folderName: string, objectName: string) {
   const bucketName = `${BUCKET_PREFIX}-${accountId}`
-  const filePath = `${monitorResultId}/${objectName}`
-  const bucket = storage.bucket(bucketName)
-  const bucketExists = await bucket.exists()
-  if (!bucketExists[0]) return
-  const file = await bucket.file(filePath)
-  const fileExists = await file.exists()
-  if (fileExists[0]) {
-    file.delete()
-    logger.info(`${filePath} removed from the bucket: ${bucketName}`)
+  const filePath = `${folderName}/${objectName}`
+  const file = storage.bucket(bucketName).file(`${folderName}/${objectName}`)
+  try {
+    logger.info(`Deleting ${filePath} from the bucket: ${bucketName}`)
+    await file.delete()
+  } catch (e) {
+    logger.error(e, 'object delete failed')
   }
 }
 

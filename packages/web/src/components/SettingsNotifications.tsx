@@ -27,7 +27,7 @@ import { FiEdit, FiTrash2, FiPlus } from 'react-icons/fi'
 import { FormProvider, useForm, useFormContext } from 'react-hook-form'
 import axios from 'axios'
 import { useQuery } from 'react-query'
-import { NotificationChannel, NotificationEmail } from '@httpmon/db'
+import { NotificationChannel, UserAccount } from '@httpmon/db'
 
 import { Section, Text, ChannelSelect, PrimaryButton, SettingsHeader } from '../components'
 import { BlueEmailIcon, MSTeamsIcon, SlackIcon } from '../Assets'
@@ -45,7 +45,7 @@ interface NotificationSettingsForm {
 
 interface Props {
   errors: NotificationFormErrors
-  emails: NotificationEmail[]
+  emails: UserAccount[]
 }
 
 function NewNotification({ errors, emails }: Props) {
@@ -104,7 +104,7 @@ function NewNotification({ errors, emails }: Props) {
               {...register('new_notification.channel.email' as const)}
             >
               <option value=''>Please select an email</option>
-              {emails.map((notificationEmail: NotificationEmail) => (
+              {emails.map((notificationEmail) => (
                 <option key={notificationEmail.id} value={notificationEmail.email}>
                   {notificationEmail.email}
                 </option>
@@ -237,7 +237,7 @@ function EditNotification({ errors, emails }: Props) {
               {...register('new_notification.channel.email' as const)}
             >
               <option disabled>Please select an email</option>
-              {emails.map((notificationEmail: NotificationEmail) => (
+              {emails.map((notificationEmail) => (
                 <option key={notificationEmail.id} value={notificationEmail.email}>
                   {notificationEmail.email}
                 </option>
@@ -377,12 +377,10 @@ export default function SettingsNotifications() {
   const { data: notificationEmails } = useQuery(['verifiedNotificaitonEmails'], async () => {
     const resp = await axios({
       method: 'GET',
-      url: '/settings/notifications/emails',
-      params: {
-        status: 'verified',
-      },
+      url: '/team',
     })
-    return resp.data
+    const accounts = resp.data as UserAccount[]
+    return accounts.filter((acct) => acct.isVerified)
   })
 
   useEffect(() => {

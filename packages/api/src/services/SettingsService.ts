@@ -1,18 +1,7 @@
-import { v4 as uuidv4 } from 'uuid'
 import { currentUserInfo } from './../Context'
-import {
-  Settings,
-  db,
-  NotificationChannel,
-  NotificationEmail,
-  UserAccount,
-  UIState,
-} from '@httpmon/db'
+import { Settings, db, NotificationChannel, UIState } from '@httpmon/db'
 import { nanoid } from 'nanoid'
-import { sendVerificationEmail } from './SendgridService'
-import dayjs from 'dayjs'
 import { sql } from 'kysely'
-import { UserInvite } from '../types'
 import { firebaseAuth } from '../Firebase'
 import { createNewAccount } from './DBService'
 
@@ -128,109 +117,12 @@ export class SettingsService {
     return settings
   }
 
-  public async listNotificationEmails(status: string) {
-    let data = [] as NotificationEmail[]
-    const dayAgoStartime = dayjs().subtract(1, 'day').toDate()
-    switch (status) {
-      case 'verified':
-        data = await db
-          .selectFrom('NotificationEmail')
-          .selectAll()
-          .where('accountId', '=', currentUserInfo().accountId)
-          .where('isVerified', '=', true)
-          .execute()
-        break
-      case 'unverified':
-        data = await db
-          .selectFrom('NotificationEmail')
-          .selectAll()
-          .where('accountId', '=', currentUserInfo().accountId)
-          .where('isVerified', '=', false)
-          .where('createdAt', '>=', dayAgoStartime)
-          .execute()
-        break
-      case 'expired':
-        data = await db
-          .selectFrom('NotificationEmail')
-          .selectAll()
-          .where('accountId', '=', currentUserInfo().accountId)
-          .where('isVerified', '=', false)
-          .where('createdAt', '<', dayAgoStartime)
-          .execute()
-        break
-      default:
-    }
-    return data
-  }
-
-  public async saveNotifcationEmail(data: NotificationEmail, token: string) {
-    const notification = await db
-      .insertInto('NotificationEmail')
-      .values({
-        id: nanoid(),
-        email: data.email,
-        isVerified: data.isVerified,
-        token: token,
-        accountId: currentUserInfo().accountId,
-      })
-      .returningAll()
-      .executeTakeFirst()
-    await sendVerificationEmail(data.email, token)
-    return notification
-  }
-
-  public async deleteNotificationEmail(id: string) {
-    const result = await db
-      .selectFrom('NotificationEmail')
-      .select(['email'])
-      .where('id', '=', id)
-      .where('accountId', '=', currentUserInfo().accountId)
-      .executeTakeFirst()
-    const resp = await db
-      .deleteFrom('NotificationEmail')
-      .where('id', '=', id)
-      .where('accountId', '=', currentUserInfo().accountId)
-      .executeTakeFirst()
-    await db
-      .deleteFrom('NotificationChannel')
-      .where('channel', '=', { type: 'email', email: result?.email || '' })
-      .where('accountId', '=', currentUserInfo().accountId)
-      .executeTakeFirst()
-    return resp.numDeletedRows
-  }
-
-  public async resendVerificationMail(email: string, token: string) {
-    const resp = await sendVerificationEmail(email, token)
-    return resp
-  }
-
-  public async verifyEmail(email: string, token: string) {
-    const resp = await db
-      .selectFrom('NotificationEmail')
-      .select(['id', 'isVerified', 'token'])
-      .where('email', '=', email)
-      .executeTakeFirst()
-    if (resp?.isVerified) {
-      return 'already_verified'
-    }
-    if (resp?.id && token === resp?.token) {
-      await db
-        .updateTable('NotificationEmail')
-        .set({ isVerified: true, token: null })
-        .where('id', '=', resp?.id)
-        .returningAll()
-        .executeTakeFirst()
-      return 'success'
-    }
-    return 'failed'
-  }
-
   public async verifyUser(email: string, accountId: string, token: string) {
     const defaultUser = await db
       .selectFrom('UserAccount')
       .select(['id'])
       .where('email', '=', email)
-      .where('isCurrentAccount', '=', true)
+      .where('isPrimary', '=', true)
       .executeTakeFirst()
 
     const resp = await db
@@ -261,77 +153,13 @@ export class SettingsService {
     }
   }
 
-  public async listUsers() {
-    const dayAgoStartime = dayjs().subtract(1, 'day').toDate()
-    const userAccounts = await db
-      .selectFrom('UserAccount')
-      .selectAll()
-      .where('accountId', '=', currentUserInfo().accountId)
-      .execute()
-    const notificationEmails = await db
-      .selectFrom('NotificationEmail')
-      .selectAll()
-      .where('accountId', '=', currentUserInfo().accountId)
-      .execute()
-    const data = [...userAccounts, ...notificationEmails] as UserAccount[]
-    data.forEach((item) => {
-      if (item.isVerified) {
-        item.status = 'verified'
-      } else if (item.createdAt && item.createdAt < dayAgoStartime) {
-        item.status = 'expired'
-      } else {
-        item.status = 'unverified'
-      }
-      if (!item.role) {
-        item.role = 'notifications'
-      }
-    })
-    return data
-  }
-
-  public async sendUserInvite(data: UserInvite, token: string) {
-    //does this user has an account already?
-    const user = await db
-      .selectFrom('UserAccount')
-      .selectAll()
-      .where('email', '=', data.email)
-      .where('userId', '<>', '')
-      .executeTakeFirst()
-
-    await db
-      .insertInto('UserAccount')
-      .values({
-        id: uuidv4(),
-        userId: user?.userId,
-        email: data.email,
-        accountId: currentUserInfo().accountId,
-        isCurrentAccount: false,
-        role: data.role,
-        isVerified: false,
-        token,
-      })
-      .returningAll()
-      .executeTakeFirst()
-    await sendVerificationEmail(data.email, token, currentUserInfo().accountId, true)
-  }
-
-  public async updateUserRole(id: string, role: string) {
-    const user = await db
-      .updateTable('UserAccount')
-      .set({ role: role })
-      .where('id', '=', id)
-      .returningAll()
-      .executeTakeFirst()
-    return user
-  }
-
   public async createUser(email: string, password: string, displayName: string) {
     // Check if the default user with email address exists.
     const resp = await db
       .selectFrom('UserAccount')
       .select(['id'])
       .where('email', '=', email)
-      .where('isCurrentAccount', '=', true)
+      .where('isPrimary', '=', true)
       .executeTakeFirst()
 
     if (!resp) {
@@ -369,14 +197,14 @@ export class SettingsService {
     await db.transaction().execute(async (trx) => {
       await trx
         .updateTable('UserAccount')
-        .set({ isCurrentAccount: true })
+        .set({ isPrimary: true })
         .where('accountId', '=', newDefaultAccountId)
         .where('userId', '=', currentUserInfo().userId)
         .execute()
 
       await trx
         .updateTable('UserAccount')
-        .set({ isCurrentAccount: false })
+        .set({ isPrimary: false })
         .where('accountId', '<>', newDefaultAccountId)
         .where('userId', '=', currentUserInfo().userId)
         .execute()

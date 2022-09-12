@@ -6,7 +6,7 @@ import { Section, Text } from '../components'
 import { FiActivity, FiMonitor } from 'react-icons/fi'
 import { Link } from 'react-router-dom'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
 import axios from 'axios'
 
@@ -21,6 +21,10 @@ export default function ActivityLogs() {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [logs, setLogs] = useState<ActivityLog[]>([])
   const [totalCount, setTotalCount] = useState<number | undefined>()
+
+  useEffect(() => {
+    document.title = 'Activity Log | ProAutoma'
+  }, [])
 
   useQuery(
     ['activitylogs', currentPage],

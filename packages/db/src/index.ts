@@ -10,7 +10,6 @@ import {
   NotificationChannel,
   NotificationState,
   Settings,
-  NotificationEmail,
   StatusPage,
   BillingInfo,
   ApiKey,
@@ -26,7 +25,6 @@ interface Database {
   NotificationChannel: NotificationChannel
   NotificationState: NotificationState
   Settings: Settings
-  NotificationEmail: NotificationEmail
   StatusPage: StatusPage
   BillingInfo: BillingInfo
   ApiKey: ApiKey

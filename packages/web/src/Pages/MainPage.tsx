@@ -286,14 +286,18 @@ const StatBox = ({ status, stats }: StatBoxProps) => {
         borderRadius={8}
         bg={bgColor}
       >
-        {status === 'up' && <Icon color='white' as={FiTrendingUp} />}
+        {status === 'up' && (
+          <Text variant='text-field' color='gray.300' mb={1} textTransform='capitalize'>
+            {status}
+          </Text>
+        )}
         {status === 'down' && <Icon color='white' as={FiTrendingDown} />}
         {status === 'paused' && <Icon color='white' fill='white' as={FiPause} />}
       </Flex>
       <Flex direction={'column'} alignItems={'center'}>
-        <Text variant='text-field' color='gray.300' mb={1} textTransform='capitalize'>
+        {/* <Text variant='text-field' color='gray.300' mb={1} textTransform='capitalize'>
           Total {status}
-        </Text>
+        </Text> */}
         <Text variant='header' color='black'>
           {getMonitorCountByStatus(status, stats)}
         </Text>

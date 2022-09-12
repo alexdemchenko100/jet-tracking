@@ -11,6 +11,7 @@ import { getAnalytics } from 'firebase/analytics'
 import { getAuth, Auth, User } from 'firebase/auth'
 import { Store } from './Store'
 import { UserAccount } from '@httpmon/db'
+import { useQuery } from 'react-query'
 
 let auth: Auth | null = null
 
@@ -127,43 +128,27 @@ export async function setCurrentAccount(account: UserAccount) {
 
   Store.UserState.userInfo.role = account.role
   Store.UserState.userInfo.accountId = account.accountId
-  axios.defaults.headers.common['x-proautoma-accountid'] = account.accountId
-
-  //console.log('switch to ', account)
-
-  await getDefaultRoleAndAccount(account.email)
 }
 
-async function getDefaultRoleAndAccount(email: string) {
+async function getPrimaryAccount() {
   const resp = await axios({
     method: 'GET',
     url: `/settings/accounts`,
   })
 
-  const defaultAccount = resp.data.find((item: UserAccount) => item.isCurrentAccount) as UserAccount
+  const primaryAccount = resp.data.find((item: UserAccount) => item.isPrimary) as UserAccount
 
   if (!Store.UserState.userInfo.role) {
-    Store.UserState.userInfo.role = defaultAccount?.role
-    Store.UserState.userInfo.accountId = defaultAccount?.accountId
+    Store.UserState.userInfo.role = primaryAccount?.role
+    Store.UserState.userInfo.accountId = primaryAccount?.accountId
   }
 
   //Store team info in the Store
   Store.UserState.teams = resp.data as UserAccount[]
-
-  // UIState settings
-  const { data } = await axios({
-    method: 'GET',
-    url: `/settings/ui-state`,
-  })
-  if (data.uiState) {
-    Store.UIState.monitors = { ...Store.UIState.monitors, ...data.uiState.monitors }
-    Store.UIState.editor = { ...Store.UIState.editor, ...data.uiState.editor }
-    Store.UIState.results = { ...Store.UIState.results, ...data.uiState.results }
-  }
 }
 
 export function setUser(user: User | null, role?: string, accountId?: string) {
-  console.log('set user', user, role, accountId)
+  //console.log('set user', user, role, accountId)
 
   if (user) {
     const { uid, email, displayName, photoURL, phoneNumber } = user
@@ -181,17 +166,34 @@ export function setUser(user: User | null, role?: string, accountId?: string) {
 
   if (accountId) {
     Store.UserState.userInfo.accountId = accountId
-    axios.defaults.headers.common['x-proautoma-accountid'] = accountId
   }
 
   getIDTokenPossiblyRefreshed().then(() => {
     //get team data here after setting the bearer token
-    if (user && user.email && !Store.UserState.userInfo.role) getDefaultRoleAndAccount(user.email)
+    if (user && user.email && !Store.UserState.userInfo.role) getPrimaryAccount()
   })
 }
 
 export function useAuth() {
   const userState = Store.watch(Store.UserState)
+
+  useQuery(
+    'ui-state',
+    async () => {
+      const { data } = await axios({
+        method: 'GET',
+        url: `/settings/ui-state`,
+      })
+      if (data.uiState) {
+        Store.UIState.monitors = { ...Store.UIState.monitors, ...data.uiState.monitors }
+        Store.UIState.editor = { ...Store.UIState.editor, ...data.uiState.editor }
+        Store.UIState.results = { ...Store.UIState.results, ...data.uiState.results }
+      }
+    },
+    {
+      staleTime: 5 * 60 * 1000,
+    }
+  )
 
   return {
     isLoggedIn: isLoggedIn(),

@@ -1,3 +1,4 @@
+import { TeamService } from './../../services/TeamService'
 import { FastifyInstance } from 'fastify'
 import { EmailVerification, EmailVerificationSchema } from '@httpmon/db'
 import S from 'fluent-json-schema'
@@ -6,6 +7,7 @@ import { UserCreate, UserCreateSchema, UserVerification, UserVerificationSchema 
 
 export default async function SettingsPublicRouter(app: FastifyInstance) {
   const settingsService = SettingsService.getInstance()
+  const teamService = TeamService.getInstance()
 
   // POST /emails/verify
   app.post<{ Body: EmailVerification }>(
@@ -21,8 +23,8 @@ export default async function SettingsPublicRouter(app: FastifyInstance) {
     async function (req, reply) {
       const { email, token } = req.body
 
-      const resp = await settingsService.verifyEmail(email, token || '')
-      reply.send({ message: resp })
+      const resp = await teamService.verifyToken(email, token || '')
+      reply.send({ message: resp.status })
     }
   )
 
@@ -40,7 +42,7 @@ export default async function SettingsPublicRouter(app: FastifyInstance) {
     async function (req, reply) {
       const { email, token, accountId } = req.body
 
-      const resp = await settingsService.verifyUser(email, accountId, token || '')
+      const resp = await teamService.verifyToken(email, token || '')
       reply.send(resp)
     }
   )

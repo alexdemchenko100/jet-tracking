@@ -2,7 +2,6 @@ import { TimePeriods } from './MonitorTimePeriod'
 import { MonitorLocations } from './MonitorLocations'
 import { User } from 'firebase/auth'
 import { proxy, snapshot, subscribe, useSnapshot } from 'valtio'
-import { devtools } from 'valtio/utils'
 import { BrowserHistory } from 'history'
 import { QueryClient } from 'react-query'
 import { UIState, UserAccount } from '@httpmon/db'
@@ -71,4 +70,12 @@ subscribe(uiState, () => {
       uiState: snapshot(uiState),
     },
   })
+})
+
+subscribe(userState.userInfo, () => {
+  if (
+    userState.userInfo.accountId &&
+    axios.defaults.headers.common['x-proautoma-accountid'] != userState.userInfo.accountId
+  )
+    axios.defaults.headers.common['x-proautoma-accountid'] = userState.userInfo.accountId
 })

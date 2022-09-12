@@ -34,6 +34,7 @@ import { Link, Navigate, useLocation } from 'react-router-dom'
 
 import { logoTitle, googleSigninButton } from '../Assets'
 import { isLoggedIn, setUser } from '../services/FirebaseAuth'
+import { useEffect } from 'react'
 
 export type SignInForm = {
   email: string
@@ -42,6 +43,10 @@ export type SignInForm = {
 }
 
 export function SignIn() {
+  useEffect(() => {
+    document.title = 'SignIn | ProAutoma'
+  }, [])
+
   const {
     register,
     handleSubmit,
@@ -63,10 +68,12 @@ export function SignIn() {
         // After returning from the redirect when your app initializes you can obtain the result
         creds = await getRedirectResult(auth)
       } else {
+        console.log('signing in with email and pwd')
         creds = await signInWithEmailAndPassword(getAuth(), data.email, data.password)
+        console.log('creds', creds)
       }
     } catch (e) {
-      //console.error(e)
+      console.error(e)
     }
 
     if (!creds || !creds.user || !creds.user.emailVerified) {

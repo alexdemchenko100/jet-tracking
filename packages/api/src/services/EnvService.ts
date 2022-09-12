@@ -2,9 +2,6 @@ import { currentUserInfo } from './../Context'
 
 import { db, MonEnv, MonitorTuples } from '@httpmon/db'
 import { nanoid } from 'nanoid'
-import pino from 'pino'
-
-const logger = pino()
 
 export class EnvService {
   static instance: EnvService

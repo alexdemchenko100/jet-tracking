@@ -9,10 +9,6 @@ export default async function SettingsRouter(app: FastifyInstance) {
 
   const settingsService = SettingsService.getInstance()
 
-  interface TeamsParams {
-    email: string
-  }
-
   interface SetDefaultTeams {
     accountId: string
     email: string

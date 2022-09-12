@@ -450,6 +450,10 @@ function SelectOption(props: OptionProps) {
 }
 
 export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) {
+  useEffect(() => {
+    document.title = 'Monitor Editor | ProAutoma'
+  }, [])
+
   //id tells apart Edit to a new check creation
   const { id } = useParams()
   const toast = useToast()

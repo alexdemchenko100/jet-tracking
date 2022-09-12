@@ -10,7 +10,8 @@ datasource db {
 model Account {
   id                String                @id
   createdAt         DateTime              @default(now())
-  name              String                @unique
+  name              String                @default("")
+  owner             String
   stripeCustomerId  String?
   users             UserAccount[]
   Monitor           Monitor[]
@@ -19,21 +20,24 @@ model Account {
   notifications     NotificationChannel[]
   settings          Settings[]
   NotificationState NotificationState[]
-  NotificationEmail NotificationEmail[]
   StatusPage        StatusPage[]
   BillingInfo       BillingInfo[]
+
+  @@unique([name, owner])
 }
 
 model UserAccount {
-  id               String  @id
-  userId           String?
-  email            String
-  role             String  @default("")
-  isCurrentAccount Boolean @default(false)
-  isVerified       Boolean @default(false)
-  token            String?
-  account          Account @relation(fields: [accountId], references: [id])
-  accountId        String
+  id            String    @id
+  createdAt     DateTime  @default(now())
+  userId        String?   @default("")
+  email         String
+  role          String    @default("")
+  isPrimary     Boolean   @default(false)
+  isVerified    Boolean   @default(false)
+  token         String?
+  tokenExpiryAt DateTime?
+  account       Account   @relation(fields: [accountId], references: [id])
+  accountId     String
 
   @@unique([email, accountId])
 }
@@ -149,18 +153,6 @@ model Settings {
   accountId String
 
   @@unique([accountId])
-}
-
-model NotificationEmail {
-  id         String   @id @default(cuid())
-  createdAt  DateTime @default(now())
-  email      String
-  token      String?
-  isVerified Boolean  @default(false)
-  account    Account  @relation(fields: [accountId], references: [id])
-  accountId  String
-
-  @@unique([email])
 }
 
 model StatusPage {

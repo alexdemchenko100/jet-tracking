@@ -11,14 +11,30 @@ import {
   getCutomerDetails,
   createPrepaidSubscription,
   deleteSubscriptions,
+  createStripeCustomer,
 } from './StripeService'
 
 async function getStripeCustomerId() {
   const account = await db
     .selectFrom('Account')
-    .select('stripeCustomerId')
+    .selectAll()
     .where('id', '=', currentUserInfo().accountId)
     .executeTakeFirst()
+
+  if (account && account.id && !account?.stripeCustomerId) {
+    //try to create one here
+    // create new stripe customer
+    const customer = await createStripeCustomer(account.id, account.owner)
+    if (customer) {
+      await db
+        .updateTable('Account')
+        .set({ stripeCustomerId: customer.id })
+        .where('id', '=', currentUserInfo().accountId)
+        .executeTakeFirst()
+      return customer.id
+    }
+  }
+
   return account?.stripeCustomerId
 }
 

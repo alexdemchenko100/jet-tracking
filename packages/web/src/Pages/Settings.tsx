@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom'
 import { FiUser, FiShield, FiBell, FiUsers, FiCreditCard, FiKey } from 'react-icons/fi'
 import { Text, NavItem } from '../components'
 import { useAuth } from '../services/FirebaseAuth'
+import { useEffect } from 'react'
 
 const SIDEBAR_WIDTH = '240px'
 
@@ -45,12 +46,12 @@ const SettingsSidebar = (props: any) => {
         </NavItem>
         <NavItem icon={FiKey} to='/console/settings/api-keys'>
           <Text variant='text-field' color='inherit'>
-            Api Keys
+            API Keys
           </Text>
         </NavItem>
         <NavItem icon={FiUsers} to='/console/settings/users'>
           <Text variant='text-field' color='inherit'>
-            User Management
+            Team
           </Text>
         </NavItem>
         {(!userInfo.role || userInfo.role === 'owner') && (
@@ -66,6 +67,9 @@ const SettingsSidebar = (props: any) => {
 }
 
 export function SettingsPage() {
+  useEffect(() => {
+    document.title = 'Settings | ProAutoma'
+  }, [])
   return (
     <Flex position='relative' pt='68'>
       <SettingsSidebar />

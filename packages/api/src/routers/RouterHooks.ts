@@ -58,8 +58,12 @@ export async function onRequestAuthHook(request: FastifyRequest, reply: FastifyR
   }
 
   const role = await getRoleFromAccountId(accountId, user.uid)
+  if (role == 'notifications') {
+    reply.code(401).send({ message: 'Not authorized. notifications only' })
+    return
+  }
+  
   request.requestContext.set('user', { user: user.email, userId: user.uid, accountId, role })
-
   request.log.info(requestContext.get('user'), 'user authorized')
 }
 

@@ -19,6 +19,7 @@ importers:
       '@google-cloud/storage': ^6.4.1
       '@httpmon/db': workspace:^0.0.1
       '@httpmon/sandbox': workspace:^0.0.1
+      '@prisma/client': ^4.3.1
       '@sinclair/typebox': ^0.23.3
       '@szmarczak/http-timer': ^5.0.1
       '@types/bcryptjs': ^2.4.2
@@ -57,7 +58,7 @@ importers:
       pino: ^8.5.0
       pino-pretty: ^9.1.0
       prettier: ^2.5.1
-      prisma: ^3.9.2
+      prisma: ^4.3.1
       rimraf: ^3.0.2
       stripe: ^10.0.0
       tsconfig-paths: ^3.12.0
@@ -72,6 +73,7 @@ importers:
       '@google-cloud/storage': 6.4.1
       '@httpmon/db': link:../db
       '@httpmon/sandbox': link:../sandbox
+      '@prisma/client': 4.3.1_prisma@4.3.1
       '@sinclair/typebox': 0.23.3
       '@szmarczak/http-timer': 5.0.1
       ajv: 8.10.0
@@ -114,7 +116,7 @@ importers:
       fastify-tsconfig: 1.0.1
       nodemon: 2.0.15
       prettier: 2.5.1
-      prisma: 3.9.2
+      prisma: 4.3.1
       rimraf: 3.0.2
       tsconfig-paths: 3.12.0
       typescript: 4.5.5
@@ -3234,10 +3236,27 @@ packages:
     resolution: {integrity: sha512-92FRmppjjqz29VMJ2dn+xdyXZBrMlE42AV6Kq6BwjWV7CNUW1hs2FtxSNLQE+gJhaZ6AAmYuO9y8dshhcBl7vA==}
     dev: false
 
-  /@prisma/engines/3.9.0-58.bcc2ff906db47790ee902e7bbc76d7ffb1893009:
-    resolution: {integrity: sha512-qM+uJbkelB21bnK44gYE049YTHIjHysOuj0mj5U2gDGyNLfmiazlggzFPCgEjgme4U5YB2tYs6Z5Hq08Kl8pjA==}
+  /@prisma/client/4.3.1_prisma@4.3.1:
+    resolution: {integrity: sha512-FA0/d1VMJNWqzU7WVWTNWJ+lGOLR9JUBnF73GdIPAEVo/6dWk4gHx0EmgeU+SMv4MZoxgOeTBJF2azhg7x0hMw==}
+    engines: {node: '>=14.17'}
     requiresBuild: true
-    dev: true
+    peerDependencies:
+      prisma: '*'
+    peerDependenciesMeta:
+      prisma:
+        optional: true
+    dependencies:
+      '@prisma/engines-version': 4.3.0-32.c875e43600dfe042452e0b868f7a48b817b9640b
+      prisma: 4.3.1
+    dev: false
+
+  /@prisma/engines-version/4.3.0-32.c875e43600dfe042452e0b868f7a48b817b9640b:
+    resolution: {integrity: sha512-8yWpXkQRmiSfsi2Wb/ZS5D3RFbeu/btL9Pm/gdF4phB0Lo5KGsDFMxFMgaD64mwED2nHc8ZaEJg/+4Jymb9Znw==}
+    dev: false
+
+  /@prisma/engines/4.3.1:
+    resolution: {integrity: sha512-4JF/uMaEDAPdcdZNOrnzE3BvrbGpjgV0FcPT3EVoi6I86fWkloqqxBt+KcK/+fIRR0Pxj66uGR9wVH8U1Y13JA==}
+    requiresBuild: true
 
   /@protobufjs/aspromise/1.1.2:
     resolution: {integrity: sha512-j+gKExEuLmKwvz3OgROXtrJ2UG2x8Ch2YZUxahh+s1F2HZ+wAceUNLkvy6zKCPVRkU++ZWQrdxsUeQXmcg4uoQ==}
@@ -8345,14 +8364,13 @@ packages:
       parse-ms: 2.1.0
     dev: true
 
-  /prisma/3.9.2:
-    resolution: {integrity: sha512-i9eK6cexV74OgeWaH3+e6S07kvC9jEZTl6BqtBH398nlCU0tck7mE9dicY6YQd+euvMjjCtY89q4NgmaPnUsSg==}
-    engines: {node: '>=12.6'}
+  /prisma/4.3.1:
+    resolution: {integrity: sha512-90xo06wtqil76Xsi3mNpc4Js3SdDRR5g4qb9h+4VWY4Y8iImJY6xc3PX+C9xxTSt1lr0Q89A0MLkJjd8ax6KiQ==}
+    engines: {node: '>=14.17'}
     hasBin: true
     requiresBuild: true
     dependencies:
-      '@prisma/engines': 3.9.0-58.bcc2ff906db47790ee902e7bbc76d7ffb1893009
-    dev: true
+      '@prisma/engines': 4.3.1
 
   /process-nextick-args/2.0.1:
     resolution: {integrity: sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==}

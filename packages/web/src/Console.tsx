@@ -39,6 +39,8 @@ interface SwitchAccountMenuProps {
 
 function SwitchAccountMenu({ teams }: SwitchAccountMenuProps) {
   const navigate = useNavigate()
+  const user = useAuth()
+
   const menuBtnRef = useRef<HTMLButtonElement>(null)
 
   const switchAccount = async (account: UserAccount) => {
@@ -85,7 +87,7 @@ function SwitchAccountMenu({ teams }: SwitchAccountMenuProps) {
               alignItems='center'
               justifyContent='space-between'
               _hover={{ bg: 'gray.100' }}
-              className={team.isCurrentAccount ? 'selected-menu-item' : ''}
+              className={team.accountId == user.userInfo.accountId ? 'selected-menu-item' : ''}
               onClick={() => switchAccount(team)}
             >
               <Flex direction='column' mr='2'>
@@ -104,7 +106,7 @@ function SwitchAccountMenu({ teams }: SwitchAccountMenuProps) {
                   {team.role}
                 </Text>
               </Flex>
-              {team.isCurrentAccount && (
+              {team.accountId == user.userInfo.accountId && (
                 <Badge colorScheme='green' variant='solid' fontSize='8px' mb='0.5'>
                   Current
                 </Badge>
