@@ -8,7 +8,7 @@ import {
   MonitorTable,
   UserAccount,
   NotificationChannel,
-  NotificationState,
+  ActivityLog,
   Settings,
   StatusPage,
   BillingInfo,
@@ -23,7 +23,7 @@ interface Database {
   Monitor: MonitorTable
   MonEnv: MonEnv
   NotificationChannel: NotificationChannel
-  NotificationState: NotificationState
+  ActivityLog: ActivityLog
   Settings: Settings
   StatusPage: StatusPage
   BillingInfo: BillingInfo

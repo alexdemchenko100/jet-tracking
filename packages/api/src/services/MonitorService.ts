@@ -67,7 +67,7 @@ export class MonitorService {
   }
 
   public async create(mon: Monitor) {
-    logger.info(mon, 'creating mon')
+    logger.trace(mon, 'creating mon')
     try {
       const monResp = await db
         .insertInto('Monitor')
@@ -78,12 +78,13 @@ export class MonitorService {
         })
         .returningAll()
         .executeTakeFirst()
+
       await db
-        .insertInto('NotificationState')
+        .insertInto('ActivityLog')
         .values({
           monitorId: monResp?.id,
           type: 'MONITOR_CREATED',
-          message: `Monitor ${mon.name} is created.`,
+          data: JSON.stringify({ msg: `Monitor ${mon.name} is created.` }),
           accountId: currentUserInfo().accountId,
         })
         .returningAll()
@@ -91,6 +92,7 @@ export class MonitorService {
       emitter.emit('monitor', monResp?.id)
       return monResp
     } catch (error) {
+      logger.error(error)
       throw new Error(error.constraint)
     }
   }
@@ -107,6 +109,7 @@ export class MonitorService {
         .where('id', '=', mon.id)
         .where('accountId', '=', currentUserInfo().accountId)
         .executeTakeFirst()
+
       monResp = await trx
         .updateTable('Monitor')
         .set({ ...monitorToDBMonitor(mon) })
@@ -117,23 +120,23 @@ export class MonitorService {
       if (origin?.status !== mon.status) {
         if (mon.status == 'active') {
           await trx
-            .insertInto('NotificationState')
+            .insertInto('ActivityLog')
             .values({
+              accountId: currentUserInfo().accountId,
               monitorId: mon.id,
               type: 'MONITOR_UP',
-              message: `Monitor ${mon.name} is active.`,
-              accountId: currentUserInfo().accountId,
+              data: JSON.stringify({ msg: `Monitor ${mon.name} is active.` }),
             })
             .returningAll()
             .executeTakeFirst()
         } else if (mon.status == 'paused') {
           await trx
-            .insertInto('NotificationState')
+            .insertInto('ActivityLog')
             .values({
+              accountId: currentUserInfo().accountId,
               monitorId: mon.id,
               type: 'MONITOR_PAUSED',
-              message: `Monitor ${mon.name} is paused.`,
-              accountId: currentUserInfo().accountId,
+              data: JSON.stringify({ msg: `Monitor ${mon.name} is paused.` }),
             })
             .returningAll()
             .executeTakeFirst()
@@ -148,11 +151,11 @@ export class MonitorService {
     if (!accountId) throw new Error('Account id mismatch')
     const resp = await this.find(id)
     await db
-      .insertInto('NotificationState')
+      .insertInto('ActivityLog')
       .values({
         monitorId: id,
         type: 'MONITOR_REMOVED',
-        message: `Monitor ${resp?.name} is removed.`,
+        data: JSON.stringify({ msg: `Monitor ${resp?.name} is removed.` }),
         accountId,
       })
       .returningAll()

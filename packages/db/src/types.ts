@@ -456,26 +456,26 @@ export const SettingsSchema = S.object()
   .prop('accountId', S.string())
   .prop('alert', AlertSettingsSchema)
 
-export type NotificationState = {
+export type ActivityLog = {
   id?: string
   createdAt?: String | Date
   accountId?: string
   monitorId?: string
   resultId?: string
   type: string
-  message?: string
+  data: Record<string, string> | string
 }
 
-export const NotificationStateSchema = S.object()
+export const ActivityLogSchema = S.object()
   .prop('createdAt', S.string())
   .prop('accountId', S.string())
   .prop('monitorId', S.string())
   .prop('resultId', S.string())
   .prop('type', S.string())
-  .prop('message', S.string())
+  .prop('data', S.object().prop('msg', S.string()))
 
 export const ActivityLogsResponseSchema = S.object()
-  .prop('items', S.array().items(NotificationStateSchema))
+  .prop('items', S.array().items(ActivityLogSchema))
   .prop('total', S.number())
 
 export type NotificationEmailStatus = 'verified' | 'unverified' | 'expired'

@@ -6,7 +6,7 @@ import { MonitorRunResult } from '@httpmon/db'
 let pubsub: PubSub | null = null
 
 export async function publishPostRequestEvent(event: MonitorRunResult) {
-  if (state.projectId === '' || process.env.NODE_ENV !== 'production') {
+  if (!state.projectId || process.env.NODE_ENV !== 'production') {
     publishLocally(event)
     return
   }
@@ -30,8 +30,7 @@ export async function publishPostRequestEvent(event: MonitorRunResult) {
 
 function publishLocally(monrun: MonitorRunResult) {
   logger.info(monrun.resultId, 'Publishing locally')
-  // logger.info(monrun, 'Publishing locally')
-  emitter.emit('monitor-', monrun)
+  emitter.emit('monitor-postrequest', monrun)
 }
 
 export async function publishMessage(topic: string, event: any) {

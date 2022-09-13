@@ -1,6 +1,5 @@
 import { Box, Flex, Icon } from '@chakra-ui/react'
 import groupBy from 'lodash.groupby'
-import { NotificationState } from '@httpmon/db'
 import dayjs from 'dayjs'
 import { Section, Text } from '../components'
 import { FiActivity, FiMonitor } from 'react-icons/fi'
@@ -9,8 +8,9 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import { Fragment, useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
 import axios from 'axios'
+import { ActivityLog } from '@httpmon/db'
 
-interface ActivityLog extends NotificationState {
+interface ActivityLogExt extends ActivityLog {
   date?: string
   time?: string
 }
@@ -19,7 +19,7 @@ const PAGE_SIZE = 20
 
 export default function ActivityLogs() {
   const [currentPage, setCurrentPage] = useState<number>(1)
-  const [logs, setLogs] = useState<ActivityLog[]>([])
+  const [logs, setLogs] = useState<ActivityLogExt[]>([])
   const [totalCount, setTotalCount] = useState<number | undefined>()
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export default function ActivityLogs() {
           },
         })
         const { items, total } = resp.data
-        const data = items.map((item: ActivityLog) => {
+        const data = items.map((item: ActivityLogExt) => {
           item.date = dayjs(item.createdAt as string).format('MMMM D')
           item.time = dayjs(item.createdAt as string).format('HH:mm')
           return item
@@ -134,7 +134,7 @@ export default function ActivityLogs() {
                           {log.time}
                         </Text>
                         <Text variant='text-field' color='black'>
-                          {log.message}
+                          {(log.data as Record<string, string>)?.msg ?? ''}
                         </Text>
                         {log.type !== 'MONITOR_REMOVED' && log.monitorId && (
                           <Box mt='-1' as={Link} to={`/console/monitors/${log.monitorId}`}>

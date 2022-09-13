@@ -2,7 +2,8 @@
 CREATE TABLE "Account" (
     "id" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "name" TEXT NOT NULL,
+    "name" TEXT NOT NULL DEFAULT '',
+    "owner" TEXT NOT NULL,
     "stripeCustomerId" TEXT,
 
     CONSTRAINT "Account_pkey" PRIMARY KEY ("id")
@@ -11,12 +12,14 @@ CREATE TABLE "Account" (
 -- CreateTable
 CREATE TABLE "UserAccount" (
     "id" TEXT NOT NULL,
-    "userId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "userId" TEXT DEFAULT '',
     "email" TEXT NOT NULL,
     "role" TEXT NOT NULL DEFAULT '',
-    "isCurrentAccount" BOOLEAN NOT NULL DEFAULT false,
+    "isPrimary" BOOLEAN NOT NULL DEFAULT false,
     "isVerified" BOOLEAN NOT NULL DEFAULT false,
     "token" TEXT,
+    "tokenExpiryAt" TIMESTAMP(3),
     "accountId" TEXT NOT NULL,
 
     CONSTRAINT "UserAccount_pkey" PRIMARY KEY ("id")
@@ -106,17 +109,17 @@ CREATE TABLE "NotificationChannel" (
 );
 
 -- CreateTable
-CREATE TABLE "NotificationState" (
+CREATE TABLE "ActivityLog" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "accountId" TEXT NOT NULL,
     "monitorId" TEXT,
+    "resultId" UUID,
     "state" TEXT NOT NULL DEFAULT '',
     "type" TEXT NOT NULL DEFAULT '',
-    "message" TEXT NOT NULL DEFAULT '',
-    "resultId" UUID,
+    "data" JSONB NOT NULL DEFAULT '{}',
 
-    CONSTRAINT "NotificationState_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "ActivityLog_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -128,18 +131,6 @@ CREATE TABLE "Settings" (
     "accountId" TEXT NOT NULL,
 
     CONSTRAINT "Settings_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "NotificationEmail" (
-    "id" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "email" TEXT NOT NULL,
-    "token" TEXT,
-    "isVerified" BOOLEAN NOT NULL DEFAULT false,
-    "accountId" TEXT NOT NULL,
-
-    CONSTRAINT "NotificationEmail_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -165,8 +156,20 @@ CREATE TABLE "BillingInfo" (
     CONSTRAINT "BillingInfo_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "ApiKey" (
+    "id" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "name" TEXT NOT NULL,
+    "hash" TEXT NOT NULL,
+    "tag" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+
+    CONSTRAINT "ApiKey_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
-CREATE UNIQUE INDEX "Account_name_key" ON "Account"("name");
+CREATE UNIQUE INDEX "Account_name_owner_key" ON "Account"("name", "owner");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "UserAccount_email_accountId_key" ON "UserAccount"("email", "accountId");
@@ -184,13 +187,13 @@ CREATE UNIQUE INDEX "NotificationChannel_name_accountId_key" ON "NotificationCha
 CREATE UNIQUE INDEX "Settings_accountId_key" ON "Settings"("accountId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "NotificationEmail_email_key" ON "NotificationEmail"("email");
-
--- CreateIndex
 CREATE UNIQUE INDEX "StatusPage_name_accountId_key" ON "StatusPage"("name", "accountId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "BillingInfo_id_key" ON "BillingInfo"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ApiKey_name_userId_key" ON "ApiKey"("name", "userId");
 
 -- AddForeignKey
 ALTER TABLE "UserAccount" ADD CONSTRAINT "UserAccount_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -211,19 +214,16 @@ ALTER TABLE "MonitorResult" ADD CONSTRAINT "MonitorResult_accountId_fkey" FOREIG
 ALTER TABLE "NotificationChannel" ADD CONSTRAINT "NotificationChannel_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "NotificationState" ADD CONSTRAINT "NotificationState_monitorId_fkey" FOREIGN KEY ("monitorId") REFERENCES "Monitor"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "ActivityLog" ADD CONSTRAINT "ActivityLog_monitorId_fkey" FOREIGN KEY ("monitorId") REFERENCES "Monitor"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "NotificationState" ADD CONSTRAINT "NotificationState_resultId_fkey" FOREIGN KEY ("resultId") REFERENCES "MonitorResult"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "ActivityLog" ADD CONSTRAINT "ActivityLog_resultId_fkey" FOREIGN KEY ("resultId") REFERENCES "MonitorResult"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "NotificationState" ADD CONSTRAINT "NotificationState_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ActivityLog" ADD CONSTRAINT "ActivityLog_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Settings" ADD CONSTRAINT "Settings_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "NotificationEmail" ADD CONSTRAINT "NotificationEmail_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "StatusPage" ADD CONSTRAINT "StatusPage_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

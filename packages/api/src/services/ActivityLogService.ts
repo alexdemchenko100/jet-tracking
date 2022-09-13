@@ -14,18 +14,20 @@ export class ActivityLogService {
   public async listLogs(offset: number, limit: number) {
     const { count } = db.fn
     const total = await db
-      .selectFrom('NotificationState')
+      .selectFrom('ActivityLog')
       .select(count<number>('id').as('count'))
       .where('accountId', '=', currentUserInfo().accountId)
       .execute()
+
     const logs = await db
-      .selectFrom('NotificationState')
+      .selectFrom('ActivityLog')
       .selectAll()
       .where('accountId', '=', currentUserInfo().accountId)
       .orderBy('createdAt', 'desc')
       .offset(offset)
       .limit(limit)
       .execute()
+
     return {
       total: total[0].count,
       items: logs,

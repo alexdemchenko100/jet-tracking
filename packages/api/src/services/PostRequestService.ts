@@ -9,7 +9,7 @@ import {
 export async function handlePostRequest(monrun: MonitorRunResult) {
   //from event id, get monitor result from db
 
-  // logger.error(event, 'IN Notification Service')
+  // logger.error('IN Notification Service')
   const mon = monrun.mon
 
   let failCount = mon.notifications?.failCount ?? 0
@@ -38,7 +38,7 @@ export async function handlePostRequest(monrun: MonitorRunResult) {
 
   //2
   const notifierState = await db
-    .selectFrom('NotificationState')
+    .selectFrom('ActivityLog')
     .selectAll()
     .orderBy('createdAt', 'desc')
     .where('monitorId', '=', mon.id)
@@ -53,17 +53,19 @@ export async function handlePostRequest(monrun: MonitorRunResult) {
 
   //3.
 
-  if (monrun.err) {
+  const bError = Boolean(monrun.err?.msg)
+
+  if (!bError) {
     //success
     if (bAlerted) {
       await db
-        .insertInto('NotificationState')
+        .insertInto('ActivityLog')
         .values({
           monitorId: monrun.mon.id,
           resultId: monrun.resultId ?? '',
           accountId: mon.accountId,
           type: 'MONITOR_RECOVERED',
-          message: `Monitor ${mon.name} is up`,
+          data: JSON.stringify({ msg: `Monitor ${mon.name} is up` }),
         })
         .returningAll()
         .executeTakeFirst()
@@ -140,20 +142,18 @@ export async function handlePostRequest(monrun: MonitorRunResult) {
 
   if (bNotify && result) {
     await db
-      .insertInto('NotificationState')
+      .insertInto('ActivityLog')
       .values({
         monitorId: mon.id,
         resultId: monrun.resultId ?? '',
         accountId: mon.accountId,
         type: 'MONITOR_DOWN',
-        message: `Monitor ${monrun.mon.name} is down`,
+        data: JSON.stringify({ msg: `Monitor ${monrun.mon.name} is down` }),
       })
       .returningAll()
       .executeTakeFirst()
     sendNotification('Alert', monrun.mon.accountId, mon.id!!, result)
   }
-
-  logger.error('DONE handling error')
 }
 
 async function sendNotification(
