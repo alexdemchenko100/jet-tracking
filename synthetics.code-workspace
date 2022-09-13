@@ -13,6 +13,10 @@
       "path": "packages/db"
     },
     {
+      "name": "playwright",
+      "path": "packages/playwright"
+    },
+    {
       "name": "sandbox",
       "path": "packages/sandbox"
     },

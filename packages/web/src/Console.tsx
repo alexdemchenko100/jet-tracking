@@ -209,7 +209,7 @@ export default function Console() {
         <Flex align='center'>
           <Icon color='darkgray.100' fontSize={'lg'} as={FaRegBell} cursor='pointer' />
 
-          <Menu>
+          <Menu id='profile-button'>
             <MenuButton>
               <Flex>
                 <Avatar
