@@ -34,8 +34,7 @@ import {
   updateProfile,
   UserCredential,
   GoogleAuthProvider,
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithPopup,
 } from 'firebase/auth'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
@@ -43,7 +42,7 @@ import { useMutation } from 'react-query'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { logoTitle, googleSignupButton } from '../Assets'
-import { isLoggedIn, setUser } from '../services/FirebaseAuth'
+import { isLoggedIn } from '../services/FirebaseAuth'
 
 type SignUpParams = {
   fullName: string
@@ -98,10 +97,7 @@ export default function SignUp() {
     try {
       const auth = getAuth()
       const provider = new GoogleAuthProvider()
-      await signInWithRedirect(auth, provider)
-      // After returning from the redirect when your app initializes you can obtain the result
-      const creds = await getRedirectResult(auth)
-      setUser(creds ? creds.user : null)
+      await signInWithPopup(auth, provider)
     } catch (e) {}
   }
 

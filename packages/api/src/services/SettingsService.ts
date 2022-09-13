@@ -2,6 +2,7 @@ import { currentUserInfo } from './../Context'
 import { Settings, db, NotificationChannel, UIState } from '@httpmon/db'
 import { nanoid } from 'nanoid'
 import { sql } from 'kysely'
+import { UserUpdate } from '../types'
 import { firebaseAuth } from '../Firebase'
 import { createNewAccount } from './DBService'
 

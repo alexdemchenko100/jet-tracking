@@ -1,4 +1,4 @@
-import { ChakraProvider, Box } from '@chakra-ui/react'
+import { ChakraProvider } from '@chakra-ui/react'
 import './App.css'
 import 'focus-visible/dist/focus-visible'
 
@@ -14,6 +14,7 @@ import NewEnv from './components/NewEnv'
 import { MonitorView } from './components/MonitorView'
 import { MonitorEditPanel } from './components/MonitorEditPanel'
 import { useAuth } from './services/FirebaseAuth'
+import { getAuth, getRedirectResult } from 'firebase/auth'
 import { Store } from './services/Store'
 import MainPage from './Pages/MainPage'
 import { APIResultById } from './components/APIResultById'
@@ -33,6 +34,7 @@ import {
   SettingsBilling,
   SettingsBillingPlans,
   SettingsApiKeys,
+  Loading,
 } from './components'
 import StatusPages from './Pages/StatusPages'
 import NewStatusPage from './Pages/NewStatusPage'
@@ -40,6 +42,7 @@ import EditStatusPage from './Pages/EditStatusPage'
 import ActivityLogs from './Pages/ActivityLogs'
 import SettingsBillingPayAsYouGo from './components/SettingsBillingPayAsYouGo'
 import SettingsBillingPrepaid from './components/SettingsBillingPrepaid'
+import { useEffect, useState } from 'react'
 
 const history = createBrowserHistory()
 Store.history = history //save for later
@@ -50,11 +53,7 @@ const ProtectedRoute = ({ isAllowed, children }: { isAllowed: boolean; children:
 
   if (!bLoadingUserFirstTime) {
     //wait for it
-    return (
-      <Box py='10' textAlign='center'>
-        Loading...
-      </Box>
-    )
+    return <Loading />
   }
 
   if (!isAllowed) {
@@ -65,7 +64,19 @@ const ProtectedRoute = ({ isAllowed, children }: { isAllowed: boolean; children:
 }
 
 function App() {
+  const [loading, setLoading] = useState<boolean>(true)
   const { isLoggedIn } = useAuth()
+
+  useEffect(() => {
+    const auth = getAuth()
+    getRedirectResult(auth).then(() => {
+      setLoading(false)
+    })
+  }, [])
+
+  if (loading) {
+    return <Loading />
+  }
 
   return (
     <HistoryRouter history={history}>

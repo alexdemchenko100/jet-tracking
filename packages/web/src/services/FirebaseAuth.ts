@@ -151,12 +151,13 @@ export function setUser(user: User | null, role?: string, accountId?: string) {
   //console.log('set user', user, role, accountId)
 
   if (user) {
-    const { uid, email, displayName, photoURL, phoneNumber } = user
+    const { uid, email, displayName, photoURL, phoneNumber, providerData } = user
     Store.UserState.userInfo.uid = uid
     Store.UserState.userInfo.email = email || undefined
     Store.UserState.userInfo.displayName = displayName || undefined
     Store.UserState.userInfo.photoURL = photoURL || undefined
     Store.UserState.userInfo.phoneNumber = phoneNumber
+    Store.UserState.userInfo.provider = providerData[0].providerId
     Store.user = user
   }
 

@@ -1,7 +1,16 @@
 import { FastifyInstance } from 'fastify'
 import S from 'fluent-json-schema'
 import { UserAccountSchema } from '@httpmon/db'
-import { Params, ParamsSchema, UserInviteSchema, UserInvite } from '../../../types'
+import {
+  Params,
+  ParamsSchema,
+  UserInviteSchema,
+  UserInvite,
+  UserPassword,
+  UserPasswordSchema,
+  UserUpdate,
+  UserUpdateSchema,
+} from '../../../types'
 import { onAdminRequestAuthHook, onRequestAuthHook } from '../../RouterHooks'
 import { TeamService } from '../../../services/TeamService'
 
@@ -57,6 +66,42 @@ export default async function TeamRouter(app: FastifyInstance) {
 
       const resp = await teamService.deleteTeamMember(id)
       req.log.info(`Delete user: ${JSON.stringify(resp)}`)
+      reply.send(resp)
+    }
+  )
+
+  // PUT /team/:id
+  app.put<{ Body: UserUpdate; Params: Params }>(
+    '/:id',
+    {
+      schema: {
+        params: ParamsSchema,
+        body: UserUpdateSchema,
+      },
+    },
+    async function (req, reply) {
+      const data = req.body
+      const { id } = req.params
+      const resp = await teamService.updateUser(id, data)
+      req.log.info(`Updating user profile: ${JSON.stringify(resp)}`)
+      reply.send(resp)
+    }
+  )
+
+  // PUT /team/:id/password
+  app.put<{ Body: UserPassword; Params: Params }>(
+    '/:id/password',
+    {
+      schema: {
+        params: ParamsSchema,
+        body: UserPasswordSchema,
+      },
+    },
+    async function (req, reply) {
+      const { password } = req.body
+      const { id } = req.params
+      const resp = await teamService.updateUserPassword(id, password)
+      req.log.info(`Update user password: ${JSON.stringify(resp)}`)
       reply.send(resp)
     }
   )

@@ -15,6 +15,7 @@ interface UserInfo {
   phoneNumber?: string | null
   role?: string
   accountId?: string
+  provider?: string
 }
 
 interface UserState {

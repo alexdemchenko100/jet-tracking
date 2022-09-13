@@ -64,14 +64,14 @@ export const UserInviteSchema = S.object()
   .prop('role', S.string().enum(['owner', 'admin', 'viewer', 'notifications']))
   .prop('resendToken', S.boolean())
 
-export type RoleUpdate = {
-  role: 'owner' | 'admin' | 'viewer' | 'notifications'
+export interface UserUpdate {
+  displayName?: string
+  phoneNumber?: string
 }
 
-export const RoleUpdateSchema = S.object().prop(
-  'role',
-  S.string().enum(['owner', 'admin', 'viewer', 'notifications'])
-)
+export const UserUpdateSchema = S.object()
+  .prop('displayName', S.string())
+  .prop('phoneNumber', S.string())
 
 export type UserCreate = {
   email: string
@@ -94,3 +94,9 @@ export const UserVerificationSchema = S.object()
   .prop('email', S.string())
   .prop('accountId', S.string())
   .prop('token', S.string())
+
+export interface UserPassword {
+  password: string
+}
+
+export const UserPasswordSchema = S.object().prop('password', S.string())

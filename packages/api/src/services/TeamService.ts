@@ -4,7 +4,8 @@ import { db } from '@httpmon/db'
 import { nanoid } from 'nanoid'
 import { sendVerificationEmail } from './SendgridService'
 import dayjs from 'dayjs'
-import { UserInvite } from '../types'
+import { UserInvite, UserUpdate } from '../types'
+import { firebaseAuth } from '../Firebase'
 
 export class TeamService {
   static instance: TeamService
@@ -112,6 +113,8 @@ export class TeamService {
         .set({
           role: invitation.role,
         })
+        .where('email', '=', invitation.email)
+        .where('accountId', '=', currentUserInfo().accountId)
         .returningAll()
         .executeTakeFirst()
     }
@@ -166,5 +169,20 @@ export class TeamService {
       .returningAll()
       .executeTakeFirst()
     return { status: 'success', hasDefaultUser: userId ? true : false }
+  }
+
+  public async updateUser(id: string, data: UserUpdate) {
+    const user = await firebaseAuth.updateUser(id, {
+      displayName: data.displayName,
+      phoneNumber: data.phoneNumber,
+    })
+    return user
+  }
+
+  public async updateUserPassword(id: string, password: string) {
+    const user = await firebaseAuth.updateUser(id, {
+      password,
+    })
+    return user
   }
 }
