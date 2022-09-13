@@ -1,13 +1,6 @@
 import { FastifyInstance } from 'fastify'
 import { SettingsSchema, Settings } from '@httpmon/db'
-import {
-  Params,
-  ParamsSchema,
-  UserUpdate,
-  UserUpdateSchema,
-  UserPassword,
-  UserPasswordSchema,
-} from '../../../types'
+import { Params, ParamsSchema } from '../../../types'
 import { onAdminRequestAuthHook, onRequestAuthHook } from '../../RouterHooks'
 import { SettingsService } from '../../../services/SettingsService'
 import { currentUserInfo } from '../../../Context'

@@ -6,8 +6,6 @@ import {
   ParamsSchema,
   UserInviteSchema,
   UserInvite,
-  UserPassword,
-  UserPasswordSchema,
   UserUpdate,
   UserUpdateSchema,
 } from '../../../types'
@@ -84,24 +82,6 @@ export default async function TeamRouter(app: FastifyInstance) {
       const { id } = req.params
       const resp = await teamService.updateUser(id, data)
       req.log.info(`Updating user profile: ${JSON.stringify(resp)}`)
-      reply.send(resp)
-    }
-  )
-
-  // PUT /team/:id/password
-  app.put<{ Body: UserPassword; Params: Params }>(
-    '/:id/password',
-    {
-      schema: {
-        params: ParamsSchema,
-        body: UserPasswordSchema,
-      },
-    },
-    async function (req, reply) {
-      const { password } = req.body
-      const { id } = req.params
-      const resp = await teamService.updateUserPassword(id, password)
-      req.log.info(`Update user password: ${JSON.stringify(resp)}`)
       reply.send(resp)
     }
   )

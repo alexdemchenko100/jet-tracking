@@ -94,9 +94,3 @@ export const UserVerificationSchema = S.object()
   .prop('email', S.string())
   .prop('accountId', S.string())
   .prop('token', S.string())
-
-export interface UserPassword {
-  password: string
-}
-
-export const UserPasswordSchema = S.object().prop('password', S.string())

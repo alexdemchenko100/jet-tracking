@@ -8,7 +8,14 @@
 import axios, { AxiosError } from 'axios'
 import { initializeApp } from 'firebase/app'
 import { getAnalytics } from 'firebase/analytics'
-import { getAuth, Auth, User } from 'firebase/auth'
+import {
+  getAuth,
+  Auth,
+  User,
+  reauthenticateWithCredential,
+  updatePassword,
+  EmailAuthProvider,
+} from 'firebase/auth'
 import { Store } from './Store'
 import { UserAccount } from '@httpmon/db'
 import { useQuery } from 'react-query'
@@ -104,6 +111,15 @@ export async function signOut() {
   Store.UserState.userInfo = {}
   if (Store.queryClient) {
     Store.queryClient.removeQueries()
+  }
+}
+
+export async function changePassword(oldPass: string, newPass: string) {
+  const user = getAuth().currentUser
+  if (user && user.email) {
+    const cred = EmailAuthProvider.credential(user.email, oldPass)
+    await reauthenticateWithCredential(user, cred)
+    await updatePassword(user, newPass)
   }
 }
 

@@ -178,11 +178,4 @@ export class TeamService {
     })
     return user
   }
-
-  public async updateUserPassword(id: string, password: string) {
-    const user = await firebaseAuth.updateUser(id, {
-      password,
-    })
-    return user
-  }
 }

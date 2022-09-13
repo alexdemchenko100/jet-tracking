@@ -15,20 +15,25 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Link as ChakraLink,
 } from '@chakra-ui/react'
 import React, { useState, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import axios, { AxiosError } from 'axios'
+import { Link } from 'react-router-dom'
 
 import { Section, SettingsHeader, Text, InputField, Loading, PrimaryButton } from '../components'
-import { useAuth } from '../services/FirebaseAuth'
+import { useAuth, changePassword } from '../services/FirebaseAuth'
 import { Store } from '../services/Store'
+import { FirebaseError } from 'firebase/app'
 
 interface ProfileSettingsForm {
   is_2fa_enabled: boolean
   password: string
   displayName: string
   phoneNumber: string
+  oldPassword: string
+  confirmPassword: string
 }
 
 export default function SettingsProfile() {
@@ -47,6 +52,7 @@ export default function SettingsProfile() {
 
   const { register, reset, handleSubmit, watch } = methods
   const watched = watch()
+  const { password, oldPassword, confirmPassword } = watched
 
   const [profileImage, setProfileImage] = useState<string | undefined>()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -102,37 +108,41 @@ export default function SettingsProfile() {
       })
   }
 
-  const changePassword = () => {
-    const { password } = watched
-    axios
-      .put(`/team/${user.uid}/password`, {
-        password,
+  const updatePassword = async () => {
+    if (confirmPassword !== password) {
+      toast({
+        position: 'top',
+        description: "New password and Confirm password don't match.",
+        status: 'error',
+        duration: 2000,
       })
-      .then(() => {
-        toast({
-          position: 'top',
-          description: 'Password has been updated successfully.',
-          status: 'info',
-          duration: 2000,
-          isClosable: false,
-        })
-        reset({ password: '' })
+      return
+    }
+    try {
+      await changePassword(oldPassword, password)
+      toast({
+        position: 'top',
+        description: 'Password has been updated successfully.',
+        status: 'info',
+        duration: 2000,
+        isClosable: false,
       })
-      .catch((error: AxiosError) => {
-        toast({
-          position: 'top',
-          description: error.response?.data.message,
-          status: 'error',
-          duration: 2000,
-        })
+      onModalClose()
+    } catch (error) {
+      const message = (error as FirebaseError).message
+      toast({
+        position: 'top',
+        description: message,
+        status: 'error',
+        duration: 2000,
       })
-      .finally(() => {
-        setShowPasswordModal(false)
-      })
+      onModalClose()
+    }
   }
 
   const onModalClose = () => {
     setShowPasswordModal(false)
+    reset({ password: '', confirmPassword: '', oldPassword: '' })
   }
 
   if (!user) {
@@ -224,27 +234,15 @@ export default function SettingsProfile() {
                 borderBottomWidth='1px'
                 borderStyle='solid'
               >
-                <InputField>
-                  <Text variant='details' color='black' mb={1}>
-                    Password
+                <Button
+                  variant='link'
+                  justifyContent='flex-start'
+                  onClick={() => setShowPasswordModal(true)}
+                >
+                  <Text variant='paragraph' color='darkblue.100' cursor='pointer'>
+                    Change password
                   </Text>
-                  <Input
-                    placeholder='Password'
-                    autoComplete='new-password'
-                    type='password'
-                    {...register(`password` as const)}
-                  />
-                  <Button
-                    variant='link'
-                    justifyContent='flex-start'
-                    disabled={!watched.password}
-                    onClick={() => setShowPasswordModal(true)}
-                  >
-                    <Text variant='details' mt={2} color='darkblue.100' cursor='pointer'>
-                      Change password
-                    </Text>
-                  </Button>
-                </InputField>
+                </Button>
               </Box>
               <Box mt={6}>
                 <FormControl display='flex' alignItems='center'>
@@ -276,9 +274,50 @@ export default function SettingsProfile() {
             </ModalHeader>
             <ModalCloseButton />
             <ModalBody>
-              <Text variant='text-field' color='gray.300'>
-                Are you really sure to update your password?
-              </Text>
+              <Box mb='4'>
+                <InputField maxW='100%'>
+                  <Text variant='details' color='black' mb={1}>
+                    Old password
+                  </Text>
+                  <Input
+                    placeholder='xxxxxxxxx'
+                    autoComplete='new-password'
+                    type='password'
+                    {...register(`oldPassword` as const)}
+                  />
+                </InputField>
+              </Box>
+              <Box mb='4'>
+                <InputField maxW='100%'>
+                  <Text variant='details' color='black' mb={1}>
+                    New password
+                  </Text>
+                  <Input
+                    placeholder='xxxxxxxxx'
+                    autoComplete='new-password'
+                    type='password'
+                    {...register(`password` as const)}
+                  />
+                </InputField>
+              </Box>
+              <Box mb='4'>
+                <InputField maxW='100%'>
+                  <Text variant='details' color='black' mb={1}>
+                    Confirm password
+                  </Text>
+                  <Input
+                    placeholder='xxxxxxxxx'
+                    autoComplete='new-password'
+                    type='password'
+                    {...register(`confirmPassword` as const)}
+                  />
+                </InputField>
+              </Box>
+              <Box textAlign='right'>
+                <ChakraLink as={Link} to='/console/forgot' color='blue.400'>
+                  Forgot password?
+                </ChakraLink>
+              </Box>
             </ModalBody>
             <ModalFooter>
               <Button
@@ -295,10 +334,11 @@ export default function SettingsProfile() {
                 Cancel
               </Button>
               <PrimaryButton
-                label='Yes'
+                disabled={!password || !oldPassword || !confirmPassword}
+                label='Update'
                 variant='emphasis'
                 color='white'
-                onClick={changePassword}
+                onClick={updatePassword}
               ></PrimaryButton>
             </ModalFooter>
           </ModalContent>
