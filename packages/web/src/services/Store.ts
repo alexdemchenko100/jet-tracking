@@ -63,13 +63,14 @@ export const Store = {
 }
 
 subscribe(uiState, () => {
-  axios({
-    method: 'PUT',
-    url: `/settings/ui-state`,
-    data: {
-      uiState: snapshot(uiState),
-    },
-  })
+  if (userState.userInfo.uid)
+    axios({
+      method: 'PUT',
+      url: `/settings/ui-state`,
+      data: {
+        uiState: snapshot(uiState),
+      },
+    })
 })
 
 subscribe(userState.userInfo, () => {

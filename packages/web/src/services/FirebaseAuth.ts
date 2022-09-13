@@ -191,6 +191,7 @@ export function useAuth() {
       }
     },
     {
+      enabled: Boolean(userState.userInfo.uid),
       staleTime: 5 * 60 * 1000,
     }
   )
