@@ -1,108 +1,80 @@
 import { test, expect } from '@playwright/test'
 
-test('test', async ({ page }) => {
+test.beforeEach(async ({ page }) => {
   // Go to http://localhost:3000/
   await page.goto('http://localhost:3000/')
   // Go to http://localhost:3000/console/signin
   await page.goto('http://localhost:3000/console/signin')
+})
+
+test('navigate to signup page', async ({ page }) => {
+  // Click text=Remember me
+  await page.locator('text=Remember me').click()
+  // Click text=Forgot password?
+  await page.locator('text=Forgot password?').click()
+  await expect(page).toHaveURL('http://localhost:3000/console/forgot')
+  // Go to http://localhost:3000/console/signin
+  await page.goto('http://localhost:3000/console/signin')
+  // Click text=Remember me
+  await page.locator('text=Remember me').click()
+  // Click text=Sign up
+  await page.locator('text=Sign up').click()
+  await expect(page).toHaveURL('http://localhost:3000/console/signup')
+  // Click text=Sign in
+  await page.locator('text=Sign in').click()
+  await expect(page).toHaveURL('http://localhost:3000/console/signin')
+})
+
+test('try to login without any data', async ({ page }) => {
+  // Click input[name="email"]
+  await page.locator('input[name="email"]').click()
+  // Click input[name="password"]
+  await page.locator('input[name="password"]').click()
+  // Click text=Remember me
+  await page.locator('text=Remember me').click()
+  // Click button:has-text("Sign in")
+  await page.locator('button:has-text("Sign in")').click()
+})
+
+test('login with wrong password', async ({ page }) => {
   // Click input[name="email"]
   await page.locator('input[name="email"]').click()
   // Fill input[name="email"]
   await page.locator('input[name="email"]').fill('patestuser@proautoma.com')
-  // Press Tab
-  await page.locator('input[name="email"]').press('Tab')
-  // Fill input[name="password"]
-  await page.locator('input[name="password"]').fill('helloproautoma123')
   // Click input[name="password"]
   await page.locator('input[name="password"]').click()
+  // Fill input[name="password"]
+  await page.locator('input[name="password"]').fill('helloproautoma')
+  // Click button:has-text("Sign in")
+  await page.locator('button:has-text("Sign in")').click()
+})
+
+test('login with correct credential', async ({ page }) => {
+  // Click input[name="email"]
+  await page.locator('input[name="email"]').click()
+  // Fill input[name="email"]
+  await page.locator('input[name="email"]').fill('patestuser@proautoma.com')
+  // Click input[name="password"]
+  await page.locator('input[name="password"]').click()
+  // Fill input[name="password"]
+  await page.locator('input[name="password"]').fill('helloproautoma123')
   // Click button:has-text("Sign in")
   await page.locator('button:has-text("Sign in")').click()
   await expect(page).toHaveURL('http://localhost:3000/console/monitors')
-  // Click text=Activity
-  await page.locator('text=Activity').click()
-  await expect(page).toHaveURL('http://localhost:3000/console/activity')
-  // Click text=Environments
-  await page.locator('text=Environments').click()
-  await expect(page).toHaveURL('http://localhost:3000/console/envs')
-  // Click text=No environments.
-  await page.locator('text=No environments.').click()
-  // Click text=Status Pages
-  await page.locator('text=Status Pages').click()
-  await expect(page).toHaveURL('http://localhost:3000/console/status-pages')
-  // Click .css-n0javg
-  await page.locator('.css-n0javg').click()
-  // Click text=Settings
-  await page.locator('text=Settings').click()
-  await expect(page).toHaveURL('http://localhost:3000/console/settings/profile')
-  // Click text=Security
-  await page.locator('text=Security').click()
-  await expect(page).toHaveURL('http://localhost:3000/console/settings/security')
-  // Click text=Notifications
-  await page.locator('text=Notifications').click()
-  await expect(page).toHaveURL('http://localhost:3000/console/settings/notifications')
-  // Click text=A monitor is failing for
-  await page.locator('text=A monitor is failing for').click()
-  // Click text=A monitor fails for
-  await page.locator('text=A monitor fails for').click()
-  // Select 2
-  await page.locator('select[name="alert\\.failCount"]').selectOption('2')
-  // Select 1
-  await page.locator('select[name="alert\\.failCount"]').selectOption('1')
-  // Click button:has-text("New notification")
-  await page.locator('button:has-text("New notification")').click()
-  // Click #menu-button-24
-  await page.locator('#menu-button-24').click()
-  // Click button[role="menuitem"]:has-text("Email")
-  await page.locator('button[role="menuitem"]:has-text("Email")').click()
-  // Select patestuser@proautoma.com
-  await page
-    .locator('select[name="new_notification\\.channel\\.email"]')
-    .selectOption('patestuser@proautoma.com')
-  // Click section[role="dialog"] button:has-text("Cancel")
-  await page.locator('section[role="dialog"] button:has-text("Cancel")').click()
-  // Click text=API Keys
-  await page.locator('text=API Keys').click()
-  await expect(page).toHaveURL('http://localhost:3000/console/settings/api-keys')
-  // Click div[role="group"]:has-text("Team")
-  await page.locator('div[role="group"]:has-text("Team")').click()
-  await expect(page).toHaveURL('http://localhost:3000/console/settings/users')
-  // Click text=Billing & Usage
-  await page.locator('text=Billing & Usage').click()
-  await expect(page).toHaveURL('http://localhost:3000/console/settings/billing')
-  // Click button:has-text("Add card")
-  await page.locator('button:has-text("Add card")').click()
-  // Click [aria-label="Close"]
-  await page.locator('[aria-label="Close"]').click()
-  // Click text=Dashboard
-  await page.locator('text=Dashboard').click()
-  await expect(page).toHaveURL('http://localhost:3000/console/monitors')
-  // Click button:has-text("New Monitor")
-  await page.locator('button:has-text("New Monitor")').click()
-  await expect(page).toHaveURL('http://localhost:3000/console/monitors/newapi')
-  // Click [placeholder="Monitor Name"]
-  await page.locator('[placeholder="Monitor Name"]').click()
-  // Fill [placeholder="Monitor Name"]
-  await page.locator('[placeholder="Monitor Name"]').fill('test')
-  // Click [placeholder="https\:\/\/"]
-  await page.locator('[placeholder="https\\:\\/\\/"]').click()
-  // Fill [placeholder="https\:\/\/"]
-  await page.locator('[placeholder="https\\:\\/\\/"]').fill('https://httpbin.org/get')
-  // Click button:has-text("Run now")
-  await page.locator('button:has-text("Run now")').click()
-  // Click text=Headers 7
-  await page.locator('text=Headers 7').click()
-  // Click text=Tests 1
-  await page.locator('text=Tests 1').click()
-  // Click button:has-text("Save")
-  await page.locator('button:has-text("Save")').click()
-  await expect(page).toHaveURL('http://localhost:3000/console/monitors')
-  // Click text=test0.000.000.00 >> button >> nth=0
-  await page.locator('text=test0.000.000.00 >> button').first().click()
-  // Click button:has-text("Delete")
-  await page.locator('button:has-text("Delete")').click()
-  // Click button:has-text("CDC Dharcdhar300@gmail.com")
-  await page.locator('#menu-button-profile-button').click()
-  // Click text=Signout
-  await page.locator('text=Signout').click()
-  await expect(page).toHaveURL('http://localhost:3000/console/signin')
+})
+
+test('try google login', async ({ page }) => {
+  // Click text=Remember meForgot password?Sign inor continue with >> img
+  await page.locator('#google-signin').click()
+  await expect(page).toHaveURL(
+    'https://www.proautoma.com/__/auth/handler?apiKey=AIzaSyAqn0-0Bq3yUQaoVm3Yf-XU8dSN3nNUa9g&appName=%5BDEFAULT%5D&authType=signInViaRedirect&redirectUrl=http%3A%2F%2Flocalhost%3A3000%2Fconsole%2Fsignin&v=9.6.7&providerId=google.com&scopes=profile'
+  )
+  // Go to https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=439355076640-hfq9remm5c7jrtvpkcnifbbnhki5t1od.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fwww.proautoma.com%2F__%2Fauth%2Fhandler&state=AMbdmDmiiKn36sPt1K5xMDQa8Qbkq9Io6iK96kEqwyKD7nFDVzX7q86Fi6NkOVC-oEBSWjwmx40Sfy9EEhq6d9SuIcsXMtObQPQkuLXGk4ul4pGUkXU2vrJg27KFzAtLkkn2aCwRewhtqZQs4YAk6U3UMcU6gxvZNi9Q8CiHIKwyFDmjTMFNCOJjuOuxokyKMo4_rm5Qi8DvE7WQHKGLPfMfhyFGWl2cRAYWi32u7FG1iKZumQrT1C-sgdHTxA2BsiBGyHIWQs7HBrx-v8-IrIXRCDOWwyHHOYnmzZ4vyOyokyACDUa8mzeaLOs&scope=openid%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20profile&context_uri=http%3A%2F%2Flocalhost%3A3000
+  await page.goto(
+    'https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=439355076640-hfq9remm5c7jrtvpkcnifbbnhki5t1od.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fwww.proautoma.com%2F__%2Fauth%2Fhandler&state=AMbdmDmiiKn36sPt1K5xMDQa8Qbkq9Io6iK96kEqwyKD7nFDVzX7q86Fi6NkOVC-oEBSWjwmx40Sfy9EEhq6d9SuIcsXMtObQPQkuLXGk4ul4pGUkXU2vrJg27KFzAtLkkn2aCwRewhtqZQs4YAk6U3UMcU6gxvZNi9Q8CiHIKwyFDmjTMFNCOJjuOuxokyKMo4_rm5Qi8DvE7WQHKGLPfMfhyFGWl2cRAYWi32u7FG1iKZumQrT1C-sgdHTxA2BsiBGyHIWQs7HBrx-v8-IrIXRCDOWwyHHOYnmzZ4vyOyokyACDUa8mzeaLOs&scope=openid%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20profile&context_uri=http%3A%2F%2Flocalhost%3A3000'
+  )
+  // Go to https://accounts.google.com/o/oauth2/auth/identifier?response_type=code&client_id=439355076640-hfq9remm5c7jrtvpkcnifbbnhki5t1od.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fwww.proautoma.com%2F__%2Fauth%2Fhandler&state=AMbdmDmiiKn36sPt1K5xMDQa8Qbkq9Io6iK96kEqwyKD7nFDVzX7q86Fi6NkOVC-oEBSWjwmx40Sfy9EEhq6d9SuIcsXMtObQPQkuLXGk4ul4pGUkXU2vrJg27KFzAtLkkn2aCwRewhtqZQs4YAk6U3UMcU6gxvZNi9Q8CiHIKwyFDmjTMFNCOJjuOuxokyKMo4_rm5Qi8DvE7WQHKGLPfMfhyFGWl2cRAYWi32u7FG1iKZumQrT1C-sgdHTxA2BsiBGyHIWQs7HBrx-v8-IrIXRCDOWwyHHOYnmzZ4vyOyokyACDUa8mzeaLOs&scope=openid%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20profile&context_uri=http%3A%2F%2Flocalhost%3A3000&flowName=GeneralOAuthFlow
+  await page.goto(
+    'https://accounts.google.com/o/oauth2/auth/identifier?response_type=code&client_id=439355076640-hfq9remm5c7jrtvpkcnifbbnhki5t1od.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Fwww.proautoma.com%2F__%2Fauth%2Fhandler&state=AMbdmDmiiKn36sPt1K5xMDQa8Qbkq9Io6iK96kEqwyKD7nFDVzX7q86Fi6NkOVC-oEBSWjwmx40Sfy9EEhq6d9SuIcsXMtObQPQkuLXGk4ul4pGUkXU2vrJg27KFzAtLkkn2aCwRewhtqZQs4YAk6U3UMcU6gxvZNi9Q8CiHIKwyFDmjTMFNCOJjuOuxokyKMo4_rm5Qi8DvE7WQHKGLPfMfhyFGWl2cRAYWi32u7FG1iKZumQrT1C-sgdHTxA2BsiBGyHIWQs7HBrx-v8-IrIXRCDOWwyHHOYnmzZ4vyOyokyACDUa8mzeaLOs&scope=openid%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20profile&context_uri=http%3A%2F%2Flocalhost%3A3000&flowName=GeneralOAuthFlow'
+  )
 })

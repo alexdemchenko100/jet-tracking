@@ -150,6 +150,7 @@ export function SignIn() {
                     or continue with
                   </Text>
                   <Image
+                    id='google-signin'
                     w='60%'
                     cursor='pointer'
                     src={googleSigninButton}

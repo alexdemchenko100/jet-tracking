@@ -379,6 +379,7 @@ const MonitorListItem = ({ mon, stats, onDelete }: MonitorListProps) => {
         <Td textAlign='center' px={4} py={2}>
           <Flex gap={2} alignItems='center' justifyContent='center'>
             <Button
+              className='monitor-delete-btn'
               borderRadius='4'
               bg='lightgray.100'
               color=''
@@ -669,7 +670,7 @@ export function MainPage() {
       </Section>
       <Section p={0} mb='0' display='flex' minH='calc(100vh - 320px)' flexDirection='column'>
         {uiState.monitors.isGridView ? (
-          <Box p={4} pb={8} flex='1'>
+          <Box className='gridview' p={4} pb={8} flex='1'>
             <Grid gap='6' templateColumns={{ sm: '1fr', xl: '1fr 1fr' }}>
               {stats &&
                 sortedMonitors.map((monitor) => (
@@ -682,7 +683,7 @@ export function MainPage() {
             </Grid>
           </Box>
         ) : (
-          <Box p={4} pb={8} flex='1'>
+          <Box className='listview' p={4} pb={8} flex='1'>
             <TableContainer>
               <Table>
                 <Thead>
