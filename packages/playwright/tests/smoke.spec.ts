@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test'
 
+const BASE_URL = 'https://app.proautoma.com' //'http://localhost:3000'
+
 test.beforeEach(async ({ page }) => {
-  // Go to http://localhost:3000/
-  await page.goto('http://localhost:3000/')
   // Go to http://localhost:3000/console/signin
-  await page.goto('http://localhost:3000/console/signin')
+  await page.goto('/console/signin')
 })
 
 test('navigate to signup page', async ({ page }) => {
@@ -12,17 +12,17 @@ test('navigate to signup page', async ({ page }) => {
   await page.locator('text=Remember me').click()
   // Click text=Forgot password?
   await page.locator('text=Forgot password?').click()
-  await expect(page).toHaveURL('http://localhost:3000/console/forgot')
+  await expect(page).toHaveURL('/console/forgot')
   // Go to http://localhost:3000/console/signin
-  await page.goto('http://localhost:3000/console/signin')
+  await page.goto('/console/signin')
   // Click text=Remember me
   await page.locator('text=Remember me').click()
   // Click text=Sign up
   await page.locator('text=Sign up').click()
-  await expect(page).toHaveURL('http://localhost:3000/console/signup')
+  await expect(page).toHaveURL('/console/signup')
   // Click text=Sign in
   await page.locator('text=Sign in').click()
-  await expect(page).toHaveURL('http://localhost:3000/console/signin')
+  await expect(page).toHaveURL('/console/signin')
 })
 
 test('try to login without any data', async ({ page }) => {
@@ -60,7 +60,7 @@ test('login with correct credential', async ({ page }) => {
   await page.locator('input[name="password"]').fill('helloproautoma123')
   // Click button:has-text("Sign in")
   await page.locator('button:has-text("Sign in")').click()
-  await expect(page).toHaveURL('http://localhost:3000/console/monitors')
+  await expect(page).toHaveURL('/console/monitors')
 })
 
 test('try google login', async ({ page }) => {
