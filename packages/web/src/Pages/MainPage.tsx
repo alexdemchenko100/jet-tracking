@@ -144,6 +144,7 @@ function MonitorStatusCard({ mon, stats }: StatusProps) {
 
   return (
     <Flex
+      data-label={mon?.name}
       flexDirection='column'
       width='100%'
       borderRadius='8'
@@ -157,22 +158,21 @@ function MonitorStatusCard({ mon, stats }: StatusProps) {
       justifyContent='begin'
     >
       <Flex justify='space-between' alignItems='center' mb={2}>
-        <Flex
-          alignItems='center'
-          cursor='pointer'
-          onClick={() => navigate(`/console/monitors/${mon?.id}`)}
-        >
+        <Flex alignItems='center' cursor='pointer'>
           <Text
+            className='monitor-title'
             variant='header'
             color='black'
             _hover={{ color: 'darkblue.100', textDecoration: 'underline' }}
             transition='color 0.2s ease'
+            onClick={() => navigate(`/console/monitors/${mon?.id}`)}
           >
             {mon?.name}
           </Text>
           <StatusUpOrDown stats={stats} />
         </Flex>
         <Button
+          className='monitor-edit-btn'
           borderRadius='4'
           bg='lightgray.100'
           p='0'
@@ -313,9 +313,10 @@ const MonitorListItem = ({ mon, stats, onDelete }: MonitorListProps) => {
   if (!mon || !stats) return <></>
 
   return (
-    <Tr bg={stats.status === 'paused' ? 'rgba(219, 219, 219, 0.3)' : ''}>
+    <Tr data-label={mon.name} bg={stats.status === 'paused' ? 'rgba(219, 219, 219, 0.3)' : ''}>
       <Td px={4} py={2}>
         <Text
+          className='monitor-title'
           cursor='pointer'
           variant='text-field'
           color='darkblue.100'
@@ -392,6 +393,7 @@ const MonitorListItem = ({ mon, stats, onDelete }: MonitorListProps) => {
               <Icon color='gray.300' fontSize='sm' as={FiTrash2} cursor='pointer' />
             </Button>
             <Button
+              className='monitor-edit-btn'
               borderRadius='4'
               bg='lightgray.100'
               w={7}
@@ -611,6 +613,7 @@ export function MainPage() {
             View
           </Text>
           <Button
+            id='set-grid-view-btn'
             bg='transparent'
             border='1px solid'
             borderColor='gray.200'
@@ -626,6 +629,7 @@ export function MainPage() {
             />
           </Button>
           <Button
+            id='set-list-view-btn'
             bg='transparent'
             border='1px solid'
             borderColor='gray.200'

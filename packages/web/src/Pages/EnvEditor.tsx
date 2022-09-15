@@ -123,8 +123,7 @@ export function EnvEditor() {
     }
   }
 
-  if (!monEnv)
-    return <Loading/>
+  if (!monEnv) return <Loading />
 
   const name = getValues('name')
 

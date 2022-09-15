@@ -133,7 +133,7 @@ export default function ActivityLogs() {
                         <Text variant='details' color='gray.300'>
                           {log.time}
                         </Text>
-                        <Text variant='text-field' color='black'>
+                        <Text className='activity-title' variant='text-field' color='black'>
                           {(log.data as Record<string, string>)?.msg ?? ''}
                         </Text>
                         {log.type !== 'MONITOR_REMOVED' && log.monitorId && (

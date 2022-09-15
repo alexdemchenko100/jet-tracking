@@ -75,6 +75,7 @@ export default function EnvMain() {
         {envs?.map((env) => (
           <Box
             key={env.id}
+            data-label={env.name}
             width='100%'
             borderRadius='8'
             border='1px'
@@ -103,6 +104,7 @@ export default function EnvMain() {
               </Flex>
               <Flex gap={2} alignItems='center'>
                 <Button
+                  className='env-details-btn'
                   borderRadius='4'
                   bg='lightgray.100'
                   minW={8}
@@ -113,6 +115,7 @@ export default function EnvMain() {
                   <Icon color='gray.300' fontSize={'sm'} as={FiEdit} cursor='pointer' />
                 </Button>
                 <Button
+                  className='env-delete-btn'
                   borderRadius='4'
                   minW={8}
                   h={8}
