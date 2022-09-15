@@ -25,7 +25,7 @@ import { logoTitle } from './Assets'
 import axios from 'axios'
 import { useQuery } from 'react-query'
 import { Outlet, useNavigate } from 'react-router-dom'
-import { signOut, useAuth, setUser, setCurrentAccount } from './services/FirebaseAuth'
+import { signOut, useAuth, setUser, switchToAccount } from './services/FirebaseAuth'
 import { Text, NavItem, Loading } from './components'
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { UserAccount, UIState } from '@httpmon/db'
@@ -45,7 +45,7 @@ function SwitchAccountMenu({ teams }: SwitchAccountMenuProps) {
 
   const switchAccount = async (account: UserAccount) => {
     menuBtnRef.current?.click()
-    await setCurrentAccount(account)
+    await switchToAccount(account)
 
     navigate('/console/monitors')
     Store.queryClient?.invalidateQueries(['monitors-list'])

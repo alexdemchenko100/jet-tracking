@@ -1,10 +1,10 @@
 import { FastifyInstance } from 'fastify'
 import S from 'fluent-json-schema'
 import { UserAccountSchema } from '@httpmon/db'
-import { onRequestAuthHook } from '../../RouterHooks'
+import { onRequestAuthHook } from '../RouterHooks'
 import { getTeamMembers, setPrimaryTeamMember } from 'src/services/AccountsService'
 
-export default async function SettingsRouter(app: FastifyInstance) {
+export default async function AccountsRouter(app: FastifyInstance) {
   app.addHook('onRequest', onRequestAuthHook)
 
   interface SetDefaultTeams {
@@ -14,7 +14,7 @@ export default async function SettingsRouter(app: FastifyInstance) {
 
   // GET /accounts
   app.get(
-    '/accounts',
+    '/',
     {
       schema: {
         response: {
@@ -30,7 +30,7 @@ export default async function SettingsRouter(app: FastifyInstance) {
 
   // POST /accounts/primary
   app.post<{ Body: SetDefaultTeams }>(
-    '/accounts/primary',
+    '/primary',
     {},
     async function ({ body: { accountId } }, reply) {
       const resp = await setPrimaryTeamMember(accountId)

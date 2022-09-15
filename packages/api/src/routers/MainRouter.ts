@@ -17,6 +17,7 @@ import MonitorViewerRouter from './AuthRouters/MonitorRouter'
 import SettingsViewerRouter from './AuthRouters/SettingsRouter'
 import PreScriptResultRouter from './CloudHookRouters/PreScriptResultRouter.js'
 import TeamRouter from './AuthRouters/Admin/TeamRouter.js'
+import AccountsRouter from './AuthRouters/AccountsRouter.js'
 
 export default async function MainRouter(fastify: FastifyInstance) {
   //Public API router
@@ -25,6 +26,7 @@ export default async function MainRouter(fastify: FastifyInstance) {
   await fastify.register(StatusPublicRouter, { prefix: '/status' })
 
   //Authorized APIs
+  await fastify.register(AccountsRouter, { prefix: '/accounts' })
   await fastify.register(MonitorViewerRouter, { prefix: '/monitors' })
   await fastify.register(SettingsViewerRouter, { prefix: '/settings' })
   await fastify.register(MonitorRouter, { prefix: '/monitors' })

@@ -3,11 +3,12 @@ import { Insertable } from 'kysely'
 import { v4 as uuidv4 } from 'uuid'
 import dayjs from 'dayjs'
 import { logger } from '../Context'
-import { createStripeCustomer, payAsYouGoPlan } from '../services/StripeService'
+import { payAsYouGoPlan } from '../services/StripeService'
 import { nanoid } from 'nanoid'
 import { createBucket, uploadObject } from './GSCService'
 
-export const getCurrentAccountIdByUser = async (userId: string) => {
+//core function to validate token and identify correct UserAccount credentials
+export const getUserAccount = async (userId: string, requestedAccountId: string | null) => {
   const userAccounts = await db
     .selectFrom('UserAccount')
     .selectAll()
@@ -17,23 +18,18 @@ export const getCurrentAccountIdByUser = async (userId: string) => {
 
   if (!userAccounts || userAccounts.length < 1) return null
 
-  const currentUser = userAccounts.find((acct) => acct.isPrimary == true)
-  if (currentUser) {
-    return currentUser.accountId
+  //if accountId is given, it must match
+  if (requestedAccountId) {
+    return userAccounts.find((acct) => acct.accountId == requestedAccountId)
+  } else {
+    //accountId is not provided, so choose primary account
+    const currentUser = userAccounts.find((acct) => acct.isPrimary == true)
+    if (currentUser) {
+      return currentUser
+    }
+    // looks like primay is somehow missed, just choose first account
+    return userAccounts[0]
   }
-
-  return userAccounts[0].accountId
-}
-
-export const getRoleFromAccountId = async (accountId: string, userId: string) => {
-  const resp = await db
-    .selectFrom('UserAccount')
-    .select(['role'])
-    .where('accountId', '=', accountId)
-    .where('userId', '=', userId)
-    .executeTakeFirst()
-
-  return resp?.role
 }
 
 export const processInvitedAccounts = async (userId: string, email: string) => {
@@ -46,8 +42,7 @@ export const processInvitedAccounts = async (userId: string, email: string) => {
 }
 
 export const createNewAccount = async (userId: string, email: string) => {
-  let newAccountId = ''
-  const newAccount = await db.transaction().execute(async (trx) => {
+  const newUserAccount = await db.transaction().execute(async (trx) => {
     //create account
     let account = await trx
       .insertInto('Account')
@@ -80,7 +75,6 @@ export const createNewAccount = async (userId: string, email: string) => {
     if (!userAccount || !userAccount.id) {
       throw new Error('not able to add to user account')
     }
-    newAccountId = userAccount.accountId
 
     // Add settings for new user account
     await trx
@@ -105,16 +99,18 @@ export const createNewAccount = async (userId: string, email: string) => {
       .returningAll()
       .executeTakeFirst()
 
-    logger.info(`created new account for user ${userId} ${email} account id ${newAccountId}`)
-    return account
+    logger.info(
+      `created new account for user ${userId} ${email} account id ${userAccount.accountId}`
+    )
+    return userAccount
   })
 
-  if (newAccount && newAccount.id) {
+  if (newUserAccount) {
     // create GCS bucket
-    await createBucket(newAccount.id)
+    await createBucket(newUserAccount.accountId)
   }
 
-  return newAccountId
+  return newUserAccount
 }
 
 function objectToJSON(object: any) {

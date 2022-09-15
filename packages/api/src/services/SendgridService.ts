@@ -9,9 +9,9 @@ export async function sendVerificationEmail(
 ) {
   const verifyLink =
     process.env.WEB_APP_URL +
-    `/console/${
-      isUserInvite ? 'users' : 'emails'
-    }/verify?token=${token}&email=${to}&accountId=${accountId}`
+    `/console/${isUserInvite ? 'users' : 'emails'}/verify?token=${token}&email=${encodeURIComponent(
+      to
+    )}&accountId=${accountId}`
   try {
     if (
       !process.env.SENDGRID_API_KEY ||

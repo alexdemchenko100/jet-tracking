@@ -16,7 +16,7 @@ import {
   updatePassword,
   EmailAuthProvider,
 } from 'firebase/auth'
-import { Store } from './Store'
+import { clearStore, clearUserInfo, Store } from './Store'
 import { UserAccount } from '@httpmon/db'
 import { useQuery } from 'react-query'
 
@@ -108,7 +108,9 @@ export async function signOut() {
   if (auth) {
     await auth.signOut()
   }
-  Store.UserState.userInfo = {}
+
+  clearStore()
+
   if (Store.queryClient) {
     Store.queryClient.removeQueries()
   }
@@ -135,27 +137,31 @@ export function isLoggedIn(): boolean {
   return false
 }
 
-export async function setCurrentAccount(account: UserAccount) {
+export async function switchToAccount(userAccount: UserAccount) {
   //let the server know
-  await axios.post('/settings/accounts/default', {
-    email: account.email,
-    accountId: account.accountId,
+  await axios.post('/accounts/primary', {
+    email: userAccount.email,
+    accountId: userAccount.accountId,
   })
 
-  Store.UserState.userInfo.role = account.role
-  Store.UserState.userInfo.accountId = account.accountId
+  Store.UserState.userInfo.role = userAccount.role
+  Store.UserState.userInfo.accountId = userAccount.accountId
+  Store.queryClient?.removeQueries()
 }
 
-async function getPrimaryAccount() {
+async function getAllAccounts() {
   const resp = await axios({
     method: 'GET',
-    url: `/settings/accounts`,
+    url: `/accounts`,
   })
 
   const primaryAccount = resp.data.find((item: UserAccount) => item.isPrimary) as UserAccount
 
   if (!Store.UserState.userInfo.role) {
     Store.UserState.userInfo.role = primaryAccount?.role
+  }
+
+  if (!Store.UserState.userInfo.accountId) {
     Store.UserState.userInfo.accountId = primaryAccount?.accountId
   }
 
@@ -163,31 +169,25 @@ async function getPrimaryAccount() {
   Store.UserState.teams = resp.data as UserAccount[]
 }
 
-export function setUser(user: User | null, role?: string, accountId?: string) {
+export function setUser(user: User | null) {
   //console.log('set user', user, role, accountId)
 
   if (user) {
     const { uid, email, displayName, photoURL, phoneNumber, providerData } = user
     Store.UserState.userInfo.uid = uid
-    Store.UserState.userInfo.email = email || undefined
-    Store.UserState.userInfo.displayName = displayName || undefined
-    Store.UserState.userInfo.photoURL = photoURL || undefined
-    Store.UserState.userInfo.phoneNumber = phoneNumber
+    Store.UserState.userInfo.email = email ?? ''
+    Store.UserState.userInfo.displayName = displayName ?? ''
+    Store.UserState.userInfo.photoURL = photoURL ?? ''
+    Store.UserState.userInfo.phoneNumber = phoneNumber ?? ''
     Store.UserState.userInfo.provider = providerData[0].providerId
     Store.user = user
-  }
-
-  if (role) {
-    Store.UserState.userInfo.role = role
-  }
-
-  if (accountId) {
-    Store.UserState.userInfo.accountId = accountId
+  } else {
+    clearUserInfo()
   }
 
   getIDTokenPossiblyRefreshed().then(() => {
     //get team data here after setting the bearer token
-    if (user && user.email && !Store.UserState.userInfo.role) getPrimaryAccount()
+    if (user && user.email) getAllAccounts()
   })
 }
 

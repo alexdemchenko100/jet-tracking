@@ -2,20 +2,21 @@ import { TimePeriods } from './MonitorTimePeriod'
 import { MonitorLocations } from './MonitorLocations'
 import { User } from 'firebase/auth'
 import { proxy, snapshot, subscribe, useSnapshot } from 'valtio'
+import { subscribeKey } from 'valtio/utils'
 import { BrowserHistory } from 'history'
 import { QueryClient } from 'react-query'
 import { UIState, UserAccount } from '@httpmon/db'
 import axios from 'axios'
-
+import clone from 'lodash.clonedeep'
 interface UserInfo {
-  uid?: string
-  email?: string
-  displayName?: string
-  photoURL?: string
-  phoneNumber?: string | null
-  role?: string
-  accountId?: string
-  provider?: string
+  uid: string
+  email: string
+  displayName: string
+  photoURL: string
+  phoneNumber: string
+  role: string
+  accountId: string
+  provider: string
 }
 
 interface UserState {
@@ -32,7 +33,20 @@ interface StoreState {
   user: User | null
 }
 
-const defaultUserState: UserState = { userInfo: {}, bLoadingUserFirstTime: false, teams: [] }
+const defaultUserState: UserState = {
+  userInfo: {
+    accountId: '',
+    role: '',
+    uid: '',
+    email: '',
+    displayName: '',
+    provider: '',
+    phoneNumber: '',
+    photoURL: '',
+  },
+  bLoadingUserFirstTime: false,
+  teams: [],
+}
 const defaultUiState: UIState = {
   editor: {
     monitorLocations: [...MonitorLocations],
@@ -74,10 +88,24 @@ subscribe(uiState, () => {
     })
 })
 
-subscribe(userState.userInfo, () => {
-  if (
-    userState.userInfo.accountId &&
-    axios.defaults.headers.common['x-proautoma-accountid'] != userState.userInfo.accountId
-  )
+subscribe(userState, () => {
+  console.log('reset accountId', Store.UserState.userInfo.accountId)
+  if (userState.userInfo.accountId)
     axios.defaults.headers.common['x-proautoma-accountid'] = userState.userInfo.accountId
+  else delete axios.defaults.headers.common['x-proautoma-accountid']
 })
+
+export function clearUserInfo() {
+  Store.UserState.userInfo = clone(defaultUserState.userInfo)
+  Store.UserState.teams = []
+}
+
+export function clearStore() {
+  clearUserInfo()
+  Store.UIState.editor = defaultUiState.editor
+  Store.UIState.monitors = defaultUiState.monitors
+  Store.UIState.results = defaultUiState.results
+  Store.user = null
+
+  console.log('clear store', snapshot(Store.UserState))
+}
