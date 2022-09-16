@@ -32,9 +32,9 @@ export function requestErrorToMonitorResult(reqError: RequestError) {
   return {
     ...emptyResponse(),
     ...convertTimings(reqError.timings),
-    code: reqError.response?.statusCode,
-    codeStatus: reqError.response?.statusMessage,
-    ip: reqError.response?.ip,
+    code: reqError.response?.statusCode ?? 0,
+    codeStatus: reqError.response?.statusMessage ?? '',
+    ip: reqError.response?.ip ?? '',
     bodySize: 0,
   }
 }

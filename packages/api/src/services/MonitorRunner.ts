@@ -16,7 +16,7 @@ const customGot = got.extend({
   headers: {
     'user-agent': 'API Checker/1.0',
   },
-  timeout: { request: 10000 },
+  timeout: { request: 20000 },
   allowGetBody: true,
 })
 
@@ -142,9 +142,9 @@ export async function execMonitor(monitor: Monitor) {
 
     return result
   } catch (e: any) {
+    logger.error(mon.url, 'got failed')
     logger.error(e, 'got failed')
     if (e instanceof RequestError) {
-      logger.error(e)
       return {
         ...requestErrorToMonitorResult(e),
         monitorId: mon.id ?? 'ondemand',

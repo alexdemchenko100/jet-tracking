@@ -34,7 +34,7 @@ const productionPinoConfig: LoggerOptions = {
   timestamp: () => `,"eventTime":${Date.now() / 1000.0}`,
 }
 
-export const plogger = pino(isCloud ? productionPinoConfig : { level: 'trace' })
+export const plogger = pino(isCloud ? productionPinoConfig : { level: 'info' })
 
 interface WebAppState {
   projectId: string
