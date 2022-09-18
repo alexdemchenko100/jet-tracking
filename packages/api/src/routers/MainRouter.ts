@@ -3,7 +3,7 @@ import MonitorRouter from './AuthRouters/Admin/MonitorRouter.js'
 import MonitorRunRouter from './CloudHookRouters/MonitorRunRouter.js'
 import SchedulerRouter from './CloudHookRouters/SchedulerRouter.js'
 import MonitorPostRequestRouter from './CloudHookRouters/MonitorPostRequestRouter.js'
-import OndemandMonitorRouter from './PublicRouters/OndemandMonitorRouter.js'
+import OndemandMonitorRouter from './AuthRouters/OndemandMonitorRouter.js'
 import EnvRouter from './AuthRouters/Admin/EnvRouter.js'
 import SettingsRouter from './AuthRouters/Admin/SettingsRouter.js'
 import SettingsPublicRouter from './PublicRouters/SettingsPublicRouter.js'
@@ -21,11 +21,11 @@ import AccountsRouter from './AuthRouters/AccountsRouter.js'
 
 export default async function MainRouter(fastify: FastifyInstance) {
   //Public API router
-  await fastify.register(OndemandMonitorRouter, { prefix: '/ondemand' })
   await fastify.register(SettingsPublicRouter, { prefix: '/settings' })
   await fastify.register(StatusPublicRouter, { prefix: '/status' })
 
   //Authorized APIs
+  await fastify.register(OndemandMonitorRouter, { prefix: '/ondemand' })
   await fastify.register(AccountsRouter, { prefix: '/accounts' })
   await fastify.register(MonitorViewerRouter, { prefix: '/monitors' })
   await fastify.register(SettingsViewerRouter, { prefix: '/settings' })

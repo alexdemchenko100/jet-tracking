@@ -1,9 +1,7 @@
 import { db, MonitorResultTable } from '@httpmon/db'
 import { Insertable } from 'kysely'
 import { v4 as uuidv4 } from 'uuid'
-import dayjs from 'dayjs'
-import { logger } from '../Context'
-import { payAsYouGoPlan } from '../services/StripeService'
+import { currentUserInfo, logger } from '../Context'
 import { nanoid } from 'nanoid'
 import { createBucket, uploadObject } from './GSCService'
 
@@ -139,68 +137,36 @@ export async function saveMonitorResult(result: Insertable<MonitorResultTable>) 
   let savedResult
 
   try {
-    savedResult = await db.transaction().execute(async (trx) => {
-      const { count } = db.fn
-      const monitorResult = await trx
-        .insertInto('MonitorResult')
+    if (result.monitorId.startsWith('ondemand')) {
+      //save on demand result and return
+      return await db
+        .insertInto('OndemandResult')
         .values({
           ...resultForSaving,
           id: uuidv4(),
-          body: '',
-          headers: '[]',
+          accountId: currentUserInfo().accountId,
         })
         .returningAll()
         .executeTakeFirst()
-
-      if (!monitorResult?.id) throw new Error('result id is empty!')
-
-      const billingInfo = await trx
-        .selectFrom('BillingInfo')
-        .selectAll()
-        .where('accountId', '=', result.accountId)
-        .executeTakeFirst()
-
-      if (
-        billingInfo?.billingPlanType === 'pay-as-you-go' &&
-        dayjs(billingInfo?.createdAt).add(1, 'month').format('YYYY-MM-DD') ===
-          dayjs().format('YYYY-MM-DD')
-      ) {
-        const total = await trx
-          .selectFrom('MonitorResult')
-          .select(count<number>('id').as('count'))
-          .where('accountId', '=', result.accountId)
-          .execute()
-        const amount = parseInt(((total[0].count / 100000) * 200).toString())
-        const account = await trx
-          .selectFrom('Account')
-          .select('stripeCustomerId')
-          .where('id', '=', result.accountId)
-          .executeTakeFirst()
-        if (account?.stripeCustomerId) {
-          const invoice = await payAsYouGoPlan(account?.stripeCustomerId, amount)
-          if (invoice) {
-            await trx
-              .updateTable('BillingInfo')
-              .set({
-                createdAt: new Date(),
-              })
-              .where('accountId', '=', result.accountId)
-              .executeTakeFirst()
-          }
-        }
-      }
-      return monitorResult
-    })
-
-    if (!savedResult.id) {
-      throw Error(`Failed to save the result to db for monitor: ${resultForSaving.monitorId}`)
     }
 
-    // Saving body and headers to cloud storage
-    const { monitorId, body, headers } = resultForSaving
-    uploadObject(result.accountId, `${monitorId}/${savedResult.id}`, 'body', body)
-    uploadObject(result.accountId, `${monitorId}/${savedResult.id}`, 'headers', headers)
+    savedResult = await db
+      .insertInto('MonitorResult')
+      .values({
+        ...resultForSaving,
+        id: uuidv4(),
+        body: '',
+        headers: '[]',
+      })
+      .returningAll()
+      .executeTakeFirst()
 
+    if (savedResult && savedResult.id) {
+      // Saving body and headers to cloud storage
+      const { monitorId, body, headers } = resultForSaving
+      uploadObject(result.accountId, `${monitorId}/${savedResult.id}`, 'body', body)
+      uploadObject(result.accountId, `${monitorId}/${savedResult.id}`, 'headers', headers)
+    }
     return savedResult
   } catch (e) {
     logger.error(e, 'exception in saving monitor result')

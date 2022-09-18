@@ -1,5 +1,6 @@
 import { db, MonitorResult, MonitorRunResult } from '@httpmon/db'
 import { logger } from 'src/Context'
+import { handleOndemandResult } from './OndemandService'
 import {
   sendSlackNotification,
   sendMSTeamsNotification,
@@ -7,7 +8,10 @@ import {
 } from './SlackNotification'
 
 export async function handlePostRequest(monrun: MonitorRunResult) {
-  //from event id, get monitor result from db
+  if (monrun.mon.id?.startsWith('ondemand')) {
+    await handleOndemandResult(monrun)
+    return
+  }
 
   // logger.error('IN Notification Service')
   const mon = monrun.mon

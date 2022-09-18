@@ -117,6 +117,35 @@ model MonitorResult {
   ActivityLog ActivityLog[]
 }
 
+model OndemandResult {
+  id             String   @id
+  createdAt      DateTime @default(now())
+  err            String
+  headers        Json     @default("[]")
+  url            String
+  ip             String
+  location       String
+  body           String
+  bodySize       Int
+  code           Int
+  codeStatus     String
+  protocol       String
+  waitTime       Int
+  dnsTime        Int
+  tcpTime        Int
+  tlsTime        Int
+  uploadTime     Int
+  ttfb           Int
+  downloadTime   Int
+  totalTime      Int
+  certExpiryDays Int
+  certCommonName String
+  assertResults  Json     @default("[]")
+
+  monitorId String
+  accountId String
+}
+
 model NotificationChannel {
   id                      String   @id @default(cuid())
   createdAt               DateTime @default(now())

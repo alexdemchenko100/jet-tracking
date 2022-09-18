@@ -6,8 +6,7 @@ import { runMonitor } from './MonitorRunner'
 import { handlePostRequest } from './PostRequestService'
 import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid'
-import { makeMonitorResultError } from 'src/utils/common'
-import { saveMonitorResult } from './DBService'
+import { handleScriptResult } from './ScriptResultService'
 
 async function selectReadyMonitors() {
   const now = new Date(Date.now())
@@ -58,13 +57,7 @@ export async function setupEmitterHandlers() {
 
   emitter.on('api-script-result', async (monrun: MonitorRunResult) => {
     logger.info({ runId: monrun.runId }, 'topic: api-script-result')
-    if (monrun.err) {
-      const result = makeMonitorResultError(monrun.mon, monrun.err?.msg)
-      //save error and quit
-      saveMonitorResult(result)
-      return
-    }
-    emitter.emit('monitor-run', monrun)
+    await handleScriptResult(monrun)
   })
 
   emitter.on('monitor-run', async (monrun: MonitorRunResult) => {

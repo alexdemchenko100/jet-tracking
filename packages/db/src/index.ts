@@ -20,6 +20,7 @@ interface Database {
   Account: Account
   UserAccount: UserAccount
   MonitorResult: MonitorResultTable
+  OndemandResult: MonitorResultTable
   Monitor: MonitorTable
   MonEnv: MonEnv
   NotificationChannel: NotificationChannel

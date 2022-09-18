@@ -53,6 +53,13 @@ export async function publishMessage(topic: string, event: any) {
 
 export async function publishMonitorRunMessage(monrun: MonitorRunResult) {
   const projectId = state.projectId
+
+  if (!state.projectId || process.env.NODE_ENV !== 'production') {
+    logger.info(monrun.resultId, 'Publishing monitor-run locally')
+    emitter.emit('monitor-run', monrun)
+    return
+  }
+
   if (!pubsub) {
     pubsub = new PubSub({ projectId })
   }

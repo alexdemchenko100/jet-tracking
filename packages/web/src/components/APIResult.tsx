@@ -241,6 +241,8 @@ export function APIResult({ result, onClose }: APIResultProps) {
 
         <TimingBar width='100%' result={result} />
 
+        {!isSuccess && <Text color='red'>{result.err}</Text>}
+
         <Tabs
           defaultIndex={Store.UIState.results.tabIndex}
           onChange={(index) => {
