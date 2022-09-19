@@ -5,8 +5,9 @@ import { emitter } from './emitter'
 import { runMonitor } from './MonitorRunner'
 import { handlePostRequest } from './PostRequestService'
 import axios from 'axios'
-import { v4 as uuidv4 } from 'uuid'
 import { handleScriptResult } from './ScriptResultService'
+import { publishMonitorPreRequestMessage } from './PubSubService'
+import { handlePreRequest } from './PreRequestService'
 
 async function selectReadyMonitors() {
   const now = new Date(Date.now())
@@ -32,7 +33,7 @@ export async function schedule() {
   for (let i = 0; i < monitors.length; i++) {
     const mon = monitors[i]
 
-    emitter.emit('monitor-prerequest', mon)
+    publishMonitorPreRequestMessage(mon)
   }
 }
 
@@ -41,13 +42,7 @@ export async function setupEmitterHandlers() {
 
   emitter.on('monitor-prerequest', async (mon: Monitor) => {
     logger.info({ id: mon.id }, 'topic: monitor-prerequest')
-    const monrun: MonitorRunResult = { mon, runId: uuidv4() }
-    if (mon.preScript && mon.preScript.length > 0) {
-      emitter.emit('api-script-run', monrun)
-      return
-    }
-
-    emitter.emit('monitor-run', monrun)
+    await handlePreRequest(mon)
   })
 
   emitter.on('api-script-run', async (monrun: MonitorRunResult) => {

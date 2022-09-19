@@ -8,7 +8,7 @@ import { randomInt } from 'crypto'
 import got, { Method, RequestError } from 'got'
 import { logger } from '../Context'
 import { processAssertions } from './Assertions'
-import { publishPostRequestEvent } from './EventService'
+import { publishPostRequestMessage } from './PubSubService'
 import { saveMonitorResult } from './DBService'
 import { requestErrorToMonitorResult, responseToMonitorResult } from 'src/utils/common'
 
@@ -194,5 +194,5 @@ export async function runMonitor(monrun: MonitorRunResult) {
     },
   }
 
-  publishPostRequestEvent(runResult)
+  publishPostRequestMessage(runResult)
 }

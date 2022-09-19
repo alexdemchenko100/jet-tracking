@@ -2,7 +2,7 @@ import { logger } from './../Context'
 import { MonitorRunResult } from '@httpmon/db'
 import { makeMonitorResultError } from 'src/utils/common'
 import { saveMonitorResult } from './DBService'
-import { publishMonitorRunMessage, publishPostRequestEvent } from './EventService'
+import { publishMonitorRunMessage, publishPostRequestMessage } from './PubSubService'
 
 export async function handleScriptResult(monrun: MonitorRunResult) {
   if (monrun.err) {
@@ -10,7 +10,7 @@ export async function handleScriptResult(monrun: MonitorRunResult) {
     //save error and quit
     const saved = await saveMonitorResult(result)
 
-    publishPostRequestEvent({ ...monrun, resultId: saved?.id })
+    publishPostRequestMessage({ ...monrun, resultId: saved?.id })
     return
   }
 

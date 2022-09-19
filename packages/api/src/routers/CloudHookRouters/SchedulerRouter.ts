@@ -5,7 +5,7 @@ import { PubSub } from '@google-cloud/pubsub'
 import { JwksClient } from 'jwks-rsa'
 import jwt from 'jsonwebtoken'
 import S from 'fluent-json-schema'
-import { logger, state } from '../../Context'
+import { publishMonitorPreRequestMessage } from '../../services/PubSubService'
 
 const PubsubMessageSchema = S.object()
   .prop('subscription', S.string())
@@ -36,22 +36,6 @@ var jwkClient = new JwksClient({
 let pubsub: PubSub | null = null
 
 //TOPIC name would be prohectId-monitor-locationName ex: httpmon-test-monitor-us-east1
-
-async function publishMonitorPreRequestMessage(mon: Monitor) {
-  const projectId = state.projectId
-  if (!pubsub) {
-    pubsub = new PubSub({ projectId })
-  }
-
-  if (!pubsub) throw new Error('Pubsub is not initialized')
-
-  const TOPIC_NAME = `${projectId}-monitor-prerequest`
-  try {
-    await pubsub?.topic(TOPIC_NAME).publishMessage({ json: mon })
-  } catch (error) {
-    logger.error(`Received error while publishing to ${TOPIC_NAME} - ${error.message}`)
-  }
-}
 
 export default async function SchedulerRouter(app: FastifyInstance) {
   app.post<{ Body: PubsubMessage }>(

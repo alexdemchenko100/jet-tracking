@@ -144,7 +144,6 @@ export async function saveMonitorResult(result: Insertable<MonitorResultTable>) 
         .values({
           ...resultForSaving,
           id: uuidv4(),
-          accountId: currentUserInfo().accountId,
         })
         .returningAll()
         .executeTakeFirst()

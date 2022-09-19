@@ -1,0 +1,30 @@
+-- CreateTable
+CREATE TABLE "OndemandResult" (
+    "id" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "err" TEXT NOT NULL,
+    "headers" JSONB NOT NULL DEFAULT '[]',
+    "url" TEXT NOT NULL,
+    "ip" TEXT NOT NULL,
+    "location" TEXT NOT NULL,
+    "body" TEXT NOT NULL,
+    "bodySize" INTEGER NOT NULL,
+    "code" INTEGER NOT NULL,
+    "codeStatus" TEXT NOT NULL,
+    "protocol" TEXT NOT NULL,
+    "waitTime" INTEGER NOT NULL,
+    "dnsTime" INTEGER NOT NULL,
+    "tcpTime" INTEGER NOT NULL,
+    "tlsTime" INTEGER NOT NULL,
+    "uploadTime" INTEGER NOT NULL,
+    "ttfb" INTEGER NOT NULL,
+    "downloadTime" INTEGER NOT NULL,
+    "totalTime" INTEGER NOT NULL,
+    "certExpiryDays" INTEGER NOT NULL,
+    "certCommonName" TEXT NOT NULL,
+    "assertResults" JSONB NOT NULL DEFAULT '[]',
+    "monitorId" TEXT NOT NULL,
+    "accountId" TEXT NOT NULL,
+
+    CONSTRAINT "OndemandResult_pkey" PRIMARY KEY ("id")
+);
