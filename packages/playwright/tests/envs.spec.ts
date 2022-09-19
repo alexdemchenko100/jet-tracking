@@ -39,7 +39,7 @@ test('create new env and delete it', async ({ page }) => {
   await page.locator('[placeholder="Value"]').fill(new Date().getTime().toString())
   // Click button:has-text("Save")
   await page.locator('button:has-text("Save")').click()
-  await expect(page).toHaveURL('http://localhost:3000/console/envs')
+  await expect(page).toHaveURL('/console/envs')
 
   await page.locator('[data-label="' + envName + '"] .env-details-btn').click()
   const url = await page.url()
