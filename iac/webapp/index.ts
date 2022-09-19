@@ -33,7 +33,7 @@ const serviceAccount = new gcp.serviceaccount.Account(`${project}-sa`, {
   project,
 })
 
-const roles = ['storage.admin', 'cloudsql.client', 'pubsub.editor']
+const roles = ['storage.admin', 'cloudsql.client']
 const saMember = pulumi.interpolate`serviceAccount:${serviceAccount.email}`
 
 roles.forEach((role) => {
@@ -42,6 +42,19 @@ roles.forEach((role) => {
     members: [saMember],
     role: `roles/${role}`,
   })
+})
+
+const sandboxServiceAccount = new gcp.serviceaccount.Account(`${project}-sandbox-sa`, {
+  accountId: `${project}-sandbox-sa`,
+  project,
+})
+
+const sandboxSaMember = pulumi.interpolate`serviceAccount:${sandboxServiceAccount.email}`
+
+new gcp.projects.IAMBinding(`iam-binding-role-pubsub`, {
+  project,
+  members: [saMember, sandboxSaMember],
+  role: 'roles/pubsub.editor',
 })
 
 const plainEnvs = [
@@ -152,6 +165,7 @@ const httpmonSandboxService = new gcp.cloudrun.Service('httpmon-sandbox-service'
   location: mainRegionName,
   template: {
     spec: {
+      serviceAccountName: sandboxServiceAccount.email,
       containers: [
         {
           image: sandboxImage.imageName,
@@ -189,6 +203,7 @@ new gcp.cloudrun.IamMember('httpmon-sandbox-everyone', {
 
 function createTopicAndTrigger(
   serviceRes: gcp.cloudrun.Service,
+  sa: gcp.serviceaccount.Account,
   regionName: string,
   topicName: string,
   servicePath: string
@@ -201,7 +216,7 @@ function createTopicAndTrigger(
   new gcp.eventarc.Trigger(`${topicName}-trigger`, {
     project,
     location: regionName,
-    serviceAccount: serviceAccount.email,
+    serviceAccount: sa.email,
     matchingCriterias: [
       {
         attribute: 'type',
@@ -250,7 +265,7 @@ new gcp.cloudrun.DomainMapping('http-main-domain-mapping', {
 })
 
 const mainServiceTopicResources = mainServiceTopics.map(({ name, path }) => {
-  return createTopicAndTrigger(httpmonMainService, mainRegionName, name, path)
+  return createTopicAndTrigger(httpmonMainService, serviceAccount, mainRegionName, name, path)
 })
 
 //first one is scheduler
@@ -270,12 +285,19 @@ new gcp.cloudscheduler.Job('scheduler-job', {
 const runLocations = ['europe-west3']
 runLocations.map((locName) => {
   const service = createService(`httpmon-monitor-run-service-${locName}`, locName)
-  createTopicAndTrigger(service, locName, `monitor-run-${locName}`, '/api/services/monitor-run')
+  createTopicAndTrigger(
+    service,
+    serviceAccount,
+    locName,
+    `monitor-run-${locName}`,
+    '/api/services/monitor-run'
+  )
 })
 
 //create Sandbox
 createTopicAndTrigger(
   httpmonSandboxService,
+  sandboxServiceAccount,
   mainRegionName,
   'api-script-run',
   '/api/services/api-script-run'
