@@ -7,6 +7,7 @@ import { schedule, setupEmitterHandlers } from './services/DevScheduler.js'
 import fastifyStatic from '@fastify/static'
 import { initializeRequestContext, getCloudRegion, plogger } from './Context.js'
 import { db } from '@httpmon/db'
+import { nanoid } from 'nanoid'
 
 async function start() {
   //find and load the .env from root folder of the project
@@ -14,6 +15,7 @@ async function start() {
 
   const server = fastify({
     logger: plogger,
+    genReqId: () => nanoid(4),
   })
 
   await initializeRequestContext(server)

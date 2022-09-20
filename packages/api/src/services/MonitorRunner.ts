@@ -16,7 +16,7 @@ const customGot = got.extend({
   headers: {
     'user-agent': 'API Checker/1.0',
   },
-  timeout: { request: 20000 },
+  timeout: { request: 15000 },
   allowGetBody: true,
 })
 
@@ -97,10 +97,10 @@ export async function execMonitor(monitor: Monitor) {
   let mon = { ...monitor }
 
   try {
-    var startTime = performance.now()
-    mon = processTemplates(monitor)
-    var endTime = performance.now()
-    logger.info(`Call ${monitor.url} took ${endTime - startTime} milliseconds`)
+    // var startTime = performance.now()
+    // mon = processTemplates(monitor)
+    // var endTime = performance.now()
+    // logger.info(`Call ${monitor.url} took ${endTime - startTime} milliseconds`)
 
     const resp = await customGot(mon.url, {
       method: mon.method as Method,
@@ -142,8 +142,6 @@ export async function execMonitor(monitor: Monitor) {
 
     return result
   } catch (e: any) {
-    logger.error(mon.url, 'got failed')
-    logger.error(e, 'got failed')
     if (e instanceof RequestError) {
       return {
         ...requestErrorToMonitorResult(e),
@@ -174,7 +172,8 @@ export async function runMonitor(monrun: MonitorRunResult) {
   }
 
   logger.info(
-    `exec-monitor-result: code: ${result.code} err: ${result.err} totalTime: ${result.totalTime}`
+    { code: result.code, err: result.err, totalTime: result.totalTime },
+    'exec-monitor-result'
   )
 
   //createdAt caused type issue for db

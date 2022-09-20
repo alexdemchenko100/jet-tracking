@@ -29,7 +29,6 @@ export async function publishMonitorPreRequestMessage(mon: Monitor) {
 
 export async function publishScriptRunMessage(monrun: MonitorRunResult) {
   if (!state.projectId || process.env.NODE_ENV !== 'production') {
-    logger.info(monrun.resultId, 'Publishing locally')
     emitter.emit('api-script-run', monrun)
     return
   }
@@ -53,7 +52,6 @@ export async function publishScriptRunMessage(monrun: MonitorRunResult) {
 
 export async function publishPostRequestMessage(monrun: MonitorRunResult) {
   if (!state.projectId || process.env.NODE_ENV !== 'production') {
-    logger.info(monrun.resultId, 'Publishing locally')
     emitter.emit('monitor-postrequest', monrun)
     return
   }

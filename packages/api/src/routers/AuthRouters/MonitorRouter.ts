@@ -12,6 +12,7 @@ import {
   PaginateQueryString,
 } from '@httpmon/db'
 import { onRequestAuthHook } from '../RouterHooks'
+import { requestContext } from '@fastify/request-context'
 
 export default async function MonitorRouter(app: FastifyInstance) {
   app.addHook('onRequest', onRequestAuthHook)

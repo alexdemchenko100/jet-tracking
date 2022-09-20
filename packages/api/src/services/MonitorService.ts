@@ -1,14 +1,11 @@
-import { currentUserInfo } from './../Context'
+import { currentUserInfo, logger } from './../Context'
 import emitter from './emitter.js'
 
 import { db, Monitor, MonitorTuples } from '@httpmon/db'
 import { v4 as uuidv4 } from 'uuid'
-import pino from 'pino'
 import dayjs from 'dayjs'
 import { sql } from 'kysely'
 import { readObject } from './GSCService'
-
-const logger = pino()
 
 export interface ResultQueryString {
   startTime: string
@@ -67,7 +64,7 @@ export class MonitorService {
   }
 
   public async create(mon: Monitor) {
-    logger.trace(mon, 'creating mon')
+    logger.info(mon, 'creating mon')
     try {
       const monResp = await db
         .insertInto('Monitor')

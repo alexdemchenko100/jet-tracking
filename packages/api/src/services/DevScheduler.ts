@@ -1,6 +1,6 @@
 import { db, Monitor, MonitorRunResult } from '@httpmon/db'
 import { sql } from 'kysely'
-import { logger } from '../Context'
+import { logger, plogger } from '../Context'
 import { emitter } from './emitter'
 import { runMonitor } from './MonitorRunner'
 import { handlePostRequest } from './PostRequestService'
@@ -8,6 +8,7 @@ import axios from 'axios'
 import { handleScriptResult } from './ScriptResultService'
 import { publishMonitorPreRequestMessage } from './PubSubService'
 import { handlePreRequest } from './PreRequestService'
+import { requestContext } from '@fastify/request-context'
 
 async function selectReadyMonitors() {
   const now = new Date(Date.now())

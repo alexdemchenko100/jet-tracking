@@ -111,7 +111,7 @@ export async function initializeRequestContext(server: any) {
 
   //set a hook to set the logger for each request
   server.addHook('onRequest', async (req: any) => {
-    server.log.info(`server request received: ${req.raw.url}`)
-    requestContext.set('logger', server.log)
+    requestContext.set('logger', req.log)
+    req.log.info({ msg: `server request received: ${req.raw.url}` })
   })
 }
