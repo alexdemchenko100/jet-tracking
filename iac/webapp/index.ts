@@ -13,6 +13,9 @@ const config = new pulumi.Config()
 const gcpConfig = new pulumi.Config('gcp')
 const project = gcpConfig.get('project') ?? 'httpmon-test'
 
+const stackName = pulumi.getStack()
+const domainName = stackName == 'prod' ? 'app' : 'stage'
+
 // Build a Docker image and put it to Google Container Registry.
 // Note: Run `gcloud auth configure-docker` in your command line to configure auth to GCR.
 const mainImageName = pulumi.interpolate`gcr.io/${project}/httpmon-main:v0.0.1`
@@ -213,7 +216,7 @@ function createTopicAndTrigger(
     project,
   })
 
-  new gcp.eventarc.Trigger(`${topicName}-trigger`, {
+  let trigger = new gcp.eventarc.Trigger(`${topicName}-trigger`, {
     project,
     location: regionName,
     serviceAccount: sa.email,
@@ -240,6 +243,34 @@ function createTopicAndTrigger(
       },
     ],
   })
+
+  return topicRes
+}
+
+function createTopicAndSubscription(
+  serviceRes: gcp.cloudrun.Service,
+  sa: gcp.serviceaccount.Account,
+  regionName: string,
+  topicName: string,
+  servicePath: string
+) {
+  const topicRes = new gcp.pubsub.Topic(`${project}-${topicName}-topic`, {
+    name: `${project}-${topicName}`, //this will be topic name
+    project,
+  })
+
+  let sub = new gcp.pubsub.Subscription(`${topicName}-sub`, {
+    project,
+    topic: topicRes.name,
+    ackDeadlineSeconds: 360,
+    pushConfig: {
+      oidcToken: {
+        serviceAccountEmail: sa.email,
+      },
+      pushEndpoint: serviceRes.statuses.apply((statuses) => statuses[0].url + servicePath),
+    },
+  })
+
   return topicRes
 }
 
@@ -254,7 +285,7 @@ const mainServiceTopics = [
 const httpmonMainService = createService(`httpmon-main-service`, mainRegionName)
 
 new gcp.cloudrun.DomainMapping('http-main-domain-mapping', {
-  name: 'app.proautoma.com',
+  name: `${domainName}.proautoma.com`,
   location: mainRegionName,
   metadata: {
     namespace: project,
@@ -265,7 +296,7 @@ new gcp.cloudrun.DomainMapping('http-main-domain-mapping', {
 })
 
 const mainServiceTopicResources = mainServiceTopics.map(({ name, path }) => {
-  return createTopicAndTrigger(httpmonMainService, serviceAccount, mainRegionName, name, path)
+  return createTopicAndSubscription(httpmonMainService, serviceAccount, mainRegionName, name, path)
 })
 
 //first one is scheduler
@@ -285,7 +316,7 @@ new gcp.cloudscheduler.Job('scheduler-job', {
 const runLocations = ['europe-west3']
 runLocations.map((locName) => {
   const service = createService(`httpmon-monitor-run-service-${locName}`, locName)
-  createTopicAndTrigger(
+  createTopicAndSubscription(
     service,
     serviceAccount,
     locName,
@@ -295,7 +326,7 @@ runLocations.map((locName) => {
 })
 
 //create Sandbox
-createTopicAndTrigger(
+createTopicAndSubscription(
   httpmonSandboxService,
   sandboxServiceAccount,
   mainRegionName,

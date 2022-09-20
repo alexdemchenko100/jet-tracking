@@ -79,6 +79,10 @@ async function start() {
   //set up exit handler
   process.on('SIGTERM', async function () {
     server.log.info(`SIGTERM received, exiting gracefully: ${getCloudRegion()}`)
+    server.server.getConnections((_err, count) => {
+      server.log.info(`NUm connectectons: ${count}`)
+    })
+
     //close db connections
     await db.destroy()
     process.exit(0)

@@ -1,3 +1,4 @@
+import { logger } from './../../Context'
 import { FastifyInstance } from 'fastify'
 import jwt from 'jsonwebtoken'
 import { JwksClient } from 'jwks-rsa'
@@ -82,7 +83,11 @@ export default async function MonitorPostRequestRouter(app: FastifyInstance) {
       }
 
       //business logic
-      await handlePostRequest(obj as MonitorRunResult)
+      try {
+        await handlePostRequest(obj as MonitorRunResult)
+      } catch (e) {
+        app.log.error(e, 'Handle PostRequest Failed')
+      }
 
       reply.code(200).send()
     }

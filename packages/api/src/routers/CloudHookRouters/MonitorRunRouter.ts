@@ -2,10 +2,7 @@ import { FastifyInstance } from 'fastify'
 import jwt from 'jsonwebtoken'
 import { JwksClient } from 'jwks-rsa'
 import S from 'fluent-json-schema'
-import {
-  MonitorRunResult,
-  MonitorRunResultSchema,
-} from '@httpmon/db'
+import { MonitorRunResult, MonitorRunResultSchema } from '@httpmon/db'
 import Ajv from 'ajv'
 import { runMonitor } from 'src/services/MonitorRunner'
 
@@ -88,7 +85,11 @@ export default async function MonitorRunRouter(app: FastifyInstance) {
 
       app.log.info(`Exec monitor event: ${monrun.mon.name}`)
 
-      await runMonitor(monrun)
+      try {
+        await runMonitor(monrun)
+      } catch (e) {
+        app.log.error(e, 'Handle RunMonitor Failed')
+      }
       reply.code(200).send()
     }
   )
