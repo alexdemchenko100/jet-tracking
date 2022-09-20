@@ -94,3 +94,16 @@ export const UserVerificationSchema = S.object()
   .prop('email', S.string())
   .prop('accountId', S.string())
   .prop('token', S.string())
+
+export type ContactInfo = {
+  email: string
+  firstName: string
+  lastName: string
+  message: string
+}
+
+export const ContactInfoSchema = S.object()
+  .prop('email', S.string())
+  .prop('firstName', S.string())
+  .prop('lastName', S.string())
+  .prop('message', S.string())

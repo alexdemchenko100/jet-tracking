@@ -11,6 +11,7 @@ import StatusPagesRouter from './AuthRouters/Admin/StatusPagesRouter.js'
 import ActivityLogRouter from './AuthRouters/Admin/ActivityLogRouter.js'
 import ApiKeyRouter from './AuthRouters/Admin/ApiKeyRouter.js'
 import StatusPublicRouter from './PublicRouters/StatusPublicRouter.js'
+import ContactsPublicRouter from './PublicRouters/ContactsPublicRouter.js'
 import BillingRouter from './AuthRouters/Owner/BillingRouter.js'
 import MonitorPreRequestRouter from './CloudHookRouters/MonitorPreRequestRouter.js'
 import MonitorViewerRouter from './AuthRouters/MonitorRouter'
@@ -23,6 +24,7 @@ export default async function MainRouter(fastify: FastifyInstance) {
   //Public API router
   await fastify.register(SettingsPublicRouter, { prefix: '/settings' })
   await fastify.register(StatusPublicRouter, { prefix: '/status' })
+  await fastify.register(ContactsPublicRouter, { prefix: '/contacts' })
 
   //Authorized APIs
   await fastify.register(OndemandMonitorRouter, { prefix: '/ondemand' })

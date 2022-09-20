@@ -91,3 +91,52 @@ export function sendNotificationEmail(email: string, message: string) {
     return $error
   }
 }
+
+export function sendContactEmail(
+  email: string,
+  firstName: string,
+  lastName: string,
+  message: string
+) {
+  try {
+    if (
+      !process.env.SENDGRID_API_KEY ||
+      !process.env.SENDGRID_CONTACT_EMAIL_TEMPLATE ||
+      !process.env.SENDGRID_SENDER_EMAIL
+    ) {
+      throw new Error('Some of environment variables are missing.')
+    }
+
+    got.post('https://api.sendgrid.com/v3/mail/send', {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
+      },
+      json: {
+        from: {
+          email: process.env.SENDGRID_SENDER_EMAIL,
+        },
+        personalizations: [
+          {
+            to: [
+              {
+                email: 'support@proautoma.com',
+              },
+            ],
+            dynamic_template_data: {
+              message,
+              firstName,
+              lastName,
+              email,
+              subject: `Contact from ${firstName} ${lastName}`,
+            },
+          },
+        ],
+        template_id: process.env.SENDGRID_CONTACT_EMAIL_TEMPLATE,
+      },
+    })
+  } catch ($error) {
+    logger.error(`SEND NOTIFICATION MAIL: ${$error.message}`)
+    return $error
+  }
+}
