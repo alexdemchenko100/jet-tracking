@@ -186,7 +186,7 @@ export class MonitorService {
     return monResp
   }
 
-  public async list(offset: number, limit: number) {
+  public async list() {
     const { count } = db.fn
     const total = await db
       .selectFrom('Monitor')
@@ -197,8 +197,6 @@ export class MonitorService {
       .selectFrom('Monitor')
       .selectAll()
       .where('accountId', '=', currentUserInfo().accountId)
-      .offset(offset)
-      .limit(limit)
       .execute()
     return {
       total: total[0].count,

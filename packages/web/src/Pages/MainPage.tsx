@@ -268,41 +268,48 @@ const StatBox = ({ status, stats }: StatBoxProps) => {
     default:
   }
   return (
-    <Flex
-      px={{ sm: 2, lg: 4 }}
-      py={2}
-      flex={1}
-      borderRadius={8}
-      borderWidth={1}
-      borderColor='gray.200'
-      borderStyle='solid'
+    <Tooltip
+      borderRadius='4'
+      bg='darkgray.100'
+      py={0.5}
+      px={1.5}
+      fontSize='sm'
+      fontWeight='600'
+      textTransform='capitalize'
+      label={status}
     >
       <Flex
-        width={10}
-        mr={{ sm: 2, lg: 4 }}
-        height={10}
-        alignItems='center'
-        justifyContent='center'
+        px={{ sm: 2, lg: 4 }}
+        py={2}
+        flex={1}
         borderRadius={8}
-        bg={bgColor}
+        borderWidth={1}
+        borderColor='gray.200'
+        borderStyle='solid'
       >
-        {status === 'up' && (
-          <Text variant='text-field' color='gray.300' mb={1} textTransform='capitalize'>
-            {status}
-          </Text>
-        )}
-        {status === 'down' && <Icon color='white' as={FiTrendingDown} />}
-        {status === 'paused' && <Icon color='white' fill='white' as={FiPause} />}
-      </Flex>
-      <Flex direction={'column'} alignItems={'center'}>
-        {/* <Text variant='text-field' color='gray.300' mb={1} textTransform='capitalize'>
+        <Flex
+          width={10}
+          mr={{ sm: 2, lg: 4 }}
+          height={10}
+          alignItems='center'
+          justifyContent='center'
+          borderRadius={8}
+          bg={bgColor}
+        >
+          {status === 'up' && <Icon color='white' as={FiTrendingUp} />}
+          {status === 'down' && <Icon color='white' as={FiTrendingDown} />}
+          {status === 'paused' && <Icon color='white' fill='white' as={FiPause} />}
+        </Flex>
+        <Flex direction={'column'} alignItems={'center'}>
+          {/* <Text variant='text-field' color='gray.300' mb={1} textTransform='capitalize'>
           Total {status}
         </Text> */}
-        <Text variant='header' color='black'>
-          {getMonitorCountByStatus(status, stats)}
-        </Text>
+          <Text variant='header' color='black'>
+            {getMonitorCountByStatus(status, stats)}
+          </Text>
+        </Flex>
       </Flex>
-    </Flex>
+    </Tooltip>
   )
 }
 
@@ -422,9 +429,9 @@ export function MainPage() {
   const { userInfo } = useAuth()
   const navigate = useNavigate()
   const [filterOption, setFilterOption] = useState<string | undefined>(undefined)
-  const { register, watch } = useForm<IFormInputs>()
   const [sortOption, setSortOption] = useState<string>('')
   const [sortDir, setSortDir] = useState<string>('asc')
+  const [monitors, setMonitors] = useState<Monitor[]>([])
   const [sortedMonitors, setSortedMonitors] = useState<Monitor[]>([])
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [totalCount, setTotalCount] = useState<number>(0)
@@ -439,44 +446,25 @@ export function MainPage() {
 
   const uiState = Store.watch(Store.UIState)
 
-  watch()
-
   useEffect(() => {
     document.title = 'Dashboard | ProAutoma'
   }, [])
-
-  useEffect(() => {
-    const subscription = watch((value, { name }) => {
-      if (name === 'filter') {
-        setFilterOption(value.filter)
-      }
-    })
-    return () => subscription.unsubscribe()
-  }, [watch])
 
   async function getMonitors() {
     let resp = await axios({
       method: 'GET',
       url: '/monitors',
-      params: {
-        offset: (currentPage - 1) * pageSize,
-        limit: pageSize,
-      },
     })
 
     if (resp.status == 200) {
       const results = resp.data.items as Monitor[]
-      setTotalCount(resp.data.total)
+      setMonitors(results)
       return results
     }
     throw Error('Failed to get odemand results')
   }
 
-  const {
-    isLoading,
-    data: monitors,
-    error,
-  } = useQuery<Monitor[]>(['monitors-list', currentPage, pageSize], () => getMonitors(), {})
+  const { isLoading, data: monitorList } = useQuery(['monitors-list'], () => getMonitors(), {})
 
   async function getMonitorStats() {
     let resp = await axios({
@@ -490,32 +478,42 @@ export function MainPage() {
     throw Error('Failed to get odemand results')
   }
 
-  const { data: stats } = useQuery<MonitorStats[], Error>(
-    ['monitors-stats', currentPage, pageSize],
-    () => getMonitorStats()
+  const { data: stats } = useQuery<MonitorStats[], Error>(['monitors-stats'], () =>
+    getMonitorStats()
   )
 
   useEffect(() => {
-    if (monitors && stats) {
-      const data = monitors.map((monitor) => {
-        const statsData = stats.find((stat) => monitor.id === stat.monitorId)
-        if (statsData) {
-          monitor.status = statsData.status
-          monitor.uptime = uptime24(statsData)
-          monitor.day50 = statsData.day.p50
-          monitor.dayAvg = statsData.day.avg
-        }
-        return monitor
-      })
-      setSortedMonitors(data)
+    if (stats) {
+      const data =
+        monitorList?.map((monitor) => {
+          const statsData = stats.find((stat: MonitorStats) => monitor.id === stat.monitorId)
+          if (statsData) {
+            monitor.status = statsData.status
+            monitor.uptime = uptime24(statsData)
+            monitor.day50 = statsData.day.p50
+            monitor.dayAvg = statsData.day.avg
+          }
+          return monitor
+        }) || []
+      setMonitors(data)
     }
-  }, [monitors, stats])
+  }, [monitorList, stats])
+
+  useEffect(() => {
+    const offset = (currentPage - 1) * pageSize
+    let arr = monitors || []
+    if (filterOption) {
+      arr = monitors?.filter((mon) => mon.status === filterOption) || []
+    }
+    setSortedMonitors(arr.slice(offset, pageSize + offset))
+    setTotalCount(arr.length)
+  }, [monitors, pageSize, currentPage, filterOption])
 
   if (isLoading) {
     return <Loading />
   }
 
-  if (!monitors || monitors?.length == 0) {
+  if (!filterOption && (!monitors || monitors?.length == 0)) {
     return <NewMonitorHero />
   }
 
@@ -529,8 +527,14 @@ export function MainPage() {
     setCurrentPage(1)
   }
 
+  const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilterOption(event.target.value)
+    setCurrentPage(1)
+  }
+
   const sortBy = (field: string) => {
-    const data = monitors?.slice() || []
+    let dir = 'asc'
+    let data = monitors?.slice() || []
 
     switch (field) {
       case 'name':
@@ -555,13 +559,13 @@ export function MainPage() {
       default:
     }
     if (sortOption === field) {
-      const dir = sortDir === 'asc' ? 'desc' : 'asc'
-      setSortedMonitors(dir === 'asc' ? data : data.reverse())
-      setSortDir(dir)
-    } else {
-      setSortDir('asc')
-      setSortedMonitors(data)
+      dir = sortDir === 'asc' ? 'desc' : 'asc'
+      if (dir === 'desc') {
+        data = data.reverse()
+      }
     }
+    setSortDir(dir)
+    setSortedMonitors(data.slice(pageSize * (currentPage - 1), pageSize * currentPage))
     setSortOption(field)
   }
 
@@ -612,58 +616,69 @@ export function MainPage() {
           <Text variant='paragraph' color='darkgray.100'>
             View
           </Text>
-          <Button
-            id='set-grid-view-btn'
-            bg='transparent'
-            border='1px solid'
-            borderColor='gray.200'
-            borderRadius={8}
-            p={1}
-            onClick={() => updateMonitorsView(true)}
+          <Tooltip
+            borderRadius='4'
+            bg='darkgray.100'
+            py={0.5}
+            px={1.5}
+            fontSize='sm'
+            fontWeight='600'
+            label={'Show items in grid layout'}
           >
-            <Icon
-              color={uiState.monitors.isGridView ? 'darkblue.100' : 'darkgray.100'}
-              fontSize={'lg'}
-              as={FiGrid}
-              cursor='pointer'
-            />
-          </Button>
-          <Button
-            id='set-list-view-btn'
-            bg='transparent'
-            border='1px solid'
-            borderColor='gray.200'
-            borderRadius={8}
-            p={1}
-            onClick={() => updateMonitorsView(false)}
+            <Button
+              id='set-grid-view-btn'
+              bg='transparent'
+              border='1px solid'
+              borderColor='gray.200'
+              borderRadius={8}
+              p={1}
+              onClick={() => updateMonitorsView(true)}
+            >
+              <Icon
+                color={uiState.monitors.isGridView ? 'darkblue.100' : 'darkgray.100'}
+                fontSize={'lg'}
+                as={FiGrid}
+                cursor='pointer'
+              />
+            </Button>
+          </Tooltip>
+          <Tooltip
+            borderRadius='4'
+            bg='darkgray.100'
+            py={0.5}
+            px={1.5}
+            fontSize='sm'
+            fontWeight='600'
+            label={'Show items in list layout'}
           >
-            <Icon
-              color={!uiState.monitors.isGridView ? 'darkblue.100' : 'darkgray.100'}
-              fontSize={'lg'}
-              as={FiList}
-              cursor='pointer'
-            />
-          </Button>
+            <Button
+              id='set-list-view-btn'
+              bg='transparent'
+              border='1px solid'
+              borderColor='gray.200'
+              borderRadius={8}
+              p={1}
+              onClick={() => updateMonitorsView(false)}
+            >
+              <Icon
+                color={!uiState.monitors.isGridView ? 'darkblue.100' : 'darkgray.100'}
+                fontSize={'lg'}
+                as={FiList}
+                cursor='pointer'
+              />
+            </Button>
+          </Tooltip>
           <Select
             borderRadius={8}
             width='140px'
             color='gray.300'
             borderColor='gray.200'
-            {...register(`filter`)}
+            value={filterOption}
+            onChange={handleFilterChange}
           >
             <option value=''>All</option>
             <option value='up'>Up</option>
             <option value='down'>Down</option>
-          </Select>
-          <Select
-            borderRadius={8}
-            width='140px'
-            color='gray.300'
-            borderColor='gray.200'
-            {...register(`sortBy`)}
-          >
-            <option value='latest'>Latest</option>
-            <option value='oldest'>Oldest</option>
           </Select>
         </Flex>
         <Flex gap={{ sm: 2, lg: 4 }}>
@@ -672,18 +687,17 @@ export function MainPage() {
           <StatBox status='paused' stats={stats} />
         </Flex>
       </Section>
-      <Section p={0} mb='0' display='flex' minH='calc(100vh - 320px)' flexDirection='column'>
+      <Section p={0} mb='0' display='flex' minH='calc(100vh - 300px)' flexDirection='column'>
         {uiState.monitors.isGridView ? (
           <Box className='gridview' p={4} pb={8} flex='1'>
             <Grid gap='6' templateColumns={{ sm: '1fr', xl: '1fr 1fr' }}>
-              {stats &&
-                sortedMonitors.map((monitor) => (
-                  <MonitorStatusCard
-                    mon={monitor}
-                    stats={stats.find((stat) => monitor.id === stat.monitorId)}
-                    key={monitor.id}
-                  />
-                ))}
+              {sortedMonitors.map((monitor) => (
+                <MonitorStatusCard
+                  mon={monitor}
+                  stats={stats?.find((stat) => monitor.id === stat.monitorId)}
+                  key={monitor.id}
+                />
+              ))}
             </Grid>
           </Box>
         ) : (
@@ -752,15 +766,14 @@ export function MainPage() {
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {stats &&
-                    sortedMonitors.map((monitor) => (
-                      <MonitorListItem
-                        mon={monitor}
-                        stats={stats.find((stat) => monitor.id === stat.monitorId)}
-                        key={monitor.id}
-                        onDelete={openDeleteModal}
-                      />
-                    ))}
+                  {sortedMonitors.map((monitor) => (
+                    <MonitorListItem
+                      mon={monitor}
+                      stats={stats?.find((stat) => monitor.id === stat.monitorId)}
+                      key={monitor.id}
+                      onDelete={openDeleteModal}
+                    />
+                  ))}
                 </Tbody>
               </Table>
             </TableContainer>
