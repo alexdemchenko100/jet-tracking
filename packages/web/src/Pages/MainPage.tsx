@@ -25,7 +25,6 @@ import {
   ModalBody,
   ModalFooter,
 } from '@chakra-ui/react'
-import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import {
   FiEdit,
@@ -268,48 +267,49 @@ const StatBox = ({ status, stats }: StatBoxProps) => {
     default:
   }
   return (
-    <Tooltip
-      borderRadius='4'
-      bg='darkgray.100'
-      py={0.5}
-      px={1.5}
-      fontSize='sm'
-      fontWeight='600'
-      textTransform='capitalize'
-      label={status}
+    <Flex
+      px={{ sm: 2, lg: 4 }}
+      py={2}
+      flex={1}
+      borderRadius={8}
+      borderWidth={1}
+      borderColor='gray.200'
+      borderStyle='solid'
     >
-      <Flex
-        px={{ sm: 2, lg: 4 }}
-        py={2}
-        flex={1}
-        borderRadius={8}
-        borderWidth={1}
-        borderColor='gray.200'
-        borderStyle='solid'
+      <Tooltip
+        borderRadius='4'
+        bg='darkgray.100'
+        py={0.5}
+        px={1.5}
+        fontSize='sm'
+        fontWeight='600'
+        placement='top'
+        hasArrow
+        textTransform='capitalize'
+        label={`Total ${status} monitors`}
       >
-        <Flex
-          width={10}
-          mr={{ sm: 2, lg: 4 }}
-          height={10}
-          alignItems='center'
-          justifyContent='center'
-          borderRadius={8}
-          bg={bgColor}
-        >
-          {status === 'up' && <Icon color='white' as={FiTrendingUp} />}
-          {status === 'down' && <Icon color='white' as={FiTrendingDown} />}
-          {status === 'paused' && <Icon color='white' fill='white' as={FiPause} />}
+        <Flex cursor='pointer'>
+          <Flex
+            width={10}
+            mr={{ sm: 2, lg: 4 }}
+            height={10}
+            alignItems='center'
+            justifyContent='center'
+            borderRadius={8}
+            bg={bgColor}
+          >
+            {status === 'up' && <Icon color='white' as={FiTrendingUp} />}
+            {status === 'down' && <Icon color='white' as={FiTrendingDown} />}
+            {status === 'paused' && <Icon color='white' fill='white' as={FiPause} />}
+          </Flex>
+          <Flex direction={'column'} alignItems={'center'}>
+            <Text variant='header' color='black'>
+              {getMonitorCountByStatus(status, stats)}
+            </Text>
+          </Flex>
         </Flex>
-        <Flex direction={'column'} alignItems={'center'}>
-          {/* <Text variant='text-field' color='gray.300' mb={1} textTransform='capitalize'>
-          Total {status}
-        </Text> */}
-          <Text variant='header' color='black'>
-            {getMonitorCountByStatus(status, stats)}
-          </Text>
-        </Flex>
-      </Flex>
-    </Tooltip>
+      </Tooltip>
+    </Flex>
   )
 }
 
@@ -426,6 +426,8 @@ const SortIcons = () => (
 )
 
 export function MainPage() {
+  const uiState = Store.watch(Store.UIState)
+
   const { userInfo } = useAuth()
   const navigate = useNavigate()
   const [filterOption, setFilterOption] = useState<string | undefined>(undefined)
@@ -439,12 +441,15 @@ export function MainPage() {
   const { pages, pagesCount, pageSize, setPageSize, currentPage, setCurrentPage } = usePagination({
     total: totalCount,
     initialState: {
-      pageSize: 16,
-      currentPage: 1,
+      pageSize: uiState.monitors.pageSize,
+      currentPage: uiState.monitors.currentPage,
     },
   })
 
-  const uiState = Store.watch(Store.UIState)
+  useEffect(() => {
+    setPageSize(uiState.monitors.pageSize)
+    setCurrentPage(uiState.monitors.currentPage)
+  }, [uiState])
 
   useEffect(() => {
     document.title = 'Dashboard | ProAutoma'
@@ -518,18 +523,18 @@ export function MainPage() {
   }
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page)
+    Store.UIState.monitors.currentPage = page
   }
 
   const handlePageSizeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = parseInt(event.target.value)
-    setPageSize(value)
-    setCurrentPage(1)
+    Store.UIState.monitors.pageSize = value
+    Store.UIState.monitors.currentPage = 1
   }
 
   const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setFilterOption(event.target.value)
-    setCurrentPage(1)
+    Store.UIState.monitors.currentPage = 1
   }
 
   const sortBy = (field: string) => {

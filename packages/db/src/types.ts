@@ -418,6 +418,8 @@ export type UIState = {
   }
   monitors: {
     isGridView: boolean
+    currentPage: number
+    pageSize: number
   }
 }
 
@@ -440,7 +442,13 @@ export const UIStateSchema = S.object()
           .prop('locations', S.array().items(S.string()))
       )
   )
-  .prop('monitors', S.object().prop('isGridView', S.boolean()))
+  .prop(
+    'monitors',
+    S.object()
+      .prop('isGridView', S.boolean())
+      .prop('currentPage', S.number())
+      .prop('pageSize', S.number())
+  )
 
 export type Settings = {
   id?: string

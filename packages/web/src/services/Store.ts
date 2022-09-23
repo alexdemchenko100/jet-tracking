@@ -58,6 +58,8 @@ const defaultUiState: UIState = {
   },
   monitors: {
     isGridView: false,
+    currentPage: 1,
+    pageSize: 16,
   },
 }
 
