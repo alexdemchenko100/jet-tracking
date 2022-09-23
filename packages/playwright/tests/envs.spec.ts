@@ -39,8 +39,8 @@ test('create new env and delete it', async ({ page }) => {
   await page.locator('[placeholder="Value"]').fill(new Date().getTime().toString())
   // Click button:has-text("Save")
   await page.locator('button:has-text("Save")').click()
-  await expect(page).toHaveURL('/console/envs')
 
+  await page.waitForSelector('[data-label="' + envName + '"] .env-details-btn')
   await page.locator('[data-label="' + envName + '"] .env-details-btn').click()
   const url = await page.url()
   await expect(url).toMatch(/\/console\/envs\/[a-zA-Z0-9-_]+/)
@@ -54,7 +54,7 @@ test('create new env and delete it', async ({ page }) => {
   // Click div[role="group"]:has-text("Environments")
   await page.locator('div[role="group"]:has-text("Environments")').click()
   await expect(page).toHaveURL('/console/envs')
-
+  await page.waitForSelector('[data-label="' + envName + '"] .env-delete-btn')
   // Click button.monitor-delete-btn
   await page.locator('[data-label="' + envName + '"] .env-delete-btn').click()
   // Click button:has-text("Delete")

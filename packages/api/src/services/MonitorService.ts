@@ -197,6 +197,7 @@ export class MonitorService {
       .selectFrom('Monitor')
       .selectAll()
       .where('accountId', '=', currentUserInfo().accountId)
+      .orderBy('createdAt', 'desc')
       .execute()
     return {
       total: total[0].count,

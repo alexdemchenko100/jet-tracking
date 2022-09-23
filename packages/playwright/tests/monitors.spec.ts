@@ -35,7 +35,6 @@ test('create new monitor and delete it', async ({ page }) => {
   await page.locator('[placeholder="https\\:\\/\\/"]').fill('https://google.com')
   // Click button:has-text("Save")
   await page.locator('button:has-text("Save")').click()
-  await expect(page).toHaveURL('/console/monitors')
 
   // Click monitor in gridview and move to the monitor edit page
   await page.locator('#set-grid-view-btn').click()
@@ -44,8 +43,8 @@ test('create new monitor and delete it', async ({ page }) => {
   await expect(url).toMatch(/\/console\/monitors\/[a-z0-9-]+\/edit/)
   // Click button:has-text("Save")
   await page.locator('button:has-text("Save")').click()
-  await expect(page).toHaveURL('/console/monitors')
 
+  await page.waitForSelector('.gridview [data-label="' + monitorName + '"]')
   // Click monitor in gridview and move to the monitor details page
   await page.locator('.gridview [data-label="' + monitorName + '"] .monitor-title').click()
   const url2 = await page.url()
@@ -63,14 +62,15 @@ test('create new monitor and delete it', async ({ page }) => {
   await page.locator('div[role="group"]:has-text("Dashboard")').click()
   await expect(page).toHaveURL('/console/monitors')
 
+  await page.waitForSelector('.listview [data-label="' + monitorName + '"]')
   // Click monitor in listview and move to the monitor edit page
   await page.locator('.listview [data-label="' + monitorName + '"] .monitor-edit-btn').click()
   const url4 = await page.url()
   await expect(url4).toMatch(/\/console\/monitors\/[a-z0-9-]+\/edit/)
   // Click button:has-text("Save")
   await page.locator('button:has-text("Save")').click()
-  await expect(page).toHaveURL('/console/monitors')
 
+  await page.waitForSelector('.listview [data-label="' + monitorName + '"]')
   // Click button.monitor-delete-btn
   await page
     .locator('.listview [data-label="' + monitorName + '"] button.monitor-delete-btn')

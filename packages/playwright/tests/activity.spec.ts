@@ -36,12 +36,15 @@ test('activity page should list created/deleted monitors', async ({ page }) => {
   await page.locator('[placeholder="https\\:\\/\\/"]').fill('https://google.com')
   // Click button:has-text("Save")
   await page.locator('button:has-text("Save")').click()
-  await expect(page).toHaveURL('/console/monitors')
 
   await page.locator('div[role="group"]:has-text("Activity")').click()
   await expect(page).toHaveURL('/console/activity')
-  const element = await page.locator('.activity-title').first()
-  await expect(element).toHaveText(`Monitor ${monitorName} is created.`)
+
+  await page.waitForSelector(`.activity-title`)
+  const elementCount = await page
+    .locator(`.activity-title:has-text("Monitor ${monitorName} is created.")`)
+    .count()
+  await expect(elementCount).toBe(1)
 
   // Click div[role="group"]:has-text("Dashboard")
   await page.locator('div[role="group"]:has-text("Dashboard")').click()
@@ -59,6 +62,10 @@ test('activity page should list created/deleted monitors', async ({ page }) => {
 
   await page.locator('div[role="group"]:has-text("Activity")').click()
   await expect(page).toHaveURL('/console/activity')
-  const element2 = await page.locator('.activity-title').first()
-  await expect(element2).toHaveText(`Monitor ${monitorName} is removed.`)
+
+  await page.waitForSelector(`.activity-title`)
+  const elementCount2 = await page
+    .locator(`.activity-title:has-text("Monitor ${monitorName} is removed.")`)
+    .count()
+  await expect(elementCount2).toBe(1)
 })
