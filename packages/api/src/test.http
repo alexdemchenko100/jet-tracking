@@ -98,7 +98,32 @@ content-type: application/json
 
 ###
 
-GET http://localhost:8080/api/monitors HTTP/1.1
+
+GET http://stage.proautoma.com/api/monitors/stats HTTP/1.1
 content-type: application/json
-x-proautoma-accountid: 49abb6b1-be52-49d6-a935-bb7d7ff548ab
-Authorization: Bearer pak.vnZq5ai4yQgIUEro-Ljr.jfyIHci7gVrFmAI
+x-proautoma-accountid: d56da33f-91e8-470c-85ab-cba73c3f9427
+Authorization: Bearer pak.7OERYeSdRavJ28dreS94YdRMe~.qKPn5SwDA
+
+
+
+###
+
+GET http://localhost:8080/api/monitors/stats HTTP/1.1
+content-type: application/json
+x-proautoma-accountid: e9d6f8bf-aac2-494a-86f5-8b0b821a16c7
+Authorization: Bearer pak.fxXVChsQN4cPpqKsPsp9OjgnO5w9P_hAg5Em
+
+###
+
+GET http://localhost:8080/api/monitors/monstatus HTTP/1.1
+content-type: application/json
+x-proautoma-accountid: e9d6f8bf-aac2-494a-86f5-8b0b821a16c7
+Authorization: Bearer pak.fxXVChsQN4cPpqKsPsp9OjgnO5w9P_hAg5Em
+
+###
+
+GET http://localhost:8080/api/monitors/56eee363-c524-41a8-a993-e8aa0c0b2cd1/results?count=1&cols=createdAt,err2 HTTP/1.1
+content-type: application/json
+x-proautoma-accountid: e9d6f8bf-aac2-494a-86f5-8b0b821a16c7
+Authorization: Bearer pak.fxXVChsQN4cPpqKsPsp9OjgnO5w9P_hAg5Em
+

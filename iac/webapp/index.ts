@@ -36,7 +36,7 @@ const serviceAccount = new gcp.serviceaccount.Account(`${project}-sa`, {
   project,
 })
 
-const roles = ['storage.admin', 'cloudsql.client']
+const roles = ['storage.admin', 'cloudsql.client', 'firebase.admin']
 const saMember = pulumi.interpolate`serviceAccount:${serviceAccount.email}`
 
 roles.forEach((role) => {

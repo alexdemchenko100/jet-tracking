@@ -1,10 +1,5 @@
 import { FastifyInstance } from 'fastify'
-import {
-  Monitor,
-  MonitorFluentSchema,
-  MonitorResult,
-  MonitorResultFluentSchema,
-} from '@httpmon/db'
+import { Monitor, MonitorFluentSchema, MonitorResult, MonitorResultFluentSchema } from '@httpmon/db'
 import { onRequestAuthHook } from '../RouterHooks'
 import { v4 as uuidv4 } from 'uuid'
 import { runOndemand } from 'src/services/OndemandService'
@@ -26,7 +21,8 @@ export default async function OndemandMonitorRouter(app: FastifyInstance) {
       const mon = req.body
 
       //lets give the monitor an id
-      mon.id = 'ondemand-' + uuidv4()
+      mon.id = uuidv4()
+      mon.status = 'ondemand' //this identifies ondemand monitor
 
       try {
         let resp = await runOndemand(mon)

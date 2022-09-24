@@ -97,11 +97,6 @@ export async function execMonitor(monitor: Monitor) {
   let mon = { ...monitor }
 
   try {
-    // var startTime = performance.now()
-    // mon = processTemplates(monitor)
-    // var endTime = performance.now()
-    // logger.info(`Call ${monitor.url} took ${endTime - startTime} milliseconds`)
-
     const resp = await customGot(mon.url, {
       method: mon.method as Method,
       body: Boolean(mon.body) && Boolean(mon.bodyType) ? mon.body : undefined,
@@ -133,7 +128,7 @@ export async function execMonitor(monitor: Monitor) {
     const result: MonitorResult = {
       url: resp.redirectUrls.length > 0 ? resp.redirectUrls[resp.redirectUrls.length - 1] : mon.url,
       ...responseToMonitorResult(resp),
-      monitorId: mon.id ?? 'ondemand',
+      monitorId: mon.id ?? '',
       accountId: mon.accountId,
       certCommonName,
       certExpiryDays,
@@ -145,7 +140,7 @@ export async function execMonitor(monitor: Monitor) {
     if (e instanceof RequestError) {
       return {
         ...requestErrorToMonitorResult(e),
-        monitorId: mon.id ?? 'ondemand',
+        monitorId: mon.id ?? '',
         accountId: mon.accountId,
         url: mon.url,
         err: e.code,
@@ -154,7 +149,7 @@ export async function execMonitor(monitor: Monitor) {
       return {
         ...responseToMonitorResult(),
         err: e?.message ?? e.toString(),
-        monitorId: mon.id ?? 'ondemand',
+        monitorId: mon.id ?? '',
         accountId: mon.accountId,
         url: mon.url,
       } as MonitorResult
@@ -168,7 +163,7 @@ export async function runMonitor(monrun: MonitorRunResult) {
   if (result.err == '') {
     const asserionResults = processAssertions(monitor, result)
     result.assertResults = asserionResults
-    result.err = asserionResults.some((a) => a.fail) ? 'assertions failed' : ''
+    result.err = asserionResults.some((a) => a.fail) ? 'Test Assertions failed' : ''
   }
 
   logger.info(
@@ -177,10 +172,13 @@ export async function runMonitor(monrun: MonitorRunResult) {
   )
 
   //createdAt caused type issue for db
-  const monitorResult = await saveMonitorResult({
-    ...result,
-    accountId: monrun.mon.accountId,
-  })
+  const monitorResult = await saveMonitorResult(
+    {
+      ...result,
+      accountId: monrun.mon.accountId,
+    },
+    monitor
+  )
 
   if (!monitor.notifications || !monitor.id || !monitorResult?.id) return
 

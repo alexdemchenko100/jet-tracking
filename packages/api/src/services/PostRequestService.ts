@@ -8,7 +8,7 @@ import {
 } from './SlackNotification'
 
 export async function handlePostRequest(monrun: MonitorRunResult) {
-  if (monrun.mon.id?.startsWith('ondemand')) {
+  if (monrun.mon.status == 'ondemand') {
     await handleOndemandResult(monrun)
     return
   }

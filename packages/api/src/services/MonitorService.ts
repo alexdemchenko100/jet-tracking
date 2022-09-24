@@ -1,11 +1,13 @@
 import { currentUserInfo, logger } from './../Context'
 import emitter from './emitter.js'
 
-import { db, Monitor, MonitorTuples } from '@httpmon/db'
+import { db, Monitor, MonitorResultsQueryString, MonitorTuples } from '@httpmon/db'
 import { v4 as uuidv4 } from 'uuid'
 import dayjs from 'dayjs'
 import { sql } from 'kysely'
 import { readObject } from './GSCService'
+import { result } from '.pnpm/@types+lodash@4.14.178/node_modules/@types/lodash'
+import { dnsLookupIpVersionToFamily } from 'got/dist/source/core/utils/dns-ip-version'
 
 export interface ResultQueryString {
   startTime: string
@@ -242,39 +244,39 @@ export class MonitorService {
    * - We should be able to query for results for successful or failed
    *
    */
-  public async getMonitorResults(monitorId?: string) {
+  public async getMonitorResults(monitorId?: string, query?: MonitorResultsQueryString) {
+    const defCols = ['createdAt', 'totalTime', 'location', 'err']
+    const cols = query?.cols?.split(',') || defCols
+    const count = query?.count || 100
+
     //having a const column array causes type error which is weird
     const results = await db
       .selectFrom('MonitorResult')
-      .select([
-        // 'id',
-        // 'monitorId',
-        // 'url',
-        // 'code',
-        // 'codeStatus',
-        'createdAt',
-        // 'waitTime',
-        // 'dnsTime',
-        // 'tcpTime',
-        // 'tlsTime',
-        // 'uploadTime',
-        // 'ttfb',
-        // 'downloadTime',
-        'totalTime',
-        // 'ip',
-        'location',
-        'err',
-        // 'protocol',
-        // 'ttfb',
-        // 'assertResults',
-      ])
+      .select(cols as any)
       .if(Boolean(monitorId), (qb) => qb.where('monitorId', '=', monitorId as string))
       .where('accountId', '=', currentUserInfo().accountId)
-      .limit(100)
+      .limit(count)
       .orderBy('MonitorResult.createdAt', 'desc')
       .execute()
 
     return results
+  }
+
+  public async getMonitorListAndStatus() {
+    /*
+    mons = Valid monitors for this accountId
+    select monitor results for this accountId
+    filter by mons
+    select by latest one
+    */
+
+    const mons = await db
+      .selectFrom('Monitor')
+      .select(['id'])
+      .where('accountId', '=', currentUserInfo().accountId)
+      .execute()
+
+    return []
   }
 
   public async getMonitorResultsEx(monitorId: string, query: ResultQueryString) {
@@ -380,21 +382,21 @@ export class MonitorService {
 
     const lastResultsArray = await db
       .selectFrom('MonitorResult')
-      .select(['id', 'err', 'location', 'totalTime'])
+      .select(['id', 'err', 'totalTime'])
       .where('monitorId', '=', monitorId)
       .where('accountId', '=', currentUserInfo().accountId)
       .orderBy('createdAt', 'desc')
-      .limit(24)
+      .limit(12)
       .execute()
 
     const monitor = await this.find(monitorId)
 
-    const lastResults = lastResultsArray.filter((res) => {
+    const lastResults = lastResultsArray.map((res) => {
       return {
         id: res.id,
         err: res.err,
         totalTime: res.totalTime,
-        location: res.location,
+        // location: res.location,
       }
     })
 

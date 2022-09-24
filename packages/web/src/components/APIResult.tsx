@@ -188,7 +188,7 @@ export function APIResult({ result, onClose }: APIResultProps) {
       <Grid gap='1em' pr={2} maxH='100%' overflow={'auto'}>
         {onClose && (
           <Flex alignItems='end'>
-            <Button ml='auto' onClick={onClose} bg='lightgray.100'>
+            <Button id='close-panel' ml='auto' onClick={onClose} bg='lightgray.100'>
               <Icon as={FiX} cursor='pointer' />
             </Button>
           </Flex>
@@ -250,7 +250,7 @@ export function APIResult({ result, onClose }: APIResultProps) {
           }}
           overflow='auto'
         >
-          <TabList>
+          <TabList id='tab-results'>
             <Tab>
               Body
               <Text color='green'>&nbsp;{formatBodySize(result.bodySize)}</Text>

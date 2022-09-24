@@ -1,7 +1,7 @@
-import { db, MonitorResultTable } from '@httpmon/db'
+import { db, Monitor, MonitorResultTable } from '@httpmon/db'
 import { Insertable } from 'kysely'
 import { v4 as uuidv4 } from 'uuid'
-import { currentUserInfo, logger } from '../Context'
+import { logger } from '../Context'
 import { nanoid } from 'nanoid'
 import { createBucket, uploadObject } from './GSCService'
 
@@ -120,7 +120,7 @@ function objectToJSON(object: any) {
   throw Error('Cannot convert to JSON')
 }
 
-export async function saveMonitorResult(result: Insertable<MonitorResultTable>) {
+export async function saveMonitorResult(result: Insertable<MonitorResultTable>, monitor: Monitor) {
   //Handle all JSON conversions here.. headers, cookies, variables etc
   let resultForSaving = {
     ...result,
@@ -137,7 +137,7 @@ export async function saveMonitorResult(result: Insertable<MonitorResultTable>) 
   let savedResult
 
   try {
-    if (result.monitorId.startsWith('ondemand')) {
+    if (monitor.status == 'ondemand') {
       //save on demand result and return
       return await db
         .insertInto('OndemandResult')

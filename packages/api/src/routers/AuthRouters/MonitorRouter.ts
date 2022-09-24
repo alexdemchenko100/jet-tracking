@@ -8,9 +8,9 @@ import {
   MonitorResultQueryResponseSchema,
   MonitorStatSummarySchema,
   MonitorsQueryResponseSchema,
+  MonitorResultsQueryString,
 } from '@httpmon/db'
 import { onRequestAuthHook } from '../RouterHooks'
-import { requestContext } from '@fastify/request-context'
 
 export default async function MonitorRouter(app: FastifyInstance) {
   app.addHook('onRequest', onRequestAuthHook)
@@ -53,16 +53,17 @@ export default async function MonitorRouter(app: FastifyInstance) {
     }
   )
 
-  app.get<{ Params: Params }>(
+  app.get<{ Params: Params; Querystring: MonitorResultsQueryString }>(
     '/:id/results',
     {
       schema: {
         params: ParamsSchema,
+        querystring: MonitorResultQueryResponseSchema,
         response: { 200: MonitorResultFluentSchemaArray },
       },
     },
-    async function ({ params: { id } }, reply) {
-      const results = await monitorSvc.getMonitorResults(id)
+    async function (req, reply) {
+      const results = await monitorSvc.getMonitorResults(req.params.id, req.query)
       if (results) {
         reply.send(results)
       } else {
@@ -141,6 +142,26 @@ export default async function MonitorRouter(app: FastifyInstance) {
     },
     async function (_, reply) {
       const mon = await monitorSvc.getMonitorResults()
+      if (mon) {
+        reply.send(mon)
+      } else {
+        reply.code(404).send('Not found')
+      }
+    }
+  )
+
+  /**
+   * Get all monitor results
+   */
+  app.get<{ Params: Params }>(
+    '/monstatus',
+    {
+      schema: {
+        response: { 200: MonitorResultFluentSchemaArray },
+      },
+    },
+    async function (_, reply) {
+      const mon = await monitorSvc.getMonitorListAndStatus()
       if (mon) {
         reply.send(mon)
       } else {

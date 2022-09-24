@@ -18,6 +18,10 @@ export function MonitorTimeChart(props: ChartProps) {
     let resp = await axios({
       method: 'GET',
       url: '/monitors/' + id + '/results',
+      params: {
+        count: 64,
+        cols: 'createdAt,totalTime,location,err',
+      },
     })
 
     if (resp.status == 200) {

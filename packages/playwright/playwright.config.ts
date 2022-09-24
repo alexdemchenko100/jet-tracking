@@ -32,7 +32,10 @@ const config: PlaywrightTestConfig = {
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+  // globalSetup: require.resolve('./global-setup'),
+
   use: {
+    //headless: false,
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
 
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
@@ -42,6 +45,8 @@ const config: PlaywrightTestConfig = {
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    // Tell all tests to load signed-in state from 'storageState.json'.
+    // storageState: 'storageState.json',
   },
 
   /* Configure projects for major browsers */

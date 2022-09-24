@@ -72,6 +72,10 @@ export const PaginateQueryStringSchema = S.object()
   .prop('limit', S.number())
   .prop('offset', S.number())
 
+export const MonitorResultsQueryStringSchema = S.object()
+  .prop('count', S.number())
+  .prop('cols', S.string())
+
 export const MonitorStatSummarySchema = S.object()
   .prop('monitorId', S.string())
   .prop('monitorName', S.string())
@@ -536,6 +540,11 @@ export const StatusPageDetailsSchema = S.object()
 export interface PaginateQueryString {
   limit: number
   offset: number
+}
+
+export interface MonitorResultsQueryString {
+  count?: number
+  cols?: string
 }
 
 export type BillingInfo = {

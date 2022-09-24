@@ -1,7 +1,10 @@
 import requests
-TOKEN = 'pak.CVn1IwpFEUyFvF~1lqg7cd86uujKcOrgcj.s'
+# TOKEN = 'pak.7OERYeSdRavJ28dreS94YdRMe~.qKPn5SwDA'
+# accountId = 'd56da33f-91e8-470c-85ab-cba73c3f9427'
+# HOST = 'https://stage.proautoma.com'
 
-
+TOKEN = 'pak.rtJv6oUsG1g4WQZZJG6Ej~yd3GaJMrtT124C'
+accountId = '4919ff10-3e42-4267-8db1-3573dfb3e155'
 HOST = 'http://localhost:8080'
 
 topUrls = ["facebook.com/",
@@ -35,10 +38,8 @@ topUrls = ["facebook.com/",
            "nytimes.com/",
            "t.co/",
            "europa.eu/",
-           "buydomains.com/",
            "wp.com/",
            "statcounter.com/",
-           "miitbeian.gov.cn/",
            "jimdo.com/",
            "blogger.com/",
            "github.com/",
@@ -46,7 +47,6 @@ topUrls = ["facebook.com/",
            "soundcloud.com/",
            "mozilla.org/",
            "bbc.co.uk/",
-           "yandex.ru/",
            "myspace.com/",
            "google.de/",
            "addthis.com/",
@@ -69,15 +69,12 @@ topUrls = ["facebook.com/",
            "wix.com/",
            "dropbox.com/",
            "forbes.com/",
-           "miibeian.gov.cn/",
-           "amazonaws.com/",
            "google.co.uk/",
            "washingtonpost.com/",
            "bluehost.com/",
            "etsy.com/",
            "go.com/",
            "msn.com/",
-           "wsj.com/",
            "ameblo.jp/",
            "archive.org/",
            "slideshare.net/",
@@ -87,7 +84,6 @@ topUrls = ["facebook.com/",
            "eventbrite.com/",
            "parallels.com/",
            "doubleclick.net/",
-           "mail.ru/",
            "sourceforge.net/",
            "amazon.co.uk/",
            "telegraph.co.uk/",
@@ -97,7 +93,6 @@ topUrls = ["facebook.com/",
            "51.la/",
            "free.fr/",
            "yahoo.co.jp/",
-           "dailymail.co.uk/",
            "reuters.com/",
            "taobao.com/",
            "wikimedia.org/",
@@ -106,7 +101,6 @@ topUrls = ["facebook.com/",
            "hatena.ne.jp/",
            "bloomberg.com/",
            "elegantthemes.com/",
-           "eepurl.com/",
            "usatoday.com/",
            "about.com/",
            "medium.com/",
@@ -126,26 +120,21 @@ topUrls = ["facebook.com/",
            "aol.com/",
            "constantcontact.com/",
            "latimes.com/",
-           "icio.us/",
            "list-manage.com/",
            "webs.com/",
            "opera.com/",
-           "beian.gov.cn/",
-           "vkontakte.ru/",
            "blogspot.co.uk/",
            "live.com/",
            "bandcamp.com/",
            "apache.org/",
            "bbc.com/",
            "businessinsider.com/",
-           "dailymotion.com/",
            "cpanel.com/",
            "disqus.com/",
            "behance.net/",
            "mit.edu/",
            "rambler.ru/",
            "gnu.org/",
-           "sina.com.cn/",
            "spotify.com/",
            "joomla.org/",
            "google.es/",
@@ -159,7 +148,7 @@ topUrls = ["facebook.com/",
 endpoint = HOST + '/api/monitors'
 headers = {'Content-Type': 'application/json',
            'Authorization': 'Bearer {}'.format(TOKEN),
-           'x-proautoma-accountid': 'e3eb5f72-f346-48d8-bf6c-7dc47294d096'}
+           'x-proautoma-accountid': accountId}
 
 
 for url in topUrls:
@@ -168,7 +157,8 @@ for url in topUrls:
         'name': url,
         'url': 'https://www.'+url,
         'frequency': '60',
-        'locations': ['us-east1']
+        'locations': ['us-east1'],
+        'body': ''
     })
 
     print(x)
