@@ -1,4 +1,3 @@
-import { getUserAccount } from './DBService'
 import { currentUserInfo, logger } from './../Context'
 import { v4 as uuidv4 } from 'uuid'
 import { db, Monitor, MonitorRunResult } from '@httpmon/db'

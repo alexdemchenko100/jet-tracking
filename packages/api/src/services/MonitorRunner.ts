@@ -1,6 +1,7 @@
+import { EnvService } from './EnvService'
 import { DetailedPeerCertificate } from 'tls'
 
-import { Monitor, MonitorTuples, MonitorResult, MonitorRunResult } from '@httpmon/db'
+import { Monitor, MonitorTuples, MonitorResult, MonitorRunResult, db } from '@httpmon/db'
 import https from 'https'
 import clone from 'lodash.clonedeep'
 import Handlebars from 'handlebars'
@@ -32,34 +33,60 @@ function headersToMap(headers: MonitorTuples = []) {
   return hmap
 }
 
-function processTemplates(mon: Monitor) {
+async function getTemplateVariableMap(mon: Monitor) {
+  const envs = mon.accountId
+    ? await db.selectFrom('MonEnv').selectAll().where('accountId', '=', mon.accountId).execute()
+    : []
+
+  const monEnvIds = mon.environments ?? []
+  const globalEnv = envs.find((e) => e.name == '__global__')?.env ?? []
+  const selectedEnvs = monEnvIds.flatMap((id) => [envs.find((e) => e.id == id)?.env || []])
+  const allEnvs = [globalEnv, ...selectedEnvs, mon.variables ?? []].flat()
+
+  //now put all tuples into a map -- only latest conflicting entry remains!
+  const allEnvMap = Object.fromEntries(allEnvs)
+
+  // logger.error(allEnvs, 'allevs')
+  // logger.error(allEnvMap, 'allevs map')
+  return allEnvMap
+}
+
+async function processTemplates(mon: Monitor) {
   //url bar
   //header value fields
   //query value fields
   //body
-  let env: { [k: string]: string } = {}
-  if (mon.variables && Array.isArray(mon.variables)) {
-    mon.variables.map(([name, value], _index) => {
-      env[name] = value
-    })
-  }
 
-  let m = clone(mon)
+  //first see if we are candidate for templating
+  const m = clone(mon)
+  let hdrs = (m.headers as MonitorTuples) || []
+  let queryParams = (m.queryParams as MonitorTuples) || []
 
-  m.url = Handlebars.compile(mon.url)(env)
+  const hasTemplates =
+    m.url.includes('{{') ||
+    m.body?.includes('{{') ||
+    hdrs.find((hdr) => hdr.includes('{{')) ||
+    queryParams.find((qp) => qp.includes('{{'))
+
+  // nothing to do, move on
+  if (!hasTemplates) return mon
+
+  let finalEnvMap = await getTemplateVariableMap(mon)
+
+  m.url = Handlebars.compile(mon.url)(finalEnvMap)
 
   if (mon.headers && typeof mon.headers != 'string') {
     let hdrs = m.headers as MonitorTuples
-    m.headers = hdrs.map(([name, value]) => [name, Handlebars.compile(value)(env)])
+    m.headers = hdrs.map(([name, value]) => [name, Handlebars.compile(value)(finalEnvMap)])
   }
 
   if (mon.queryParams && typeof mon.queryParams != 'string') {
     let qp = m.queryParams as MonitorTuples
-    m.queryParams = qp.map(([name, value]) => [name, Handlebars.compile(value)(env)])
+    m.queryParams = qp.map(([name, value]) => [name, Handlebars.compile(value)(finalEnvMap)])
   }
 
   if (m.body) {
-    m.body = Handlebars.compile(mon.body)(env)
+    m.body = Handlebars.compile(mon.body)(finalEnvMap)
   }
   return m
 }
@@ -97,6 +124,8 @@ export async function execMonitor(monitor: Monitor) {
   let mon = { ...monitor }
 
   try {
+    mon = await processTemplates(monitor)
+
     const resp = await customGot(mon.url, {
       method: mon.method as Method,
       body: Boolean(mon.body) && Boolean(mon.bodyType) ? mon.body : undefined,

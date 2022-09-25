@@ -252,7 +252,7 @@ type FilterOptionType = {
 function Environments() {
   const { setValue, getValues } = useFormContext()
   const [selectedEnvs, setSelectedEnvs] = useState<FilterOptionType[]>([])
-  const env = getValues('env')
+  const environments: string[] = getValues('environments')
 
   const { data: AllEnvs } = useQuery<MonEnv[]>(['monenv'], async () => {
     const resp = await axios({
@@ -264,17 +264,19 @@ function Environments() {
   })
 
   useEffect(() => {
-    if (env && AllEnvs) {
-      const data = AllEnvs?.filter((item: MonEnv) => {
-        return env.findIndex((i: string) => i === item.id) > -1
+    if (environments && AllEnvs) {
+      const validEnvs = AllEnvs?.filter((item: MonEnv) => {
+        return environments.find((envId) => envId == item.id)
       })
-      setSelectedEnvs(data.map((item: MonEnv) => ({ label: item.name, value: item.id })))
+      console.log(AllEnvs)
+      console.log(validEnvs)
+      setSelectedEnvs(validEnvs.map((validEnv) => ({ label: validEnv.name, value: validEnv.id })))
     }
-  }, [env, AllEnvs])
+  }, [environments, AllEnvs])
 
   const EnvsOptions = useMemo(
     () =>
-      AllEnvs?.map((env) => {
+      AllEnvs?.filter((env) => env.name != '__global__').map((env) => {
         return {
           label: env.name,
           value: env.id,
@@ -286,7 +288,7 @@ function Environments() {
   const onChange = (value: MultiValue<FilterOptionType>) => {
     setSelectedEnvs(value as FilterOptionType[])
     setValue(
-      'env',
+      'environments',
       value.map((i: FilterOptionType) => i.value)
     )
   }
@@ -481,7 +483,7 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
       headers: [] as MonitorTuples,
       queryParams: [] as MonitorTuples,
       variables: [] as MonitorTuples,
-      env: [] as string[],
+      environments: [] as string[],
       assertions: [{ type: 'code', op: '=', value: '200' }] as MonitorAssertion[],
       frequencyScale: Store.UIState.editor.frequencyScale,
       showLocations: Store.UIState.editor.monitorLocations,

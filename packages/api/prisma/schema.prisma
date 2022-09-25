@@ -73,15 +73,15 @@ model Monitor {
   cookies         String?
   followRedirects Int?            @default(0)
   timeout         Int?            @default(30) //30 seconds
-  locations       String[]
-  monitorResults  MonitorResult[]
+  locations       String[]        @default([])
   assertions      Json            @default("[]") // custom syntax
   notifications   Json            @default("{}") // custom syntax
   notifyEmail     String?
-  env             Json            @default("[]") // custom syntax
+  environments    String[]        @default([]) // array
   variables       Json            @default("[]") // custom syntax
   account         Account         @relation(fields: [accountId], references: [id])
   accountId       String          @db.Uuid
+  monitorResults  MonitorResult[]
   ActivityLog     ActivityLog[]
 
   @@unique([accountId, name])

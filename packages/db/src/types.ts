@@ -210,7 +210,7 @@ export const MonitorFluentSchema = S.object()
   .prop('followRedirects', S.integer())
   .prop('timeout', S.integer())
   .prop('variables', MonitorTupleFluentSchema)
-  .prop('env', S.array().items(S.string()))
+  .prop('environments', S.array().items(S.string()))
   .prop('assertions', MonitorAssertionsFluentSchema)
   .prop('notifications', MonitorNotificationSchema)
 
@@ -288,7 +288,7 @@ export type MonitorTable = {
   timeout?: number
   assertions?: MonitorAssertion[]
   variables?: MonitorTuples
-  env?: string[]
+  environments?: string[]
   notifications?: MonitorNotifications
   day50?: number
   dayAvg?: number
