@@ -36,7 +36,10 @@ const config: PlaywrightTestConfig = {
 
   use: {
     //headless: false,
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
+    //baseURL: process.env.BASE_URL || 'https://stage.proautoma.com',
 
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
     actionTimeout: 0,

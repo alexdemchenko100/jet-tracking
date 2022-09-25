@@ -20,7 +20,7 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('create new env and delete it', async ({ page }) => {
-  const envName = `Env-${new Date().getTime()}`
+  const envName = `Env-${Math.random().toString().slice(2, 9)}`
   // Click button:has-text("Add environment")
   await page.locator('button:has-text("Add environment")').click()
   await expect(page).toHaveURL('/console/envs/new')
@@ -36,7 +36,7 @@ test('create new env and delete it', async ({ page }) => {
   // Click [placeholder="Value"]
   await page.locator('[placeholder="Value"]').click()
   // Fill [placeholder="Value"]
-  await page.locator('[placeholder="Value"]').fill(new Date().getTime().toString())
+  await page.locator('[placeholder="Value"]').fill(Math.random().toString().slice(2, 9))
   // Click button:has-text("Save")
   await page.locator('button:has-text("Save")').click()
 
@@ -47,13 +47,17 @@ test('create new env and delete it', async ({ page }) => {
   // Click [placeholder="Value"]
   await page.locator('[placeholder="Value"]').click()
   // Fill [placeholder="Value"]
-  await page.locator('[placeholder="Value"]').fill(new Date().getTime().toString())
+  await page.locator('[placeholder="Value"]').fill(Math.random().toString().slice(2, 9))
   // Click button:has-text("Save")
   await page.locator('button:has-text("Save")').click()
 
-  // Click div[role="group"]:has-text("Environments")
+  //Twice to dismiss any of Toast messages that are hanging around
   await page.locator('div[role="group"]:has-text("Environments")').click()
+  await page.locator('div[role="group"]:has-text("Environments")').click()
+
   await expect(page).toHaveURL('/console/envs')
+  await expect(page).toHaveURL('/console/envs')
+
   await page.waitForSelector('[data-label="' + envName + '"] .env-delete-btn')
   // Click button.monitor-delete-btn
   await page.locator('[data-label="' + envName + '"] .env-delete-btn').click()

@@ -65,6 +65,7 @@ test('login with correct credential', async ({ page }) => {
 
 test('try google login', async ({ page }) => {
   // Click text=Remember meForgot password?Sign inor continue with >> img
+  if (!process.env.baseUrl?.includes('localhost')) return
   await page.locator('#google-signin').click()
   await expect(page).toHaveURL(
     'https://www.proautoma.com/__/auth/handler?apiKey=AIzaSyAqn0-0Bq3yUQaoVm3Yf-XU8dSN3nNUa9g&appName=%5BDEFAULT%5D&authType=signInViaRedirect&redirectUrl=http%3A%2F%2Flocalhost%3A3000%2Fconsole%2Fsignin&v=9.6.7&providerId=google.com&scopes=profile'

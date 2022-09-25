@@ -17,7 +17,7 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('activity page should list created/deleted monitors', async ({ page }) => {
-  const monitorName = `Test-${new Date().getTime()}`
+  const monitorName = `Test-${Math.random().toString().slice(2, 9)}`
 
   // Click div[role="group"]:has-text("Dashboard")
   await page.locator('div[role="group"]:has-text("Dashboard")').click()
@@ -33,9 +33,12 @@ test('activity page should list created/deleted monitors', async ({ page }) => {
   // Click [placeholder="https\:\/\/"]
   await page.locator('[placeholder="https\\:\\/\\/"]').click()
   // Fill [placeholder="https\:\/\/"]
-  await page.locator('[placeholder="https\\:\\/\\/"]').fill('https://google.com')
+  await page
+    .locator('[placeholder="https\\:\\/\\/"]')
+    .fill('https://jsonplaceholder.typicode.com/todos/1')
   // Click button:has-text("Save")
   await page.locator('button:has-text("Save")').click()
+  await expect(page).toHaveURL('/console/monitors')
 
   await page.locator('div[role="group"]:has-text("Activity")').click()
   await expect(page).toHaveURL('/console/activity')

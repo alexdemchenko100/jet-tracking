@@ -21,7 +21,7 @@ test('create new monitor and delete it', async ({ page }) => {
   await page.locator('div[role="group"]:has-text("Dashboard")').click()
   await expect(page).toHaveURL('/console/monitors')
 
-  const monitorName = `Test-${new Date().getTime()}`
+  const monitorName = `Test-${Math.random().toString().slice(2, 9)}`
   // Click button:has-text("New Monitor")
   await page.locator('button:has-text("New Monitor")').click()
   await expect(page).toHaveURL('/console/monitors/newapi')
@@ -32,7 +32,9 @@ test('create new monitor and delete it', async ({ page }) => {
   // Click [placeholder="https\:\/\/"]
   await page.locator('[placeholder="https\\:\\/\\/"]').click()
   // Fill [placeholder="https\:\/\/"]
-  await page.locator('[placeholder="https\\:\\/\\/"]').fill('https://google.com')
+  await page
+    .locator('[placeholder="https\\:\\/\\/"]')
+    .fill('https://jsonplaceholder.typicode.com/todos/1')
   // Click button:has-text("Save")
   await page.locator('button:has-text("Save")').click()
 
@@ -42,6 +44,9 @@ test('create new monitor and delete it', async ({ page }) => {
   const url = await page.url()
   await expect(url).toMatch(/\/console\/monitors\/[a-z0-9-]+\/edit/)
   // Click button:has-text("Save")
+
+  //this makes sure editor is ready
+  await expect(page.locator('button:has-text("Run now")')).toBeEnabled()
   await page.locator('button:has-text("Save")').click()
 
   await page.waitForSelector('.gridview [data-label="' + monitorName + '"]')
@@ -62,11 +67,16 @@ test('create new monitor and delete it', async ({ page }) => {
   await page.locator('div[role="group"]:has-text("Dashboard")').click()
   await expect(page).toHaveURL('/console/monitors')
 
+  // test to make sure monitor can be edited by renaming it
   await page.waitForSelector('.listview [data-label="' + monitorName + '"]')
   // Click monitor in listview and move to the monitor edit page
   await page.locator('.listview [data-label="' + monitorName + '"] .monitor-edit-btn').click()
-  const url4 = await page.url()
+  const url4 = page.url()
   await expect(url4).toMatch(/\/console\/monitors\/[a-z0-9-]+\/edit/)
+
+  //this makes sure editor is ready
+  await expect(page.locator('button:has-text("Run now")')).toBeEnabled()
+
   // Click button:has-text("Save")
   await page.locator('button:has-text("Save")').click()
 
