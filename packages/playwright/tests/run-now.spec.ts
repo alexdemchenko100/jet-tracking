@@ -1,19 +1,11 @@
 import { test, expect } from '@playwright/test'
-test('test', async ({ page }) => {
-  // Go to /
-  await page.goto('/')
-  // Go to /console/signin
-  await page.goto('/console/signin')
-  // Click div[role="group"]:has-text("Email")
-  await page.locator('div[role="group"]:has-text("Email")').click()
-  // Fill input[name="email"]
-  await page.locator('input[name="email"]').fill('patestuser@proautoma.com')
-  // Press Tab
-  await page.locator('input[name="email"]').press('Tab')
-  // Fill input[name="password"]
-  await page.locator('input[name="password"]').fill('helloproautoma123')
-  // Click button:has-text("Sign in")
-  await page.locator('button:has-text("Sign in")').click()
+import { signIn } from './utils'
+
+test.beforeEach(async ({ page }) => {
+  await signIn(page)
+})
+
+test('should monitor on demand', async ({ page }) => {
   await expect(page).toHaveURL('/console/monitors')
   // Click button:has-text("New Monitor")
   await page.locator('button:has-text("New Monitor")').click()

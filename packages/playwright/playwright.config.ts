@@ -35,7 +35,7 @@ const config: PlaywrightTestConfig = {
   // globalSetup: require.resolve('./global-setup'),
 
   use: {
-    headless: false,
+    // headless: false,
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     baseURL: process.env.BASE_URL || 'http://localhost:3000',

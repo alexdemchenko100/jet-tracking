@@ -1,19 +1,12 @@
 import { test, expect } from '@playwright/test'
-test('test', async ({ page }) => {
+import { signIn } from './utils'
+
+test.beforeEach(async ({ page }) => {
+  await signIn(page)
+})
+
+test('should click around the app', async ({ page }) => {
   // Go to /
-  await page.goto('/')
-  // Go to /console/signin
-  await page.goto('/console/signin')
-  // Click input[name="email"]
-  await page.locator('input[name="email"]').click()
-  // Fill input[name="email"]
-  await page.locator('input[name="email"]').fill('patestuser@proautoma.com')
-  // Press Tab
-  await page.locator('input[name="email"]').press('Tab')
-  // Fill input[name="password"]
-  await page.locator('input[name="password"]').fill('helloproautoma123')
-  // Press Enter
-  await page.locator('input[name="password"]').press('Enter')
   await expect(page).toHaveURL('/console/monitors')
   // Click text=Activity
   await page.locator('text=Activity').click()

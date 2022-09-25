@@ -1,19 +1,8 @@
 import { test, expect } from '@playwright/test'
+import { signIn } from './utils'
 
 test.beforeEach(async ({ page }) => {
-  // Go to http://localhost:3000/console/signin
-  await page.goto('/console/signin')
-  // Click input[name="email"]
-  await page.locator('input[name="email"]').click()
-  // Fill input[name="email"]
-  await page.locator('input[name="email"]').fill('patestuser@proautoma.com')
-  // Click input[name="password"]
-  await page.locator('input[name="password"]').click()
-  // Fill input[name="password"]
-  await page.locator('input[name="password"]').fill('helloproautoma123')
-  // Click button:has-text("Sign in")
-  await page.locator('button:has-text("Sign in")').click()
-  await expect(page).toHaveURL('/console/monitors')
+  await signIn(page)
 })
 
 test('create new monitor and delete it', async ({ page }) => {
