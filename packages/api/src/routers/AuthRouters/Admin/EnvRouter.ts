@@ -107,4 +107,34 @@ export default async function EnvRouter(app: FastifyInstance) {
       reply.send(resp)
     }
   )
+
+  app.get(
+    '/global',
+    {
+      schema: {
+        response: { 200: EnvFluentSchema },
+      },
+    },
+    async function (_, reply) {
+      const monEnv = await envService.getGlobalenv()
+      reply.send(monEnv)
+    }
+  )
+
+  app.post<{ Body: MonEnv }>(
+    '/global',
+    {
+      schema: {
+        body: EnvFluentSchema,
+        response: {
+          200: EnvFluentSchema,
+        },
+      },
+    },
+    async function ({ body: monEnv, log }, reply) {
+      const resp = await envService.updateGlobalEnv(monEnv.env)
+      log.info(`Updating global monEnv: ${monEnv.id}`)
+      reply.send(resp)
+    }
+  )
 }
