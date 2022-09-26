@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { MonEnv } from '@httpmon/db'
 import axios from 'axios'
 import { useFieldArray, useForm } from 'react-hook-form'
-import { FiTrash2, FiPlus, FiEdit, FiSave } from 'react-icons/fi'
+import { FiTrash2, FiPlus } from 'react-icons/fi'
 import { useMutation, useQuery } from 'react-query'
 import { Store } from '../services/Store'
 import { Text, PrimaryButton } from '../components'
@@ -11,16 +11,20 @@ import { Text, PrimaryButton } from '../components'
 const GlobalEnvs: React.FC = () => {
   const toast = useToast()
   const [formChanged, setFormChanged] = useState<boolean>(false)
-
-  const { data: globalMonEnv } = useQuery<MonEnv>(['global-monenv'], async () => {
-    const resp = await axios({
-      method: 'GET',
-      url: `/environments/global`,
-    })
-    return resp.data as MonEnv
-  })
-
   const { register, control, watch, handleSubmit, reset } = useForm<MonEnv>()
+
+  const { data: globalMonEnv } = useQuery<MonEnv>(
+    ['global-monenv'],
+    async () => {
+      const resp = await axios({
+        method: 'GET',
+        url: `/environments/global`,
+      })
+      reset(resp.data)
+      return resp.data as MonEnv
+    },
+    { refetchOnWindowFocus: false }
+  )
 
   const {
     fields: tuples,
@@ -33,9 +37,9 @@ const GlobalEnvs: React.FC = () => {
 
   const { mutateAsync: saveEnv } = useMutation<MonEnv, Error, MonEnv>(async (data: MonEnv) => {
     const resp = await axios({
-      method: 'POST',
-      url: `/environments/global`,
-      data: { env: data.env },
+      method: globalMonEnv?.id ? 'POST' : 'PUT',
+      url: `/environments/${globalMonEnv?.id ? globalMonEnv.id : ''}`,
+      data: { env: data.env, name: '_global_' },
     })
 
     return resp.data as MonEnv

@@ -18,6 +18,7 @@ export class EnvService {
       .selectFrom('MonEnv')
       .selectAll()
       .where('accountId', '=', currentUserInfo().accountId)
+      .where('name', '<>', '_global_')
       .execute()
     return environments
   }
@@ -38,6 +39,15 @@ export class EnvService {
   }
 
   public async getEnv(envId: string) {
+    if (envId === 'global') {
+      const env = await db
+        .selectFrom('MonEnv')
+        .selectAll()
+        .where('accountId', '=', currentUserInfo().accountId)
+        .where('name', '=', '_global_')
+        .executeTakeFirst()
+      return env ?? {}
+    }
     const vars = await db
       .selectFrom('MonEnv')
       .selectAll()
@@ -62,48 +72,5 @@ export class EnvService {
       .where('id', '=', envId)
       .where('accountId', '=', currentUserInfo().accountId)
       .executeTakeFirst()
-  }
-
-  public async getGlobalenv() {
-    const vars = await db
-      .selectFrom('MonEnv')
-      .selectAll()
-      .where('accountId', '=', currentUserInfo().accountId)
-      .where('name', '=', 'Env-global')
-      .executeTakeFirst()
-    return vars ?? []
-  }
-
-  public async updateGlobalEnv(env: MonitorTuples) {
-    const globalEnv = await db
-      .selectFrom('MonEnv')
-      .selectAll()
-      .where('accountId', '=', currentUserInfo().accountId)
-      .where('name', '=', 'Env-global')
-      .executeTakeFirst()
-
-    if (globalEnv?.id) {
-      const monEnv = await db
-        .updateTable('MonEnv')
-        .set({ env: JSON.stringify(env) as any })
-        .where('id', '=', globalEnv?.id)
-        .where('accountId', '=', currentUserInfo().accountId)
-        .executeTakeFirst()
-
-      return monEnv
-    }
-
-    const monEnv = await db
-      .insertInto('MonEnv')
-      .values({
-        id: nanoid(),
-        name: 'Env-global',
-        accountId: currentUserInfo().accountId,
-        env: JSON.stringify(env) as any,
-      })
-      .returningAll()
-      .executeTakeFirst()
-
-    return monEnv
   }
 }
