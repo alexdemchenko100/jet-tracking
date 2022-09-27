@@ -11,7 +11,7 @@ import { Text, PrimaryButton } from '../components'
 const GlobalEnvs: React.FC = () => {
   const toast = useToast()
   const [formChanged, setFormChanged] = useState<boolean>(false)
-  const { register, control, watch, handleSubmit, reset } = useForm<MonEnv>()
+  const { register, control, watch, handleSubmit, reset, getValues } = useForm<MonEnv>()
 
   const { data: globalMonEnv } = useQuery<MonEnv>(
     ['global-monenv'],
@@ -39,9 +39,9 @@ const GlobalEnvs: React.FC = () => {
     const resp = await axios({
       method: globalMonEnv?.id ? 'POST' : 'PUT',
       url: `/environments/${globalMonEnv?.id ? globalMonEnv.id : ''}`,
-      data: { env: data.env, name: '_global_' },
+      data: { env: data.env, id: data.id, name: '__global__' },
     })
-
+    reset(resp.data)
     return resp.data as MonEnv
   })
 
@@ -105,29 +105,51 @@ const GlobalEnvs: React.FC = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit(handleSaveEnv)}>
+    <form className='global-env' onSubmit={handleSubmit(handleSaveEnv)}>
       <Flex justify='start' gap={4} direction='column'>
-        <Flex alignItems='center' gap='4'>
+        <Flex className='global-env-title' alignItems='center' gap='4'>
           <Text variant='title' color='black'>
-            Global Env Variables
+            Global Environment
           </Text>
         </Flex>
         <Box mt='2'>
           {tuples.map((field, index) => (
-            <Flex key={field.id} alignItems='flex-end' mb='2' gap={4}>
+            <Flex
+              key={field.id}
+              data-name={getValues(`env.${index}.0`)}
+              alignItems='flex-end'
+              mb='2'
+              gap={4}
+            >
               <Box w={96}>
                 <Text variant='details' color='black'>
                   Name
                 </Text>
-                <Input type='text' {...register(`env.${index}.0` as const)} placeholder='Name' />
+                <Input
+                  className='global-env-key'
+                  type='text'
+                  {...register(`env.${index}.0` as const)}
+                  placeholder='Name'
+                />
               </Box>
               <Box w={96}>
                 <Text variant='details' color='black'>
                   Value
                 </Text>
-                <Input type='text' {...register(`env.${index}.1` as const)} placeholder='Value' />
+                <Input
+                  className='global-env-value'
+                  type='text'
+                  {...register(`env.${index}.1` as const)}
+                  placeholder='Value'
+                />
               </Box>
-              <Button borderRadius='4' bg='lightgray.100' px={3} onClick={() => remove(index)}>
+              <Button
+                className='global-env-remove-btn'
+                borderRadius='4'
+                bg='lightgray.100'
+                px={3}
+                onClick={() => remove(index)}
+              >
                 <Icon color='gray.300' as={FiTrash2} cursor='pointer' />
               </Button>
             </Flex>

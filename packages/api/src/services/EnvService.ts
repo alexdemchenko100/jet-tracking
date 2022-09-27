@@ -18,7 +18,7 @@ export class EnvService {
       .selectFrom('MonEnv')
       .selectAll()
       .where('accountId', '=', currentUserInfo().accountId)
-      .where('name', '<>', '_global_')
+      .where('name', '<>', '__global__')
       .execute()
     return environments
   }
@@ -44,7 +44,7 @@ export class EnvService {
         .selectFrom('MonEnv')
         .selectAll()
         .where('accountId', '=', currentUserInfo().accountId)
-        .where('name', '=', '_global_')
+        .where('name', '=', '__global__')
         .executeTakeFirst()
       return env ?? {}
     }

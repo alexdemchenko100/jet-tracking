@@ -184,7 +184,14 @@ export function APIResult({ result, onClose }: APIResultProps) {
   }, [])
 
   return (
-    <Section py={4} mb={0} position={'sticky'} top={vertical ? '0' : '16'} pr={2}>
+    <Section
+      id='monitor-result'
+      py={4}
+      mb={0}
+      position={'sticky'}
+      top={vertical ? '0' : '16'}
+      pr={2}
+    >
       <Grid gap='1em' pr={2} maxH='100%' overflow={'auto'}>
         {onClose && (
           <Flex alignItems='end'>
@@ -203,6 +210,7 @@ export function APIResult({ result, onClose }: APIResultProps) {
               fontSize='sm'
               lineHeight='1.25'
               fontWeight='bold'
+              id='result-code'
             >
               {result.code} {result.codeStatus}
             </Badge>
@@ -220,6 +228,7 @@ export function APIResult({ result, onClose }: APIResultProps) {
               lineHeight='1.25'
               fontWeight='bold'
               whiteSpace='nowrap'
+              id='result-url'
             >
               {result.url || 'unknown'}
             </Tag>
@@ -233,6 +242,7 @@ export function APIResult({ result, onClose }: APIResultProps) {
             fontSize='sm'
             lineHeight='1.25'
             fontWeight='bold'
+            id='response-time'
           >
             Response Time: {result.totalTime}ms
             <Icon ml='1' as={FiClock} />
