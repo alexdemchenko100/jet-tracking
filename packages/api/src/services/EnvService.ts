@@ -13,12 +13,13 @@ export class EnvService {
     return EnvService.instance
   }
 
-  public async listEnvironments() {
+  public async listEnvironments(name: string = '') {
     const environments = await db
       .selectFrom('MonEnv')
       .selectAll()
       .where('accountId', '=', currentUserInfo().accountId)
-      .where('name', '<>', '__global__')
+      .if(Boolean(name), (qb) => qb.where('name', '=', name))
+      .if(Boolean(!name), (qb) => qb.where('name', '<>', '__global__'))
       .execute()
     return environments
   }

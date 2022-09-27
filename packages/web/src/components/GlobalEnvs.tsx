@@ -18,10 +18,11 @@ const GlobalEnvs: React.FC = () => {
     async () => {
       const resp = await axios({
         method: 'GET',
-        url: `/environments/global`,
+        url: `/environments?name=__global__`,
       })
-      reset(resp.data)
-      return resp.data as MonEnv
+      reset(resp.data[0])
+      setFormChanged(false)
+      return resp.data[0] as MonEnv
     },
     { refetchOnWindowFocus: false }
   )

@@ -32,7 +32,11 @@ export default async function EnvRouter(app: FastifyInstance) {
     }
   )
 
-  app.get(
+  interface EnvQueryString {
+    name: string
+  }
+
+  app.get<{ Querystring: EnvQueryString }>(
     '/',
     {
       schema: {
@@ -41,8 +45,8 @@ export default async function EnvRouter(app: FastifyInstance) {
         },
       },
     },
-    async function (_, reply) {
-      const resp = await envService.listEnvironments()
+    async function ({ query: { name } }, reply) {
+      const resp = await envService.listEnvironments(name)
       reply.send(resp)
     }
   )
