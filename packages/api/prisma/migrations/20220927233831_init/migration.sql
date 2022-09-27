@@ -54,11 +54,11 @@ CREATE TABLE "Monitor" (
     "cookies" TEXT,
     "followRedirects" INTEGER DEFAULT 0,
     "timeout" INTEGER DEFAULT 30,
-    "locations" TEXT[],
+    "locations" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "assertions" JSONB NOT NULL DEFAULT '[]',
     "notifications" JSONB NOT NULL DEFAULT '{}',
     "notifyEmail" TEXT,
-    "env" JSONB NOT NULL DEFAULT '[]',
+    "environments" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "variables" JSONB NOT NULL DEFAULT '[]',
     "accountId" UUID NOT NULL,
 
@@ -202,6 +202,9 @@ CREATE TABLE "ApiKey" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Account_name_owner_key" ON "Account"("name", "owner");
+
+-- CreateIndex
+CREATE INDEX "UserAccount_userId_idx" ON "UserAccount"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "UserAccount_email_accountId_key" ON "UserAccount"("email", "accountId");
