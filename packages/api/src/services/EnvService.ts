@@ -19,7 +19,6 @@ export class EnvService {
       .selectAll()
       .where('accountId', '=', currentUserInfo().accountId)
       .if(Boolean(name), (qb) => qb.where('name', '=', name))
-      .if(Boolean(!name), (qb) => qb.where('name', '<>', '__global__'))
       .execute()
     return environments
   }
@@ -40,15 +39,6 @@ export class EnvService {
   }
 
   public async getEnv(envId: string) {
-    if (envId === 'global') {
-      const env = await db
-        .selectFrom('MonEnv')
-        .selectAll()
-        .where('accountId', '=', currentUserInfo().accountId)
-        .where('name', '=', '__global__')
-        .executeTakeFirst()
-      return env ?? {}
-    }
     const vars = await db
       .selectFrom('MonEnv')
       .selectAll()

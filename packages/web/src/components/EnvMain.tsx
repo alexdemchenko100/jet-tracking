@@ -34,7 +34,8 @@ export default function EnvMain() {
       method: 'GET',
       url: `/environments`,
     })
-    return resp.data as MonEnv[]
+    const { data } = resp
+    return data.filter((env: MonEnv) => env.name !== '__global__')
   })
 
   const onModalClose = () => {
