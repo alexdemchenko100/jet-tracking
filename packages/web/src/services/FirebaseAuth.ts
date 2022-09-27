@@ -29,7 +29,7 @@ export function initFirebaseAuth() {
   if (projectId == 'proautoma-prod') {
     firebaseConfig = {
       apiKey: 'AIzaSyDVcw-3mJw9ThX59jUioLgbtLfSLMwOtls',
-      authDomain: 'proautoma-prod.firebaseapp.com',
+      authDomain: 'www.proautoma.com',
       projectId: 'proautoma-prod',
       storageBucket: 'proautoma-prod.appspot.com',
       messagingSenderId: '1022938529635',
@@ -39,7 +39,7 @@ export function initFirebaseAuth() {
   } else if (projectId == 'httpmon-stage') {
     firebaseConfig = {
       apiKey: 'AIzaSyCnCXQ23mj2_VI2r70k2Zpmb8J5g4JC_wA',
-      authDomain: 'httpmon-stage.firebaseapp.com',
+      authDomain: 'www.proautoma.com',
       projectId: 'httpmon-stage',
       storageBucket: 'httpmon-stage.appspot.com',
       messagingSenderId: '818508123940',
