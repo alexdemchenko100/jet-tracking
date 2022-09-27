@@ -136,7 +136,9 @@ export default function ActivityLogs() {
                         <Text className='activity-title' variant='text-field' color='black'>
                           {(log.data as Record<string, string>)?.msg ?? ''}
                         </Text>
-                        {log.type !== 'MONITOR_REMOVED' && log.monitorId && (
+                        {(log.type === 'MONITOR_CREATED' ||
+                          log.type === 'MONITOR_PAUSED' ||
+                          log.type === 'MONITOR_UP') && (
                           <Box mt='-1' as={Link} to={`/console/monitors/${log.monitorId}`}>
                             <Text
                               variant='details'
@@ -145,7 +147,20 @@ export default function ActivityLogs() {
                               textDecoration='underline'
                               wordBreak='break-all'
                             >
-                              {`https://localhost:3000/console/monitors/${log.monitorId}`}
+                              {`/console/monitors/${log.monitorId}`}
+                            </Text>
+                          </Box>
+                        )}
+                        {(log.type === 'MONITOR_RECOVERED' || log.type === 'MONITOR_DOWN') && (
+                          <Box mt='-1' as={Link} to={`/console/apiruns/${log.resultId}`}>
+                            <Text
+                              variant='details'
+                              color='gray.300'
+                              textTransform='lowercase'
+                              textDecoration='underline'
+                              wordBreak='break-all'
+                            >
+                              {`/console/apiruns/${log.resultId}`}
                             </Text>
                           </Box>
                         )}
