@@ -17,6 +17,48 @@ interface ActivityLogExt extends ActivityLog {
 
 const PAGE_SIZE = 20
 
+const LogMessage = ({ log }: { log: ActivityLog }) => {
+  let msg, linkType
+  switch (log.type) {
+    case 'MONITOR_CREATED':
+      msg = 'created'
+      linkType = 'monitor'
+      break
+    case 'MONITOR_PAUSED':
+      msg = 'paused'
+      linkType = 'monitor'
+      break
+    case 'MONITOR_UP':
+      msg = 'up'
+      linkType = 'monitor'
+      break
+    default:
+  }
+
+  if (linkType === 'monitor') {
+    return (
+      <Text className='activity-title' variant='text-field' color='black'>
+        Monitor&nbsp;
+        <Box
+          as={Link}
+          color='darkblue.100'
+          textDecoration='underline'
+          to={`/console/monitors/${log.monitorId}`}
+        >
+          {(log.data as Record<string, string>)?.monitorName}
+        </Box>
+        &nbsp;is&nbsp;{msg}.
+      </Text>
+    )
+  }
+
+  return (
+    <Text className='activity-title' variant='text-field' color='black'>
+      {(log.data as Record<string, string>)?.msg ?? ''}
+    </Text>
+  )
+}
+
 export default function ActivityLogs() {
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [logs, setLogs] = useState<ActivityLogExt[]>([])
@@ -133,9 +175,7 @@ export default function ActivityLogs() {
                         <Text variant='details' color='gray.300'>
                           {log.time}
                         </Text>
-                        <Text className='activity-title' variant='text-field' color='black'>
-                          {(log.data as Record<string, string>)?.msg ?? ''}
-                        </Text>
+                        <LogMessage log={log} />
                         {(log.type === 'MONITOR_CREATED' ||
                           log.type === 'MONITOR_PAUSED' ||
                           log.type === 'MONITOR_UP') && (

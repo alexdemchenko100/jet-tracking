@@ -483,7 +483,7 @@ export const ActivityLogSchema = S.object()
   .prop('monitorId', S.string())
   .prop('resultId', S.string())
   .prop('type', S.string())
-  .prop('data', S.object().prop('msg', S.string()))
+  .prop('data', S.object().prop('msg', S.string()).prop('monitorName', S.string()))
 
 export const ActivityLogsResponseSchema = S.object()
   .prop('items', S.array().items(ActivityLogSchema))
