@@ -66,8 +66,8 @@ async function processTemplates(mon: Monitor) {
   const hasTemplates =
     m.url.includes('{{') ||
     m.body?.includes('{{') ||
-    hdrs.find((hdr) => hdr.includes('{{')) ||
-    queryParams.find((qp) => qp.includes('{{'))
+    hdrs.find(([key, val]) => key.includes('{{') || val.includes('{{')) ||
+    queryParams.find(([key, val]) => key.includes('{{') || val.includes('{{'))
 
   // nothing to do, move on
   if (!hasTemplates) return mon

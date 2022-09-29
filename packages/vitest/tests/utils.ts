@@ -11,3 +11,7 @@ export const req = got.extend({
   },
   timeout: { request: 5000 },
 })
+
+export function randomString() {
+  return Math.random().toString().slice(2, 9)
+}
