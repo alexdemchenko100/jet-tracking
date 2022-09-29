@@ -6,7 +6,7 @@ import https from 'https'
 import clone from 'lodash.clonedeep'
 import Handlebars from 'handlebars'
 import { randomInt } from 'crypto'
-import got, { Method, RequestError } from 'got'
+import got, { Method, RequestError, Response } from 'got'
 import { logger } from '../Context'
 import { processAssertions } from './Assertions'
 import { publishPostRequestMessage } from './PubSubService'
@@ -19,6 +19,7 @@ const customGot = got.extend({
   },
   timeout: { request: 15000 },
   allowGetBody: true,
+  throwHttpErrors: false,
 })
 
 Handlebars.registerHelper('RandomInt', function () {
@@ -110,6 +111,13 @@ function prepareBasicAuth(monitor: Monitor) {
   return {}
 }
 
+function isResponseOkay(response: Response<any>) {
+  const statusCode = response.statusCode
+  const limitStatusCode = response.request.options.followRedirect ? 299 : 399
+
+  return (statusCode >= 200 && statusCode <= limitStatusCode) || statusCode === 304
+}
+
 /**
  *
  * @param monitor
@@ -161,7 +169,7 @@ export async function execMonitor(monitor: Monitor) {
       accountId: mon.accountId,
       certCommonName,
       certExpiryDays,
-      err: '',
+      err: isResponseOkay(resp) ? '' : 'ERR_HTTP_ERROR_CODE',
     }
 
     return result
@@ -189,10 +197,16 @@ export async function execMonitor(monitor: Monitor) {
 export async function runMonitor(monrun: MonitorRunResult) {
   const monitor = monrun.mon
   const result = await execMonitor(monrun.mon)
-  if (result.err == '') {
+
+  const bCodeAsserts = monitor.assertions?.find((a) => a.type == 'code')
+
+  //process assertions on success or on HttpError handling assertions
+  const bCanProcessAssertions = !result.err || (bCodeAsserts && result.err == 'ERR_HTTP_ERROR_CODE')
+
+  if (bCanProcessAssertions) {
     const asserionResults = processAssertions(monitor, result)
     result.assertResults = asserionResults
-    result.err = asserionResults.some((a) => a.fail) ? 'Test Assertions failed' : ''
+    result.err = asserionResults.some((a) => a.fail) ? 'ERR_ASSERTIONS' : ''
   }
 
   logger.info(
@@ -209,7 +223,7 @@ export async function runMonitor(monrun: MonitorRunResult) {
     monitor
   )
 
-  if (!monitor.notifications || !monitor.id || !monitorResult?.id) return
+  if (!monitor.id || !monitorResult?.id) return
 
   let runResult: MonitorRunResult = {
     runId: monrun.runId,

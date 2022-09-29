@@ -62,7 +62,7 @@ export async function readObject(accountId: string, folderName: string, objectNa
     const file = await bucket.file(filePath).download()
     return file[0].toString('utf8')
   } catch (e) {
-    logger.error(filePath, 'Storage object read failed')
+    logger.error({ filePath }, 'Storage object read failed')
   }
   return ''
 }

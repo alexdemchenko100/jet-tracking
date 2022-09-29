@@ -30,6 +30,7 @@ import { javascript } from '@codemirror/lang-javascript'
 import { Store } from '../services/Store'
 import Section from '../components/Section'
 import { useEffect } from 'react'
+import { getHTTPStatusText, formatError } from '../services/Utils'
 
 interface TimingBarProps extends FlexProps {
   result: MonitorResult
@@ -212,7 +213,7 @@ export function APIResult({ result, onClose }: APIResultProps) {
               fontWeight='bold'
               id='result-code'
             >
-              {result.code} {result.codeStatus}
+              {result.code} {getHTTPStatusText(result.code)}
             </Badge>
             <Tag
               maxW='96'
@@ -251,7 +252,7 @@ export function APIResult({ result, onClose }: APIResultProps) {
 
         <TimingBar width='100%' result={result} />
 
-        {!isSuccess && <Text color='red'>{result.err}</Text>}
+        {!isSuccess && <Text color='red'>{formatError(result.err)}</Text>}
 
         <Tabs
           defaultIndex={Store.UIState.results.tabIndex}

@@ -20,7 +20,7 @@ export function APIResultByDemand(props: Props) {
   async function getOndemandMonitorResponse(mon: Monitor) {
     let resp = await axios({
       method: 'POST',
-      url: '/ondemand/exec',
+      url: '/ondemand/run',
       data: { ...mon, name: 'ondemand', frequency: 86400 },
     })
 

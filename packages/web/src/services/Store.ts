@@ -91,7 +91,7 @@ subscribe(uiState, () => {
 })
 
 subscribe(userState, () => {
-  console.log('reset accountId', Store.UserState.userInfo.accountId)
+  //console.log('reset accountId', Store.UserState.userInfo.accountId)
   if (userState.userInfo.accountId)
     axios.defaults.headers.common['x-proautoma-accountid'] = userState.userInfo.accountId
   else delete axios.defaults.headers.common['x-proautoma-accountid']

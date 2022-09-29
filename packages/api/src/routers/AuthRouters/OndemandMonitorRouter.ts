@@ -8,7 +8,7 @@ export default async function OndemandMonitorRouter(app: FastifyInstance) {
   app.addHook('onRequest', onRequestAuthHook)
 
   app.post<{ Body: Monitor }>(
-    '/exec',
+    '/run',
     {
       schema: {
         body: MonitorFluentSchema,

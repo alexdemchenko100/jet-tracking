@@ -13,6 +13,10 @@
       "path": "packages/db"
     },
     {
+      "name": "vitest",
+      "path": "packages/vitest"
+    },
+    {
       "name": "playwright",
       "path": "packages/playwright"
     },

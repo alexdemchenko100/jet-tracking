@@ -223,7 +223,8 @@ export class MonitorService {
 
     const bodyData = await readObject(currentUserInfo().accountId, folderName, 'body')
     const headerData = await readObject(currentUserInfo().accountId, folderName, 'headers')
-    const headerTuples = JSON.parse(headerData)
+
+    const headerTuples = Boolean(headerData) ? JSON.parse(headerData) : []
 
     return {
       ...monResultResp,
@@ -313,7 +314,6 @@ export class MonitorService {
         'monitorId',
         'url',
         'code',
-        'codeStatus',
         'createdAt',
         'waitTime',
         'dnsTime',

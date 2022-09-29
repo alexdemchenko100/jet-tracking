@@ -100,7 +100,6 @@ model MonitorResult {
   body           String
   bodySize       Int
   code           Int
-  codeStatus     String
   protocol       String
   waitTime       Int
   dnsTime        Int
@@ -136,7 +135,6 @@ model OndemandResult {
   body           String
   bodySize       Int
   code           Int
-  codeStatus     String
   protocol       String
   waitTime       Int
   dnsTime        Int

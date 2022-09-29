@@ -268,8 +268,6 @@ function Environments() {
       const validEnvs = AllEnvs?.filter((item: MonEnv) => {
         return environments.find((envId) => envId == item.id)
       })
-      console.log(AllEnvs)
-      console.log(validEnvs)
       setSelectedEnvs(validEnvs.map((validEnv) => ({ label: validEnv.name, value: validEnv.id })))
     }
   }, [environments, AllEnvs])
@@ -484,7 +482,7 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
       queryParams: [] as MonitorTuples,
       variables: [] as MonitorTuples,
       environments: [] as string[],
-      assertions: [{ type: 'code', op: '=', value: '200' }] as MonitorAssertion[],
+      assertions: [] as MonitorAssertion[],
       frequencyScale: Store.UIState.editor.frequencyScale,
       showLocations: Store.UIState.editor.monitorLocations,
       auth: {},

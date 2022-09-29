@@ -163,6 +163,7 @@ export async function saveMonitorResult(result: Insertable<MonitorResultTable>, 
     if (savedResult && savedResult.id) {
       // Saving body and headers to cloud storage
       const { monitorId, body, headers } = resultForSaving
+
       uploadObject(result.accountId, `${monitorId}/${savedResult.id}`, 'body', body)
       uploadObject(result.accountId, `${monitorId}/${savedResult.id}`, 'headers', headers)
     }

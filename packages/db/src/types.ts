@@ -34,7 +34,6 @@ export const MonitorResultFluentSchema = S.object()
   .enum(CloudRegions)
   .prop('body', S.string())
   .prop('bodySize', S.integer())
-  .prop('codeStatus', S.string())
   .prop('protocol', S.string())
   .prop('code', S.integer())
   .prop('waitTime', S.integer())
@@ -122,7 +121,6 @@ export interface MonitorResultTable {
   monitorId: string
   accountId: string
   code: number
-  codeStatus: string
   url: string
   ip: string
   location: string
@@ -569,7 +567,6 @@ export interface MonitorRunResult {
   resultId?: string
   err?: {
     msg: string
-    codeStatus?: string
   }
 }
 
@@ -579,7 +576,7 @@ export const MonitorRunResultSchema = S.object()
   .prop('runId', S.string())
   .required()
   .prop('resultId', S.string())
-  .prop('err', S.object().prop('msg', S.string()).prop('codeStatus', S.string()))
+  .prop('err', S.object().prop('msg', S.string()))
 
 export type ApiKey = {
   id?: string

@@ -23,7 +23,7 @@ const useDrag = (
 
   const getSplitContainerSize = (ref: React.RefObject<HTMLDivElement>): number => {
     if (ref.current) {
-      console.log('ref w, h', ref.current.clientWidth, ref.current.clientHeight)
+      //console.log('ref w, h', ref.current.clientWidth, ref.current.clientHeight)
       return isHorizontal ? ref.current.clientWidth : ref.current.clientHeight
     }
     return 0
@@ -47,7 +47,7 @@ const useDrag = (
       if (!containerWidth.current) return
 
       const maxSize = containerWidth.current - handleSize - minPaneSize
-      console.log('maxWidth', maxSize)
+      //console.log('maxWidth', maxSize)
       const newPaneOneSize = Math.min(
         maxSize,
         Math.max(minPaneSize, size + pos - dragPosHorizontal.current)
@@ -62,7 +62,7 @@ const useDrag = (
       if (!containerHeight.current) return
 
       const maxSize = containerHeight.current - handleSize - minPaneSize
-      console.log('maxHeight', maxSize)
+      //console.log('maxHeight', maxSize)
       const newPaneOneSize = Math.min(
         maxSize,
         Math.max(minPaneSize, size + pos - dragPosVertical.current)
@@ -169,7 +169,7 @@ const SplitPane = ({ orientation, children, ...props }: SplitPaneProps) => {
   // TODO: find handle component by using the type of the children
   // console.log("handle.type is DragHandle", handle?.type === DragHandle);
 
-  console.log('--- isHorizontal', isHorizontal)
+  //console.log('--- isHorizontal', isHorizontal)
 
   return (
     <div

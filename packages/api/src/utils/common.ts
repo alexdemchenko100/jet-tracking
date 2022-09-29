@@ -20,7 +20,6 @@ export function responseToMonitorResult(resp?: Response<string>) {
     ...emptyResponse(),
     ...convertTimings(resp?.timings),
     code: resp?.statusCode ?? 0,
-    codeStatus: resp?.statusMessage ?? '',
     ip: resp?.ip ?? '',
     body: resp?.body ?? '',
     bodySize: resp?.body.length ?? 0,
@@ -29,14 +28,7 @@ export function responseToMonitorResult(resp?: Response<string>) {
 }
 
 export function requestErrorToMonitorResult(reqError: RequestError) {
-  return {
-    ...emptyResponse(),
-    ...convertTimings(reqError.timings),
-    code: reqError.response?.statusCode ?? 0,
-    codeStatus: reqError.response?.statusMessage ?? '',
-    ip: reqError.response?.ip ?? '',
-    bodySize: 0,
-  }
+  return responseToMonitorResult(reqError.response as Response<string>)
 }
 
 function emptyResponse() {
@@ -48,7 +40,6 @@ function emptyResponse() {
     headers: [],
     certCommonName: '',
     certExpiryDays: 0,
-    codeStatus: '',
     code: 0,
     location: getCloudRegion(),
   }
