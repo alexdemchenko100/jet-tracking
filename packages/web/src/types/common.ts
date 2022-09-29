@@ -6,12 +6,14 @@ export type TextVariants =
   | 'emphasis'
   | 'details'
   | 'small'
+  | 'submenu'
 export interface UserInfo {
   uid?: string
   email?: string
   displayName?: string
   photoURL?: string
   phoneNumber?: string | null
+  role?: string
 }
 export interface NotificationFormErrors {
   hasErrors?: boolean

@@ -22,6 +22,7 @@ test('should click around the app', async ({ page }) => {
   await expect(page).toHaveURL('/console/status-pages')
   // Click text=Settings
   await page.locator('text=Settings').click()
+  await page.locator('text=Profile').click()
   await expect(page).toHaveURL('/console/settings/profile')
   // Click text=Security
   await page.locator('text=Security').click()

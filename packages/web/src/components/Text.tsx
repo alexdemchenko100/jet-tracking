@@ -40,6 +40,11 @@ const Text: React.FC<Props> = (props) => {
       lineHeight = '19px'
       fontWeight = 'bold'
       break
+    case 'submenu':
+      fontSize = '14px'
+      lineHeight = '17px'
+      fontWeight = 'medium'
+      break
     case 'details':
       fontSize = 'xs'
       lineHeight = '15px'

@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import {
   Avatar,
   Badge,
@@ -15,23 +15,39 @@ import {
   MenuDivider,
   MenuItem,
   MenuList,
+  Portal,
   Spacer,
+  Tooltip,
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
 import { FaRegBell } from 'react-icons/fa'
-import { FiSettings, FiMenu, FiPackage, FiHome, FiActivity, FiZap } from 'react-icons/fi'
+import {
+  FiSettings,
+  FiMenu,
+  FiPackage,
+  FiHome,
+  FiActivity,
+  FiZap,
+  FiBell,
+  FiCreditCard,
+  FiKey,
+  FiShield,
+  FiUser,
+  FiUsers,
+} from 'react-icons/fi'
+import { MdOutlineMenu, MdOutlineMenuOpen } from 'react-icons/md'
 import { logoTitle } from './Assets'
-import axios from 'axios'
-import { useQuery } from 'react-query'
-import { Outlet, useNavigate } from 'react-router-dom'
-import { signOut, useAuth, setUser, switchToAccount } from './services/FirebaseAuth'
-import { Text, NavItem, Loading } from './components'
-import { ChevronRightIcon } from '@chakra-ui/icons'
-import { UserAccount, UIState } from '@httpmon/db'
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { signOut, useAuth, switchToAccount } from './services/FirebaseAuth'
+import { Text, NavItem } from './components'
+import { ChevronDownIcon, ChevronRightIcon, ChevronUpIcon } from '@chakra-ui/icons'
+import { UserAccount } from '@httpmon/db'
 import { Store } from './services/Store'
+import { UserInfo } from './types/common'
 
-const SIDEBAR_WIDTH = '240px'
+const NORMAL_SIDEBAR_WIDTH = '240px'
+const COLLAPSED_SIDEBAR_WIDTH = '88px'
 
 interface SwitchAccountMenuProps {
   teams: readonly UserAccount[]
@@ -120,63 +136,267 @@ function SwitchAccountMenu({ teams }: SwitchAccountMenuProps) {
   )
 }
 
+const SettingsSubMenu = ({
+  user,
+  onClose,
+}: {
+  user: UserInfo
+  onClose: React.MouseEventHandler
+}) => (
+  <Flex
+    direction='column'
+    as='nav'
+    ml={4}
+    fontSize='sm'
+    color='gray.600'
+    aria-label='Settings Sub Navigation'
+  >
+    <NavItem p={2.5} icon={FiUser} to='/console/settings/profile' onClick={onClose}>
+      <Text variant='submenu' color='inherit'>
+        Profile
+      </Text>
+    </NavItem>
+    <NavItem p={2.5} icon={FiShield} to='/console/settings/security' onClick={onClose}>
+      <Text variant='submenu' color='inherit'>
+        Security
+      </Text>
+    </NavItem>
+    <NavItem p={2.5} icon={FiBell} to='/console/settings/notifications' onClick={onClose}>
+      <Text variant='submenu' color='inherit'>
+        Notifications
+      </Text>
+    </NavItem>
+    <NavItem p={2.5} icon={FiKey} to='/console/settings/api-keys' onClick={onClose}>
+      <Text variant='submenu' color='inherit'>
+        API Keys
+      </Text>
+    </NavItem>
+    <NavItem p={2.5} icon={FiUsers} to='/console/settings/users' onClick={onClose}>
+      <Text variant='submenu' color='inherit'>
+        Team
+      </Text>
+    </NavItem>
+    {(!user.role || user.role === 'owner') && (
+      <NavItem p={2.5} icon={FiCreditCard} to='/console/settings/billing' onClick={onClose}>
+        <Text variant='submenu' color='inherit'>
+          Billing & Usage
+        </Text>
+      </NavItem>
+    )}
+  </Flex>
+)
+
+const SettingsDropdownMenu = ({ user }: { user: UserInfo }) => {
+  const { pathname } = useLocation()
+  const isActive = pathname.includes('/console/settings')
+  return (
+    <Menu>
+      <Tooltip hasArrow label={'Settings'} placement='auto' ml='1'>
+        <MenuButton
+          px='4'
+          py='2'
+          bg={isActive ? 'rgba(23, 70, 143, 0.15)' : ''}
+          borderRadius='8'
+          color={isActive ? '#17468F' : 'inherit'}
+          _hover={{ bg: 'lightgray.100', color: 'gray.300' }}
+          _active={{ bg: 'lightgray.100', color: 'gray.300' }}
+        >
+          <Icon
+            boxSize={6}
+            _groupHover={{
+              color: useColorModeValue('gray.600', 'gray.300'),
+            }}
+            as={FiSettings}
+          />
+        </MenuButton>
+      </Tooltip>
+      <Portal>
+        <MenuList maxH='64' zIndex={10000}>
+          <Link to='/console/settings/profile'>
+            <MenuItem icon={<FiUser fontSize={16} />}>
+              <Text variant='submenu' color='inherit'>
+                Profile
+              </Text>
+            </MenuItem>
+          </Link>
+          <Link to='/console/settings/security'>
+            <MenuItem icon={<FiShield fontSize={16} />}>
+              <Text variant='submenu' color='inherit'>
+                Security
+              </Text>
+            </MenuItem>
+          </Link>
+          <Link to='/console/settings/notifications'>
+            <MenuItem icon={<FiBell fontSize={16} />}>
+              <Text variant='submenu' color='inherit'>
+                Notifications
+              </Text>
+            </MenuItem>
+          </Link>
+          <Link to='/console/settings/api-keys'>
+            <MenuItem icon={<FiKey fontSize={16} />}>
+              <Text variant='submenu' color='inherit'>
+                API Keys
+              </Text>
+            </MenuItem>
+          </Link>
+          <Link to='/console/settings/users'>
+            <MenuItem icon={<FiUsers fontSize={16} />}>
+              <Text variant='submenu' color='inherit'>
+                Team
+              </Text>
+            </MenuItem>
+          </Link>
+          {(!user.role || user.role === 'owner') && (
+            <Link to='/console/settings/billing'>
+              <MenuItem icon={<FiCreditCard fontSize={16} />}>
+                <Text variant='submenu' color='inherit'>
+                  Billing & Usage
+                </Text>
+              </MenuItem>
+            </Link>
+          )}
+        </MenuList>
+      </Portal>
+    </Menu>
+  )
+}
+
 export default function Console() {
   const sidebar = useDisclosure()
   const navigate = useNavigate()
 
   const { userInfo: user, teams } = useAuth()
+  const [menuCollapsed, setMenuCollapsed] = useState<boolean>(false)
+  const [settingsMenuVisible, setSettingsMenuVisible] = useState<boolean>(false)
+  const SIDEBAR_WIDTH = menuCollapsed ? COLLAPSED_SIDEBAR_WIDTH : NORMAL_SIDEBAR_WIDTH
 
-  const SidebarContent = (props: any) => (
-    <Box
-      as='nav'
-      pos='fixed'
-      top='0'
-      left='0'
-      zIndex='sticky'
-      h='full'
-      px='2'
-      py='14'
-      overflowX='hidden'
-      overflowY='auto'
-      bg={useColorModeValue('white', 'gray.800')}
-      borderColor={useColorModeValue('inherit', 'gray.700')}
-      borderRightWidth='1px'
-      w={SIDEBAR_WIDTH}
-      {...props}
-    >
-      <Flex direction='column' as='nav' py={4} aria-label='Main Navigation'>
-        <NavItem icon={FiHome} to='/console/monitors'>
-          <Text variant='text-field' color='inherit'>
-            Dashboard
-          </Text>
-        </NavItem>
-        {user.role && user.role !== 'viewer' && (
-          <>
-            <NavItem icon={FiActivity} to='/console/activity'>
-              <Text variant='text-field' color='inherit'>
-                Activity
-              </Text>
-            </NavItem>
-            <NavItem icon={FiPackage} to='/console/envs'>
-              <Text variant='text-field' color='inherit'>
-                Environments
-              </Text>
-            </NavItem>
-            <NavItem icon={FiZap} to='/console/status-pages'>
-              <Text variant='text-field' color='inherit'>
-                Status Pages
-              </Text>
-            </NavItem>
-            <NavItem icon={FiSettings} to='/console/settings'>
-              <Text variant='text-field' color='inherit'>
-                Settings
-              </Text>
-            </NavItem>
-          </>
-        )}
-      </Flex>
-    </Box>
-  )
+  const SidebarContent = (props: any) => {
+    const closeSubmenu = () => {
+      setSettingsMenuVisible(false)
+      sidebar.onClose()
+    }
+
+    return (
+      <Box
+        as='nav'
+        pos='fixed'
+        top='0'
+        left='0'
+        zIndex='sticky'
+        h='full'
+        px='2'
+        pt={{ base: 5, md: 14 }}
+        pb='14'
+        overflowX='hidden'
+        overflowY='auto'
+        bg={useColorModeValue('white', 'gray.800')}
+        borderColor={useColorModeValue('inherit', 'gray.700')}
+        borderRightWidth='1px'
+        width={SIDEBAR_WIDTH}
+        {...props}
+      >
+        <Flex direction='column' as='nav' py={2} aria-label='Main Navigation'>
+          <Image src={logoTitle} h='7' display={{ base: 'block', md: 'none' }} />
+          <Flex justifyContent='space-between' pb='2'>
+            <IconButton
+              aria-label='Menu Toggler'
+              icon={<MdOutlineMenu fontSize='24' />}
+              bg='transparent'
+              size='sm'
+              mx='5'
+              visibility={menuCollapsed ? 'visible' : 'hidden'}
+              onClick={() => setMenuCollapsed(false)}
+            />
+            <IconButton
+              aria-label='Menu Toggler'
+              icon={<MdOutlineMenuOpen fontSize='24' />}
+              bg='transparent'
+              size='sm'
+              display={{ sm: 'none', md: 'flex' }}
+              visibility={menuCollapsed ? 'hidden' : 'visible'}
+              onClick={() => setMenuCollapsed(true)}
+            />
+          </Flex>
+          <NavItem
+            collapsed={menuCollapsed}
+            icon={FiHome}
+            to='/console/monitors'
+            onClick={closeSubmenu}
+            tooltip='Dashboard'
+          >
+            <Text variant='text-field' color='inherit'>
+              Dashboard
+            </Text>
+          </NavItem>
+          {user.role && user.role !== 'viewer' && (
+            <>
+              <NavItem
+                collapsed={menuCollapsed}
+                icon={FiActivity}
+                to='/console/activity'
+                onClick={closeSubmenu}
+                tooltip='Activity'
+              >
+                <Text variant='text-field' color='inherit'>
+                  Activity
+                </Text>
+              </NavItem>
+              <NavItem
+                collapsed={menuCollapsed}
+                icon={FiPackage}
+                to='/console/envs'
+                onClick={closeSubmenu}
+                tooltip='Environments'
+              >
+                <Text variant='text-field' color='inherit'>
+                  Environments
+                </Text>
+              </NavItem>
+              <NavItem
+                collapsed={menuCollapsed}
+                icon={FiZap}
+                to='/console/status-pages'
+                onClick={closeSubmenu}
+                tooltip='Status Pages'
+              >
+                <Text variant='text-field' color='inherit'>
+                  Status Pages
+                </Text>
+              </NavItem>
+              {!menuCollapsed ? (
+                <>
+                  <NavItem
+                    icon={FiSettings}
+                    onClick={() => setSettingsMenuVisible(!settingsMenuVisible)}
+                  >
+                    <Flex alignItems='center' justifyContent='space-between' flex='1'>
+                      <Text variant='text-field' color='inherit'>
+                        Settings
+                      </Text>
+                      {settingsMenuVisible ? (
+                        <ChevronUpIcon boxSize={6} m='-2' />
+                      ) : (
+                        <ChevronDownIcon boxSize={6} m='-2' />
+                      )}
+                    </Flex>
+                  </NavItem>
+                  {settingsMenuVisible && <SettingsSubMenu user={user} onClose={sidebar.onClose} />}
+                </>
+              ) : (
+                <SettingsDropdownMenu user={user} />
+              )}
+            </>
+          )}
+        </Flex>
+      </Box>
+    )
+  }
+
+  const onMobileMenuClick = () => {
+    setMenuCollapsed(false)
+    sidebar.onOpen()
+  }
 
   return (
     <Box as='section' bg={useColorModeValue('lightgray.100', 'gray.700')} minH='100vh'>
@@ -186,7 +406,7 @@ export default function Console() {
         align='center'
         justify='space-between'
         w='full'
-        px='6'
+        px='4'
         py='3'
         position='fixed'
         top='0'
@@ -198,8 +418,8 @@ export default function Console() {
         <IconButton
           aria-label='Menu'
           display={{ base: 'inline-flex', md: 'none' }}
-          onClick={sidebar.onOpen}
-          icon={<FiMenu />}
+          onClick={onMobileMenuClick}
+          icon={<FiMenu fontSize={20} />}
           size='sm'
         />
 
@@ -250,7 +470,7 @@ export default function Console() {
         <SidebarContent display={{ base: 'none', md: 'unset' }} />
         <Drawer isOpen={sidebar.isOpen} onClose={sidebar.onClose} placement='left'>
           <DrawerOverlay />
-          <DrawerContent>
+          <DrawerContent maxW={{ base: '56', md: 'unset' }}>
             <SidebarContent w='full' borderRight='none' />
           </DrawerContent>
         </Drawer>
