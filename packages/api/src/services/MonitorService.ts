@@ -285,10 +285,6 @@ export class MonitorService {
     const okStatus = query.status?.includes('ok') ?? false
     const errStatus = query.status?.includes('err') ?? false
 
-    logger.error(query, 'query')
-    logger.error(okStatus, 'okStatus')
-    logger.error(errStatus, 'errStatus')
-
     //having a const column array causes type error which is weird
     let q = db
       .selectFrom('MonitorResult')
@@ -334,10 +330,7 @@ export class MonitorService {
       .offset(query.offset)
       .if(query.limit != undefined, (qb) => qb.limit(query.limit as number))
 
-    logger.error(q.compile().sql, 'q')
-
     const { count } = db.fn
-    logger.error(q.select(count<number>('createdAt').as('numItems')).compile().sql, 'sql')
 
     if (query.getTotals) {
       let queryTotals = await q.select(count<number>('createdAt').as('numItems')).execute()

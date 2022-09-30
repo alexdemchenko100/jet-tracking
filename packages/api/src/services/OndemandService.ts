@@ -9,12 +9,12 @@ const OndemandRunList: { [k: string]: any } = {}
 export async function runOndemand(mon: Monitor) {
   let timer: NodeJS.Timeout
   const timeoutPromise = new Promise((_resolve, reject) => {
-    timer = setTimeout(reject, 10000, { err: 'timed out' })
+    timer = setTimeout(reject, 15000, { err: 'timed out' })
   })
 
   const odPromise = new Promise((odResolve, odReject) => {
     // Prepare monitor as its not from database and needs context
-    mon.id = uuidv4()
+    if (!mon.id) mon.id = uuidv4()
     mon.accountId = currentUserInfo().accountId //this is later used to store the result
 
     OndemandRunList[mon.id] = { odResolve: odResolve, odReject: odReject, timer }
@@ -30,7 +30,10 @@ export async function runOndemand(mon: Monitor) {
 }
 
 export async function handleOndemandResult(monrun: MonitorRunResult) {
-  if (!monrun.mon.id) return
+  if (!monrun.mon.id) return false
+
+  //TODO: remove expired entries by having an expiry time in db
+  //so PubSub wont try too much
 
   const entry = OndemandRunList[monrun.mon.id]
 
@@ -48,7 +51,19 @@ export async function handleOndemandResult(monrun: MonitorRunResult) {
 
     //aslo delete db entry.  we don't want to accumulated cruft in db
     if (res && res.id && process.env.NODE_ENV == 'production') {
-      await db.deleteFrom('OndemandResult').where('id', '=', res.id).executeTakeFirst()
+      //unlike scheduled monitor, ondemand stores the body in the database
+      //which can take up lot of space
+
+      //clear the body and headers as they take up lot of space
+      await db
+        .updateTable('OndemandResult')
+        .where('id', '=', res.id)
+        .set({ body: '', headers: '[]' })
+        .executeTakeFirst()
+
+      //await db.deleteFrom('OndemandResult').where('id', '=', res.id).executeTakeFirst()
     }
+    return true
   }
+  return false
 }

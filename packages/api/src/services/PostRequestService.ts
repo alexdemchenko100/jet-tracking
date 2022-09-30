@@ -8,13 +8,16 @@ import {
 } from './SlackNotification'
 
 export async function handlePostRequest(monrun: MonitorRunResult) {
+  const mon = monrun.mon
+
   if (monrun.mon.status == 'ondemand') {
-    await handleOndemandResult(monrun)
+    const handled = await handleOndemandResult(monrun)
+    if (!handled) {
+      logger.error('Ondemand entry not found ... msg not processed')
+      throw new Error('EONDEMAND_PASS')
+    }
     return
   }
-
-  // logger.error('IN Notification Service')
-  const mon = monrun.mon
 
   let failCount = mon.notifications?.failCount ?? 0
   let failTimeMinutes = mon.notifications?.failTimeMinutes ?? 0

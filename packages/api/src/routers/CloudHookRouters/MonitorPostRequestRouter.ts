@@ -4,8 +4,9 @@ import jwt from 'jsonwebtoken'
 import { JwksClient } from 'jwks-rsa'
 import S from 'fluent-json-schema'
 import Ajv from 'ajv'
-import { handlePostRequest } from 'src/services/PostRequestService'
+import { handlePostRequest } from '../../services/PostRequestService'
 import { MonitorRunResult, MonitorRunResultSchema } from '@httpmon/db'
+import { handleOndemandResult } from '../../services/OndemandService'
 
 const PubsubMessageSchema = S.object()
   .prop('subscription', S.string())
@@ -85,8 +86,12 @@ export default async function MonitorPostRequestRouter(app: FastifyInstance) {
       //business logic
       try {
         await handlePostRequest(obj as MonitorRunResult)
-      } catch (e) {
+      } catch (e: any) {
         app.log.error(e, 'Handle PostRequest Failed')
+        if (e instanceof Error && e.message == 'EONDEMAND_PASS') {
+          reply.code(404).send()
+          return
+        }
       }
 
       reply.code(200).send()

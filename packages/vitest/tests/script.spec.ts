@@ -1,6 +1,6 @@
-import { Monitor, MonitorAssertionResult, MonitorResult } from '@httpmon/db'
+import { MonitorResult } from '@httpmon/db'
 import { expect, describe, it } from 'vitest'
-import { randomString, req } from './utils'
+import { req } from './utils'
 
 describe('Check pre-script', () => {
   it('shoud add header', async () => {
@@ -8,6 +8,7 @@ describe('Check pre-script', () => {
       json: {
         name: 'ondemand',
         url: 'https://httpbin.org/headers',
+        locations: ['us-east1'],
         preScript: 'ctx.request.headers["Foo"] = "Bar"',
       },
     })
@@ -26,6 +27,7 @@ describe('Check pre-script', () => {
       json: {
         name: 'ondemand',
         url: '{{BASE}}/headers',
+        locations: ['us-east1'],
         preScript: 'ctx.env["BASE"] = "https://httpbin.org"',
       },
     })
@@ -44,6 +46,7 @@ describe('Check pre-script', () => {
       json: {
         name: 'ondemand',
         url: 'https://httpbin.org/bearer',
+        locations: ['us-east1'],
         headers: [['Authorization', 'Bearer {{TOKEN}}']],
         preScript: `
           const axios = require('axios');

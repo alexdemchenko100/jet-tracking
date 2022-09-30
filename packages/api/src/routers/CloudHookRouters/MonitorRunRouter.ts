@@ -4,7 +4,8 @@ import { JwksClient } from 'jwks-rsa'
 import S from 'fluent-json-schema'
 import { MonitorRunResult, MonitorRunResultSchema } from '@httpmon/db'
 import Ajv from 'ajv'
-import { runMonitor } from 'src/services/MonitorRunner'
+import { runMonitor } from '../../services/MonitorRunner'
+import { publishPostRequestMessage } from '../../services/PubSubService'
 
 const PubsubMessageSchema = S.object()
   .prop('subscription', S.string())
@@ -89,6 +90,7 @@ export default async function MonitorRunRouter(app: FastifyInstance) {
         await runMonitor(monrun)
       } catch (e) {
         app.log.error(e, 'Handle RunMonitor Failed')
+        publishPostRequestMessage({...monrun, err: { msg: e.message }})
       }
       reply.code(200).send()
     }

@@ -3,6 +3,7 @@ import { Monitor, MonitorFluentSchema, MonitorResult, MonitorResultFluentSchema 
 import { onRequestAuthHook } from '../RouterHooks'
 import { v4 as uuidv4 } from 'uuid'
 import { runOndemand } from 'src/services/OndemandService'
+import { logger } from 'src/Context'
 
 export default async function OndemandMonitorRouter(app: FastifyInstance) {
   app.addHook('onRequest', onRequestAuthHook)
@@ -21,11 +22,11 @@ export default async function OndemandMonitorRouter(app: FastifyInstance) {
       const mon = req.body
 
       //lets give the monitor an id
-      mon.id = uuidv4()
       mon.status = 'ondemand' //this identifies ondemand monitor
 
       try {
         let resp = await runOndemand(mon)
+
         reply.code(200).send(resp)
       } catch (e) {
         let errResult = e as MonitorResult

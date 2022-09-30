@@ -88,7 +88,8 @@ export async function publishMonitorRunMessage(monrun: MonitorRunResult) {
 
   if (!pubsub) throw new Error('Pubsub is not initialized')
 
-  if (!monrun.mon.locations || monrun.mon.locations.length < 1) return
+  if (!monrun.mon.locations || monrun.mon.locations.length < 1)
+    throw new Error('To run, must supply atleast one location')
 
   monrun.mon.locations.forEach(async (locationName) => {
     const TOPIC_NAME = `${projectId}-monitor-run-${locationName}`

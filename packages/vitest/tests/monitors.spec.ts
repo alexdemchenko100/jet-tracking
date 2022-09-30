@@ -8,6 +8,7 @@ describe('Monitor CRUD operations', () => {
       json: {
         name: 'ondemand',
         url: 'https://httpbin.org/headers',
+        locations: ['us-east1'],
       },
     })
 
@@ -23,6 +24,7 @@ describe('Monitor CRUD operations', () => {
       json: {
         name: 'ondemand',
         url: 'https://httpbin.org/post',
+        locations: ['us-east1'],
         method: 'POST',
         bodyType: 'application/json',
         body: JSON.stringify({ foo: 'bar' }),
@@ -44,6 +46,7 @@ describe('Monitor CRUD operations', () => {
       json: {
         name: 'ondemand',
         url: 'https://httpbin.org/status/401',
+        locations: ['us-east1'],
       },
     })
 
@@ -60,6 +63,7 @@ describe('Monitor CRUD operations', () => {
         name: 'ondemand',
         status: 'ondemand',
         url: 'https://httpbin.org/status/401',
+        locations: ['us-east1'],
         assertions: [{ op: '=', type: 'code', value: '401' }],
       },
     })
@@ -76,6 +80,7 @@ describe('Monitor CRUD operations', () => {
       json: {
         name: 'ondemand',
         url: 'https://httpbin.org/headers',
+        locations: ['us-east1'],
         assertions: [{ op: '=', type: 'jsonBody', name: '$.headers.Host', value: 'httpbin.org' }],
       },
     })
@@ -97,6 +102,7 @@ describe('Monitor CRUD operations', () => {
       json: {
         name: 'ondemand',
         url: 'https://httpbin.org/headers',
+        locations: ['us-east1'],
         assertions: [{ op: '=', type: 'jsonBody', name: '$.headers', value: 'httpbin.org' }],
       },
     })
@@ -118,6 +124,7 @@ describe('Monitor CRUD operations', () => {
       json: {
         name: 'ondemand',
         url: 'https://unknownddddbin.com',
+        locations: ['us-east1'],
         assertions: [{ op: '=', type: 'code', value: '401' }],
       },
     })
@@ -137,6 +144,7 @@ describe('Monitor CRUD operations', () => {
         name,
         status: 'paused',
         url: 'https://www.proautoma.com',
+        locations: ['us-east1'],
       },
     })
 

@@ -223,12 +223,10 @@ export async function runMonitor(monrun: MonitorRunResult) {
     monitor
   )
 
-  if (!monitor.id || !monitorResult?.id) return
-
   let runResult: MonitorRunResult = {
     runId: monrun.runId,
     mon: monitor,
-    resultId: monitorResult.id,
+    resultId: monitorResult?.id,
     err: {
       msg: result.err,
     },

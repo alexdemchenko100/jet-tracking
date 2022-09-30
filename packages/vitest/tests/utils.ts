@@ -1,7 +1,7 @@
 import got from 'got'
 
 export const req = got.extend({
-  prefixUrl: 'http://localhost:8080/api',
+  prefixUrl: import.meta.env.VITE_BASE_URL,
   throwHttpErrors: false,
   responseType: 'json',
   headers: {
@@ -9,7 +9,7 @@ export const req = got.extend({
     'x-proautoma-accountid': import.meta.env.VITE_ACCOUNT_ID,
     Authorization: `Bearer ${import.meta.env.VITE_API_KEY}`,
   },
-  timeout: { request: 5000 },
+  timeout: { request: 20000 },
 })
 
 export function randomString() {

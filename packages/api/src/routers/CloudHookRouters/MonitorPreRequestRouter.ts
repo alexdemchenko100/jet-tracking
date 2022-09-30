@@ -80,7 +80,11 @@ export default async function MonitorPreRequestRouter(app: FastifyInstance) {
 
       app.log.info(`Setup monitor event: ${monitor.name}`)
 
-      await handlePreRequest(monitor)
+      try {
+        await handlePreRequest(monitor)
+      } catch (e: any) {
+        app.log.error(e, `error in handling PreRequest`)
+      }
       reply.code(200).send()
     }
   )

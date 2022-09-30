@@ -83,18 +83,35 @@ content-type: application/json
 
 ###
 
-POST https://httpmon-sandbox-service-625b8ae-l6acatkuqq-ue.a.run.app/test HTTP/1.1
+POST https://stage.proautoma.com/api/ondemand/run HTTP/1.1
 content-type: application/json
+x-proautoma-accountid: 0742db08-f8b4-48ed-9b62-cd0fd9468ce6
+Authorization: Bearer pak.IXnO0++AUx~r~PzQgrovmvr7o~FASf7Zl-Nu
 
 {
-    "mon": {
-        "id": "ondemand",
-        "name": "nada",
-        "url": "https://httpbin.org/get",
-        "preScript": "ctx.request.headers['x'] = 'y'; ctx.env.g = 'f'; const axios=require('axios'); ctx.request.headers['dude'] = (await axios.get('https://httpbin.org/get')).data"
-    },
-    "runId": "9348048"
+   "name": "testhttp - ondemand",
+   "url": "https://httpbin.org/anything",
+   "locations": ["us-east1"]
 }
+
+###
+
+POST http://localhost:8080/api/ondemand/run HTTP/1.1
+content-type: application/json
+x-proautoma-accountid: 30660e17-34b8-410a-b779-49dd2003befc
+Authorization: Bearer pak.TQEDAAM~~~w6219G0yKGMcf_9TFCOP1nN1p9
+
+{
+   "name": "ondemand",
+   "url": "https://httpbin.org/anything"
+}
+
+###
+
+GET https://stage.proautoma.com/api/monitors HTTP/1.1
+content-type: application/json
+x-proautoma-accountid: 0742db08-f8b4-48ed-9b62-cd0fd9468ce6
+Authorization: Bearer pak.IXnO0++AUx~r~PzQgrovmvr7o~FASf7Zl-Nu
 
 ###
 
