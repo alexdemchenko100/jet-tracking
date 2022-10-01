@@ -172,24 +172,6 @@ function MonitorStatsView({ stats, title }: MonitorStatsProps) {
       <Flex alignItems='start' justifyContent='space-around' mt={10}>
         <Stat>
           <Text variant='emphasis' color='black'>
-            Total
-          </Text>
-          <br />
-          <Text variant='emphasis' color='gray.300'>
-            {stats.numItems}
-          </Text>
-        </Stat>
-        <Stat>
-          <Text variant='emphasis' color='black'>
-            Errors
-          </Text>
-          <br />
-          <Text variant='emphasis' color='gray.300'>
-            {stats.numErrors}
-          </Text>
-        </Stat>
-        <Stat>
-          <Text variant='emphasis' color='black'>
             Uptime
           </Text>
           <br />
@@ -222,6 +204,24 @@ function MonitorStatsView({ stats, title }: MonitorStatsProps) {
           <br />
           <Text variant='emphasis' color='gray.300'>
             {round(stats.p95)}ms
+          </Text>
+        </Stat>
+        <Stat>
+          <Text variant='emphasis' color='black'>
+            Total
+          </Text>
+          <br />
+          <Text variant='emphasis' color='gray.300'>
+            {stats.numItems}
+          </Text>
+        </Stat>
+        <Stat>
+          <Text variant='emphasis' color='black'>
+            Errors
+          </Text>
+          <br />
+          <Text variant='emphasis' color='gray.300'>
+            {stats.numErrors}
           </Text>
         </Stat>
       </Flex>

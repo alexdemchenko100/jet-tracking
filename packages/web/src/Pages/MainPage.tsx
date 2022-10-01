@@ -205,25 +205,16 @@ function MonitorStatusCard({ mon, stats }: StatusProps) {
 
         <Flex flexDirection={'column'} mr={10}>
           <Text variant='emphasis' color='black' mb={2}>
-            24Hr AVG
+            1D AVG
           </Text>
           <Text variant='emphasis' color='gray.300'>
             {stats?.day.avg.toFixed(2)}
           </Text>
         </Flex>
 
-        <Flex flexDirection={'column'} mr={10}>
-          <Text variant='emphasis' color='black' mb={2}>
-            24Hr MEDIAN
-          </Text>
-          <Text variant='emphasis' color='gray.300'>
-            {stats?.day.p50.toFixed(2)}
-          </Text>
-        </Flex>
-
         <Flex flexDirection={'column'}>
           <Text variant='emphasis' color='black' mb={2}>
-            24 Hr P95
+            1D P95
           </Text>
           <Text variant='emphasis' color='gray.300'>
             {stats?.day.p95.toFixed(2)}
@@ -371,11 +362,6 @@ const MonitorListItem = ({ mon, stats, onDelete }: MonitorListProps) => {
       <Td px={4} py={2}>
         <Text variant='text-field' color='gray.300'>
           {mon.dayAvg?.toFixed(2)}
-        </Text>
-      </Td>
-      <Td px={4} py={2}>
-        <Text variant='text-field' color='gray.300'>
-          {mon.day50?.toFixed(2)}
         </Text>
       </Td>
       <Td px={4} py={2}>
@@ -603,7 +589,7 @@ export function MainPage() {
       <Section>
         <Flex alignItems='center' justify={'space-between'}>
           <Text variant='header' color='black'>
-            All monitors
+            Dashboard
           </Text>
           {userInfo.role !== 'viewer' && (
             <PrimaryButton
@@ -743,22 +729,14 @@ export function MainPage() {
                     <Th px={4} py={3}>
                       <Flex alignItems='center' gap={1} onClick={() => sortBy('dayAvg')}>
                         <Text variant='emphasis' color='black'>
-                          2HR AVG
-                        </Text>
-                        <SortIcons />
-                      </Flex>
-                    </Th>
-                    <Th px={4} py={3}>
-                      <Flex alignItems='center' gap={1} onClick={() => sortBy('day50')}>
-                        <Text variant='emphasis' color='black'>
-                          24HR MEDIAN
+                          1D AVG
                         </Text>
                         <SortIcons />
                       </Flex>
                     </Th>
                     <Th px={4} py={3}>
                       <Text variant='emphasis' color='black'>
-                        24HR P95
+                        1D P95
                       </Text>
                     </Th>
                     {userInfo.role !== 'viewer' && (

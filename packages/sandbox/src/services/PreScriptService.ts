@@ -91,7 +91,7 @@ export async function execPreScript(monrun: MonitorRunResult) {
   } catch (e) {
     //handle script error
     logger.error(e, 'script error')
-    monrun.err = { msg: `preScript: ${JSON.stringify(e)}` }
+    monrun.err = { msg: `ERR_Script: ${JSON.stringify(e)}` }
 
     return publishMessage(topic, monrun)
   }
