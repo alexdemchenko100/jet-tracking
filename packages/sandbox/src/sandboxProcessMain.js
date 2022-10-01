@@ -28,8 +28,8 @@ async function runScriptInSandbox(sandbox, script) {
     eval: false,
     wasm: false,
     require: {
-      external: ['axios'],
-      builtin: ['util', 'path', 'fs', 'uuid', 'crypto', 'url', 'buffer', 'assert', 'tls', 'zlib'],
+      external: ['uuid', 'axios'],
+      builtin: ['util', 'path', 'fs', 'crypto', 'url', 'buffer', 'assert', 'tls', 'zlib'],
       root: './',
     },
     sandbox,

@@ -25,6 +25,7 @@
     "jwks-rsa": "^2.0.5",
     "pino": "^8.5.0",
     "pino-pretty": "^9.1.0",
+    "uuid": "^8.3.2",
     "vm2": "^3.9.9"
   },
   "devDependencies": {

@@ -82,7 +82,9 @@ export async function execPreScript(monrun: MonitorRunResult) {
 
     let newmon = {
       ...mon,
+      url: resp.ctx.request.url,
       headers: headersToTuples(resp.ctx.request.headers),
+      queryParams: headersToTuples(resp.ctx.request.queryParams),
       variables: headersToTuples(resp.ctx.env),
     }
     return publishMessage(topic, { mon: newmon, runId: monrun.runId })
