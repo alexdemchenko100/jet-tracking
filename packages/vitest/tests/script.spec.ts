@@ -22,7 +22,7 @@ describe('Check pre-script', () => {
     expect(postResp.headers.Foo).toBe('Bar')
   })
 
-  it('shoud add template env variable', async () => {
+  it('shoud script template env variable', async () => {
     const resp = await req.post<MonitorResult>('ondemand/run', {
       json: {
         name: 'ondemand',
@@ -65,5 +65,57 @@ describe('Check pre-script', () => {
     const postResp = JSON.parse(res.body)
     expect(postResp.authenticated).toBe(true)
     expect(postResp.token).toBe('httpbin.org')
+  })
+
+  it('shoud script template query params variable', async () => {
+    const resp = await req.post<MonitorResult>('ondemand/run', {
+      json: {
+        name: 'ondemand',
+        url: 'https://httpbin.org/get',
+        preScript: 'ctx.request.queryParams["foo"] = "bar"',
+      },
+    })
+
+    expect(resp.statusCode).toBe(200)
+
+    const res = resp.body
+    expect(res.err).toBeFalsy()
+    expect(res.code).toBe(200)
+    const postResp = JSON.parse(res.body)
+    expect(postResp.url).contains('foo=bar')
+  })
+
+  it('shoud script url parameter', async () => {
+    const targetUrl = 'https://httpbin.org/get'
+    const resp = await req.post<MonitorResult>('ondemand/run', {
+      json: {
+        name: 'ondemand',
+        url: 'https://httpbin.org/header',
+        preScript: `ctx.request.url = "${targetUrl}"`,
+      },
+    })
+
+    expect(resp.statusCode).toBe(200)
+
+    const res = resp.body
+    expect(res.err).toBeFalsy()
+    expect(res.code).toBe(200)
+    const postResp = JSON.parse(res.body)
+    expect(postResp.url).toBe(targetUrl)
+  })
+
+  it('shoud script fail on synatx error', async () => {
+    const resp = await req.post<MonitorResult>('ondemand/run', {
+      json: {
+        name: 'ondemand',
+        url: 'https://httpbin.org/header',
+        preScript: ` - d <> 23`,
+      },
+    })
+
+    expect(resp.statusCode).toBe(200)
+
+    const res = resp.body
+    expect(res.err).contains('SyntaxError')
   })
 })
