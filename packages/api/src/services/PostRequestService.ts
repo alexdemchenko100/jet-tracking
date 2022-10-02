@@ -206,7 +206,7 @@ async function sendNotification(
 
     if (notificationChannel && notificationChannel.channel.type === 'slack' && result) {
       logger.info(`sending notification to channel ${channel}`)
-      sendSlackNotification(type, notificationChannel.channel, monitor, result)
+      await sendSlackNotification(type, notificationChannel.channel, monitor, result)
     }
 
     if (notificationChannel && notificationChannel.channel.type === 'ms-teams' && result) {
