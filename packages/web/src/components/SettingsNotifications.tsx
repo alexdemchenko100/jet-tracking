@@ -682,7 +682,7 @@ export default function SettingsNotifications() {
           <Section pt={4} pb={6} minH={60}>
             <Flex alignItems='center' justifyContent='space-between'>
               <Text variant='title' color='black'>
-                All notifications
+                All notification channels
               </Text>
               <Button px={0} variant='unstyled' onClick={() => setShowNotificationModal(true)}>
                 <Flex align='center'>
@@ -698,7 +698,7 @@ export default function SettingsNotifications() {
                     cursor='pointer'
                   />
                   <Text variant='text-field' color='darkblue.100'>
-                    New notification
+                    New notification channel
                   </Text>
                 </Flex>
               </Button>
@@ -794,7 +794,7 @@ export default function SettingsNotifications() {
             <ModalContent borderRadius={16} boxShadow='0px 4px 16px rgba(38, 50, 56, 0.1)'>
               <ModalHeader pb={2}>
                 <Text color='black' variant='header'>
-                  Delete notification?
+                  Delete channel?
                 </Text>
               </ModalHeader>
               <ModalCloseButton />
@@ -832,7 +832,7 @@ export default function SettingsNotifications() {
             <ModalContent borderRadius={16} boxShadow='0px 4px 16px rgba(38, 50, 56, 0.1)'>
               <ModalHeader pb={2}>
                 <Text color='black' variant='header'>
-                  {isEdit ? 'Edit notification' : 'Add notification'}
+                  {isEdit ? 'Edit channel' : 'Add channel'}
                 </Text>
               </ModalHeader>
               <ModalCloseButton />
