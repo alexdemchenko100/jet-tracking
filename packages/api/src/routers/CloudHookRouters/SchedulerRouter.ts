@@ -1,4 +1,4 @@
-import { db, Monitor } from '@httpmon/db'
+import { db, Monitor, MonitorRunResult } from '@httpmon/db'
 import { FastifyInstance } from 'fastify'
 import { sql } from 'kysely'
 import { PubSub } from '@google-cloud/pubsub'
@@ -6,6 +6,7 @@ import { JwksClient } from 'jwks-rsa'
 import jwt from 'jsonwebtoken'
 import S from 'fluent-json-schema'
 import { publishMonitorPreRequestMessage } from '../../services/PubSubService'
+import { v4 as uuidv4 } from 'uuid'
 
 const PubsubMessageSchema = S.object()
   .prop('subscription', S.string())
@@ -89,7 +90,8 @@ export default async function SchedulerRouter(app: FastifyInstance) {
 
       try {
         monitors.forEach((mon) => {
-          publishMonitorPreRequestMessage(mon)
+          const monrun: MonitorRunResult = { mon, runId: uuidv4() }
+          publishMonitorPreRequestMessage(monrun)
         })
       } catch (e: any) {
         app.log.error(`monitor exec failed: ${e.toString()}`)

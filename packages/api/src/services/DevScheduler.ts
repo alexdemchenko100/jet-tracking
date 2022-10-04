@@ -1,4 +1,4 @@
-import { db, Monitor, MonitorRunResult } from '@httpmon/db'
+import { db, Monitor, MonitorResult, MonitorRunResult } from '@httpmon/db'
 import { sql } from 'kysely'
 import { logger, plogger } from '../Context'
 import { emitter } from './emitter'
@@ -8,7 +8,7 @@ import axios from 'axios'
 import { handleScriptResult } from './ScriptResultService'
 import { publishMonitorPreRequestMessage } from './PubSubService'
 import { handlePreRequest } from './PreRequestService'
-import { requestContext } from '@fastify/request-context'
+import { v4 as uuidv4 } from 'uuid'
 
 async function selectReadyMonitors() {
   const now = new Date(Date.now())
@@ -33,17 +33,17 @@ export async function schedule() {
 
   for (let i = 0; i < monitors.length; i++) {
     const mon = monitors[i]
-
-    publishMonitorPreRequestMessage(mon)
+    const monrun: MonitorRunResult = { mon, runId: uuidv4() }
+    publishMonitorPreRequestMessage(monrun)
   }
 }
 
 export async function setupEmitterHandlers() {
   logger.info('Setting Emitters for local pubsub simulation')
 
-  emitter.on('monitor-prerequest', async (mon: Monitor) => {
-    logger.info({ id: mon.id }, 'topic: monitor-prerequest')
-    await handlePreRequest(mon)
+  emitter.on('monitor-prerequest', async (monrun: MonitorRunResult) => {
+    logger.info({ id: monrun.mon.id }, 'topic: monitor-prerequest')
+    await handlePreRequest(monrun)
   })
 
   emitter.on('api-script-run', async (monrun: MonitorRunResult) => {

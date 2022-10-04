@@ -204,49 +204,6 @@ new gcp.cloudrun.IamMember('httpmon-sandbox-everyone', {
   member: 'allUsers',
 })
 
-function createTopicAndTrigger(
-  serviceRes: gcp.cloudrun.Service,
-  sa: gcp.serviceaccount.Account,
-  regionName: string,
-  topicName: string,
-  servicePath: string
-) {
-  const topicRes = new gcp.pubsub.Topic(`${project}-${topicName}-topic`, {
-    name: `${project}-${topicName}`, //this will be topic name
-    project,
-  })
-
-  let trigger = new gcp.eventarc.Trigger(`${topicName}-trigger`, {
-    project,
-    location: regionName,
-    serviceAccount: sa.email,
-    matchingCriterias: [
-      {
-        attribute: 'type',
-        value: 'google.cloud.pubsub.topic.v1.messagePublished',
-      },
-    ],
-    destination: {
-      cloudRunService: {
-        service: serviceRes.name,
-        region: regionName,
-        path: servicePath, //'/api/services/topic',
-      },
-    },
-    transports: [
-      {
-        pubsubs: [
-          {
-            topic: topicRes.name,
-          },
-        ],
-      },
-    ],
-  })
-
-  return topicRes
-}
-
 function createTopicAndSubscription(
   serviceRes: gcp.cloudrun.Service,
   sa: gcp.serviceaccount.Account,
@@ -262,13 +219,29 @@ function createTopicAndSubscription(
   let sub = new gcp.pubsub.Subscription(`${topicName}-sub`, {
     project,
     topic: topicRes.name,
-    ackDeadlineSeconds: 360,
+    ackDeadlineSeconds: 120,
     pushConfig: {
       oidcToken: {
         serviceAccountEmail: sa.email,
       },
       pushEndpoint: serviceRes.statuses.apply((statuses) => statuses[0].url + servicePath),
     },
+  })
+
+  return topicRes
+}
+
+function createTopicAndPullSubscription(topicName: string) {
+  const topicRes = new gcp.pubsub.Topic(`${project}-${topicName}-topic`, {
+    name: `${project}-${topicName}`, //this will be topic name
+    project,
+  })
+
+  let sub = new gcp.pubsub.Subscription(`${topicName}-pull-sub`, {
+    project,
+    name: `${topicName}-pull-sub`,
+    topic: topicRes.name,
+    ackDeadlineSeconds: 60,
   })
 
   return topicRes
@@ -299,6 +272,9 @@ const mainServiceTopicResources = mainServiceTopics.map(({ name, path }) => {
   return createTopicAndSubscription(httpmonMainService, serviceAccount, mainRegionName, name, path)
 })
 
+//create pull subscription for ondemand results
+createTopicAndPullSubscription('monitor-ondemand-response')
+
 //first one is scheduler
 const schedulerTopic = mainServiceTopicResources[0]
 
@@ -313,7 +289,7 @@ new gcp.cloudscheduler.Job('scheduler-job', {
   timeZone: 'Europe/London',
 })
 
-const runLocations = ['europe-west3']
+const runLocations = ['europe-west3', 'asia-southeast1']
 runLocations.map((locName) => {
   const service = createService(`httpmon-monitor-run-service-${locName}`, locName)
   createTopicAndSubscription(

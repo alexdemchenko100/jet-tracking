@@ -1,9 +1,7 @@
 import { FastifyInstance } from 'fastify'
 import { Monitor, MonitorFluentSchema, MonitorResult, MonitorResultFluentSchema } from '@httpmon/db'
 import { onRequestAuthHook } from '../RouterHooks'
-import { v4 as uuidv4 } from 'uuid'
 import { runOndemand } from 'src/services/OndemandService'
-import { logger } from 'src/Context'
 
 export default async function OndemandMonitorRouter(app: FastifyInstance) {
   app.addHook('onRequest', onRequestAuthHook)

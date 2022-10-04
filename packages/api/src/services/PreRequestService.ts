@@ -1,12 +1,10 @@
-import { Monitor, MonitorRunResult } from '@httpmon/db'
+import { MonitorRunResult } from '@httpmon/db'
 import { publishMonitorRunMessage, publishScriptRunMessage } from './PubSubService'
 
-import { v4 as uuidv4 } from 'uuid'
-
-export async function handlePreRequest(mon: Monitor) {
+export async function handlePreRequest(monrun: MonitorRunResult) {
   //Todo: Compute final Env
 
-  const monrun: MonitorRunResult = { mon, runId: uuidv4() }
+  const mon = monrun.mon
 
   if (mon.preScript && mon.preScript.length > 0) {
     publishScriptRunMessage(monrun)

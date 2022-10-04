@@ -1,6 +1,6 @@
 import { db, MonitorResult, MonitorRunResult } from '@httpmon/db'
 import { logger } from 'src/Context'
-import { handleOndemandResult } from './OndemandService'
+import { publishOndemandResponseMessage } from './PubSubService'
 import {
   sendSlackNotification,
   sendMSTeamsNotification,
@@ -9,15 +9,6 @@ import {
 
 export async function handlePostRequest(monrun: MonitorRunResult) {
   const mon = monrun.mon
-
-  if (monrun.mon.status == 'ondemand') {
-    const handled = await handleOndemandResult(monrun)
-    if (!handled) {
-      logger.error('Ondemand entry not found ... msg not processed')
-      throw new Error('EONDEMAND_PASS')
-    }
-    return
-  }
 
   let failCount = mon.notifications?.failCount ?? 0
   let failTimeMinutes = mon.notifications?.failTimeMinutes ?? 0

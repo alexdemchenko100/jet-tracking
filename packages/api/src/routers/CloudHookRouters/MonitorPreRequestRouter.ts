@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify'
 import jwt from 'jsonwebtoken'
 import { JwksClient } from 'jwks-rsa'
 import S from 'fluent-json-schema'
-import { Monitor, MonitorFluentSchema } from '@httpmon/db'
+import { Monitor, MonitorFluentSchema, MonitorRunResult, MonitorRunResultSchema } from '@httpmon/db'
 import Ajv from 'ajv'
 import { handlePreRequest } from 'src/services/PreRequestService'
 
@@ -19,7 +19,10 @@ const PubsubMessageSchema = S.object()
       .prop('publishTime', S.string())
   )
 
-const validateMonitor = new Ajv({ allErrors: true }).compile<Monitor>(MonitorFluentSchema.valueOf())
+const validateMonitorRunResult = new Ajv({ allErrors: true }).compile<MonitorRunResult>(
+  MonitorRunResultSchema.valueOf()
+)
+
 type PubsubMessage = {
   subscription: string
   message: {
@@ -70,18 +73,21 @@ export default async function MonitorPreRequestRouter(app: FastifyInstance) {
       const buf = Buffer.from(msg.message.data, 'base64')
       const obj = JSON.parse(buf.toString())
 
-      if (!validateMonitor(obj)) {
-        app.log.error(validateMonitor.errors, 'Monitor exec failed due to schema validation errors')
+      if (!validateMonitorRunResult(obj)) {
+        app.log.error(
+          validateMonitorRunResult.errors,
+          'Monitor exec failed due to schema validation errors'
+        )
         reply.code(200).send()
         return
       }
 
-      const monitor = obj as Monitor
+      const monrun = obj as MonitorRunResult
 
-      app.log.info(`Setup monitor event: ${monitor.name}`)
+      app.log.info(`Setup monitor event: ${monrun.mon.name}`)
 
       try {
-        await handlePreRequest(monitor)
+        await handlePreRequest(monrun)
       } catch (e: any) {
         app.log.error(e, `error in handling PreRequest`)
       }

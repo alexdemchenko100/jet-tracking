@@ -120,7 +120,7 @@ function objectToJSON(object: any) {
   throw Error('Cannot convert to JSON')
 }
 
-export async function saveMonitorResult(result: Insertable<MonitorResultTable>, monitor: Monitor) {
+export async function saveMonitorResult(result: Insertable<MonitorResultTable>, _monitor: Monitor) {
   //Handle all JSON conversions here.. headers, cookies, variables etc
   let resultForSaving = {
     ...result,
@@ -137,18 +137,6 @@ export async function saveMonitorResult(result: Insertable<MonitorResultTable>, 
   let savedResult
 
   try {
-    if (monitor.status == 'ondemand') {
-      //save on demand result and return
-      return await db
-        .insertInto('OndemandResult')
-        .values({
-          ...resultForSaving,
-          id: uuidv4(),
-        })
-        .returningAll()
-        .executeTakeFirst()
-    }
-
     savedResult = await db
       .insertInto('MonitorResult')
       .values({

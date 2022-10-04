@@ -72,6 +72,7 @@ describe('Check pre-script', () => {
       json: {
         name: 'ondemand',
         url: 'https://httpbin.org/get',
+        locations: ['us-east1'],
         preScript: 'ctx.request.queryParams["foo"] = "bar"',
       },
     })
@@ -90,6 +91,7 @@ describe('Check pre-script', () => {
     const resp = await req.post<MonitorResult>('ondemand/run', {
       json: {
         name: 'ondemand',
+        locations: ['us-east1'],
         url: 'https://httpbin.org/header',
         preScript: `ctx.request.url = "${targetUrl}"`,
       },
@@ -108,6 +110,7 @@ describe('Check pre-script', () => {
     const resp = await req.post<MonitorResult>('ondemand/run', {
       json: {
         name: 'ondemand',
+        locations: ['us-east1'],
         url: 'https://httpbin.org/header',
         preScript: ` - d <> 23`,
       },

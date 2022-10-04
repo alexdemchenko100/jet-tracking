@@ -1,69 +1,80 @@
-import { currentUserInfo, logger } from './../Context'
+import { currentUserInfo, logger, state } from './../Context'
 import { v4 as uuidv4 } from 'uuid'
-import { db, Monitor, MonitorRunResult } from '@httpmon/db'
+import { Monitor, MonitorRunResult } from '@httpmon/db'
 import { emitter } from './emitter'
 import { publishMonitorPreRequestMessage } from './PubSubService'
+import { Message, PubSub } from '@google-cloud/pubsub'
 
-const OndemandRunList: { [k: string]: any } = {}
+let pubsub: PubSub | null = null
 
 export async function runOndemand(mon: Monitor) {
-  let timer: NodeJS.Timeout
-  const timeoutPromise = new Promise((_resolve, reject) => {
-    timer = setTimeout(reject, 15000, { err: 'timed out' })
-  })
-
-  const odPromise = new Promise((odResolve, odReject) => {
+  return new Promise((odResolve, odReject) => {
     // Prepare monitor as its not from database and needs context
     if (!mon.id) mon.id = uuidv4()
     mon.accountId = currentUserInfo().accountId //this is later used to store the result
 
-    OndemandRunList[mon.id] = { odResolve: odResolve, odReject: odReject, timer }
+    const monrun: MonitorRunResult = { mon, runId: uuidv4() }
+    publishMonitorPreRequestMessage(monrun)
+
+    let timer: NodeJS.Timeout
+    const timeoutSeconds = 30 //seconds
 
     if (process.env.NODE_ENV != 'production') {
-      emitter.emit('monitor-prerequest', mon)
+      //test mode
+      const unsubscribe = emitter.on(
+        'monitor-ondemand-response',
+        async (monrunResp: MonitorRunResult) => {
+          if (monrunResp.runId == monrun.runId) {
+            logger.info({ id: monrunResp.result?.totalTime }, 'topic: monitor-ondemand-response')
+            unsubscribe()
+            clearTimeout(timer)
+            //resolve
+            odResolve(monrunResp.result)
+          } else {
+            logger.error({ id: monrunResp.result?.totalTime }, 'unknown ondemand result')
+          }
+        }
+      )
+
+      timer = setTimeout(() => {
+        odReject({ monitorId: mon.id, err: 'timeout' })
+        unsubscribe()
+      }, timeoutSeconds * 1000)
     } else {
-      publishMonitorPreRequestMessage(mon)
+      const projectId = state.projectId
+      if (!pubsub) {
+        pubsub = new PubSub({ projectId })
+      }
+
+      if (!pubsub) throw new Error('Pubsub is not initialized')
+
+      // References an existing subscription
+      const subscription = pubsub.subscription(
+        `projects/${projectId}/subscriptions/monitor-ondemand-response-pull-sub`
+      )
+
+      // Listen for new messages until timeout is hit
+      // Create an event handler to handle messages
+      const messageHandler = (message: Message) => {
+        const obj = JSON.parse(message.data.toString())
+        const monrunResp = obj as MonitorRunResult
+        if (monrunResp.runId == monrun.runId) {
+          //if this is our message, Ack it and resolve the promise
+          message.ack()
+          subscription.removeListener('message', messageHandler)
+          clearTimeout(timer)
+          odResolve(monrunResp.result)
+        } else {
+          logger.error({ id: monrunResp.result?.totalTime }, 'unknown ondemand result')
+        }
+      }
+
+      subscription.on('message', messageHandler)
+
+      timer = setTimeout(() => {
+        subscription.removeListener('message', messageHandler)
+        odReject({ monitorId: mon.id, err: 'ondemand timedout at 15s' })
+      }, timeoutSeconds * 1000)
     }
   })
-
-  return Promise.race([odPromise, timeoutPromise])
-}
-
-export async function handleOndemandResult(monrun: MonitorRunResult) {
-  if (!monrun.mon.id) return false
-
-  //TODO: remove expired entries by having an expiry time in db
-  //so PubSub wont try too much
-
-  const entry = OndemandRunList[monrun.mon.id]
-
-  if (entry) {
-    const res = await db
-      .selectFrom('OndemandResult')
-      .selectAll()
-      .where('id', '=', monrun.resultId)
-      .executeTakeFirst()
-
-    entry.odResolve(res)
-    clearTimeout(entry.timer)
-
-    delete OndemandRunList[monrun.mon.id]
-
-    //aslo delete db entry.  we don't want to accumulated cruft in db
-    if (res && res.id && process.env.NODE_ENV == 'production') {
-      //unlike scheduled monitor, ondemand stores the body in the database
-      //which can take up lot of space
-
-      //clear the body and headers as they take up lot of space
-      await db
-        .updateTable('OndemandResult')
-        .where('id', '=', res.id)
-        .set({ body: '', headers: '[]' })
-        .executeTakeFirst()
-
-      //await db.deleteFrom('OndemandResult').where('id', '=', res.id).executeTakeFirst()
-    }
-    return true
-  }
-  return false
 }

@@ -1,15 +1,15 @@
 import { PubSub } from '@google-cloud/pubsub'
 import { logger, state } from '../Context'
 import emitter from './emitter'
-import { Monitor, MonitorRunResult } from '@httpmon/db'
+import { Monitor, MonitorResult, MonitorRunResult } from '@httpmon/db'
 
 let pubsub: PubSub | null = null
 
-export async function publishMonitorPreRequestMessage(mon: Monitor) {
+export async function publishMonitorPreRequestMessage(monrun: MonitorRunResult) {
   const projectId = state.projectId
 
   if (!state.projectId || process.env.NODE_ENV !== 'production') {
-    emitter.emit('monitor-prerequest', mon)
+    emitter.emit('monitor-prerequest', monrun)
     return
   }
 
@@ -21,7 +21,7 @@ export async function publishMonitorPreRequestMessage(mon: Monitor) {
 
   const TOPIC_NAME = `${projectId}-monitor-prerequest`
   try {
-    await pubsub?.topic(TOPIC_NAME).publishMessage({ json: mon })
+    await pubsub?.topic(TOPIC_NAME).publishMessage({ json: monrun })
   } catch (error) {
     logger.error(`Received error while publishing to ${TOPIC_NAME} - ${error.message}`)
   }
@@ -99,4 +99,27 @@ export async function publishMonitorRunMessage(monrun: MonitorRunResult) {
       logger.error(error, `Received error while publishing to ${TOPIC_NAME}`)
     }
   })
+}
+
+export async function publishOndemandResponseMessage(monrun: MonitorRunResult) {
+  if (!state.projectId || process.env.NODE_ENV != 'production') {
+    emitter.emit('monitor-ondemand-response', monrun)
+    return
+  }
+
+  const projectId = state.projectId
+  if (!pubsub) {
+    pubsub = new PubSub({ projectId })
+  }
+
+  if (!pubsub) throw new Error('Pubsub is not initialized')
+
+  //publish  to cloud pubsub
+  const topic = `${projectId}-monitor-ondemand-response`
+  try {
+    await pubsub.topic(topic).publishMessage({ attributes: { type: topic }, json: monrun })
+    logger.info({ resultId: monrun.result?.id }, `Published ${topic}`)
+  } catch (error) {
+    logger.error(error, `Received error while publishing to postrequest`)
+  }
 }

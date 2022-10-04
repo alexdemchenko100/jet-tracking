@@ -6,8 +6,6 @@ import { v4 as uuidv4 } from 'uuid'
 import dayjs from 'dayjs'
 import { sql } from 'kysely'
 import { readObject } from './GSCService'
-import { result } from '.pnpm/@types+lodash@4.14.178/node_modules/@types/lodash'
-import { dnsLookupIpVersionToFamily } from 'got/dist/source/core/utils/dns-ip-version'
 
 export interface ResultQueryString {
   startTime: string

@@ -564,6 +564,7 @@ export const BillingInfoSchema = S.object()
 export interface MonitorRunResult {
   runId: string
   mon: Monitor
+  result?: MonitorResult
   resultId?: string
   err?: {
     msg: string
@@ -576,6 +577,7 @@ export const MonitorRunResultSchema = S.object()
   .prop('runId', S.string())
   .required()
   .prop('resultId', S.string())
+  .prop('result', MonitorResultFluentSchema)
   .prop('err', S.object().prop('msg', S.string()))
 
 export type ApiKey = {

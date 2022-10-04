@@ -9,7 +9,7 @@ import { randomInt } from 'crypto'
 import got, { Method, RequestError, Response } from 'got'
 import { logger } from '../Context'
 import { processAssertions } from './Assertions'
-import { publishPostRequestMessage } from './PubSubService'
+import { publishOndemandResponseMessage, publishPostRequestMessage } from './PubSubService'
 import { saveMonitorResult } from './DBService'
 import { requestErrorToMonitorResult, responseToMonitorResult } from 'src/utils/common'
 
@@ -214,6 +214,11 @@ export async function runMonitor(monrun: MonitorRunResult) {
     'exec-monitor-result'
   )
 
+  if (monitor.status == 'ondemand') {
+    await publishOndemandResponseMessage({...monrun, result})
+    return
+  }
+
   //createdAt caused type issue for db
   const monitorResult = await saveMonitorResult(
     {
@@ -232,5 +237,5 @@ export async function runMonitor(monrun: MonitorRunResult) {
     },
   }
 
-  publishPostRequestMessage(runResult)
+  await publishPostRequestMessage(runResult)
 }
