@@ -313,7 +313,7 @@ export default function Console() {
               icon={<MdOutlineMenuOpen fontSize='24' />}
               bg='transparent'
               size='sm'
-              display={{ sm: 'none', md: 'flex' }}
+              display={{ base: 'none', md: 'flex' }}
               visibility={menuCollapsed ? 'hidden' : 'visible'}
               onClick={() => setMenuCollapsed(true)}
             />

@@ -27,12 +27,12 @@ test('add, edit and remove global env', async ({ page }) => {
   await page.locator('div[role="group"]:has-text("Environment")').click()
   await expect(page).toHaveURL('/console/envs')
 
-  await expect(page.locator('.global-env-key').last()).toHaveValue(key)
-  await expect(page.locator('.global-env-value').last()).toHaveValue(value)
+  await expect(page.locator(`[data-name="${key}"] .global-env-key`)).toHaveValue(key)
+  await expect(page.locator(`[data-name="${key}"] .global-env-value`)).toHaveValue(value)
 
   // Edit env test
   const updatedValue = Math.random().toString().slice(2, 9)
-  await page.locator('.global-env-value').last().fill(updatedValue)
+  await page.locator(`[data-name="${key}"] .global-env-value`).fill(updatedValue)
   // Click button:has-text("Save")
   await page.locator('button:has-text("Save")').click()
 
@@ -40,11 +40,11 @@ test('add, edit and remove global env', async ({ page }) => {
   await expect(page).toHaveURL('/console/monitors')
   await page.locator('div[role="group"]:has-text("Environment")').click()
   await expect(page).toHaveURL('/console/envs')
-  await expect(page.locator('.global-env-value').last()).toHaveValue(updatedValue)
+  await expect(page.locator(`[data-name="${key}"] .global-env-value`)).toHaveValue(updatedValue)
 
   // Remove env test
-  await page.locator('.global-env-remove-btn').last().click()
+  await page.locator(`[data-name="${key}"] .global-env-remove-btn`).click()
   // Click button:has-text("Save")
   await page.locator('button:has-text("Save")').click()
-  await expect(page.locator('.global-env-key').last()).not.toHaveValue(key)
+  await expect(page.locator(`[data-name="${key}"]`)).toHaveCount(0)
 })

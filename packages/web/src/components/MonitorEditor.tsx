@@ -291,27 +291,38 @@ function Environments() {
     )
   }
 
+  if (!EnvsOptions.length) {
+    return <></>
+  }
+
   return (
-    <Box maxW='500'>
-      <MultiSelect
-        isMulti
-        value={selectedEnvs}
-        onChange={onChange}
-        options={EnvsOptions}
-        chakraStyles={{
-          dropdownIndicator: (provided) => ({
-            ...provided,
-            bg: 'transparent',
-            px: 2,
-            cursor: 'inherit',
-          }),
-          indicatorSeparator: (provided) => ({
-            ...provided,
-            display: 'none',
-          }),
-        }}
-      />
-    </Box>
+    <Section py='4'>
+      <Text variant='title' color='black'>
+        Environment
+      </Text>
+      <Box pt='5' pb='2'>
+        <Box maxW='500'>
+          <MultiSelect
+            isMulti
+            value={selectedEnvs}
+            onChange={onChange}
+            options={EnvsOptions}
+            chakraStyles={{
+              dropdownIndicator: (provided) => ({
+                ...provided,
+                bg: 'transparent',
+                px: 2,
+                cursor: 'inherit',
+              }),
+              indicatorSeparator: (provided) => ({
+                ...provided,
+                display: 'none',
+              }),
+            }}
+          />
+        </Box>
+      </Box>
+    </Section>
   )
 }
 
@@ -870,14 +881,14 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
                   </Accordion>
                 </Section>
 
-                <Section py='4'>
+                {/* <Section py='4'>
                   <Text variant='title' color='black'>
                     Environment
                   </Text>
-                  <Box pt='5' pb='2'>
-                    <Environments />
-                  </Box>
-                </Section>
+                  <Box pt='5' pb='2'> */}
+                <Environments />
+                {/* </Box>
+                </Section> */}
 
                 <Section py='4'>
                   <Text variant='title' color='black'>

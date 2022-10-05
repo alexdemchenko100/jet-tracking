@@ -123,6 +123,20 @@ export function EnvEditor() {
     }
   }
 
+  const removeVariable = (index: number) => {
+    if (tuples.length === 1) {
+      toast({
+        position: 'top',
+        description: 'One env requires at least one variable.',
+        status: 'error',
+        duration: 1500,
+        isClosable: true,
+      })
+    } else {
+      remove(index)
+    }
+  }
+
   if (!monEnv) return <Loading />
 
   const name = getValues('name')
@@ -181,7 +195,12 @@ export function EnvEditor() {
                   </Text>
                   <Input type='text' {...register(`env.${index}.1` as const)} placeholder='Value' />
                 </Box>
-                <Button borderRadius='4' bg='lightgray.100' px={3} onClick={() => remove(index)}>
+                <Button
+                  borderRadius='4'
+                  bg='lightgray.100'
+                  px={3}
+                  onClick={() => removeVariable(index)}
+                >
                   <Icon color='gray.300' as={FiTrash2} cursor='pointer' />
                 </Button>
               </Flex>

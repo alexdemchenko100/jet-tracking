@@ -113,7 +113,7 @@ function SettingsApiKeys() {
 
   return (
     <>
-      <SettingsHeader formChanged={false} resetForm={() => {}}></SettingsHeader>
+      <SettingsHeader title='API Keys'></SettingsHeader>
       <Section width='100%' pb={10} minH='96'>
         <Flex alignItems='center' justifyContent='flex-end'>
           <Button px={0} variant='unstyled' onClick={() => setShowAddModal(true)}>

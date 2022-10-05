@@ -280,14 +280,9 @@ export default function SettingsBillingPlans() {
 
   return (
     <>
-      <SettingsHeader formChanged={false} resetForm={() => {}}></SettingsHeader>
+      <SettingsHeader title='Billing Plans'></SettingsHeader>
       <Box width='100%'>
         <Section pt={4} pb={10}>
-          <Box>
-            <Text variant='title' color='black'>
-              Billing Plans
-            </Text>
-          </Box>
           <Grid my={6} templateColumns={{ base: '1fr', xl: '1fr 1fr 1fr' }} gap={6}>
             <FreePlan isActive={billingInfo?.billingPlanType === 'free'}></FreePlan>
             <PayAsGoPlan isActive={billingInfo?.billingPlanType === 'pay-as-you-go'}></PayAsGoPlan>

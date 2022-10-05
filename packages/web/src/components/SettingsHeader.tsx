@@ -1,35 +1,18 @@
-import { Flex } from '@chakra-ui/react'
-import { Section, Text, PrimaryButton } from '../components'
+import { Flex, Icon, Button } from '@chakra-ui/react'
+import { FiEdit } from 'react-icons/fi'
+import { Section, Text } from '../components'
 
 interface Props {
-  formChanged?: boolean
-  resetForm: () => void
+  title: string
 }
 
-function SettingsHeader({ formChanged = true, resetForm }: Props) {
+function SettingsHeader({ title }: Props) {
   return (
     <Section position='absolute' top='0' left='0' width='100%'>
       <Flex alignItems='center' justify={'space-between'}>
         <Text variant='header' color='black'>
-          Settings
+          {title}
         </Text>
-        <Flex gap={2}>
-          <PrimaryButton
-            label='Cancel'
-            isOutline
-            disabled={!formChanged}
-            variant='emphasis'
-            color={'darkblue.100'}
-            onClick={resetForm}
-          ></PrimaryButton>
-          <PrimaryButton
-            label='Save'
-            disabled={!formChanged}
-            variant='emphasis'
-            color={'white'}
-            type='submit'
-          ></PrimaryButton>
-        </Flex>
       </Flex>
     </Section>
   )

@@ -29,7 +29,7 @@ export default function SettingsBillingPayAsYouGo() {
 
   return (
     <>
-      <SettingsHeader formChanged={false} resetForm={() => {}}></SettingsHeader>
+      <SettingsHeader title='Pay As You Go'></SettingsHeader>
       <Box width='100%'>
         <Section pt={4} pb={10}>
           <Box>

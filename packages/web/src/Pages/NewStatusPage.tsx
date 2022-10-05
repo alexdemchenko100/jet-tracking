@@ -8,7 +8,7 @@ import { FiPlus, FiTrash2 } from 'react-icons/fi'
 import { Section, Text, PrimaryButton, MonitorsSelectModal } from '../components'
 
 function NewStatusPage() {
-  const [formChanged, setFormChanged] = useState<boolean>(false)
+  const [actionBtnVisible, setActionBtnVisible] = useState<boolean>(false)
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [selectedMons, setSelectedMons] = useState<Monitor[]>([])
   const { register, watch, reset, getValues, setValue, handleSubmit } = useForm<StatusPage>()
@@ -19,10 +19,8 @@ function NewStatusPage() {
 
   useEffect(() => {
     const subscription = watch((value) => {
-      if (value.name || value.logoUrl || (value.monitors && value.monitors.length > 0)) {
-        setFormChanged(true)
-      } else {
-        setFormChanged(false)
+      if (value.name && value.logoUrl && value.monitors && value.monitors.length > 0) {
+        setActionBtnVisible(true)
       }
     })
     return () => subscription.unsubscribe()
@@ -31,7 +29,7 @@ function NewStatusPage() {
   const cancelChanges = () => {
     reset()
     setSelectedMons([])
-    setFormChanged(false)
+    setActionBtnVisible(false)
   }
 
   const addNewMon = (mons: Monitor[]) => {
@@ -112,26 +110,9 @@ function NewStatusPage() {
           <Text variant='header' color='black'>
             New Status Page
           </Text>
-          <Flex align='center' justifyContent='flex-end' gap={2}>
-            <PrimaryButton
-              label='Cancel'
-              isOutline
-              disabled={!formChanged}
-              variant='emphasis'
-              color={'darkblue.100'}
-              onClick={cancelChanges}
-            ></PrimaryButton>
-            <PrimaryButton
-              disabled={!formChanged}
-              label='Save'
-              variant='emphasis'
-              color={'white'}
-              type='submit'
-            ></PrimaryButton>
-          </Flex>
         </Flex>
       </Section>
-      <Section pt={4} w='100%' pb={20}>
+      <Section py={4} w='100%'>
         <Flex alignItems='flex-end' gap={20}>
           <Box w='50%'>
             <Box>
@@ -165,7 +146,7 @@ function NewStatusPage() {
             )}
           </Flex>
         </Flex>
-        <Box mt='6' pb='10'>
+        <Box mt='6' pb='4'>
           <Flex alignItems='center' justifyContent='space-between'>
             <Text variant='title' color='darkgray.100'>
               Monitors
@@ -217,6 +198,23 @@ function NewStatusPage() {
             ))}
           </Grid>
         </Box>
+        {actionBtnVisible && (
+          <Flex align='center' justifyContent='flex-end' gap={2}>
+            <PrimaryButton
+              label='Cancel'
+              isOutline
+              variant='emphasis'
+              color={'darkblue.100'}
+              onClick={cancelChanges}
+            ></PrimaryButton>
+            <PrimaryButton
+              label='Save'
+              variant='emphasis'
+              color={'white'}
+              type='submit'
+            ></PrimaryButton>
+          </Flex>
+        )}
         <MonitorsSelectModal
           key={`monitors-select-modal-${isModalOpen}`}
           onChange={addNewMon}

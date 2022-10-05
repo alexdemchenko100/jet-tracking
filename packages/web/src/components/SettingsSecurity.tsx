@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Box, FormControl, Switch, FormLabel } from '@chakra-ui/react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Section, Text, SettingsHeader } from '../components'
@@ -26,7 +27,7 @@ export default function SettingsSecurity() {
   return (
     <FormProvider {...methods}>
       <Box as='form' w='100%' onSubmit={handleSubmit(handleCreation)}>
-        <SettingsHeader resetForm={() => reset()}></SettingsHeader>
+        <SettingsHeader title='Security'></SettingsHeader>
         <Box width='100%'>
           <Section pt={4} pb={20}>
             <Text variant='title' color='black'>

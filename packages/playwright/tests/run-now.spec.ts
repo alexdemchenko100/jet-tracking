@@ -68,7 +68,7 @@ test('should monitor with global env', async ({ page }) => {
 
   await page.locator('div[role="group"]:has-text("Environments")').click()
   await expect(page).toHaveURL('/console/envs')
-  await page.locator(`[data-name="BASE"] .global-env-remove-btn`).last().click()
+  await page.locator(`[data-name="BASE"] .global-env-remove-btn`).click()
   // Click button:has-text("Save")
   await page.locator('button:has-text("Save")').click()
 })

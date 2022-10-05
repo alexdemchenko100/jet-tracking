@@ -30,10 +30,11 @@ test('should click around the app', async ({ page }) => {
   // Click text=Notifications
   await page.locator('text=Notifications').click()
   await expect(page).toHaveURL('/console/settings/notifications')
+
   // Click .chakra-radio__control >> nth=0
   await page.locator('.chakra-radio__control').first().click()
   // Select 7
-  await page.locator('select[name="alert\\.failCount"]').selectOption('7')
+  await page.locator('select[name="failCount"]').selectOption('7')
   // Click div[role="group"]:has-text("API Keys")
   await page.locator('div[role="group"]:has-text("API Keys")').click()
   await expect(page).toHaveURL('/console/settings/api-keys')

@@ -76,15 +76,7 @@ const GlobalEnvs: React.FC = () => {
   }, [watch])
 
   async function handleSaveEnv(data: MonEnv) {
-    if (data.env.length < 1) {
-      toast({
-        position: 'top',
-        description: 'Need one variable at least',
-        status: 'error',
-        duration: 1500,
-        isClosable: false,
-      })
-    } else if (!checkFormValidation(data)) {
+    if (!checkFormValidation(data)) {
       toast({
         position: 'top',
         description: 'Please fill out all fields',

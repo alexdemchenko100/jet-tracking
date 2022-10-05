@@ -152,7 +152,7 @@ export default function SettingsBillingPrepaid() {
 
   return (
     <>
-      <SettingsHeader formChanged={false} resetForm={() => {}}></SettingsHeader>
+      <SettingsHeader title='Billing Prepaid'></SettingsHeader>
       <Box width='100%'>
         <Section pt={4} pb={10}>
           <Flex direction='column'>

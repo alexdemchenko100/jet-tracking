@@ -439,7 +439,7 @@ export default function SettingsBilling() {
 
   return (
     <Elements stripe={stripePromise}>
-      <SettingsHeader formChanged={false} resetForm={() => {}}></SettingsHeader>
+      <SettingsHeader title='Billing & Usage'></SettingsHeader>
       <Box width='100%'>
         <Section pt={4} pb={10}>
           <Box>

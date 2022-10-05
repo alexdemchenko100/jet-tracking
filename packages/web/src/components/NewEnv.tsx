@@ -8,7 +8,7 @@ import { FiPlus, FiTrash2 } from 'react-icons/fi'
 import { Section, Text, PrimaryButton } from '../components'
 
 export default function NewEnv() {
-  const [formChanged, setFormChanged] = useState<boolean>(false)
+  const [actionBtnVisible, setActionBtnVisible] = useState<boolean>(false)
   const { control, register, watch, reset, handleSubmit } = useForm<MonEnv>({
     defaultValues: {
       name: '' as string,
@@ -31,15 +31,10 @@ export default function NewEnv() {
 
   useEffect(() => {
     const subscription = watch((value) => {
-      if (
-        (value.env && value.env[0] && value.env[0][0]) ||
-        (value.env && value.env[0] && value.env[0][1]) ||
-        (value.env && value.env.length > 1) ||
-        value.name
-      ) {
-        setFormChanged(true)
+      if (value.env && value.env.length > 0 && value.name) {
+        setActionBtnVisible(true)
       } else {
-        setFormChanged(false)
+        setActionBtnVisible(false)
       }
     })
     return () => subscription.unsubscribe()
@@ -47,7 +42,7 @@ export default function NewEnv() {
 
   const cancelChanges = () => {
     reset()
-    setFormChanged(false)
+    setActionBtnVisible(false)
   }
 
   const checkFormValidation = (data: MonEnv) => {
@@ -148,23 +143,23 @@ export default function NewEnv() {
               </Flex>
             </Button>
           </Flex>
-          <Flex align='center' justifyContent='flex-end' gap={2}>
-            <PrimaryButton
-              label='Cancel'
-              isOutline
-              disabled={!formChanged}
-              variant='emphasis'
-              color={'darkblue.100'}
-              onClick={cancelChanges}
-            ></PrimaryButton>
-            <PrimaryButton
-              disabled={!formChanged}
-              label='Save'
-              variant='emphasis'
-              color={'white'}
-              type='submit'
-            ></PrimaryButton>
-          </Flex>
+          {actionBtnVisible && (
+            <Flex align='center' justifyContent='flex-end' gap={2}>
+              <PrimaryButton
+                label='Cancel'
+                isOutline
+                variant='emphasis'
+                color={'darkblue.100'}
+                onClick={cancelChanges}
+              ></PrimaryButton>
+              <PrimaryButton
+                label='Save'
+                variant='emphasis'
+                color={'white'}
+                type='submit'
+              ></PrimaryButton>
+            </Flex>
+          )}
         </Flex>
       </form>
     </Section>
