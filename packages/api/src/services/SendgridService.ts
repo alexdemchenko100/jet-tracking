@@ -52,7 +52,7 @@ export async function sendVerificationEmail(
   }
 }
 
-export function sendNotificationEmail(email: string, message: string) {
+export function sendNotificationEmail(email: string, data: any) {
   try {
     if (
       !process.env.SENDGRID_API_KEY ||
@@ -78,9 +78,7 @@ export function sendNotificationEmail(email: string, message: string) {
                 email,
               },
             ],
-            dynamic_template_data: {
-              message,
-            },
+            dynamic_template_data: data,
           },
         ],
         template_id: process.env.SENDGRID_NOTIFICATION_EMAIL_TEMPLATE,

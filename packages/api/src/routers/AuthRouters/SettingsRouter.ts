@@ -83,7 +83,7 @@ export default async function SettingsRouter(app: FastifyInstance) {
     },
     async function ({ params: { id }, log }, reply) {
       const resp = await settingsService.deleteNotification(id)
-      log.info(resp, `Deleted notification id: ${id}`)
+      log.info(`Deleted notification id: ${id}`)
       reply.send(resp)
     }
   )

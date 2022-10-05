@@ -180,20 +180,45 @@ export function sendEmailNotification(
   monitor: Monitor,
   result: MonitorResult
 ) {
-  let message = ''
+  let message = {}
   if (type == 'Alert') {
-    message = `Monitor ${monitor.name} is down\n
-    URL: ${monitor.url}
-    Location: ${result.location}
-    Status: ${result.err}
-    ${formatAssertionResults(result)}
-    \nResponse: ${getResponseUrl(result)}`
+    let assertResults
+    if (Array.isArray(result?.assertResults)) {
+      assertResults = result?.assertResults
+        .filter((result) => result.fail)
+        .map((result) => ({
+          type: result.type,
+          value: result.value,
+          fail: result.fail,
+        }))
+    }
+    message = {
+      page_url: getMonitorUrl(monitor),
+      monitor: {
+        name: monitor.name,
+        url: monitor.url,
+      },
+      status: 'down',
+      result: {
+        location: result.location,
+        err: result.err,
+        assertResults,
+      },
+      response_url: getResponseUrl(result),
+    }
   } else if (type == 'Recover') {
-    //its recovery
-    message = `Monitor ${monitor.name} has recovered\n
-    URL: ${monitor.url}
-    Location: ${result.location}
-    \nResponse: ${getResponseUrl(result)}`
+    message = {
+      page_url: getMonitorUrl(monitor),
+      monitor: {
+        name: monitor.name,
+        url: monitor.url,
+      },
+      status: 'up',
+      result: {
+        location: result.location,
+      },
+      response_url: getResponseUrl(result),
+    }
   }
   sendNotificationEmail(channel.email, message)
 }

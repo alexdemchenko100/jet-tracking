@@ -60,7 +60,7 @@ export class SettingsService {
       .where('id', '=', id)
       .where('accountId', '=', currentUserInfo().accountId)
       .executeTakeFirst()
-    return resp.numDeletedRows
+    return resp
   }
 
   public async getSettings() {

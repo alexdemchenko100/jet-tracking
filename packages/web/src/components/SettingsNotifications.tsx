@@ -626,6 +626,7 @@ export default function SettingsNotifications() {
             </ModalContent>
           </Modal>
           <NotificationDetailsModal
+            key={selectedNotification?.id}
             emails={notificationEmails || []}
             notification={selectedNotification}
             open={modalOpen}
