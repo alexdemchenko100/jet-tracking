@@ -93,15 +93,7 @@ export function EnvEditor() {
   }, [watch])
 
   async function handleSaveEnv(data: MonEnv) {
-    if (data.env.length < 1) {
-      toast({
-        position: 'top',
-        description: 'Need one variable at least',
-        status: 'error',
-        duration: 1500,
-        isClosable: false,
-      })
-    } else if (!checkFormValidation(data)) {
+    if (!checkFormValidation(data)) {
       toast({
         position: 'top',
         description: 'Please fill out all fields',
@@ -120,20 +112,6 @@ export function EnvEditor() {
         isClosable: false,
       })
       navigate(`/console/envs/${data.id}`)
-    }
-  }
-
-  const removeVariable = (index: number) => {
-    if (tuples.length === 1) {
-      toast({
-        position: 'top',
-        description: 'One env requires at least one variable.',
-        status: 'error',
-        duration: 1500,
-        isClosable: true,
-      })
-    } else {
-      remove(index)
     }
   }
 
@@ -195,12 +173,7 @@ export function EnvEditor() {
                   </Text>
                   <Input type='text' {...register(`env.${index}.1` as const)} placeholder='Value' />
                 </Box>
-                <Button
-                  borderRadius='4'
-                  bg='lightgray.100'
-                  px={3}
-                  onClick={() => removeVariable(index)}
-                >
+                <Button borderRadius='4' bg='lightgray.100' px={3} onClick={() => remove(index)}>
                   <Icon color='gray.300' as={FiTrash2} cursor='pointer' />
                 </Button>
               </Flex>

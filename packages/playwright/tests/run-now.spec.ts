@@ -42,7 +42,16 @@ test('should monitor with global env', async ({ page }) => {
     await page.locator('.global-env [placeholder="Value"]').last().fill('https://www.proautoma.com')
     // Click button:has-text("Save")
     await page.locator('button:has-text("Save")').click()
+    await page.waitForSelector('.global-env-title:has-text("Global Environment")')
   }
+
+  await page.locator('div[role="group"]:has-text("Dashboard")').click()
+  await expect(page).toHaveURL('/console/monitors')
+
+  await page.locator('div[role="group"]:has-text("Environments")').click()
+  await expect(page).toHaveURL('/console/envs')
+  const count = await page.locator('[data-name="BASE"]').count()
+  await expect(count).toBe(1)
 
   await page.locator('div[role="group"]:has-text("Dashboard")').click()
   await expect(page).toHaveURL('/console/monitors')
