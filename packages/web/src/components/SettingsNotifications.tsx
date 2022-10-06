@@ -15,6 +15,7 @@ import {
   useToast,
   Grid,
   Image,
+  Link,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -24,16 +25,10 @@ import {
   ModalFooter,
 } from '@chakra-ui/react'
 import { FiEdit, FiTrash2, FiPlus } from 'react-icons/fi'
-import { FormProvider, useForm } from 'react-hook-form'
+import { FormProvider, useForm, Controller } from 'react-hook-form'
 import axios from 'axios'
 import { useQuery } from 'react-query'
-import {
-  EmailNotificationChannel,
-  MSTeamsNotificationChannel,
-  NotificationChannel,
-  SlackNotificationChannel,
-  UserAccount,
-} from '@httpmon/db'
+import { NotificationChannel, UserAccount } from '@httpmon/db'
 
 import { Section, Text, ChannelSelect, PrimaryButton, SettingsHeader } from '../components'
 import { BlueEmailIcon, MSTeamsIcon, SlackIcon } from '../Assets'
@@ -52,13 +47,13 @@ interface Props {
   onClose: () => void
 }
 
-type Channel = SlackNotificationChannel | EmailNotificationChannel | MSTeamsNotificationChannel
-
 function NotificationDetailsModal({ emails, notification, open, onClose }: Props) {
   const toast = useToast()
   const methods = useForm<NotificationChannel>({
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
     defaultValues: {
-      name: '',
+      name: undefined,
       channel: {},
       isDefaultEnabled: true,
       applyOnExistingMonitors: false,
@@ -69,8 +64,8 @@ function NotificationDetailsModal({ emails, notification, open, onClose }: Props
     reset,
     handleSubmit,
     watch,
-    setValue,
-    formState: { errors },
+    control,
+    formState: { errors, isValid },
   } = methods
   const watched = watch()
 
@@ -79,11 +74,6 @@ function NotificationDetailsModal({ emails, notification, open, onClose }: Props
       reset({ ...notification })
     }
   }, [notification])
-
-  const selectChannel = (value: string) => {
-    const data = { type: value } as Channel
-    setValue('channel', data)
-  }
 
   const saveNotification = async (data: NotificationChannel) => {
     let msg
@@ -113,7 +103,7 @@ function NotificationDetailsModal({ emails, notification, open, onClose }: Props
     onClose()
   }
 
-  const { channel, isDefaultEnabled, applyOnExistingMonitors } = watched
+  const { channel } = watched
 
   return (
     <Modal isOpen={open} onClose={closeModal} isCentered>
@@ -137,11 +127,16 @@ function NotificationDetailsModal({ emails, notification, open, onClose }: Props
                     borderRadius={8}
                     borderColor={errors.name ? 'red' : 'gray.200'}
                     type='text'
-                    {...register('name' as const, { required: true })}
+                    {...register('name' as const, { required: true, pattern: /^[A-Z0-9_-]{1,}$/i })}
                   />
-                  {errors.name && (
+                  {errors.name?.type === 'required' && (
                     <Text variant='details' color='red'>
                       * Name Required
+                    </Text>
+                  )}
+                  {errors.name?.type === 'pattern' && (
+                    <Text variant='details' color='red'>
+                      * Name is invalid
                     </Text>
                   )}
                 </Flex>
@@ -149,16 +144,16 @@ function NotificationDetailsModal({ emails, notification, open, onClose }: Props
                   <Text variant='details' mb={1} color='black'>
                     Type
                   </Text>
-                  <ChannelSelect
-                    channel={channel.type}
-                    onSelect={selectChannel}
-                    hasError={!!errors.channel?.type}
+                  <Controller
+                    control={control}
+                    name='channel.type'
+                    rules={{
+                      required: true,
+                    }}
+                    render={({ field: { value, onChange } }) => (
+                      <ChannelSelect channel={value} onSelect={onChange} />
+                    )}
                   />
-                  {errors.channel?.type && (
-                    <Text variant='details' color='red'>
-                      * Channel Required
-                    </Text>
-                  )}
                 </Flex>
               </Flex>
               {channel.type === 'email' && (
@@ -167,19 +162,27 @@ function NotificationDetailsModal({ emails, notification, open, onClose }: Props
                     <Text variant='details' mb={1} color='black'>
                       Email *
                     </Text>
-                    <Select borderRadius={8} {...register('channel.email' as const)}>
-                      <option disabled>Please select an email</option>
+                    <Select
+                      borderRadius={8}
+                      {...register('channel.email' as const, { required: true })}
+                    >
+                      <option value=''>Please select an email</option>
                       {emails.map((notificationEmail) => (
                         <option key={notificationEmail.id} value={notificationEmail.email}>
                           {notificationEmail.email}
                         </option>
                       ))}
                     </Select>
+                    {errors.channel?.email?.type === 'required' && (
+                      <Text variant='details' color='red'>
+                        * Email Required
+                      </Text>
+                    )}
                   </Flex>
                 </Flex>
               )}
               {(channel.type === 'slack' || channel.type === 'ms-teams') && (
-                <Flex mb={6}>
+                <Flex>
                   <Flex direction='column' w='100%'>
                     <Text variant='details' mb={1} color='black'>
                       Webhook URL
@@ -187,18 +190,46 @@ function NotificationDetailsModal({ emails, notification, open, onClose }: Props
                     <Input
                       borderRadius={8}
                       type='text'
-                      {...register('channel.webhookUrl' as const, { required: true })}
+                      borderColor={errors.channel?.webhookUrl ? 'red' : 'gray.200'}
+                      {...register('channel.webhookUrl', {
+                        required: true,
+                        pattern:
+                          /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi,
+                      })}
                     />
+                    {errors.channel?.webhookUrl?.type === 'required' && (
+                      <Text variant='details' color='red'>
+                        * Webhook URL Required
+                      </Text>
+                    )}
+                    {errors.channel?.webhookUrl?.type === 'pattern' && (
+                      <Text variant='details' color='red'>
+                        * The URL is invalid
+                      </Text>
+                    )}
                   </Flex>
                 </Flex>
               )}
-              <Box mt={4}>
+              {channel.type === 'slack' && (
+                <Text variant='details' fontWeight='400' color='darkgray.300'>
+                  * Create a&nbsp;
+                  <Link
+                    color='darkblue.100'
+                    href='https://api.slack.com/messaging/webhooks'
+                    target='_blank'
+                  >
+                    Slack integration
+                  </Link>
+                  &nbsp; by creating an app to post as incoming webhook. Then, copy the webhook
+                  here.
+                </Text>
+              )}
+              <Box mt={6}>
                 <FormControl display='flex' alignItems='center'>
                   <Switch
                     id='edit-default_enabled'
                     size='sm'
                     mr={2}
-                    isChecked={isDefaultEnabled}
                     {...register('isDefaultEnabled' as const)}
                   />
                   <FormLabel htmlFor='edit-default_enabled' m={0}>
@@ -214,7 +245,6 @@ function NotificationDetailsModal({ emails, notification, open, onClose }: Props
                     id='edit-apply-on-all'
                     size='sm'
                     mr={2}
-                    isChecked={applyOnExistingMonitors}
                     {...register('applyOnExistingMonitors' as const)}
                   />
                   <FormLabel htmlFor='edit-apply-on-all' m={0}>
@@ -235,7 +265,7 @@ function NotificationDetailsModal({ emails, notification, open, onClose }: Props
                 onClick={closeModal}
               ></PrimaryButton>
               <PrimaryButton
-                disabled={!channel.type}
+                disabled={!isValid}
                 label='Save'
                 variant='emphasis'
                 color='white'
@@ -255,11 +285,16 @@ function NotifySettings() {
   const methods = useForm<AlertSettingsForm>({
     defaultValues: {
       failCount: 1,
-      failTimeMinutes: undefined,
+      failTimeMinutes: 5,
     },
   })
-  const { register, reset, handleSubmit, formState, watch, setValue } = methods
-  const watched = watch()
+  const {
+    register,
+    reset,
+    handleSubmit,
+    formState: { isDirty },
+    control,
+  } = methods
 
   useQuery(['alert-settings'], async () => {
     const resp = await axios({
@@ -275,7 +310,7 @@ function NotifySettings() {
   })
 
   const saveAlertSettings = async (data: AlertSettingsForm) => {
-    const resp = await axios.put('/settings', {
+    await axios.put('/settings', {
       alert: {
         failCount: data.alertSetting === 'failCount' ? data.failCount : undefined,
         failTimeMinutes: data.alertSetting === 'failTimeMinutes' ? data.failTimeMinutes : undefined,
@@ -289,6 +324,7 @@ function NotifySettings() {
       duration: 2000,
       isClosable: true,
     })
+    Store.queryClient?.invalidateQueries(['alert-settings'])
   }
 
   return (
@@ -300,98 +336,101 @@ function NotifySettings() {
               Notify when
             </Text>
           </Flex>
-          <RadioGroup mt={6} value={watched.alertSetting} defaultValue={watched.alertSetting}>
-            <Stack direction='column' gap={2}>
-              <Flex
-                alignItems='flex-start'
-                width='max-content'
-                as='label'
-                html-for='failCount'
-                cursor='pointer'
-              >
-                <Radio
-                  mt={2}
-                  id='failCount'
-                  value='failCount'
-                  colorScheme='cyan'
-                  _focus={{ boxShadow: 'none' }}
-                  {...register(`alertSetting`)}
-                ></Radio>
-                <Flex flexWrap='wrap' alignItems='center'>
-                  <Text variant='paragraph' whiteSpace='nowrap' mx={3} color='darkgray.100'>
-                    A monitor fails for
-                  </Text>
-                  <Select
-                    width={16}
-                    disabled={watched.alertSetting !== 'failCount'}
-                    borderRadius={8}
-                    color='darkgray.100'
-                    borderColor='gray.200'
-                    size='sm'
-                    value={watched.failCount}
-                    {...register(`failCount` as const, {
-                      valueAsNumber: true,
-                    })}
+          <Controller
+            control={control}
+            name='alertSetting'
+            render={({ field: { value, onChange, ref } }) => (
+              <RadioGroup mt={6} ref={ref} value={value} onChange={onChange}>
+                <Stack direction='column' gap={2}>
+                  <Flex
+                    alignItems='flex-start'
+                    width='max-content'
+                    as='label'
+                    html-for='failCount'
+                    cursor='pointer'
                   >
-                    {Array(10)
-                      .fill('')
-                      .map((_, index) => (
-                        <option key={index} value={index + 1}>
-                          {index + 1}
-                        </option>
-                      ))}
-                  </Select>
-                  <Text variant='paragraph' whiteSpace='nowrap' ml={3} color='darkgray.100'>
-                    time(s) in a row
-                  </Text>
-                </Flex>
-              </Flex>
-              <Flex
-                alignItems='flex-start'
-                width='max-content'
-                as='label'
-                cursor='pointer'
-                html-for='failTimeMinutes'
-              >
-                <Radio
-                  mt={2}
-                  id='failTimeMinutes'
-                  value='failTimeMinutes'
-                  colorScheme='cyan'
-                  _focus={{ boxShadow: 'none' }}
-                  {...register(`alertSetting`)}
-                ></Radio>
-                <Flex flexWrap='wrap' alignItems='center'>
-                  <Text variant='paragraph' whiteSpace='nowrap' mx={3} color='darkgray.100'>
-                    A monitor is failing for
-                  </Text>
-                  <Select
-                    width={16}
-                    disabled={watched.alertSetting !== 'failTimeMinutes'}
-                    borderRadius={8}
-                    color='darkgray.100'
-                    borderColor='gray.200'
-                    size='sm'
-                    value={watched.failTimeMinutes}
-                    {...register(`failTimeMinutes` as const, {
-                      valueAsNumber: true,
-                    })}
+                    <Radio
+                      mt={2}
+                      id='failCount'
+                      value='failCount'
+                      colorScheme='cyan'
+                      _focus={{ boxShadow: 'none' }}
+                    ></Radio>
+                    <Flex flexWrap='wrap' alignItems='center'>
+                      <Text variant='paragraph' whiteSpace='nowrap' mx={3} color='darkgray.100'>
+                        A monitor fails for
+                      </Text>
+                      <Select
+                        width={16}
+                        disabled={value !== 'failCount'}
+                        borderRadius={8}
+                        color='darkgray.100'
+                        borderColor='gray.200'
+                        size='sm'
+                        {...register(`failCount` as const, {
+                          valueAsNumber: true,
+                        })}
+                      >
+                        {Array(10)
+                          .fill('')
+                          .map((_, index) => (
+                            <option key={index} value={index + 1}>
+                              {index + 1}
+                            </option>
+                          ))}
+                      </Select>
+                      <Text variant='paragraph' whiteSpace='nowrap' ml={3} color='darkgray.100'>
+                        time(s) in a row
+                      </Text>
+                    </Flex>
+                  </Flex>
+                  <Flex
+                    alignItems='flex-start'
+                    width='max-content'
+                    as='label'
+                    cursor='pointer'
+                    html-for='failTimeMinutes'
                   >
-                    <option value='5'>5</option>
-                    <option value='10'>10</option>
-                    <option value='15'>15</option>
-                    <option value='20'>20</option>
-                    <option value='30'>30</option>
-                    <option value='60'>60</option>
-                  </Select>
-                  <Text variant='paragraph' whiteSpace='nowrap' ml={3} color='darkgray.100'>
-                    minutes
-                  </Text>
-                </Flex>
-              </Flex>
-            </Stack>
-          </RadioGroup>
-          {formState.isDirty && (
+                    <Radio
+                      mt={2}
+                      id='failTimeMinutes'
+                      value='failTimeMinutes'
+                      colorScheme='cyan'
+                      _focus={{ boxShadow: 'none' }}
+                    ></Radio>
+                    <Flex flexWrap='wrap' alignItems='center'>
+                      <Text variant='paragraph' whiteSpace='nowrap' mx={3} color='darkgray.100'>
+                        A monitor is failing for
+                      </Text>
+                      <Select
+                        width={16}
+                        disabled={value !== 'failTimeMinutes'}
+                        borderRadius={8}
+                        color='darkgray.100'
+                        borderColor='gray.200'
+                        size='sm'
+                        {...register(`failTimeMinutes` as const, {
+                          valueAsNumber: true,
+                        })}
+                      >
+                        <option value='5'>5</option>
+                        <option value='10'>10</option>
+                        <option value='15'>15</option>
+                        <option value='20'>20</option>
+                        <option value='30'>30</option>
+                        <option value='60'>60</option>
+                      </Select>
+                      <Text variant='paragraph' whiteSpace='nowrap' ml={3} color='darkgray.100'>
+                        minutes
+                      </Text>
+                    </Flex>
+                  </Flex>
+                </Stack>
+              </RadioGroup>
+            )}
+          />
+
+          {isDirty && (
             <Flex justifyContent='flex-end' gap={2}>
               <PrimaryButton
                 label='Cancel'

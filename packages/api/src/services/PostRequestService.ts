@@ -1,4 +1,11 @@
-import { db, MonitorResult, MonitorRunResult } from '@httpmon/db'
+import {
+  db,
+  EmailNotificationChannel,
+  MonitorResult,
+  MonitorRunResult,
+  MSTeamsNotificationChannel,
+  SlackNotificationChannel,
+} from '@httpmon/db'
 import { logger } from 'src/Context'
 import { publishOndemandResponseMessage } from './PubSubService'
 import {
@@ -197,17 +204,32 @@ async function sendNotification(
 
     if (notificationChannel && notificationChannel.channel.type === 'slack' && result) {
       logger.info(`sending notification to channel ${channel}`)
-      await sendSlackNotification(type, notificationChannel.channel, monitor, result)
+      await sendSlackNotification(
+        type,
+        notificationChannel.channel as SlackNotificationChannel,
+        monitor,
+        result
+      )
     }
 
     if (notificationChannel && notificationChannel.channel.type === 'ms-teams' && result) {
       logger.info(`sending notification to MSteams channel ${channel}`)
-      sendMSTeamsNotification(type, notificationChannel.channel, monitor, result)
+      sendMSTeamsNotification(
+        type,
+        notificationChannel.channel as MSTeamsNotificationChannel,
+        monitor,
+        result
+      )
     }
 
     if (notificationChannel && notificationChannel.channel.type === 'email' && result) {
       logger.info(`sending email notification to channel ${channel}`)
-      sendEmailNotification(type, notificationChannel.channel, monitor, result)
+      sendEmailNotification(
+        type,
+        notificationChannel.channel as EmailNotificationChannel,
+        monitor,
+        result
+      )
     }
   })
 }

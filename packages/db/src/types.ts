@@ -366,13 +366,19 @@ export const MSTeamsNotificationSchema = S.object()
   .prop('webhookUrl', S.string().required())
   .prop('type', S.string().enum(['ms-teams']).required())
 
+export type Channel = {
+  type: 'email' | 'ms-teams' | 'slack'
+  webhookUrl?: string
+  email?: string
+}
+
 export type NotificationChannel = {
   id?: string
   accountId: string
   name: string // notification name
   isDefaultEnabled: boolean
   applyOnExistingMonitors: boolean
-  channel: SlackNotificationChannel | EmailNotificationChannel | MSTeamsNotificationChannel
+  channel: Channel
 }
 
 export const NotificationSchema = S.object()
