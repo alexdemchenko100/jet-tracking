@@ -24,7 +24,7 @@ import {
   ModalBody,
   ModalFooter,
 } from '@chakra-ui/react'
-import { FiEdit, FiTrash2, FiPlus } from 'react-icons/fi'
+import { FiEdit, FiTrash2, FiPlus, FiInfo } from 'react-icons/fi'
 import { FormProvider, useForm, Controller } from 'react-hook-form'
 import axios from 'axios'
 import { useQuery } from 'react-query'
@@ -182,7 +182,7 @@ function NotificationDetailsModal({ emails, notification, open, onClose }: Props
                 </Flex>
               )}
               {(channel.type === 'slack' || channel.type === 'ms-teams') && (
-                <Flex>
+                <Flex mb={2}>
                   <Flex direction='column' w='100%'>
                     <Text variant='details' mb={1} color='black'>
                       Webhook URL
@@ -211,8 +211,9 @@ function NotificationDetailsModal({ emails, notification, open, onClose }: Props
                 </Flex>
               )}
               {channel.type === 'slack' && (
-                <Text variant='details' fontWeight='400' color='darkgray.300'>
-                  * Create a&nbsp;
+                <Text variant='submenu' fontWeight='400' color='darkgray.300'>
+                  <Icon color='darkblue.100' as={FiInfo} fontSize='15px' mt='-0.5' />
+                  &nbsp;Create a&nbsp;
                   <Link
                     color='darkblue.100'
                     href='https://api.slack.com/messaging/webhooks'
