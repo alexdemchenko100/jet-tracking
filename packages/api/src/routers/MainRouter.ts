@@ -19,12 +19,14 @@ import SettingsViewerRouter from './AuthRouters/SettingsRouter'
 import PreScriptResultRouter from './CloudHookRouters/PreScriptResultRouter.js'
 import TeamRouter from './AuthRouters/Admin/TeamRouter.js'
 import AccountsRouter from './AuthRouters/AccountsRouter.js'
+import OndemandAnonMonitorRouter from './PublicRouters/OndemandAnonRouter.js'
 
 export default async function MainRouter(fastify: FastifyInstance) {
   //Public API router
   await fastify.register(SettingsPublicRouter, { prefix: '/settings' })
   await fastify.register(StatusPublicRouter, { prefix: '/status' })
   await fastify.register(ContactsPublicRouter, { prefix: '/contacts' })
+  await fastify.register(OndemandAnonMonitorRouter, { prefix: '/anon' })
 
   //Authorized APIs
   await fastify.register(OndemandMonitorRouter, { prefix: '/ondemand' })

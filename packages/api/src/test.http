@@ -108,20 +108,22 @@ Authorization: Bearer pak.TQEDAAM~~~w6219G0yKGMcf_9TFCOP1nN1p9
 
 ###
 
+POST http://localhost:8080/api/anon/run HTTP/1.1
+content-type: application/json
+
+{
+   "name": "ondemand",
+   "url": "https://httpbin.org/anything",
+   "preScript": "ctx.request.headers['x'] = 'y'; ctx.env.g = 'f'; const axios=require('axios'); ctx.request.headers['dude'] = (await axios.get('https://httpbin.org/get')).data.headers.Host"
+
+}
+
+###
+
 GET https://stage.proautoma.com/api/monitors HTTP/1.1
 content-type: application/json
 x-proautoma-accountid: 0742db08-f8b4-48ed-9b62-cd0fd9468ce6
 Authorization: Bearer pak.IXnO0++AUx~r~PzQgrovmvr7o~FASf7Zl-Nu
-
-###
-
-
-GET http://stage.proautoma.com/api/monitors/stats HTTP/1.1
-content-type: application/json
-x-proautoma-accountid: d56da33f-91e8-470c-85ab-cba73c3f9427
-Authorization: Bearer pak.7OERYeSdRavJ28dreS94YdRMe~.qKPn5SwDA
-
-
 
 ###
 
