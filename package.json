@@ -17,7 +17,8 @@
     "db-build": "pnpm -C packages/db run build",
     "sandbox-build": "pnpm -C packages/sandbox run build",
     "dev": "concurrently pnpm:db-dev pnpm:api-dev pnpm:sandbox-dev pnpm:web-dev",
-    "build": "pnpm db-build && pnpm web-build && pnpm free-api-checker-build && pnpm sandbox-build && pnpm api-build",
+    "build": "pnpm db-build && pnpm web-build && pnpm sandbox-build && pnpm api-build",
+    "build-all": "pnpm db-build && pnpm web-build && pnpm free-api-checker-build && pnpm sandbox-build && pnpm api-build",
     "start": "concurrently pnpm:api-prod"
   },
   "author": "ProAutoma, Inc.",

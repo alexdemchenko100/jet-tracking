@@ -12,6 +12,16 @@ export const req = got.extend({
   timeout: { request: 20000 },
 })
 
+export const anonReq = got.extend({
+  prefixUrl: import.meta.env.VITE_BASE_URL,
+  throwHttpErrors: false,
+  responseType: 'json',
+  headers: {
+    'user-agent': 'API Checker/1.0',
+  },
+  timeout: { request: 20000 },
+})
+
 export function randomString() {
   return Math.random().toString().slice(2, 9)
 }

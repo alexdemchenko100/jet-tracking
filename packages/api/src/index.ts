@@ -46,7 +46,7 @@ async function start() {
     })
 
     await server.register(fastifyCors, {
-      origin: ['https://status.proautoma.com'],
+      origin: ['https://status.proautoma.com', 'https://api-checker.proautoma.com'],
       methods: ['GET'],
       credentials: false,
     })

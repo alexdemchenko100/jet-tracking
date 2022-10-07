@@ -11,7 +11,7 @@ import { Store } from './services/Store'
 axios.defaults.withCredentials = true
 axios.defaults.maxRedirects = 0
 if (process.env.NODE_ENV === 'production') {
-  axios.defaults.baseURL = 'https://stage.proautoma.com/api'
+  axios.defaults.baseURL = 'https://app.proautoma.com/api'
 } else {
   axios.defaults.baseURL = 'http://localhost:8080/api'
 }

@@ -108,12 +108,13 @@ Authorization: Bearer pak.TQEDAAM~~~w6219G0yKGMcf_9TFCOP1nN1p9
 
 ###
 
-POST http://localhost:8080/api/anon/run HTTP/1.1
+POST https://stage.proautoma.com/api/anon/run HTTP/1.1
 content-type: application/json
 
 {
    "name": "ondemand",
    "url": "https://httpbin.org/anything",
+   "locations": ["us-east1"],
    "preScript": "ctx.request.headers['x'] = 'y'; ctx.env.g = 'f'; const axios=require('axios'); ctx.request.headers['dude'] = (await axios.get('https://httpbin.org/get')).data.headers.Host"
 
 }
