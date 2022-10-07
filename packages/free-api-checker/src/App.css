@@ -1,0 +1,89 @@
+/*
+ *  Copyright (c) 2020. ProAutoma LLC - All Rights Reserved
+ *  Unauthorized copying of this file, via any medium is strictly prohibited
+ *  Proprietary and confidential
+ *
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.origin-top-right {
+  transform-origin: top right;
+}
+.transition-all {
+  transition-property: all;
+}
+.transition-fastest {
+  transition-duration: 50ms;
+}
+.transition-faster {
+  transition-duration: 100ms;
+}
+.transition-fast {
+  transition-duration: 150ms;
+}
+.transition-medium {
+  transition-duration: 200ms;
+}
+.ease-out-quad {
+  transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.ease-in-quad {
+  transition-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+}
+.scale-70 {
+  transform: scale(0.7);
+}
+.scale-100 {
+  transform: scale(1);
+}
+
+.bg-gradient-callout {
+  background-image: linear-gradient(114deg, #fe4272 35%, #f98b4c 83%);
+}
+
+.gutter {
+  background-color: #eee;
+  background-repeat: no-repeat;
+  background-position: 50%;
+  user-select: none;
+}
+
+.gutter:hover {
+  background-color: rgb(214, 232, 247);
+}
+
+.gutter.gutter-horizontal {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+  cursor: col-resize;
+}
+
+.gutter.gutter-vertical {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+  cursor: row-resize;
+}
+
+span.chakra-checkbox__control {
+  border-radius: 4px;
+  padding: 3px;
+  border: 1px solid #25292f;
+}
+
+span.chakra-checkbox__control svg {
+  font-size: 0.5rem;
+}
+
+span.chakra-checkbox__label {
+  line-height: 20px;
+}
+
+.captialize-first-letter::first-letter {
+  text-transform: uppercase;
+}
+
+.selected-menu-item {
+  pointer-events: none;
+  background-color: rgba(0, 0, 0, 0.03);
+}

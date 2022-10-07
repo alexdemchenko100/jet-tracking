@@ -5,6 +5,10 @@
       "path": "packages/web"
     },
     {
+      "name": "free-api-checker",
+      "path": "packages/free-api-checker"
+    },
+    {
       "name": "api",
       "path": "packages/api"
     },
