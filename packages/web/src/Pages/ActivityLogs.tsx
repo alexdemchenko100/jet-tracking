@@ -8,7 +8,7 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import { Fragment, useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
 import axios from 'axios'
-import { ActivityLog } from '@httpmon/db'
+import { ActivityLog, LogDetails } from '@httpmon/db'
 
 interface ActivityLogExt extends ActivityLog {
   date?: string
@@ -17,45 +17,133 @@ interface ActivityLogExt extends ActivityLog {
 
 const PAGE_SIZE = 20
 
-const LogMessage = ({ log }: { log: ActivityLog }) => {
-  let msg, linkType
-  switch (log.type) {
-    case 'MONITOR_CREATED':
-      msg = 'created'
-      linkType = 'monitor'
-      break
-    case 'MONITOR_PAUSED':
-      msg = 'paused'
-      linkType = 'monitor'
-      break
-    case 'MONITOR_UP':
-      msg = 'up'
-      linkType = 'monitor'
-      break
-    default:
-  }
-
-  if (linkType === 'monitor') {
+function LogBox({ log }: { log: ActivityLogExt }) {
+  if (!log.monitorId) {
     return (
-      <Text className='activity-title' variant='text-field' color='black'>
-        Monitor&nbsp;
-        <Box
-          as={Link}
-          color='darkblue.100'
-          textDecoration='underline'
-          to={`/console/monitors/${log.monitorId}`}
-        >
-          {(log.data as Record<string, string>)?.monitorName}
-        </Box>
-        &nbsp;is&nbsp;{msg}.
-      </Text>
+      <Flex direction={'column'} align='flex-start' gap='1'>
+        <Text variant='details' color='gray.300'>
+          {log.time}
+        </Text>
+        <Text className='activity-title' variant='text-field' color='black'>
+          Monitor&nbsp;{(log.data as LogDetails)?.monitorName}&nbsp;is&nbsp;
+          {(log.data as LogDetails)?.msg}.
+        </Text>
+      </Flex>
     )
   }
 
   return (
-    <Text className='activity-title' variant='text-field' color='black'>
-      {(log.data as Record<string, string>)?.msg ?? ''}
-    </Text>
+    <Flex direction={'column'} align='flex-start' gap='1'>
+      <Text variant='details' color='gray.300'>
+        {log.time}
+      </Text>
+      {log.type === 'MONITOR_RECOVERED' || log.type === 'MONITOR_DOWN' ? (
+        <Text className='activity-title' variant='text-field' color='black'>
+          Monitor&nbsp;
+          <Box
+            as={Link}
+            color='darkblue.100'
+            textDecoration='underline'
+            to={`/console/monitors/${log.monitorId}`}
+          >
+            {(log.data as LogDetails)?.monitorName}
+          </Box>
+          &nbsp;is&nbsp;
+          <Box
+            as={Link}
+            color='darkblue.100'
+            textDecoration='underline'
+            to={`/console/apiruns/${log.resultId}`}
+          >
+            {(log.data as LogDetails)?.msg}
+          </Box>
+          .
+        </Text>
+      ) : (
+        <Text className='activity-title' variant='text-field' color='black'>
+          Monitor&nbsp;
+          <Box
+            as={Link}
+            color='darkblue.100'
+            textDecoration='underline'
+            to={`/console/monitors/${log.monitorId}`}
+          >
+            {(log.data as LogDetails)?.monitorName}
+          </Box>
+          &nbsp;is&nbsp;{(log.data as LogDetails)?.msg}.
+        </Text>
+      )}
+      {log.type === 'MONITOR_RECOVERED' || log.type === 'MONITOR_DOWN' ? (
+        <Flex mt='2' gap='1.5' direction='column'>
+          <Flex gap={4}>
+            <Flex direction='column'>
+              <Text variant='submenu' color='black'>
+                <strong>URL</strong>
+              </Text>
+              <Box as={Link} whiteSpace='nowrap' to={(log.data as LogDetails)?.url || ''}>
+                <Text variant='submenu' color='darkblue.100'>
+                  {(log.data as LogDetails)?.url}
+                </Text>
+              </Box>
+            </Flex>
+            <Flex direction='column'>
+              <Text variant='submenu' color='black'>
+                <strong>Location</strong>
+              </Text>
+              <Text mt={1} variant='submenu' color='black'>
+                {(log.data as LogDetails)?.location}
+              </Text>
+            </Flex>
+          </Flex>
+          {(log.data as LogDetails)?.err && (
+            <Flex direction='column'>
+              <Text variant='submenu' color='black'>
+                <strong>Reason</strong>
+              </Text>
+              <Text
+                mt={1}
+                variant='submenu'
+                color='black'
+                bg='gray.100'
+                borderRadius={5}
+                p='0.5'
+                px='1'
+                width='max-content'
+              >
+                {(log.data as LogDetails)?.err}
+              </Text>
+            </Flex>
+          )}
+          {(log.data as LogDetails)?.assertResults?.map((result) => (
+            <Flex alignItems='center'>
+              <Text variant='submenu' textTransform='capitalize' color='black'>
+                <strong>
+                  <em>{result.type}</em>
+                </strong>
+              </Text>
+              <Text variant='submenu' color='black'>
+                &nbsp; expected <strong>{result.value}</strong> but got&nbsp;
+              </Text>
+              <Text variant='submenu' color='red.200' bg='gray.100' borderRadius={5} p='0.5' px='1'>
+                <strong>{result.fail}</strong>
+              </Text>
+            </Flex>
+          ))}
+        </Flex>
+      ) : (
+        <Box mt='-1' as={Link} to={`/console/monitors/${log.monitorId}`}>
+          <Text
+            variant='details'
+            color='gray.300'
+            textTransform='lowercase'
+            textDecoration='underline'
+            wordBreak='break-all'
+          >
+            {`/console/monitors/${log.monitorId}`}
+          </Text>
+        </Box>
+      )}
+    </Flex>
   )
 }
 
@@ -171,40 +259,7 @@ export default function ActivityLogs() {
                       overflow='hidden'
                       _hover={{ bg: 'blue.50' }}
                     >
-                      <Flex direction={'column'} align='flex-start' gap='1'>
-                        <Text variant='details' color='gray.300'>
-                          {log.time}
-                        </Text>
-                        <LogMessage log={log} />
-                        {(log.type === 'MONITOR_CREATED' ||
-                          log.type === 'MONITOR_PAUSED' ||
-                          log.type === 'MONITOR_UP') && (
-                          <Box mt='-1' as={Link} to={`/console/monitors/${log.monitorId}`}>
-                            <Text
-                              variant='details'
-                              color='gray.300'
-                              textTransform='lowercase'
-                              textDecoration='underline'
-                              wordBreak='break-all'
-                            >
-                              {`/console/monitors/${log.monitorId}`}
-                            </Text>
-                          </Box>
-                        )}
-                        {(log.type === 'MONITOR_RECOVERED' || log.type === 'MONITOR_DOWN') && (
-                          <Box mt='-1' as={Link} to={`/console/apiruns/${log.resultId}`}>
-                            <Text
-                              variant='details'
-                              color='gray.300'
-                              textTransform='lowercase'
-                              textDecoration='underline'
-                              wordBreak='break-all'
-                            >
-                              {`/console/apiruns/${log.resultId}`}
-                            </Text>
-                          </Box>
-                        )}
-                      </Flex>
+                      <LogBox log={log} />
                     </Flex>
                   </Flex>
                 ))}

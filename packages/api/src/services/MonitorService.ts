@@ -81,7 +81,7 @@ export class MonitorService {
         .values({
           monitorId: monResp?.id,
           type: 'MONITOR_CREATED',
-          data: JSON.stringify({ monitorName: mon.name }),
+          data: JSON.stringify({ monitorName: mon.name, msg: 'created' }),
           accountId: currentUserInfo().accountId,
         })
         .returningAll()
@@ -122,7 +122,7 @@ export class MonitorService {
               accountId: currentUserInfo().accountId,
               monitorId: mon.id,
               type: 'MONITOR_UP',
-              data: JSON.stringify({ monitorName: mon.name }),
+              data: JSON.stringify({ monitorName: mon.name, msg: 'up' }),
             })
             .returningAll()
             .executeTakeFirst()
@@ -133,7 +133,7 @@ export class MonitorService {
               accountId: currentUserInfo().accountId,
               monitorId: mon.id,
               type: 'MONITOR_PAUSED',
-              data: JSON.stringify({ monitorName: mon.name }),
+              data: JSON.stringify({ monitorName: mon.name, msg: 'paused' }),
             })
             .returningAll()
             .executeTakeFirst()
@@ -152,7 +152,7 @@ export class MonitorService {
       .values({
         monitorId: id,
         type: 'MONITOR_REMOVED',
-        data: JSON.stringify({ msg: `Monitor ${resp?.name} is removed.` }),
+        data: JSON.stringify({ monitorName: resp?.name, msg: 'removed' }),
         accountId,
       })
       .returningAll()

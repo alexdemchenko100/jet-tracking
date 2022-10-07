@@ -63,18 +63,6 @@ export async function handlePostRequest(monrun: MonitorRunResult) {
   if (!bError) {
     //success
     if (bAlerted) {
-      await db
-        .insertInto('ActivityLog')
-        .values({
-          monitorId: monrun.mon.id,
-          resultId: monrun.resultId ?? '',
-          accountId: mon.accountId,
-          type: 'MONITOR_RECOVERED',
-          data: JSON.stringify({ msg: `Monitor ${mon.name} is up` }),
-        })
-        .returningAll()
-        .executeTakeFirst()
-
       //send recovery notification
       const result = await db
         .selectFrom('MonitorResult')
@@ -84,6 +72,23 @@ export async function handlePostRequest(monrun: MonitorRunResult) {
         .executeTakeFirst()
 
       if (!result) return
+
+      await db
+        .insertInto('ActivityLog')
+        .values({
+          monitorId: monrun.mon.id,
+          resultId: monrun.resultId ?? '',
+          accountId: mon.accountId,
+          type: 'MONITOR_RECOVERED',
+          data: JSON.stringify({
+            monitorName: mon.name,
+            url: mon.url,
+            location: result.location,
+            msg: 'up',
+          }),
+        })
+        .returningAll()
+        .executeTakeFirst()
 
       if (mon.id) sendNotification('Recover', mon.accountId, mon.id, result)
     }
@@ -146,6 +151,16 @@ export async function handlePostRequest(monrun: MonitorRunResult) {
   }
 
   if (bNotify && result) {
+    let assertResults
+    if (Array.isArray(result?.assertResults)) {
+      assertResults = result?.assertResults
+        .filter((result) => result.fail)
+        .map((result) => ({
+          type: result.type,
+          value: result.value,
+          fail: result.fail,
+        }))
+    }
     await db
       .insertInto('ActivityLog')
       .values({
@@ -153,7 +168,14 @@ export async function handlePostRequest(monrun: MonitorRunResult) {
         resultId: monrun.resultId ?? '',
         accountId: mon.accountId,
         type: 'MONITOR_DOWN',
-        data: JSON.stringify({ msg: `Monitor ${monrun.mon.name} is down` }),
+        data: JSON.stringify({
+          monitorName: monrun.mon.name,
+          msg: 'down',
+          location: result.location,
+          url: mon.url,
+          err: result.err,
+          assertResults,
+        }),
       })
       .returningAll()
       .executeTakeFirst()

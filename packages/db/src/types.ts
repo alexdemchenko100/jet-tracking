@@ -471,6 +471,15 @@ export const SettingsSchema = S.object()
   .prop('accountId', S.string())
   .prop('alert', AlertSettingsSchema)
 
+export type LogDetails = {
+  monitorName: string
+  url?: string
+  err?: string
+  location?: string
+  assertResults?: MonitorAssertionResult[]
+  msg: string
+}
+
 export type ActivityLog = {
   id?: string
   createdAt?: String | Date
@@ -478,7 +487,7 @@ export type ActivityLog = {
   monitorId?: string
   resultId?: string
   type: string
-  data: Record<string, string> | string
+  data: LogDetails | string
 }
 
 export const ActivityLogSchema = S.object()
@@ -487,7 +496,16 @@ export const ActivityLogSchema = S.object()
   .prop('monitorId', S.string())
   .prop('resultId', S.string())
   .prop('type', S.string())
-  .prop('data', S.object().prop('msg', S.string()).prop('monitorName', S.string()))
+  .prop(
+    'data',
+    S.object()
+      .prop('msg', S.string())
+      .prop('monitorName', S.string())
+      .prop('url', S.string())
+      .prop('assertResults', S.array())
+      .prop('err', S.string())
+      .prop('location', S.string())
+  )
 
 export const ActivityLogsResponseSchema = S.object()
   .prop('items', S.array().items(ActivityLogSchema))
