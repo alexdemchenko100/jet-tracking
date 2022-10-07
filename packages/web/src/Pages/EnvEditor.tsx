@@ -1,5 +1,5 @@
 import { Box, Button, Flex, Divider, useToast, Icon, Input } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { MonEnv } from '@httpmon/db'
 import axios from 'axios'
 import { useFieldArray, useForm } from 'react-hook-form'
@@ -11,7 +11,6 @@ import { Section, Text, PrimaryButton, Loading } from '../components'
 
 export function EnvEditor() {
   const { id } = useParams()
-  const [formChanged, setFormChanged] = useState<boolean>(false)
   const [editNameEnabled, setEditNameEnabled] = useState<boolean>(false)
 
   const toast = useToast()
@@ -23,7 +22,6 @@ export function EnvEditor() {
       url: `/environments/${id}`,
     })
     reset(resp.data)
-    setFormChanged(false)
     return resp.data as MonEnv
   })
 
@@ -32,10 +30,12 @@ export function EnvEditor() {
     control,
     watch,
     handleSubmit,
-    formState: { errors },
-    getValues,
+    formState: { isDirty, isValid, errors },
     reset,
-  } = useForm<MonEnv>()
+  } = useForm<MonEnv>({
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
+  })
 
   const {
     fields: tuples,
@@ -60,64 +60,26 @@ export function EnvEditor() {
     return resp.data as MonEnv
   })
 
-  watch()
+  const watched = watch()
 
   const cancelChanges = () => {
     reset()
-    setFormChanged(false)
   }
-
-  const checkFormValidation = (data: MonEnv) => {
-    let isValid = true
-    const { env, name } = data
-    if (!name) {
-      isValid = false
-    }
-    env.forEach((item) => {
-      if (!item[0] || !item[1]) {
-        isValid = false
-      }
-    })
-    return isValid
-  }
-
-  useEffect(() => {
-    const subscription = watch((value) => {
-      if (JSON.stringify(value) !== JSON.stringify(monEnv)) {
-        setFormChanged(true)
-      } else {
-        setFormChanged(false)
-      }
-    })
-    return () => subscription.unsubscribe()
-  }, [watch])
 
   async function handleSaveEnv(data: MonEnv) {
-    if (!checkFormValidation(data)) {
-      toast({
-        position: 'top',
-        description: 'Please fill out all fields',
-        status: 'error',
-        duration: 1500,
-        isClosable: false,
-      })
-    } else {
-      await saveEnv(data)
-      Store.queryClient?.invalidateQueries(['monenv'])
-      toast({
-        position: 'top',
-        description: 'The Env has been updated successfully.',
-        status: 'success',
-        duration: 1500,
-        isClosable: false,
-      })
-      navigate(`/console/envs/${data.id}`)
-    }
+    await saveEnv(data)
+    Store.queryClient?.invalidateQueries(['monenv'])
+    toast({
+      position: 'top',
+      description: 'The Env has been updated successfully.',
+      status: 'success',
+      duration: 1500,
+      isClosable: false,
+    })
+    navigate(`/console/envs/${data.id}`)
   }
 
   if (!monEnv) return <Loading />
-
-  const name = getValues('name')
 
   return (
     <Section py={4} w='100%'>
@@ -126,7 +88,7 @@ export function EnvEditor() {
           {!editNameEnabled ? (
             <Flex alignItems='center' gap='4'>
               <Text variant='title' color='black'>
-                {name}
+                {watched.name}
               </Text>
               <Button
                 w={7}
@@ -142,13 +104,19 @@ export function EnvEditor() {
             </Flex>
           ) : (
             <Flex alignItems='center' gap='4'>
-              <Input type='text' placeholder='Add name' {...register('name')} />
+              <Input
+                type='text'
+                borderColor={errors.name ? 'red' : 'gray.200'}
+                placeholder='Add name'
+                {...register('name', { required: true, pattern: /^[A-Z0-9_-]{1,}$/i })}
+              />
               <Button
                 w={10}
                 h={10}
                 minW={6}
                 borderRadius='4'
                 bg='lightgray.100'
+                disabled={!!errors.name}
                 p='0'
                 onClick={() => setEditNameEnabled(false)}
               >
@@ -161,17 +129,51 @@ export function EnvEditor() {
           <Box mt='2'>
             {tuples.map((field, index) => (
               <Flex key={field.id} alignItems='flex-end' mb='2' gap={4}>
-                <Box w={96}>
+                <Box w={96} position='relative'>
                   <Text variant='details' color='black'>
                     Name
                   </Text>
-                  <Input type='text' {...register(`env.${index}.0` as const)} placeholder='Name' />
+                  <Input
+                    type='text'
+                    borderColor={
+                      errors.env && errors.env[index] && errors.env[index][0] ? 'red' : 'gray.200'
+                    }
+                    {...register(`env.${index}.0` as const, {
+                      required: true,
+                      pattern: /^[A-Z0-9_-]{1,}$/i,
+                    })}
+                    placeholder='Name'
+                  />
+                  {errors.env && errors.env[index] && errors.env[index][0]?.type === 'required' && (
+                    <Text position='absolute' left='0' top='100%' variant='details' color='red'>
+                      * Name Required
+                    </Text>
+                  )}
+                  {errors.env && errors.env[index] && errors.env[index][0]?.type === 'pattern' && (
+                    <Text position='absolute' left='0' top='100%' variant='details' color='red'>
+                      * Name is invalid
+                    </Text>
+                  )}
                 </Box>
-                <Box w={96}>
+                <Box w={96} position='relative'>
                   <Text variant='details' color='black'>
                     Value
                   </Text>
-                  <Input type='text' {...register(`env.${index}.1` as const)} placeholder='Value' />
+                  <Input
+                    type='text'
+                    borderColor={
+                      errors.env && errors.env[index] && errors.env[index][1] ? 'red' : 'gray.200'
+                    }
+                    {...register(`env.${index}.1` as const, {
+                      required: true,
+                    })}
+                    placeholder='Value'
+                  />
+                  {errors.env && errors.env[index] && errors.env[index][1]?.type === 'required' && (
+                    <Text position='absolute' left='0' top='100%' variant='details' color='red'>
+                      * Value Required
+                    </Text>
+                  )}
                 </Box>
                 <Button borderRadius='4' bg='lightgray.100' px={3} onClick={() => remove(index)}>
                   <Icon color='gray.300' as={FiTrash2} cursor='pointer' />
@@ -200,23 +202,23 @@ export function EnvEditor() {
             </Button>
           </Flex>
 
-          <Flex align='center' justifyContent='flex-end' gap={2}>
-            <PrimaryButton
-              label='Cancel'
-              isOutline
-              disabled={!formChanged}
-              variant='emphasis'
-              color={'darkblue.100'}
-              onClick={cancelChanges}
-            ></PrimaryButton>
-            <PrimaryButton
-              disabled={!formChanged}
-              label='Save'
-              variant='emphasis'
-              color={'white'}
-              type='submit'
-            ></PrimaryButton>
-          </Flex>
+          {isValid && isDirty && (
+            <Flex align='center' justifyContent='flex-end' gap={2}>
+              <PrimaryButton
+                label='Cancel'
+                isOutline
+                variant='emphasis'
+                color={'darkblue.100'}
+                onClick={cancelChanges}
+              ></PrimaryButton>
+              <PrimaryButton
+                label='Save'
+                variant='emphasis'
+                color={'white'}
+                type='submit'
+              ></PrimaryButton>
+            </Flex>
+          )}
         </Flex>
       </form>
     </Section>
