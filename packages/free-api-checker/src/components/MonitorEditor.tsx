@@ -297,7 +297,7 @@ function Regions() {
                     visibility='hidden'
                   ></Radio>
                   <Flex alignItems='center'>
-                    <ReactCountryFlag countryCode={reg.code} />
+                    <ReactCountryFlag countryCode={reg.code} svg />
                     <Text variant='text-field' color='gray.300' ml='2' flex='1'>
                       {reg.name}
                     </Text>
@@ -361,12 +361,7 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
   const watched = watch()
 
   function handleQuickRun() {
-    handleOndemandMonitor(
-      prepareMonitor({
-        ...watched,
-        locations: REGIONS.filter((reg) => reg.name === watched.region).map((reg) => reg.region),
-      })
-    )
+    handleOndemandMonitor(prepareMonitor(watched))
   }
 
   function numValues<T extends 'headers' | 'queryParams' | 'variables'>(name: T) {
@@ -394,8 +389,7 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
 
   function prepareMonitor(data: FormMonitor): Monitor {
     //cleanse data to become the monitor
-    data.locations = getRegionsFromShowLocations(data.showLocations)
-    syncShowLocationsWithStore(data.showLocations)
+    data.locations = REGIONS.filter((reg) => reg.name === data.region).map((reg) => reg.region)
     Store.UIState.editor.frequencyScale = data.frequencyScale
 
     let { showLocations, ...monitor } = data //remove scale
@@ -489,7 +483,15 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
                         py='3'
                         type='button'
                       >
-                        {watched.region}
+                        <Flex alignItems='center'>
+                          <ReactCountryFlag
+                            countryCode={
+                              REGIONS.find((reg) => reg.name === watched.region)?.code || ''
+                            }
+                            svg
+                          />
+                          &nbsp;{watched.region}
+                        </Flex>
                       </MenuButton>
                       <MenuList maxW='48' minW='1'>
                         <Regions />
