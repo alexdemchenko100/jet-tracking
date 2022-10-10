@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import axios from 'axios'
 import { APIResult } from './APIResult'
+import { Flex, Spinner } from '@chakra-ui/react'
 
 interface Props {
   onDemandMonitor?: Monitor
@@ -46,7 +47,19 @@ export function APIResultByDemand(props: Props) {
 
   return (
     <>
-      {isLoading && <p>Loading ...</p>}
+      {isLoading && (
+        <Flex alignItems='center' py='32' direction='column'>
+          <Spinner
+            thickness='4px'
+            speed='0.65s'
+            emptyColor='gray.200'
+            color='blue.500'
+            size='xl'
+            mt={2}
+          />
+          <span>Loading</span>
+        </Flex>
+      )}
       {error && <p>Err: {error.message}</p>}
       {!props.onDemandMonitor && <p>Results will be shown here</p>}
       {result && <APIResult result={result} onClose={props.onClose} />}

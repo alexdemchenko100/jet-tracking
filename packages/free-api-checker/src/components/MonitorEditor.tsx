@@ -13,11 +13,20 @@ import {
   Tabs,
   InputGroup,
   InputLeftElement,
+  MenuButton,
+  Menu,
+  IconButton,
+  MenuList,
+  MenuItem,
+  CheckboxGroup,
+  Stack,
+  Checkbox,
 } from '@chakra-ui/react'
 import { Monitor, MonitorAssertion, MonitorTuples, MonitorLocation } from '@httpmon/db'
 import React, { useEffect, useRef } from 'react'
-import { FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form'
+import { Controller, FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form'
 import { FiPlus, FiTrash2, FiSearch } from 'react-icons/fi'
+import { FaAddressCard } from 'react-icons/fa'
 import { useSearchParams } from 'react-router-dom'
 import { MonitorAuthEditor } from './MonitorAuthEditor'
 import {
@@ -28,6 +37,7 @@ import { Store } from '../services/Store'
 import { MonitorBodyEditor } from './MonitorBodyEditor'
 import { MonitorTab, Text, PrimaryButton, Section } from '.'
 import { MonitorPreScriptEditor } from './MonitorPreScriptEditor'
+import { setValues } from 'framer-motion/types/render/utils/setters'
 
 interface TupleProps {
   name: string
@@ -247,6 +257,43 @@ function SelectOption(props: OptionProps) {
   )
 }
 
+function Locations() {
+  const { control } = useFormContext()
+  const { fields: showLocations } = useFieldArray({
+    name: 'showLocations',
+  })
+
+  return (
+    <CheckboxGroup>
+      <Stack direction='column'>
+        {showLocations.map((locEntry, index) => (
+          <MenuItem key={locEntry.id}>
+            <Controller
+              control={control}
+              name={`showLocations.${index}.set`}
+              render={({ field }) => {
+                return (
+                  <Checkbox
+                    colorScheme='cyan'
+                    borderRadius={4}
+                    width={'100%'}
+                    isChecked={field.value}
+                    onChange={field.onChange}
+                  >
+                    <Text variant='text-field' color='gray.300'>
+                      {(locEntry as any)['name']}
+                    </Text>
+                  </Checkbox>
+                )
+              }}
+            />
+          </MenuItem>
+        ))}
+      </Stack>
+    </CheckboxGroup>
+  )
+}
+
 export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) {
   useEffect(() => {
     document.title = 'Monitor Editor | ProAutoma'
@@ -407,6 +454,21 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
                           />
                         </InputGroup>
                       </FormControl>
+                      <Menu closeOnSelect={false}>
+                        <MenuButton
+                          as={IconButton}
+                          aria-label='Options'
+                          icon={<FaAddressCard />}
+                          variant='outline'
+                          border={0}
+                          w={7}
+                          h={7}
+                          mr={1}
+                        />
+                        <MenuList>
+                          <Locations />
+                        </MenuList>
+                      </Menu>
                     </Flex>
 
                     <PrimaryButton
