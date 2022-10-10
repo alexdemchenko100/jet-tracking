@@ -15,19 +15,19 @@ import {
   InputLeftElement,
   MenuButton,
   Menu,
-  IconButton,
   MenuList,
   MenuItem,
-  CheckboxGroup,
   Stack,
-  Checkbox,
+  Radio,
+  RadioGroup,
 } from '@chakra-ui/react'
 import { Monitor, MonitorAssertion, MonitorTuples, MonitorLocation } from '@httpmon/db'
 import React, { useEffect, useRef } from 'react'
 import { Controller, FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form'
 import { FiPlus, FiTrash2, FiSearch } from 'react-icons/fi'
-import { FaAddressCard } from 'react-icons/fa'
 import { useSearchParams } from 'react-router-dom'
+import ReactCountryFlag from 'react-country-flag'
+
 import { MonitorAuthEditor } from './MonitorAuthEditor'
 import {
   getRegionsFromShowLocations,
@@ -37,7 +37,24 @@ import { Store } from '../services/Store'
 import { MonitorBodyEditor } from './MonitorBodyEditor'
 import { MonitorTab, Text, PrimaryButton, Section } from '.'
 import { MonitorPreScriptEditor } from './MonitorPreScriptEditor'
-import { setValues } from 'framer-motion/types/render/utils/setters'
+
+const REGIONS = [
+  {
+    name: 'US',
+    code: 'US',
+    region: 'us-east1',
+  },
+  {
+    name: 'Europe',
+    code: 'DE',
+    region: 'europe-west3',
+  },
+  {
+    name: 'Asia',
+    code: 'SG',
+    region: 'asia-southeast1',
+  },
+]
 
 interface TupleProps {
   name: string
@@ -257,40 +274,41 @@ function SelectOption(props: OptionProps) {
   )
 }
 
-function Locations() {
+function Regions() {
   const { control } = useFormContext()
-  const { fields: showLocations } = useFieldArray({
-    name: 'showLocations',
-  })
 
   return (
-    <CheckboxGroup>
-      <Stack direction='column'>
-        {showLocations.map((locEntry, index) => (
-          <MenuItem key={locEntry.id}>
-            <Controller
-              control={control}
-              name={`showLocations.${index}.set`}
-              render={({ field }) => {
-                return (
-                  <Checkbox
+    <Controller
+      control={control}
+      name={'region'}
+      render={({ field }) => {
+        return (
+          <RadioGroup value={field.value} ref={field.ref} onChange={field.onChange}>
+            <Stack direction='column'>
+              {REGIONS.map((reg) => (
+                <MenuItem key={reg.code} as='label' htmlFor={reg.name}>
+                  <Radio
+                    value={reg.name}
+                    id={reg.name}
                     colorScheme='cyan'
                     borderRadius={4}
                     width={'100%'}
-                    isChecked={field.value}
-                    onChange={field.onChange}
-                  >
-                    <Text variant='text-field' color='gray.300'>
-                      {(locEntry as any)['name']}
+                    w='0'
+                    visibility='hidden'
+                  ></Radio>
+                  <Flex alignItems='center'>
+                    <ReactCountryFlag countryCode={reg.code} />
+                    <Text variant='text-field' color='gray.300' ml='2' flex='1'>
+                      {reg.name}
                     </Text>
-                  </Checkbox>
-                )
-              }}
-            />
-          </MenuItem>
-        ))}
-      </Stack>
-    </CheckboxGroup>
+                  </Flex>
+                </MenuItem>
+              ))}
+            </Stack>
+          </RadioGroup>
+        )
+      }}
+    />
   )
 }
 
@@ -314,6 +332,7 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
   interface FormMonitor extends Monitor {
     frequencyScale: number
     showLocations: MonitorLocation[]
+    region: string
   }
 
   const methods = useForm<FormMonitor>({
@@ -325,6 +344,7 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
       assertions: [] as MonitorAssertion[],
       frequencyScale: Store.UIState.editor.frequencyScale,
       showLocations: Store.UIState.editor.monitorLocations,
+      region: 'US',
       auth: {},
       notifications: { useGlobal: true, channels: [] },
       bodyType: '',
@@ -341,7 +361,12 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
   const watched = watch()
 
   function handleQuickRun() {
-    handleOndemandMonitor(prepareMonitor(watched))
+    handleOndemandMonitor(
+      prepareMonitor({
+        ...watched,
+        locations: REGIONS.filter((reg) => reg.name === watched.region).map((reg) => reg.region),
+      })
+    )
   }
 
   function numValues<T extends 'headers' | 'queryParams' | 'variables'>(name: T) {
@@ -454,23 +479,22 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
                           />
                         </InputGroup>
                       </FormControl>
-                      <Menu closeOnSelect={false}>
-                        <MenuButton
-                          as={IconButton}
-                          aria-label='Options'
-                          icon={<FaAddressCard />}
-                          variant='outline'
-                          border={0}
-                          w={7}
-                          h={7}
-                          mr={1}
-                        />
-                        <MenuList>
-                          <Locations />
-                        </MenuList>
-                      </Menu>
                     </Flex>
-
+                    <Menu>
+                      <MenuButton
+                        border={'1px solid'}
+                        borderColor='gray.200'
+                        borderRadius={24}
+                        px='8'
+                        py='3'
+                        type='button'
+                      >
+                        {watched.region}
+                      </MenuButton>
+                      <MenuList maxW='48' minW='1'>
+                        <Regions />
+                      </MenuList>
+                    </Menu>
                     <PrimaryButton
                       label='Run now'
                       variant='emphasis'
