@@ -60,10 +60,10 @@ function Footer() {
                 <strong>Company</strong>
               </ListItem>
               <ListItem fontSize='base' whiteSpace='nowrap' mb='2' color='gray.100'>
-                <a href='/about'>About us</a>
+                <a href='https://www.proautoma.com/about'>About us</a>
               </ListItem>
               <ListItem fontSize='base' whiteSpace='nowrap' mb='2' color='gray.100'>
-                <a href='/contact'>Contact us</a>
+                <a href='https://www.proautoma.com/contact'>Contact us</a>
               </ListItem>
             </List>
             <List mt={{ base: 6, md: 0 }} ml={{ md: 16, lg: 24 }}>
@@ -71,10 +71,10 @@ function Footer() {
                 <strong>Learn</strong>
               </ListItem>
               <ListItem fontSize='base' whiteSpace='nowrap' mb='2' color='gray.100'>
-                <a href='/blog'>Blog</a>
+                <a href='https://www.proautoma.com/blog'>Blog</a>
               </ListItem>
               <ListItem fontSize='base' whiteSpace='nowrap' mb='2' color='gray.100'>
-                <a href='/docs'>Docs</a>
+                <a href='https://www.proautoma.com/docs'>Docs</a>
               </ListItem>
             </List>
             <List mt={{ base: 6, md: 0 }} ml={{ md: 16, lg: 24 }}>
@@ -82,13 +82,13 @@ function Footer() {
                 <strong>Legal</strong>
               </ListItem>
               <ListItem fontSize='base' whiteSpace='nowrap' mb='2' color='gray.100'>
-                <a href='/policies/terms-of-service/'>Terms of Service</a>
+                <a href='https://www.proautoma.com/policies/terms-of-service/'>Terms of Service</a>
               </ListItem>
               <ListItem fontSize='base' whiteSpace='nowrap' mb='2' color='gray.100'>
-                <a href='/policies/privacy-policy/'>Privacy Policy</a>
+                <a href='https://www.proautoma.com/policies/privacy-policy/'>Privacy Policy</a>
               </ListItem>
               <ListItem fontSize='base' whiteSpace='nowrap' mb='2' color='gray.100'>
-                <a href='/policies/cookie-policy/'>Cookie Policy</a>
+                <a href='https://www.proautoma.com/policies/cookie-policy/'>Cookie Policy</a>
               </ListItem>
             </List>
           </Flex>
@@ -96,7 +96,7 @@ function Footer() {
         <Box borderTop='1px solid' borderColor='gray.600'></Box>
         <Box py='6' textAlign='center'>
           <Flex pb='4' justify='center'>
-            <a href='/'>
+            <a href='https://www.proautoma.com/'>
               <Image w='36' src={logoWhite} />
             </a>
           </Flex>
