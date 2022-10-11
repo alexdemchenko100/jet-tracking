@@ -155,10 +155,14 @@ const SplitPane = ({ orientation, children, ...props }: SplitPaneProps) => {
     overflow: !isHorizontal && pane2 ? 'auto' : 'inherit',
   }
 
-  const handleStyle: any = {
+  const verticalHandleStyle: any = {
     backgroundColor: 'lightblue',
-    // cursor: isHorizontal ? 'col-resize' : 'row-resize',
-    // userSelect: 'none',
+    height: '3px',
+  }
+
+  const horizontalHandleStyle: any = {
+    backgroundColor: 'lightblue',
+    width: '2px',
   }
 
   const pane2Style = {
@@ -184,7 +188,7 @@ const SplitPane = ({ orientation, children, ...props }: SplitPaneProps) => {
         <>
           <div
             className={isHorizontal ? 'gutter gutter-horizontal' : 'gutter gutter-vertical'}
-            style={handleStyle}
+            style={isHorizontal ? horizontalHandleStyle : verticalHandleStyle}
             onMouseDown={onMouseDown}
           >
             {handle}
