@@ -180,7 +180,7 @@ export function APIResult({ result, onClose }: APIResultProps) {
   const isSuccess = result.err == '' && hasFailedAssertions(result) === false
 
   useEffect(() => {
-    document.title = 'Results | ProAutoma'
+    document.title = 'API tester | ProAutoma'
   }, [])
 
   return (

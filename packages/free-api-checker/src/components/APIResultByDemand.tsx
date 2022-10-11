@@ -42,6 +42,8 @@ export function APIResultByDemand(props: Props) {
     () => getOndemandMonitorResponse(props.onDemandMonitor as Monitor),
     {
       enabled: props.onDemandMonitor != null,
+      staleTime: Infinity,
+      refetchInterval: Infinity,
     }
   )
 
