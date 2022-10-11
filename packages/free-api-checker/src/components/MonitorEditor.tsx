@@ -440,7 +440,7 @@ export function MonitorEditor({ handleOndemandMonitor, isVertical }: EditProps) 
                       <FormControl id='method' maxW='32'>
                         <Select
                           bg='rgba(16, 178, 215, 0.1)'
-                          color='lightblue.200'
+                          color='blue.400'
                           border='0'
                           borderRadius='3xl'
                           fontWeight='bold'

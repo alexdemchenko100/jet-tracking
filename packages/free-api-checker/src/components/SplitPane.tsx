@@ -156,7 +156,7 @@ const SplitPane = ({ orientation, children, ...props }: SplitPaneProps) => {
   }
 
   const handleStyle: any = {
-    backgroundColor: 'transparent',
+    backgroundColor: 'lightblue',
     // cursor: isHorizontal ? 'col-resize' : 'row-resize',
     // userSelect: 'none',
   }

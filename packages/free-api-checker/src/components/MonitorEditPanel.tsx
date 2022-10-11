@@ -14,11 +14,10 @@ export function MonitorEditPanel() {
   const [ondemandMonitor, setOndemandMonitor] = useState<Monitor>()
   const [refreshOnDemand, setRefreshOnDemand] = useState(0)
 
-  const [vertical] = useMediaQuery('(max-width: 1278px)')
+  const [vertical] = useMediaQuery('(max-width: 1200px)')
 
   function handleQuickRun(monitor: Monitor) {
     setOndemandMonitor(monitor)
-    drawer.onOpen()
     setRefreshOnDemand(refreshOnDemand + 1)
   }
 
@@ -30,24 +29,19 @@ export function MonitorEditPanel() {
   return (
     <Box>
       <Header></Header>
-      <Box p='5'>
-        <Heading variant={'h1'}>Free API Checking</Heading>
-        <Box color='gray.300' mt='2'>
-          ProAutoma is the next generation monitoring solution for your APIs and Websites. Easy to
-          use, Powerful as needed, Global, Integrated alerts.
+      <Box p='3'>
+        <Heading variant={'h1'}>API Tester</Heading>
+        <Box mt='2'>
+          Welcome and use this intuitive UI to explore and test REST/SOAP/XML API requests. A free
+          account on our main website allows you to save and monitor APIs and get notifications on
+          failures.
         </Box>
       </Box>
       <SplitPane orientation={vertical ? 'vertical' : 'horizontal'}>
         <Box>
           <MonitorEditor isVertical={vertical} handleOndemandMonitor={handleQuickRun} />
         </Box>
-        {drawer.isOpen && (
-          <APIResultByDemand
-            onDemandMonitor={ondemandMonitor}
-            refresh={refreshOnDemand}
-            onClose={onClose}
-          />
-        )}
+        <APIResultByDemand onDemandMonitor={ondemandMonitor} refresh={refreshOnDemand} />
       </SplitPane>
       <Footer></Footer>
     </Box>

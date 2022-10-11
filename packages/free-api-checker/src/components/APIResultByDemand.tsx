@@ -63,7 +63,7 @@ export function APIResultByDemand(props: Props) {
         </Flex>
       )}
       {error && <p>Err: {error.message}</p>}
-      {!props.onDemandMonitor && <p>Results will be shown here</p>}
+      {!props.onDemandMonitor && <p>&nbsp;Response will be shown here</p>}
       {result && <APIResult result={result} onClose={props.onClose} />}
     </>
   )
