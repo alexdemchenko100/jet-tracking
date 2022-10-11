@@ -4,6 +4,7 @@ import { Monitor } from '@httpmon/db'
 import { useState } from 'react'
 import { APIResultByDemand } from './APIResultByDemand'
 import Header from './Header'
+import Footer from './Footer'
 import { MonitorEditor } from './MonitorEditor'
 import SplitPane from './SplitPane'
 
@@ -48,6 +49,7 @@ export function MonitorEditPanel() {
           />
         )}
       </SplitPane>
+      <Footer></Footer>
     </Box>
   )
 }
