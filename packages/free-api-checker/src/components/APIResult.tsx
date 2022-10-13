@@ -24,18 +24,20 @@ import {
 } from '@chakra-ui/react'
 import { MonitorResult, MonitorTuples } from '@httpmon/db'
 import { FiClock, FiX } from 'react-icons/fi'
+import { CgArrowsExpandLeft } from 'react-icons/cg'
 import CodeMirror from '@uiw/react-codemirror'
 import { javascript } from '@codemirror/lang-javascript'
 
 import { Store } from '../services/Store'
 import Section from './Section'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { getHTTPStatusText, formatError } from '../services/Utils'
 
 interface TimingBarProps extends FlexProps {
   result: MonitorResult
 }
 function TimingBar({ result, ...rest }: TimingBarProps) {
+  const [expanded, setExpanded] = useState<boolean>(false)
   let totalTime = result.totalTime
 
   /**
@@ -43,7 +45,7 @@ function TimingBar({ result, ...rest }: TimingBarProps) {
    */
 
   function calcPct(time: number) {
-    return Math.ceil((100 * time) / result.totalTime)
+    return (100 * time) / result.totalTime
   }
 
   let stats: [string, number, number, string][] = [
@@ -61,31 +63,73 @@ function TimingBar({ result, ...rest }: TimingBarProps) {
     ['dl', result.downloadTime, calcPct(result.downloadTime), 'green.300'],
   ]
 
+  let value = 0
+  const timeSpaces = [0]
+  stats.forEach(([label, time, timePct, color]) => {
+    value += timePct
+    timeSpaces.push(value)
+  })
+
   return (
-    <Flex
-      mt='2'
-      border='solid rounded 2px'
-      height='16'
-      lineHeight='8'
-      textAlign='center'
-      verticalAlign='middle'
-      {...rest}
-    >
-      {stats.map(([label, time, timePct, color], index) => {
-        if (time > 2)
-          return (
-            <Tooltip label='Conn Timings' key={index}>
-              <Flex direction='column' width={`${timePct}%`} key={label}>
-                <Text fontSize='sm' isTruncated>
-                  {label}
-                </Text>
-                <Box bg={color} fontSize='sm' verticalAlign='middle' ml='0.5' isTruncated>
-                  {time}
+    <Flex>
+      <Button
+        borderRadius='4'
+        bg='lightgray.100'
+        mt='10'
+        mb='0'
+        mr='2'
+        minW='8'
+        w='8'
+        h='8'
+        onClick={() => setExpanded(!expanded)}
+      >
+        <Icon color='black' as={CgArrowsExpandLeft} cursor='pointer' />
+      </Button>
+      {expanded ? (
+        <Box flex='1' mt='10'>
+          {stats.map(([label, time, timePct, color], index) => (
+            <Flex key={index} alignItems='center' borderBottom='1px solid' borderColor='gray.100'>
+              <Box fontSize='sm' w='16' py='1' px='2' fontWeight='bold' textTransform='uppercase'>
+                {label}
+              </Box>
+              <Flex flex='1' m='1' mr='14'>
+                <Box h='6' width={`${timeSpaces[index]}%`}></Box>
+                <Box position='relative' bg={color} h='6' width={`${timePct}%`} minW='0.5'>
+                  <Box fontSize='sm' ml='0.5' whiteSpace='nowrap' position='absolute' left='100%'>
+                    {`${time} ms`}
+                  </Box>
                 </Box>
               </Flex>
-            </Tooltip>
-          )
-      })}
+            </Flex>
+          ))}
+        </Box>
+      ) : (
+        <Flex
+          mt='2'
+          border='solid rounded 2px'
+          height='16'
+          lineHeight='8'
+          textAlign='center'
+          verticalAlign='middle'
+          {...rest}
+        >
+          {stats.map(([label, time, timePct, color], index) => {
+            if (time > 2)
+              return (
+                <Tooltip label='Conn Timings' key={index}>
+                  <Flex direction='column' width={`${timePct}%`} key={label}>
+                    <Text fontSize='sm' isTruncated>
+                      {label}
+                    </Text>
+                    <Box bg={color} fontSize='sm' verticalAlign='middle' ml='0.5' isTruncated>
+                      {time}
+                    </Box>
+                  </Flex>
+                </Tooltip>
+              )
+          })}
+        </Flex>
+      )}
     </Flex>
   )
 }
