@@ -6,6 +6,7 @@ import {
   FlexProps,
   Grid,
   Icon,
+  Spacer,
   Tab,
   Table,
   TabList,
@@ -21,6 +22,7 @@ import {
   Tooltip,
   Tr,
   useMediaQuery,
+  useToast,
 } from '@chakra-ui/react'
 import { MonitorResult, MonitorTuples } from '@httpmon/db'
 import { FiClock, FiX } from 'react-icons/fi'
@@ -222,10 +224,27 @@ interface APIResultProps {
 }
 export function APIResult({ result, onClose }: APIResultProps) {
   const isSuccess = result.err == '' && hasFailedAssertions(result) === false
+  const toast = useToast()
 
   useEffect(() => {
     document.title = 'API tester | ProAutoma'
   }, [])
+
+  const copyToClipboard = () => {
+    const body = getFormattedBody(result)
+    const aux = document.createElement('input')
+    aux.setAttribute('value', body)
+    document.body.appendChild(aux)
+    aux.select()
+    document.execCommand('copy')
+    document.body.removeChild(aux)
+    toast({
+      position: 'top',
+      description: 'Result body has copied to clipboard!',
+      status: 'info',
+      duration: 2000,
+    })
+  }
 
   return (
     <Section id='monitor-result' mb={0} position={'sticky'} pr={2}>
@@ -317,6 +336,18 @@ export function APIResult({ result, onClose }: APIResultProps) {
                 </sup>
               )}
             </Tab>
+            <Spacer />
+            <Button
+              borderRadius='4'
+              bg='lightgray.100'
+              m='auto'
+              minW='8'
+              w='8'
+              h='8'
+              onClick={copyToClipboard}
+            >
+              <Icon color='gray.300' as={FiCopy} cursor='pointer' />
+            </Button>
           </TabList>
           <TabPanels>
             <TabPanel>
